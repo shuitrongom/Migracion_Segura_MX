@@ -46,13 +46,26 @@ import { HealthModule } from './modules/health/health.module';
     // Redis / Bull Queue
     BullModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        redis: {
-          host: configService.get<string>('REDIS_HOST', 'localhost'),
-          port: configService.get<number>('REDIS_PORT', 6379),
-          password: configService.get<string>('REDIS_PASSWORD', ''),
-        },
-      }),
+      useFactory: (configService: ConfigService) => {
+        const redisHost = configService.get<string>('REDIS_HOST', 'localhost');
+        const redisPort = configService.get<number>('REDIS_PORT', 6379);
+        const redisPassword = configService.get<string>('REDIS_PASSWORD', '');
+        const isProduction = configService.get<string>('NODE_ENV') === 'production';
+
+        return {
+          redis: {
+            host: redisHost,
+            port: redisPort,
+            password: redisPassword || undefined,
+            tls: isProduction ? {} : undefined,
+            maxRetriesPerRequest: 3,
+            retryStrategy: (times: number) => {
+              if (times > 3) return null;
+              return Math.min(times * 200, 2000);
+            },
+          },
+        };
+      },
       inject: [ConfigService],
     }),
 
