@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-test:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: backend
+
+      - name: Run linter
+        run: npx tsc --noEmit
+        working-directory: backend
+
+      - name: Run tests
+        run: npm test -- --passWithNoTests
+        working-directory: backend
+
+  admin-build:
+    name: Admin Panel Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: admin-panel/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: admin-panel
+
+      - name: Type check
+        run: npx tsc --noEmit
+        working-directory: admin-panel
+
+      - name: Build
+        run: npm run build
+        working-directory: admin-panel
+        env:
+          NEXT_PUBLIC_API_URL: https://api.example.com/api/v1

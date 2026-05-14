@@ -1,0 +1,33 @@
+{
+  "name": "migracion-segura-mx",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Plataforma integral de gestión migratoria - Migración Segura MX",
+  "workspaces": [
+    "backend",
+    "admin-panel",
+    "mobile-app",
+    "packages/*"
+  ],
+  "scripts": {
+    "backend:dev": "npm run dev -w backend",
+    "backend:build": "npm run build -w backend",
+    "backend:test": "npm run test -w backend",
+    "admin:dev": "npm run dev -w admin-panel",
+    "admin:build": "npm run build -w admin-panel",
+    "admin:test": "npm run test -w admin-panel",
+    "mobile:start": "npm run start -w mobile-app",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\"",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "prepare": "node -e \"try{require('husky')}catch(e){}\""
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "author": "Migración Segura MX",
+  "license": "UNLICENSED"
+}

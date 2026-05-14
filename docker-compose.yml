@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # ---- PostgreSQL ----
+  postgres:
+    image: postgres:16-alpine
+    container_name: msm-postgres
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_DB: migracion_segura
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_dev_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/docker/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---- Redis ----
+  redis:
+    image: redis:7-alpine
+    container_name: msm-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---- MinIO (S3 compatible - desarrollo local) ----
+  minio:
+    image: minio/minio:latest
+    container_name: msm-minio
+    restart: unless-stopped
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---- MinIO Setup (crea bucket inicial) ----
+  minio-setup:
+    image: minio/mc:latest
+    container_name: msm-minio-setup
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 minioadmin minioadmin;
+      mc mb local/migracion-segura-documents --ignore-existing;
+      mc anonymous set download local/migracion-segura-documents;
+      exit 0;
+      "
+
+  # ---- MailHog (Email testing local) ----
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: msm-mailhog
+    restart: unless-stopped
+    ports:
+      - '1025:1025'  # SMTP
+      - '8025:8025'  # Web UI
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
