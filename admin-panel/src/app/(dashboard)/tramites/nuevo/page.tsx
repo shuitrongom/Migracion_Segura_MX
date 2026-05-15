@@ -96,7 +96,26 @@ export default function NuevoTramitePage() {
   const hasError = (field: string) => fieldErrors[field] === true;
   const inputClass = (field: string) => `w-full px-3 py-2 border rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-brand-500 ${hasError(field) ? 'border-red-400 bg-red-50/30' : 'border-gray-200'}`;
   const inputClassUpper = (field: string) => `w-full px-3 py-2 border rounded-lg text-sm uppercase focus:outline-none focus:ring-2 focus:ring-brand-500 ${hasError(field) ? 'border-red-400 bg-red-50/30' : 'border-gray-200'}`;
+
+  // Validaciones de CURP y RFC
+  const validateCurp = (value: string): string | null => {
+    if (!value) return null; // No es obligatorio, solo valida si hay valor
+    if (value.length !== 18) return 'La CURP debe tener 18 caracteres';
+    const curpRegex = /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/;
+    if (!curpRegex.test(value)) return 'Formato de CURP inválido';
+    return null;
+  };
+
+  const validateRfc = (value: string): string | null => {
+    if (!value) return null; // No es obligatorio, solo valida si hay valor
+    if (value.length < 12 || value.length > 13) return 'El RFC debe tener 12 o 13 caracteres';
+    const rfcRegex = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{0,3}$/;
+    if (!rfcRegex.test(value)) return 'Formato de RFC inválido';
+    return null;
+  };
   const ErrorMsg = ({ field }: { field: string }) => hasError(field) ? <p className="text-[11px] text-red-500 mt-1">Este campo es requerido</p> : null;
+  const [customErrors, setCustomErrors] = useState<Record<string, string>>({});
+  const CustomErrorMsg = ({ field }: { field: string }) => customErrors[field] ? <p className="text-[11px] text-red-500 mt-1">{customErrors[field]}</p> : null;
 
   // Requisitos y costo
   const [requisitos, setRequisitos] = useState<Requisito[]>([]);
@@ -195,7 +214,22 @@ export default function NuevoTramitePage() {
       else if (extranjero.solicitanteEmail !== extranjero.solicitanteEmailConfirmacion) errors['solicitanteEmailConfirmacion'] = true;
 
       setFieldErrors(errors);
-      if (Object.keys(errors).length > 0) {
+      
+      // Validar formato de CURP y RFC
+      const cErrors: Record<string, string> = {};
+      if (solicitante.tipoPersona === 'Física') {
+        const curpErr = validateCurp(solicitante.curp);
+        if (curpErr) cErrors['sol_curp'] = curpErr;
+        const rfcErr = validateRfc(solicitante.rfc);
+        if (rfcErr) cErrors['sol_rfc'] = rfcErr;
+      }
+      if (solicitante.tipoPersona === 'Moral') {
+        const rfcErr = validateRfc(solicitante.moralRfc);
+        if (rfcErr) cErrors['moral_rfc_format'] = rfcErr;
+      }
+      setCustomErrors(cErrors);
+
+      if (Object.keys(errors).length > 0 || Object.keys(cErrors).length > 0) {
         toast.error('Completa todos los campos obligatorios marcados con *');
         return;
       }
@@ -365,8 +399,8 @@ export default function NuevoTramitePage() {
                 <div className="mt-6 space-y-4">
                   <h4 className="text-sm font-semibold text-gray-800 border-b pb-1">Datos de la persona física</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-                    <div><label className="block text-xs font-medium text-gray-600 mb-1">CURP</label><input type="text" value={solicitante.curp} onChange={e => updateSolicitante('curp', e.target.value)} className={inputClassUpper('curp')} maxLength={18} /></div>
-                    <div><label className="block text-xs font-medium text-gray-600 mb-1">RFC</label><input type="text" value={solicitante.rfc} onChange={e => updateSolicitante('rfc', e.target.value)} className={inputClassUpper('rfc')} maxLength={13} /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">CURP</label><input type="text" value={solicitante.curp} onChange={e => updateSolicitante('curp', e.target.value)} className={inputClassUpper('curp')} maxLength={18} /><CustomErrorMsg field="sol_curp" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">RFC</label><input type="text" value={solicitante.rfc} onChange={e => updateSolicitante('rfc', e.target.value)} className={inputClassUpper('rfc')} maxLength={13} /><CustomErrorMsg field="sol_rfc" /></div>
                     <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre(s) *</label><input type="text" value={solicitante.nombre} onChange={e => updateSolicitante('nombre', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
                     <div><label className="block text-xs font-medium text-gray-600 mb-1">Apellido(s) *</label><input type="text" value={solicitante.apellidos} onChange={e => updateSolicitante('apellidos', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
                     <div><label className="block text-xs font-medium text-gray-600 mb-1">Nacionalidad actual *</label><select value={solicitante.nacionalidad} onChange={e => updateSolicitante('nacionalidad', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{NACIONALIDADES.map(n => <option key={n} value={n}>{n}</option>)}</select></div>
@@ -393,7 +427,7 @@ export default function NuevoTramitePage() {
                 <div className="mt-6 space-y-4">
                   <h4 className="text-sm font-semibold text-gray-800 border-b pb-1">Datos de la persona moral</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-                    <div><label className="block text-xs font-medium text-gray-600 mb-1">RFC *</label><input type="text" value={solicitante.moralRfc} onChange={e => updateSolicitante('moralRfc', e.target.value)} className={inputClassUpper('moral_rfc')} maxLength={13} /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">RFC *</label><input type="text" value={solicitante.moralRfc} onChange={e => updateSolicitante('moralRfc', e.target.value)} className={inputClassUpper('moral_rfc')} maxLength={13} /><CustomErrorMsg field="moral_rfc_format" /></div>
                     <div className="md:col-span-2"><label className="block text-xs font-medium text-gray-600 mb-1">Nombre o razón social *</label><input type="text" value={solicitante.moralRazonSocial} onChange={e => updateSolicitante('moralRazonSocial', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
                     <div className="md:col-span-3"><label className="block text-xs font-medium text-gray-600 mb-1">Sector o rama de actividad</label><select value={solicitante.moralSector} onChange={e => updateSolicitante('moralSector', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{SECTORES_ACTIVIDAD.map(s => <option key={s} value={s}>{s}</option>)}</select></div>
                     <div className="md:col-span-3"><label className="block text-xs font-medium text-gray-600 mb-1">Objeto de la empresa o giro comercial</label><textarea value={solicitante.moralGiroComercial} onChange={e => updateSolicitante('moralGiroComercial', e.target.value)} rows={3} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none" /></div>
@@ -438,7 +472,7 @@ export default function NuevoTramitePage() {
                 <p className="text-xs text-blue-800 text-center">Si deseas agregar personas autorizadas es necesario que lo efectúes con el botón &apos;Agregar persona&apos;, de lo contrario los datos capturados en esta sección no serán guardados.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Clave Única de Registro de Población (CURP)</label><input type="text" value={personaTemp.curp} onChange={e => setPersonaTemp(prev => ({ ...prev, curp: e.target.value.toUpperCase() }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm uppercase focus:outline-none focus:ring-2 focus:ring-brand-500" maxLength={18} /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Clave Única de Registro de Población (CURP)</label><input type="text" value={personaTemp.curp} onChange={e => setPersonaTemp(prev => ({ ...prev, curp: e.target.value.toUpperCase() }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm uppercase focus:outline-none focus:ring-2 focus:ring-brand-500" maxLength={18} />{personaTemp.curp && validateCurp(personaTemp.curp) && <p className="text-[11px] text-red-500 mt-1">{validateCurp(personaTemp.curp)}</p>}</div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre(s) *</label><input type="text" value={personaTemp.nombre} onChange={e => setPersonaTemp(prev => ({ ...prev, nombre: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Apellido(s) *</label><input type="text" value={personaTemp.apellidos} onChange={e => setPersonaTemp(prev => ({ ...prev, apellidos: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Nacionalidad actual *</label><select value={personaTemp.nacionalidad} onChange={e => setPersonaTemp(prev => ({ ...prev, nacionalidad: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{NACIONALIDADES.map(n => <option key={n} value={n}>{n}</option>)}</select></div>
