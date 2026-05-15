@@ -12,6 +12,7 @@ import {
   X,
   FileText,
   Clock,
+  Calendar,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/auth.store';
@@ -56,11 +57,12 @@ interface TimelineEvent {
   createdAt: string;
 }
 
-type TabKey = 'tramites' | 'documentos' | 'actividad';
+type TabKey = 'tramites' | 'documentos' | 'citas' | 'actividad';
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'tramites', label: 'Trámites' },
   { key: 'documentos', label: 'Documentos' },
+  { key: 'citas', label: 'Citas' },
   { key: 'actividad', label: 'Actividad' },
 ];
 
@@ -272,12 +274,12 @@ export default function ClienteDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">
-            Detalle del Cliente
+            Detalle del Extranjero
           </h1>
         </div>
         <div className="bg-white rounded-xl border shadow-sm p-12 text-center">
           <p className="text-sm text-gray-500">
-            {error || 'No se encontró el cliente'}
+            {error || 'No se encontró el extranjero'}
           </p>
         </div>
       </div>
@@ -295,7 +297,7 @@ export default function ClienteDetailPage() {
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <h1 className="text-2xl font-bold text-gray-900">
-          Detalle del Cliente
+          Detalle del Extranjero
         </h1>
       </div>
 
@@ -311,19 +313,21 @@ export default function ClienteDetailPage() {
                     {cliente.nombreCompleto.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <button
-                  className="absolute -bottom-1 -right-1 h-6 w-6 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50"
+                <label
+                  htmlFor="foto-extranjero"
+                  className="absolute -bottom-1 -right-1 h-6 w-6 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 cursor-pointer"
                   title="Subir foto"
                 >
                   <Camera className="h-3 w-3 text-gray-500" />
-                </button>
+                </label>
+                <input id="foto-extranjero" type="file" accept="image/*" className="hidden" onChange={(e) => { /* TODO: upload photo */ }} />
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
                   {cliente.nombreCompleto}
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Cliente desde {formatDate(cliente.createdAt)}
+                  Extranjero desde {formatDate(cliente.createdAt)}
                 </p>
               </div>
             </div>
@@ -520,7 +524,7 @@ export default function ClienteDetailPage() {
                     <div className="text-center py-12">
                       <FileText className="h-10 w-10 text-gray-300 mx-auto mb-3" />
                       <p className="text-sm text-gray-400">
-                        Este cliente no tiene trámites registrados.
+                        Este extranjero no tiene trámites registrados.
                       </p>
                     </div>
                   ) : (
@@ -567,7 +571,7 @@ export default function ClienteDetailPage() {
                     <div className="text-center py-12">
                       <FileText className="h-10 w-10 text-gray-300 mx-auto mb-3" />
                       <p className="text-sm text-gray-400">
-                        No hay documentos registrados para este cliente.
+                        No hay documentos registrados para este extranjero.
                       </p>
                     </div>
                   ) : (
@@ -601,6 +605,20 @@ export default function ClienteDetailPage() {
                       </div>
                     ))
                   )}
+                </div>
+              )}
+
+              {/* Citas Tab */}
+              {activeTab === 'citas' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-gray-700">Citas programadas</p>
+                  </div>
+                  <div className="text-center py-8">
+                    <Calendar className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+                    <p className="text-sm text-gray-400">No hay citas registradas para este extranjero.</p>
+                    <p className="text-xs text-gray-300 mt-1">Las citas del INM y entrevistas con el gestor aparecerán aquí.</p>
+                  </div>
                 </div>
               )}
 
