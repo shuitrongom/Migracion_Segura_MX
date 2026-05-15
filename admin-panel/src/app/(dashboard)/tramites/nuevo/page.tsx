@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { TipoTramite } from '@/lib/types';
 import { PROPOSITOS_VIAJE, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO, TIPOS_PERSONA, DOCUMENTOS_IDENTIFICACION_PERSONA } from '@/lib/catalogos-inm';
+import { ESTADOS_MEXICO, MUNICIPIOS_POR_ESTADO, SECTORES_ACTIVIDAD, DOCUMENTOS_PERSONA_FISICA } from '@/lib/catalogos-mexico';
 
 const TRAMITES_INM: { tipo: TipoTramite; nombre: string; descripcion: string; urlSolicitud: string }[] = [
   { tipo: TipoTramite.VISA, nombre: 'Visas solicitadas ante el INM', descripcion: 'Solicitud de visa por unidad familiar, razones humanitarias u oferta de empleo', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
@@ -47,10 +48,9 @@ export default function NuevoTramitePage() {
     fechaExpedicion: '', fechaVencimiento: '',
     // Información adicional
     actividadPrincipal: '', expulsadoMexico: '', antecedentesPenales: '',
-    domicilioMexico: '', telefono: '', email: '',
-    tiempoEstancia: '', visasActuales: '', comentarios: '',
-    // Datos del solicitante/promovente
-    solicitanteTipoPersona: '', solicitanteNombre: '', solicitanteParentesco: '', 
+    telefono: '', email: '',
+    visasActuales: '', comentarios: '',
+    // Datos del promovente (correo y teléfono de contacto)
     solicitanteEmail: '', solicitanteEmailConfirmacion: '',
     personaAutorizada: '',
   });
@@ -62,6 +62,25 @@ export default function NuevoTramitePage() {
   // Personas autorizadas (array dinámico)
   const [personasAutorizadas, setPersonasAutorizadas] = useState<{ curp: string; nombre: string; apellidos: string; nacionalidad: string; tipoDocumento: string; numeroDocumento: string }[]>([]);
   const [personaTemp, setPersonaTemp] = useState({ curp: '', nombre: '', apellidos: '', nacionalidad: '', tipoDocumento: '', numeroDocumento: '' });
+
+  // Datos del solicitante (persona física o moral)
+  const [solicitante, setSolicitante] = useState({
+    tipoPersona: '',
+    // Persona física
+    curp: '', rfc: '', nombre: '', apellidos: '', nacionalidad: '',
+    tipoDocumento: '', numeroDocumento: '',
+    // Domicilio
+    codigoPostal: '', estado: '', municipio: '', colonia: '', calle: '',
+    numeroExterior: '', numeroInterior: '', lada: '', telefonoFijo: '',
+    // Persona moral
+    moralRfc: '', moralRazonSocial: '', moralSector: '', moralGiroComercial: '',
+    moralCodigoPostal: '', moralEstado: '', moralMunicipio: '', moralColonia: '',
+    moralCalle: '', moralNumeroExterior: '', moralNumeroInterior: '', moralLada: '', moralTelefonoFijo: '',
+    moralNumeroActa: '', moralFechaActa: '',
+  });
+  const updateSolicitante = (field: string, value: string) => {
+    setSolicitante(prev => ({ ...prev, [field]: value }));
+  };
 
   // Pieza y contraseña
   const [numeroPieza, setNumeroPieza] = useState('');
@@ -147,7 +166,7 @@ export default function NuevoTramitePage() {
       const tramiteRes = await api.post('/tramites', {
         tipo: selectedTramite.tipo,
         clienteId,
-        datosFormulario: { ...extranjero, visas, personasAutorizadas, numeroPiezaINM: numeroPieza, contrasenaINM },
+        datosFormulario: { ...extranjero, visas, personasAutorizadas, solicitante, numeroPiezaINM: numeroPieza, contrasenaINM },
         esBorrador: false,
       });
       const tramiteId = tramiteRes.data.id;
@@ -213,7 +232,6 @@ export default function NuevoTramitePage() {
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Propósito del viaje</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Propósito de viaje *</label><select value={extranjero.propositoViaje} onChange={e => updateExtranjero('propositoViaje', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{PROPOSITOS_VIAJE.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Tiempo de estancia</label><input type="text" value={extranjero.tiempoEstancia} onChange={e => updateExtranjero('tiempoEstancia', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Ej: 1 año" /></div>
               </div>
             </div>
 
@@ -254,10 +272,6 @@ export default function NuevoTramitePage() {
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Actividad principal en tu país de residencia *</label><select value={extranjero.actividadPrincipal} onChange={e => updateExtranjero('actividadPrincipal', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{ACTIVIDADES_PRINCIPALES.map(a => <option key={a} value={a}>{a}</option>)}</select></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Has sido expulsado de México? *</label><select value={extranjero.expulsadoMexico} onChange={e => updateExtranjero('expulsadoMexico', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{SI_NO.map(o => <option key={o} value={o}>{o}</option>)}</select></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Tienes antecedentes penales? *</label><select value={extranjero.antecedentesPenales} onChange={e => updateExtranjero('antecedentesPenales', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{SI_NO.map(o => <option key={o} value={o}>{o}</option>)}</select></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Domicilio en México</label><input type="text" value={extranjero.domicilioMexico} onChange={e => updateExtranjero('domicilioMexico', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Teléfono *</label><input type="tel" value={extranjero.telefono} onChange={e => updateExtranjero('telefono', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="+52 55 1234 5678" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Email *</label><input type="email" value={extranjero.email} onChange={e => updateExtranjero('email', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
-                <div className="md:col-span-3"><label className="block text-xs font-medium text-gray-600 mb-1">Visas con las que cuenta el extranjero</label><input type="text" value={extranjero.visasActuales} onChange={e => updateExtranjero('visasActuales', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Ej: Visa americana B1/B2 vigente" /></div>
               </div>
             </div>
 
@@ -271,7 +285,7 @@ export default function NuevoTramitePage() {
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Número</label><input type="text" value={visaTemp.numero} onChange={e => setVisaTemp(prev => ({ ...prev, numero: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
                 <div className="flex gap-2 items-end">
                   <div className="flex-1"><label className="block text-xs font-medium text-gray-600 mb-1">Fecha de vencimiento</label><input type="date" value={visaTemp.vencimiento} onChange={e => setVisaTemp(prev => ({ ...prev, vencimiento: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
-                  <button type="button" onClick={handleAddVisa} className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 whitespace-nowrap">Agregar visa</button>
+                  <button type="button" onClick={handleAddVisa} className="px-4 py-2 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors whitespace-nowrap">Agregar visa</button>
                 </div>
               </div>
               {visas.length > 0 && (
@@ -285,12 +299,69 @@ export default function NuevoTramitePage() {
             </div>
 
             <div>
-              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Datos del solicitante que tiene el vínculo familiar con el extranjero</h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Datos de la institución, organismo o persona que solicita la autorización de la visa</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Tipo de persona *</label><select value={extranjero.solicitanteTipoPersona} onChange={e => updateExtranjero('solicitanteTipoPersona', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{TIPOS_PERSONA.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre del solicitante</label><input type="text" value={extranjero.solicitanteNombre} onChange={e => updateExtranjero('solicitanteNombre', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Parentesco con el extranjero</label><input type="text" value={extranjero.solicitanteParentesco} onChange={e => updateExtranjero('solicitanteParentesco', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Ej: Cónyuge, Hijo, Empleador" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Tipo de persona *</label><select value={solicitante.tipoPersona} onChange={e => updateSolicitante('tipoPersona', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{TIPOS_PERSONA.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
               </div>
+
+              {solicitante.tipoPersona === 'Física' && (
+                <div className="mt-6 space-y-4">
+                  <h4 className="text-sm font-semibold text-gray-800 border-b pb-1">Datos de la persona física</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">CURP</label><input type="text" value={solicitante.curp} onChange={e => updateSolicitante('curp', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">RFC</label><input type="text" value={solicitante.rfc} onChange={e => updateSolicitante('rfc', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre(s) *</label><input type="text" value={solicitante.nombre} onChange={e => updateSolicitante('nombre', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Apellido(s) *</label><input type="text" value={solicitante.apellidos} onChange={e => updateSolicitante('apellidos', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Nacionalidad actual *</label><select value={solicitante.nacionalidad} onChange={e => updateSolicitante('nacionalidad', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{NACIONALIDADES.map(n => <option key={n} value={n}>{n}</option>)}</select></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Tipo de documento *</label><select value={solicitante.tipoDocumento} onChange={e => updateSolicitante('tipoDocumento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{DOCUMENTOS_PERSONA_FISICA.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Número de documento *</label><input type="text" value={solicitante.numeroDocumento} onChange={e => updateSolicitante('numeroDocumento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                  </div>
+
+                  <h4 className="text-sm font-semibold text-gray-800 border-b pb-1 pt-2">Domicilio de la persona física</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Código postal *</label><input type="text" value={solicitante.codigoPostal} onChange={e => updateSolicitante('codigoPostal', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Estado *</label><select value={solicitante.estado} onChange={e => { updateSolicitante('estado', e.target.value); updateSolicitante('municipio', ''); }} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{ESTADOS_MEXICO.map(est => <option key={est} value={est}>{est}</option>)}</select></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Municipio o Alcaldía *</label><select value={solicitante.municipio} onChange={e => updateSolicitante('municipio', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{(MUNICIPIOS_POR_ESTADO[solicitante.estado] || []).map(m => <option key={m} value={m}>{m}</option>)}</select></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Colonia *</label><input type="text" value={solicitante.colonia} onChange={e => updateSolicitante('colonia', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Calle *</label><input type="text" value={solicitante.calle} onChange={e => updateSolicitante('calle', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Número exterior *</label><input type="text" value={solicitante.numeroExterior} onChange={e => updateSolicitante('numeroExterior', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Número interior</label><input type="text" value={solicitante.numeroInterior} onChange={e => updateSolicitante('numeroInterior', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Lada</label><input type="text" value={solicitante.lada} onChange={e => updateSolicitante('lada', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Teléfono fijo</label><input type="text" value={solicitante.telefonoFijo} onChange={e => updateSolicitante('telefonoFijo', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                  </div>
+                </div>
+              )}
+
+              {solicitante.tipoPersona === 'Moral' && (
+                <div className="mt-6 space-y-4">
+                  <h4 className="text-sm font-semibold text-gray-800 border-b pb-1">Datos de la persona moral</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">RFC *</label><input type="text" value={solicitante.moralRfc} onChange={e => updateSolicitante('moralRfc', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div className="md:col-span-2"><label className="block text-xs font-medium text-gray-600 mb-1">Nombre o razón social *</label><input type="text" value={solicitante.moralRazonSocial} onChange={e => updateSolicitante('moralRazonSocial', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div className="md:col-span-3"><label className="block text-xs font-medium text-gray-600 mb-1">Sector o rama de actividad</label><select value={solicitante.moralSector} onChange={e => updateSolicitante('moralSector', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{SECTORES_ACTIVIDAD.map(s => <option key={s} value={s}>{s}</option>)}</select></div>
+                    <div className="md:col-span-3"><label className="block text-xs font-medium text-gray-600 mb-1">Objeto de la empresa o giro comercial</label><textarea value={solicitante.moralGiroComercial} onChange={e => updateSolicitante('moralGiroComercial', e.target.value)} rows={3} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none" /></div>
+                  </div>
+
+                  <h4 className="text-sm font-semibold text-gray-800 border-b pb-1 pt-2">Domicilio de la persona moral</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Código postal *</label><input type="text" value={solicitante.moralCodigoPostal} onChange={e => updateSolicitante('moralCodigoPostal', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Estado *</label><select value={solicitante.moralEstado} onChange={e => { updateSolicitante('moralEstado', e.target.value); updateSolicitante('moralMunicipio', ''); }} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{ESTADOS_MEXICO.map(est => <option key={est} value={est}>{est}</option>)}</select></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Municipio o Alcaldía *</label><select value={solicitante.moralMunicipio} onChange={e => updateSolicitante('moralMunicipio', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{(MUNICIPIOS_POR_ESTADO[solicitante.moralEstado] || []).map(m => <option key={m} value={m}>{m}</option>)}</select></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Colonia *</label><input type="text" value={solicitante.moralColonia} onChange={e => updateSolicitante('moralColonia', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Calle *</label><input type="text" value={solicitante.moralCalle} onChange={e => updateSolicitante('moralCalle', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Número exterior *</label><input type="text" value={solicitante.moralNumeroExterior} onChange={e => updateSolicitante('moralNumeroExterior', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Número interior</label><input type="text" value={solicitante.moralNumeroInterior} onChange={e => updateSolicitante('moralNumeroInterior', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Lada</label><input type="text" value={solicitante.moralLada} onChange={e => updateSolicitante('moralLada', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Teléfono fijo</label><input type="text" value={solicitante.moralTelefonoFijo} onChange={e => updateSolicitante('moralTelefonoFijo', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                  </div>
+
+                  <h4 className="text-sm font-semibold text-gray-800 border-b pb-1 pt-2">Datos del acta constitutiva</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Número de acta constitutiva</label><input type="text" value={solicitante.moralNumeroActa} onChange={e => updateSolicitante('moralNumeroActa', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Fecha de registro del acta</label><input type="date" value={solicitante.moralFechaActa} onChange={e => updateSolicitante('moralFechaActa', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
@@ -299,6 +370,8 @@ export default function NuevoTramitePage() {
                 <p className="text-xs text-blue-800 text-center">Agrega la dirección de correo electrónico en donde se recibirán las notificaciones asociadas a tu trámite.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Teléfono de contacto *</label><input type="tel" value={extranjero.telefono} onChange={e => updateExtranjero('telefono', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="+52 55 1234 5678" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Email *</label><input type="email" value={extranjero.email} onChange={e => updateExtranjero('email', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico *</label><input type="email" value={extranjero.solicitanteEmail} onChange={e => updateExtranjero('solicitanteEmail', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="nombre@correo.com" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico (confirmación) *</label><input type="email" value={extranjero.solicitanteEmailConfirmacion} onChange={e => updateExtranjero('solicitanteEmailConfirmacion', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="nombre@correo.com" /></div>
               </div>
@@ -368,14 +441,12 @@ export default function NuevoTramitePage() {
                     { label: 'País expedición', value: extranjero.paisExpedicion },
                     { label: 'Expedición', value: extranjero.fechaExpedicion },
                     { label: 'Vencimiento', value: extranjero.fechaVencimiento },
-                    { label: 'Domicilio México', value: extranjero.domicilioMexico },
                     { label: 'Teléfono', value: extranjero.telefono },
                     { label: 'Email', value: extranjero.email },
                     { label: 'Propósito viaje', value: extranjero.propositoViaje },
                     { label: 'Actividad principal', value: extranjero.actividadPrincipal },
                     { label: 'Expulsado de México', value: extranjero.expulsadoMexico },
                     { label: 'Antecedentes penales', value: extranjero.antecedentesPenales },
-                    { label: 'Visas actuales', value: extranjero.visasActuales },
                   ].filter(item => item.value).map(item => (
                     <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-2 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
                       <p className="text-[10px] text-gray-400 uppercase">{item.label}</p>
@@ -386,15 +457,15 @@ export default function NuevoTramitePage() {
                     </button>
                   ))}
                 </div>
-                {extranjero.solicitanteNombre && (
+                {solicitante.tipoPersona && (
                   <>
                     <h4 className="text-xs font-semibold text-gray-500 uppercase mt-4 mb-3">Solicitante</h4>
                     <div className="space-y-2">
                       {[
-                        { label: 'Nombre', value: extranjero.solicitanteNombre },
-                        { label: 'Parentesco', value: extranjero.solicitanteParentesco },
-                        { label: 'Email', value: extranjero.solicitanteEmail },
-                        { label: 'Persona autorizada', value: extranjero.personaAutorizada },
+                        { label: 'Tipo persona', value: solicitante.tipoPersona },
+                        { label: 'Nombre', value: solicitante.tipoPersona === 'Física' ? `${solicitante.nombre} ${solicitante.apellidos}`.trim() : solicitante.moralRazonSocial },
+                        { label: 'RFC', value: solicitante.tipoPersona === 'Física' ? solicitante.rfc : solicitante.moralRfc },
+                        { label: 'Email promovente', value: extranjero.solicitanteEmail },
                       ].filter(item => item.value).map(item => (
                         <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-2 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
                           <p className="text-[10px] text-gray-400 uppercase">{item.label}</p>
