@@ -95,9 +95,12 @@ export class ClientesController {
   @ApiParam({ name: 'id', description: 'UUID del cliente' })
   assignAsesor(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body('asesorId') asesorId: string,
+    @Body() body: { asesorId?: string; auto?: boolean },
   ) {
-    return this.clientesService.assignAsesor(id, asesorId);
+    if (body.auto) {
+      return this.clientesService.assignAsesor(id, 'auto');
+    }
+    return this.clientesService.assignAsesor(id, body.asesorId || '');
   }
 
   /**

@@ -504,7 +504,7 @@ export default function ClienteDetailPage() {
                       onClick={async () => {
                         setReassigning(true);
                         try {
-                          const res = await api.patch(`/clientes/${clienteId}/asesor`, { asesorId: 'auto' });
+                          const res = await api.patch(`/clientes/${clienteId}/asesor`, { auto: true });
                           setCliente(prev => prev ? { ...prev, asesor: res.data?.asesor || prev.asesor } : prev);
                           toast.success('Gestor reasignado');
                           window.location.reload();
