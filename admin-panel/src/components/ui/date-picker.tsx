@@ -1,0 +1,227 @@
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+
+interface DatePickerProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  className?: string;
+  yearRange?: [number, number];
+}
+
+const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+const DIAS_SEMANA = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'];
+
+export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', className = '', yearRange }: DatePickerProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [view, setView] = useState<'days' | 'months' | 'years'>('days');
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [yearPageStart, setYearPageStart] = useState(Math.floor(new Date().getFullYear() / 20) * 20);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const minYear = yearRange?.[0] ?? 1940;
+  const maxYear = yearRange?.[1] ?? 2040;
+
+  // Parse value
+  useEffect(() => {
+    if (value) {
+      const d = new Date(value);
+      if (!isNaN(d.getTime())) {
+        setCurrentMonth(d.getMonth());
+        setCurrentYear(d.getFullYear());
+      }
+    }
+  }, [value]);
+
+  // Close on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+        setView('days');
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const getDaysInMonth = (month: number, year: number) => new Date(year, month + 1, 0).getDate();
+  const getFirstDayOfMonth = (month: number, year: number) => {
+    const day = new Date(year, month, 1).getDay();
+    return day === 0 ? 6 : day - 1; // Monday = 0
+  };
+
+  const handleSelectDay = (day: number) => {
+    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    onChange(dateStr);
+    setIsOpen(false);
+    setView('days');
+  };
+
+  const handleSelectMonth = (month: number) => {
+    setCurrentMonth(month);
+    setView('days');
+  };
+
+  const handleSelectYear = (year: number) => {
+    setCurrentYear(year);
+    setView('months');
+  };
+
+  const formatDisplay = (val: string) => {
+    if (!val) return '';
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return val;
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+  };
+
+  const selectedDate = value ? new Date(value) : null;
+
+  const renderDays = () => {
+    const daysInMonth = getDaysInMonth(currentMonth, currentYear);
+    const firstDay = getFirstDayOfMonth(currentMonth, currentYear);
+    const days: (number | null)[] = [];
+
+    for (let i = 0; i < firstDay; i++) days.push(null);
+    for (let i = 1; i <= daysInMonth; i++) days.push(i);
+
+    return (
+      <div className="grid grid-cols-7 gap-1">
+        {DIAS_SEMANA.map(d => (
+          <div key={d} className="text-center text-[10px] font-medium text-gray-400 py-1">{d}</div>
+        ))}
+        {days.map((day, i) => {
+          if (day === null) return <div key={`empty-${i}`} />;
+          const isSelected = selectedDate && selectedDate.getDate() === day && selectedDate.getMonth() === currentMonth && selectedDate.getFullYear() === currentYear;
+          const isToday = new Date().getDate() === day && new Date().getMonth() === currentMonth && new Date().getFullYear() === currentYear;
+          return (
+            <button
+              key={day}
+              type="button"
+              onClick={() => handleSelectDay(day)}
+              className={`h-8 w-8 rounded-full text-xs font-medium transition-all ${
+                isSelected
+                  ? 'bg-brand-500 text-white shadow-sm'
+                  : isToday
+                    ? 'bg-brand-50 text-brand-700 ring-1 ring-brand-300'
+                    : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              {day}
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderMonths = () => (
+    <div className="grid grid-cols-3 gap-2 p-2">
+      {MESES.map((mes, i) => {
+        const isSelected = currentMonth === i;
+        return (
+          <button
+            key={mes}
+            type="button"
+            onClick={() => handleSelectMonth(i)}
+            className={`px-2 py-2.5 rounded-lg text-xs font-medium transition-all ${
+              isSelected ? 'bg-brand-500 text-white' : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            {mes.slice(0, 3)}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  const renderYears = () => {
+    const years: number[] = [];
+    for (let y = yearPageStart; y < yearPageStart + 20 && y <= maxYear; y++) {
+      if (y >= minYear) years.push(y);
+    }
+    return (
+      <div>
+        <div className="flex items-center justify-between px-2 mb-2">
+          <button type="button" onClick={() => setYearPageStart(Math.max(minYear, yearPageStart - 20))} disabled={yearPageStart <= minYear} className="p-1 rounded hover:bg-gray-100 disabled:opacity-30"><ChevronLeft className="h-4 w-4" /></button>
+          <span className="text-xs font-medium text-gray-500">{yearPageStart} — {Math.min(yearPageStart + 19, maxYear)}</span>
+          <button type="button" onClick={() => setYearPageStart(Math.min(maxYear - 19, yearPageStart + 20))} disabled={yearPageStart + 20 > maxYear} className="p-1 rounded hover:bg-gray-100 disabled:opacity-30"><ChevronRight className="h-4 w-4" /></button>
+        </div>
+        <div className="grid grid-cols-4 gap-2 p-2">
+          {years.map(y => {
+            const isSelected = currentYear === y;
+            return (
+              <button
+                key={y}
+                type="button"
+                onClick={() => handleSelectYear(y)}
+                className={`px-2 py-2 rounded-lg text-xs font-medium transition-all ${
+                  isSelected ? 'bg-brand-500 text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                {y}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div ref={containerRef} className="relative">
+      <div
+        onClick={() => setIsOpen(!isOpen)}
+        className={`flex items-center justify-between px-3 py-2 border border-gray-200 rounded-lg text-sm cursor-pointer hover:border-gray-300 transition-colors ${className} ${isOpen ? 'ring-2 ring-brand-500 border-transparent' : ''}`}
+      >
+        <span className={value ? 'text-gray-900' : 'text-gray-400'}>{value ? formatDisplay(value) : placeholder}</span>
+        <Calendar className="h-4 w-4 text-gray-400" />
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-50 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg p-3 w-[280px] animate-in fade-in slide-in-from-top-2 duration-200">
+          {/* Header */}
+          {view === 'days' && (
+            <div className="flex items-center justify-between mb-3">
+              <button type="button" onClick={() => { if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); } else setCurrentMonth(m => m - 1); }} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"><ChevronLeft className="h-4 w-4 text-gray-600" /></button>
+              <button type="button" onClick={() => setView('months')} className="text-sm font-semibold text-gray-900 hover:text-brand-600 transition-colors px-2 py-1 rounded-lg hover:bg-gray-50">
+                {MESES[currentMonth]} <span className="text-brand-500 cursor-pointer" onClick={(e) => { e.stopPropagation(); setView('years'); setYearPageStart(Math.floor(currentYear / 20) * 20); }}>{currentYear}</span>
+              </button>
+              <button type="button" onClick={() => { if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1); } else setCurrentMonth(m => m + 1); }} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"><ChevronRight className="h-4 w-4 text-gray-600" /></button>
+            </div>
+          )}
+
+          {view === 'months' && (
+            <div className="flex items-center justify-between mb-3 px-2">
+              <button type="button" onClick={() => setCurrentYear(y => y - 1)} className="p-1.5 rounded-lg hover:bg-gray-100"><ChevronLeft className="h-4 w-4 text-gray-600" /></button>
+              <button type="button" onClick={() => { setView('years'); setYearPageStart(Math.floor(currentYear / 20) * 20); }} className="text-sm font-semibold text-gray-900 hover:text-brand-600 px-2 py-1 rounded-lg hover:bg-gray-50">{currentYear}</button>
+              <button type="button" onClick={() => setCurrentYear(y => y + 1)} className="p-1.5 rounded-lg hover:bg-gray-100"><ChevronRight className="h-4 w-4 text-gray-600" /></button>
+            </div>
+          )}
+
+          {view === 'years' && (
+            <div className="mb-2">
+              <p className="text-xs font-medium text-gray-500 text-center mb-1">Selecciona el año</p>
+            </div>
+          )}
+
+          {/* Content */}
+          {view === 'days' && renderDays()}
+          {view === 'months' && renderMonths()}
+          {view === 'years' && renderYears()}
+
+          {/* Footer */}
+          {view === 'days' && (
+            <div className="mt-3 pt-2 border-t flex justify-between">
+              <button type="button" onClick={() => { const today = new Date(); onChange(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`); setIsOpen(false); }} className="text-xs text-brand-600 font-medium hover:text-brand-700">Hoy</button>
+              <button type="button" onClick={() => { onChange(''); setIsOpen(false); }} className="text-xs text-gray-400 hover:text-gray-600">Limpiar</button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
