@@ -32,7 +32,7 @@ export interface UploadOptions {
 }
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
-const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 /**
  * Proveedor MinIO para desarrollo local.
@@ -104,71 +104,82 @@ class MinioProvider implements StorageProvider {
 
 /**
  * Proveedor Supabase Storage para producción (Año 1).
- * Usa el SDK de S3 ya que Supabase Storage es compatible con S3.
+ * Usa la API REST nativa de Supabase Storage.
  */
 class SupabaseProvider implements StorageProvider {
-  private readonly client: S3Client;
   private readonly bucket: string;
   private readonly supabaseUrl: string;
+  private readonly serviceKey: string;
 
   constructor(config: { url: string; serviceKey: string; bucket: string }) {
     this.supabaseUrl = config.url;
     this.bucket = config.bucket;
-    // Supabase Storage exposes an S3-compatible endpoint
-    const s3Endpoint = `${config.url}/storage/v1/s3`;
-    this.client = new S3Client({
-      endpoint: s3Endpoint,
-      region: 'us-east-1',
-      credentials: {
-        accessKeyId: config.serviceKey,
-        secretAccessKey: config.serviceKey,
-      },
-      forcePathStyle: true,
-    });
+    this.serviceKey = config.serviceKey;
   }
 
   async upload(key: string, buffer: Buffer, mimeType: string): Promise<string> {
-    await this.client.send(
-      new PutObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-        Body: buffer,
-        ContentType: mimeType,
-      }),
-    );
+    const url = `${this.supabaseUrl}/storage/v1/object/${this.bucket}/${key}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.serviceKey}`,
+        'Content-Type': mimeType,
+        'x-upsert': 'true',
+      },
+      body: new Uint8Array(buffer),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Supabase upload failed: ${response.status} - ${error}`);
+    }
+
     return `${this.supabaseUrl}/storage/v1/object/public/${this.bucket}/${key}`;
   }
 
   async download(key: string): Promise<Buffer> {
-    const response = await this.client.send(
-      new GetObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-      }),
-    );
-    const stream = response.Body as NodeJS.ReadableStream;
-    const chunks: Buffer[] = [];
-    for await (const chunk of stream) {
-      chunks.push(Buffer.from(chunk as Uint8Array));
+    const url = `${this.supabaseUrl}/storage/v1/object/${this.bucket}/${key}`;
+    const response = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${this.serviceKey}` },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Supabase download failed: ${response.status}`);
     }
-    return Buffer.concat(chunks);
+
+    const arrayBuffer = await response.arrayBuffer();
+    return Buffer.from(arrayBuffer);
   }
 
   async delete(key: string): Promise<void> {
-    await this.client.send(
-      new DeleteObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-      }),
-    );
+    const url = `${this.supabaseUrl}/storage/v1/object/${this.bucket}`;
+    await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${this.serviceKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ prefixes: [key] }),
+    });
   }
 
   async getSignedUrl(key: string, expiresInSeconds = 3600): Promise<string> {
-    const command = new GetObjectCommand({
-      Bucket: this.bucket,
-      Key: key,
+    const url = `${this.supabaseUrl}/storage/v1/object/sign/${this.bucket}/${key}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.serviceKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ expiresIn: expiresInSeconds }),
     });
-    return getSignedUrl(this.client, command, { expiresIn: expiresInSeconds });
+
+    if (!response.ok) {
+      return `${this.supabaseUrl}/storage/v1/object/public/${this.bucket}/${key}`;
+    }
+
+    const data = await response.json();
+    return `${this.supabaseUrl}/storage/v1${data.signedURL}`;
   }
 }
 
