@@ -519,7 +519,7 @@ export default function NuevoTramitePage() {
                   {[
                     { label: 'Nombre(s)', value: extranjero.nombre },
                     { label: 'Apellido(s)', value: extranjero.apellidos },
-                    { label: 'Sexo', value: extranjero.sexo === 'M' ? 'Masculino' : extranjero.sexo === 'F' ? 'Femenino' : '' },
+                    { label: 'Sexo', value: extranjero.sexo === 'H' ? 'Hombre' : extranjero.sexo === 'M' ? 'Mujer' : '' },
                     { label: 'Fecha nacimiento', value: extranjero.fechaNacimiento },
                     { label: 'Nacionalidad', value: extranjero.nacionalidad },
                     { label: 'Estado civil', value: extranjero.estadoCivil },

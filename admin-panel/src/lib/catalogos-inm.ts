@@ -7,8 +7,8 @@ export const PROPOSITOS_VIAJE = [
 ];
 
 export const SEXOS = [
-  { value: 'M', label: 'Masculino' },
-  { value: 'F', label: 'Femenino' },
+  { value: 'M', label: 'Mujer' },
+  { value: 'H', label: 'Hombre' },
 ];
 
 export const ESTADOS_CIVILES = [
