@@ -65,6 +65,15 @@ export class ClientesService {
   }
 
   /**
+   * Eliminar cliente permanentemente (hard delete)
+   */
+  async remove(id: string): Promise<{ message: string }> {
+    const cliente = await this.findOneOrFail(id);
+    await this.clienteRepository.remove(cliente);
+    return { message: 'Cliente eliminado permanentemente' };
+  }
+
+  /**
    * Req 9.4, 9.5 - Buscar y filtrar clientes
    */
   async search(dto: SearchClientesDto): Promise<PaginatedResponseDto<Cliente>> {

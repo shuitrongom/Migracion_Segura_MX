@@ -55,6 +55,30 @@ export class TramitesController {
   }
 
   /**
+   * Obtener requisitos por tipo de trámite
+   */
+  @Get('requisitos/:tipo')
+  @ApiBearerAuth()
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR, UserRole.CLIENTE)
+  @ApiOperation({ summary: 'Obtener requisitos documentales por tipo de trámite' })
+  @ApiParam({ name: 'tipo', enum: TipoTramite })
+  getRequisitosByType(@Param('tipo') tipo: TipoTramite) {
+    return this.tramitesService.getRequisitosByType(tipo);
+  }
+
+  /**
+   * Obtener costo (pago de derechos) por tipo de trámite
+   */
+  @Get('costo/:tipo')
+  @ApiBearerAuth()
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR, UserRole.CLIENTE)
+  @ApiOperation({ summary: 'Obtener costo del trámite por tipo' })
+  @ApiParam({ name: 'tipo', enum: TipoTramite })
+  getCostoByType(@Param('tipo') tipo: TipoTramite) {
+    return this.tramitesService.getCostoByType(tipo);
+  }
+
+  /**
    * Req 4.1 - Consultar trámite por número de pieza (sin autenticación)
    */
   @Get('consulta')

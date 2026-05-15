@@ -423,37 +423,185 @@ export class TramitesService {
    */
   private getFormFieldsByType(
     tipo: TipoTramite,
-  ): Array<{ nombre: string; tipo: string; requerido: boolean; opciones?: string[] }> {
+  ): Array<{ nombre: string; tipo: string; requerido: boolean; opciones?: string[]; label?: string }> {
     const commonFields = [
-      { nombre: 'nombreCompleto', tipo: 'text', requerido: true },
-      { nombre: 'nacionalidad', tipo: 'text', requerido: true },
-      { nombre: 'fechaNacimiento', tipo: 'date', requerido: true },
-      { nombre: 'pasaporteNumero', tipo: 'text', requerido: true },
-      { nombre: 'domicilioMexico', tipo: 'text', requerido: true },
+      { nombre: 'nombreCompleto', tipo: 'text', requerido: true, label: 'Nombre completo' },
+      { nombre: 'nacionalidad', tipo: 'text', requerido: true, label: 'Nacionalidad' },
+      { nombre: 'fechaNacimiento', tipo: 'date', requerido: true, label: 'Fecha de nacimiento' },
+      { nombre: 'pasaporteNumero', tipo: 'text', requerido: true, label: 'Número de pasaporte' },
+      { nombre: 'curp', tipo: 'text', requerido: false, label: 'CURP (si aplica)' },
+      { nombre: 'domicilioMexico', tipo: 'text', requerido: true, label: 'Domicilio en México' },
+      { nombre: 'telefono', tipo: 'text', requerido: true, label: 'Teléfono de contacto' },
+      { nombre: 'correoElectronico', tipo: 'text', requerido: true, label: 'Correo electrónico' },
     ];
 
-    const typeSpecificFields: Record<string, Array<{ nombre: string; tipo: string; requerido: boolean; opciones?: string[] }>> = {
+    const typeSpecificFields: Record<string, Array<{ nombre: string; tipo: string; requerido: boolean; opciones?: string[]; label?: string }>> = {
       [TipoTramite.RESIDENCIA_TEMPORAL]: [
-        { nombre: 'motivoEstancia', tipo: 'select', requerido: true, opciones: ['trabajo', 'estudio', 'familia', 'otro'] },
-        { nombre: 'tiempoSolicitado', tipo: 'select', requerido: true, opciones: ['1_año', '2_años', '3_años', '4_años'] },
+        { nombre: 'motivoEstancia', tipo: 'select', requerido: true, label: 'Motivo de estancia', opciones: ['Trabajo', 'Estudio', 'Unidad familiar', 'Inversionista', 'Otro'] },
+        { nombre: 'tiempoSolicitado', tipo: 'select', requerido: true, label: 'Tiempo solicitado', opciones: ['1 año', '2 años', '3 años', '4 años'] },
+        { nombre: 'empresaInvitante', tipo: 'text', requerido: false, label: 'Empresa o institución invitante' },
+        { nombre: 'actividadEspecifica', tipo: 'text', requerido: true, label: 'Actividad específica a realizar' },
       ],
       [TipoTramite.RESIDENCIA_PERMANENTE]: [
-        { nombre: 'fundamentoLegal', tipo: 'select', requerido: true, opciones: ['vinculo_familiar', 'jubilado', '4_años_temporal', 'puntos'] },
+        { nombre: 'fundamentoLegal', tipo: 'select', requerido: true, label: 'Fundamento legal', opciones: ['Vínculo familiar con mexicano', 'Jubilado/pensionado', '4 años como residente temporal', 'Sistema por puntos', 'Asilo político', 'Protección complementaria'] },
+        { nombre: 'vinculoFamiliar', tipo: 'select', requerido: false, label: 'Tipo de vínculo familiar', opciones: ['Cónyuge', 'Concubino/a', 'Hijo/a', 'Padre/Madre', 'Hermano/a menor'] },
+        { nombre: 'numeroResidenciaTemporal', tipo: 'text', requerido: false, label: 'Número de tarjeta de residente temporal' },
       ],
       [TipoTramite.REGULARIZACION]: [
-        { nombre: 'situacionActual', tipo: 'text', requerido: true },
-        { nombre: 'fechaIngreso', tipo: 'date', requerido: true },
+        { nombre: 'situacionActual', tipo: 'select', requerido: true, label: 'Situación migratoria actual', opciones: ['Documento vencido', 'Ingreso sin documentación', 'Actividad no autorizada', 'Otro'] },
+        { nombre: 'fechaIngreso', tipo: 'date', requerido: true, label: 'Fecha de ingreso a México' },
+        { nombre: 'puntoIngreso', tipo: 'text', requerido: true, label: 'Punto de ingreso' },
+        { nombre: 'documentoVencido', tipo: 'text', requerido: false, label: 'Número de documento vencido (si aplica)' },
+      ],
+      [TipoTramite.CAMBIO_CONDICION]: [
+        { nombre: 'condicionActual', tipo: 'select', requerido: true, label: 'Condición de estancia actual', opciones: ['Visitante', 'Residente temporal estudiante', 'Residente temporal'] },
+        { nombre: 'condicionSolicitada', tipo: 'select', requerido: true, label: 'Condición de estancia solicitada', opciones: ['Residente temporal', 'Residente temporal estudiante', 'Residente permanente'] },
+        { nombre: 'motivoCambio', tipo: 'text', requerido: true, label: 'Motivo del cambio' },
+        { nombre: 'documentoActual', tipo: 'text', requerido: true, label: 'Número de documento migratorio actual' },
       ],
       [TipoTramite.VISA]: [
-        { nombre: 'tipoVisa', tipo: 'select', requerido: true, opciones: ['turista', 'negocios', 'trabajo', 'estudiante'] },
-        { nombre: 'consuladoDestino', tipo: 'text', requerido: true },
+        { nombre: 'tipoVisa', tipo: 'select', requerido: true, label: 'Tipo de visa solicitada', opciones: ['Visitante sin permiso para realizar actividades remuneradas', 'Visitante con permiso para realizar actividades remuneradas', 'Residencia temporal', 'Residencia temporal estudiante', 'Residencia permanente'] },
+        { nombre: 'consuladoDestino', tipo: 'text', requerido: true, label: 'Consulado donde se tramitará' },
+        { nombre: 'parentescoSolicitante', tipo: 'select', requerido: false, label: 'Parentesco con el solicitante en México', opciones: ['Cónyuge', 'Concubino/a', 'Hijo/a', 'Padre/Madre', 'Hermano/a'] },
+        { nombre: 'nombreBeneficiario', tipo: 'text', requerido: true, label: 'Nombre completo del beneficiario' },
       ],
       [TipoTramite.NACIONALIDAD]: [
-        { nombre: 'fundamentoNacionalidad', tipo: 'select', requerido: true, opciones: ['nacimiento', 'naturalizacion', 'matrimonio'] },
-        { nombre: 'añosResidencia', tipo: 'number', requerido: true },
+        { nombre: 'fundamentoNacionalidad', tipo: 'select', requerido: true, label: 'Fundamento', opciones: ['Carta de naturalización', 'Declaratoria de nacionalidad por nacimiento', 'Certificado de nacionalidad mexicana'] },
+        { nombre: 'añosResidencia', tipo: 'number', requerido: true, label: 'Años de residencia en México' },
+        { nombre: 'idiomaEspanol', tipo: 'select', requerido: true, label: '¿Habla español?', opciones: ['Sí', 'No', 'Básico'] },
+        { nombre: 'conocimientoHistoria', tipo: 'select', requerido: true, label: '¿Conoce la historia de México?', opciones: ['Sí', 'En proceso de estudio'] },
+      ],
+      [TipoTramite.PERMISO_TRABAJO]: [
+        { nombre: 'tipoPermiso', tipo: 'select', requerido: true, label: 'Tipo de permiso', opciones: ['Oferta de empleo', 'Cuenta propia', 'Temporal por proyecto'] },
+        { nombre: 'empresaEmpleadora', tipo: 'text', requerido: true, label: 'Empresa empleadora' },
+        { nombre: 'rfcEmpresa', tipo: 'text', requerido: true, label: 'RFC de la empresa' },
+        { nombre: 'puestoOfrecido', tipo: 'text', requerido: true, label: 'Puesto ofrecido' },
+        { nombre: 'salarioMensual', tipo: 'number', requerido: true, label: 'Salario mensual (MXN)' },
+      ],
+      [TipoTramite.RENOVACION]: [
+        { nombre: 'documentoARenovar', tipo: 'select', requerido: true, label: 'Documento a renovar', opciones: ['Tarjeta de residente temporal', 'Tarjeta de residente permanente', 'Tarjeta de visitante'] },
+        { nombre: 'numeroDocumentoActual', tipo: 'text', requerido: true, label: 'Número de documento actual' },
+        { nombre: 'fechaVencimiento', tipo: 'date', requerido: true, label: 'Fecha de vencimiento' },
+        { nombre: 'motivoRenovacion', tipo: 'select', requerido: true, label: 'Motivo de renovación', opciones: ['Vencimiento próximo', 'Documento dañado', 'Robo o extravío', 'Cambio de datos'] },
+      ],
+      [TipoTramite.CAMBIO_DOMICILIO]: [
+        { nombre: 'domicilioAnterior', tipo: 'text', requerido: true, label: 'Domicilio anterior' },
+        { nombre: 'domicilioNuevo', tipo: 'text', requerido: true, label: 'Nuevo domicilio' },
+        { nombre: 'codigoPostalNuevo', tipo: 'text', requerido: true, label: 'Código postal nuevo' },
+        { nombre: 'entidadFederativa', tipo: 'select', requerido: true, label: 'Entidad federativa', opciones: ['Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Estado de México', 'Guanajuato', 'Guerrero', 'Hidalgo', 'Jalisco', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas'] },
+        { nombre: 'numeroDocumentoMigratorio', tipo: 'text', requerido: true, label: 'Número de documento migratorio' },
+      ],
+      [TipoTramite.REPOSICION_DOCUMENTO]: [
+        { nombre: 'documentoReponer', tipo: 'select', requerido: true, label: 'Documento a reponer', opciones: ['Tarjeta de residente temporal', 'Tarjeta de residente permanente', 'Tarjeta de visitante', 'FMM'] },
+        { nombre: 'motivoReposicion', tipo: 'select', requerido: true, label: 'Motivo de reposición', opciones: ['Robo', 'Extravío', 'Deterioro'] },
+        { nombre: 'numeroDocumentoOriginal', tipo: 'text', requerido: false, label: 'Número de documento original (si lo recuerda)' },
+        { nombre: 'fechaEvento', tipo: 'date', requerido: true, label: 'Fecha del robo/extravío/deterioro' },
+        { nombre: 'actaMinisterioPublico', tipo: 'select', requerido: true, label: '¿Cuenta con acta del Ministerio Público?', opciones: ['Sí', 'No', 'En trámite'] },
+      ],
+      [TipoTramite.CAMBIO_NACIONALIDAD]: [
+        { nombre: 'nacionalidadAnterior', tipo: 'text', requerido: true, label: 'Nacionalidad anterior' },
+        { nombre: 'nacionalidadNueva', tipo: 'text', requerido: true, label: 'Nueva nacionalidad' },
+        { nombre: 'fechaCambio', tipo: 'date', requerido: true, label: 'Fecha del cambio de nacionalidad' },
+        { nombre: 'documentoMigratorioActual', tipo: 'text', requerido: true, label: 'Número de documento migratorio actual' },
       ],
     };
 
     return [...commonFields, ...(typeSpecificFields[tipo] || [])];
+  }
+
+  /**
+   * Retorna los requisitos (documentos) por tipo de trámite
+   */
+  getRequisitosByType(tipo: TipoTramite): Array<{ nombre: string; obligatorio: boolean; descripcion: string }> {
+    const commonRequisitos = [
+      { nombre: 'Pasaporte vigente', obligatorio: true, descripcion: 'Original y copia de la página de datos y de la última entrada a México' },
+      { nombre: 'Formato de solicitud', obligatorio: true, descripcion: 'Formato oficial llenado y firmado (se genera en el sistema)' },
+      { nombre: 'Fotografía', obligatorio: true, descripcion: 'Una fotografía tamaño infantil, fondo blanco, de frente' },
+      { nombre: 'Comprobante de domicilio', obligatorio: true, descripcion: 'No mayor a 3 meses (luz, agua, teléfono o estado de cuenta bancario)' },
+    ];
+
+    const typeRequisitos: Record<string, Array<{ nombre: string; obligatorio: boolean; descripcion: string }>> = {
+      [TipoTramite.RESIDENCIA_TEMPORAL]: [
+        { nombre: 'Carta de empleo o inscripción escolar', obligatorio: true, descripcion: 'Según el motivo de estancia' },
+        { nombre: 'Solvencia económica', obligatorio: true, descripcion: 'Estados de cuenta bancarios de los últimos 3 meses' },
+        { nombre: 'Documento migratorio vigente', obligatorio: true, descripcion: 'FMM o tarjeta de visitante original y copia' },
+      ],
+      [TipoTramite.RESIDENCIA_PERMANENTE]: [
+        { nombre: 'Tarjeta de residente temporal', obligatorio: true, descripcion: 'Original y copia (si aplica por 4 años de temporal)' },
+        { nombre: 'Acta de nacimiento/matrimonio', obligatorio: true, descripcion: 'Apostillada y traducida si es por vínculo familiar' },
+        { nombre: 'Identificación del familiar mexicano', obligatorio: false, descripcion: 'INE o pasaporte del familiar mexicano' },
+      ],
+      [TipoTramite.REGULARIZACION]: [
+        { nombre: 'Documento migratorio vencido', obligatorio: false, descripcion: 'Si lo tiene disponible' },
+        { nombre: 'Acreditación de vínculo familiar', obligatorio: false, descripcion: 'Si aplica regularización por familia' },
+        { nombre: 'Constancia de situación migratoria', obligatorio: false, descripcion: 'Emitida por el INM si fue detenido' },
+      ],
+      [TipoTramite.CAMBIO_CONDICION]: [
+        { nombre: 'Documento migratorio actual', obligatorio: true, descripcion: 'Original y copia del documento vigente' },
+        { nombre: 'Justificación del cambio', obligatorio: true, descripcion: 'Carta explicando el motivo del cambio' },
+        { nombre: 'Documentos de soporte', obligatorio: true, descripcion: 'Según la nueva condición solicitada' },
+      ],
+      [TipoTramite.VISA]: [
+        { nombre: 'Acta de nacimiento del familiar', obligatorio: false, descripcion: 'Si es visa por vínculo familiar' },
+        { nombre: 'Comprobante de solvencia económica', obligatorio: true, descripcion: 'Del solicitante en México' },
+        { nombre: 'Carta de invitación', obligatorio: false, descripcion: 'Si aplica' },
+      ],
+      [TipoTramite.NACIONALIDAD]: [
+        { nombre: 'Tarjeta de residente permanente', obligatorio: true, descripcion: 'Vigente, original y copia' },
+        { nombre: 'Constancia de residencia', obligatorio: true, descripcion: 'Emitida por autoridad local' },
+        { nombre: 'Carta de antecedentes no penales', obligatorio: true, descripcion: 'De los últimos 5 años' },
+        { nombre: 'Acta de nacimiento apostillada', obligatorio: true, descripcion: 'Del país de origen, traducida al español' },
+        { nombre: 'Comprobante de ingresos', obligatorio: true, descripcion: 'Que demuestre medios de subsistencia' },
+      ],
+      [TipoTramite.PERMISO_TRABAJO]: [
+        { nombre: 'Oferta de empleo', obligatorio: true, descripcion: 'En papel membretado con datos del empleador' },
+        { nombre: 'Constancia de inscripción al IMSS', obligatorio: true, descripcion: 'Del empleador' },
+        { nombre: 'RFC del empleador', obligatorio: true, descripcion: 'Copia de la cédula fiscal' },
+        { nombre: 'Documento migratorio vigente', obligatorio: true, descripcion: 'Original y copia' },
+      ],
+      [TipoTramite.RENOVACION]: [
+        { nombre: 'Documento migratorio a renovar', obligatorio: true, descripcion: 'Original y copia' },
+        { nombre: 'Comprobante de actividad vigente', obligatorio: true, descripcion: 'Carta de empleo, inscripción escolar, etc.' },
+        { nombre: 'Comprobante de domicilio reciente', obligatorio: true, descripcion: 'No mayor a 3 meses' },
+      ],
+      [TipoTramite.CAMBIO_DOMICILIO]: [
+        { nombre: 'Documento migratorio vigente', obligatorio: true, descripcion: 'Original y copia' },
+        { nombre: 'Comprobante de domicilio nuevo', obligatorio: true, descripcion: 'No mayor a 3 meses del nuevo domicilio' },
+        { nombre: 'Comprobante de domicilio anterior', obligatorio: false, descripcion: 'Para verificación' },
+      ],
+      [TipoTramite.REPOSICION_DOCUMENTO]: [
+        { nombre: 'Acta ante Ministerio Público', obligatorio: true, descripcion: 'Por robo o extravío del documento' },
+        { nombre: 'Copia del documento extraviado', obligatorio: false, descripcion: 'Si cuenta con ella' },
+        { nombre: 'Identificación oficial', obligatorio: true, descripcion: 'Pasaporte u otro documento de identidad' },
+      ],
+      [TipoTramite.CAMBIO_NACIONALIDAD]: [
+        { nombre: 'Documento migratorio vigente', obligatorio: true, descripcion: 'Original y copia' },
+        { nombre: 'Documento que acredite nueva nacionalidad', obligatorio: true, descripcion: 'Carta de naturalización o certificado del país correspondiente' },
+        { nombre: 'Carta bajo protesta de decir verdad', obligatorio: true, descripcion: 'Indicando nacionalidad anterior y nueva' },
+      ],
+    };
+
+    return [...commonRequisitos, ...(typeRequisitos[tipo] || [])];
+  }
+
+  /**
+   * Retorna el costo del trámite (pago de derechos) por tipo
+   */
+  getCostoByType(tipo: TipoTramite): { concepto: string; monto: number; moneda: string; fundamentoLegal: string } {
+    const costos: Record<string, { concepto: string; monto: number; moneda: string; fundamentoLegal: string }> = {
+      [TipoTramite.RESIDENCIA_TEMPORAL]: { concepto: 'Residencia Temporal', monto: 4_613, moneda: 'MXN', fundamentoLegal: 'Art. 8, fracción I, Ley Federal de Derechos' },
+      [TipoTramite.RESIDENCIA_PERMANENTE]: { concepto: 'Residencia Permanente', monto: 5_765, moneda: 'MXN', fundamentoLegal: 'Art. 8, fracción II, Ley Federal de Derechos' },
+      [TipoTramite.REGULARIZACION]: { concepto: 'Regularización migratoria', monto: 6_073, moneda: 'MXN', fundamentoLegal: 'Art. 8, fracción VII, Ley Federal de Derechos' },
+      [TipoTramite.CAMBIO_CONDICION]: { concepto: 'Cambio de condición de estancia', monto: 4_613, moneda: 'MXN', fundamentoLegal: 'Art. 8, fracción III, Ley Federal de Derechos' },
+      [TipoTramite.VISA]: { concepto: 'Expedición de visa', monto: 2_741, moneda: 'MXN', fundamentoLegal: 'Art. 8, fracción IV, Ley Federal de Derechos' },
+      [TipoTramite.NACIONALIDAD]: { concepto: 'Carta de naturalización', monto: 8_183, moneda: 'MXN', fundamentoLegal: 'Art. 20-A, Ley Federal de Derechos' },
+      [TipoTramite.PERMISO_TRABAJO]: { concepto: 'Permiso de trabajo', monto: 3_686, moneda: 'MXN', fundamentoLegal: 'Art. 8, fracción V, Ley Federal de Derechos' },
+      [TipoTramite.RENOVACION]: { concepto: 'Renovación de documento', monto: 1_523, moneda: 'MXN', fundamentoLegal: 'Art. 8, fracción VI, Ley Federal de Derechos' },
+      [TipoTramite.CAMBIO_DOMICILIO]: { concepto: 'Notificación de cambio de domicilio', monto: 0, moneda: 'MXN', fundamentoLegal: 'Sin costo - trámite gratuito' },
+      [TipoTramite.REPOSICION_DOCUMENTO]: { concepto: 'Reposición de documento migratorio', monto: 1_523, moneda: 'MXN', fundamentoLegal: 'Art. 8, fracción VI, Ley Federal de Derechos' },
+      [TipoTramite.CAMBIO_NACIONALIDAD]: { concepto: 'Notificación de cambio de nacionalidad', monto: 0, moneda: 'MXN', fundamentoLegal: 'Sin costo - trámite gratuito' },
+    };
+
+    return costos[tipo] || { concepto: 'Trámite migratorio', monto: 0, moneda: 'MXN', fundamentoLegal: 'Consultar con asesor' };
   }
 }

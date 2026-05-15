@@ -11,7 +11,7 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN null; END $$;
 
 DO $$ BEGIN
-  CREATE TYPE tipo_tramite AS ENUM ('residencia_temporal', 'residencia_permanente', 'regularizacion', 'cambio_condicion_migratoria', 'visa', 'nacionalidad', 'permiso_trabajo', 'renovacion');
+  CREATE TYPE tipo_tramite AS ENUM ('residencia_temporal', 'residencia_permanente', 'regularizacion', 'cambio_condicion_migratoria', 'visa', 'nacionalidad', 'permiso_trabajo', 'renovacion', 'cambio_domicilio', 'reposicion_documento', 'cambio_nacionalidad');
 EXCEPTION WHEN duplicate_object THEN null; END $$;
 
 DO $$ BEGIN

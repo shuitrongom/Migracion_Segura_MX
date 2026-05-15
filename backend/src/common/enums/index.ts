@@ -8,7 +8,7 @@ export enum UserRole {
 }
 
 /**
- * Tipos de trámite migratorio (Req 3.1)
+ * Tipos de trámite migratorio (Req 3.1) - Basado en INM
  */
 export enum TipoTramite {
   RESIDENCIA_TEMPORAL = 'residencia_temporal',
@@ -19,6 +19,9 @@ export enum TipoTramite {
   NACIONALIDAD = 'nacionalidad',
   PERMISO_TRABAJO = 'permiso_trabajo',
   RENOVACION = 'renovacion',
+  CAMBIO_DOMICILIO = 'cambio_domicilio',
+  REPOSICION_DOCUMENTO = 'reposicion_documento',
+  CAMBIO_NACIONALIDAD = 'cambio_nacionalidad',
 }
 
 /**

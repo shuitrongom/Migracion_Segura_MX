@@ -69,6 +69,17 @@ export class ClientesController {
   }
 
   /**
+   * Eliminar cliente (hard delete)
+   */
+  @Delete(':id')
+  @Roles(UserRole.ADMINISTRADOR)
+  @ApiOperation({ summary: 'Eliminar cliente permanentemente' })
+  @ApiParam({ name: 'id', description: 'UUID del cliente' })
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.clientesService.remove(id);
+  }
+
+  /**
    * Req 9.3 - Asignar/reasignar asesor
    */
   @Patch(':id/asesor')

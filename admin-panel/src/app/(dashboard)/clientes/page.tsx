@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, Plus, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
-import { useClientes } from '@/hooks/use-clientes';
+import { Search, Plus, ChevronLeft, ChevronRight, MoreHorizontal, Trash2 } from 'lucide-react';
+import { useClientes, useDeleteCliente } from '@/hooks/use-clientes';
 import { Skeleton } from '@/components/ui/skeleton';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 import type { Cliente } from '@/lib/types';
 
 const ESTATUS_BADGE: Record<string, { bg: string; text: string }> = {
@@ -24,6 +26,17 @@ export default function ClientesPage() {
     page: currentPage,
     limit: pageSize,
   });
+
+  const deleteCliente = useDeleteCliente();
+
+  const handleDelete = (id: string, nombre: string) => {
+    if (!confirm(`¿Estás seguro de eliminar permanentemente al cliente "${nombre}"? Esta acción no se puede deshacer.`)) return;
+
+    deleteCliente.mutate(id, {
+      onSuccess: () => toast.success('Cliente eliminado permanentemente'),
+      onError: () => toast.error('Error al eliminar cliente'),
+    });
+  };
 
   const clientes = data?.data ?? [];
   const total = data?.total ?? 0;
@@ -149,13 +162,22 @@ export default function ClientesPage() {
                           </div>
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <Link
-                            href={`/clientes/${cliente.id}`}
-                            className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-gray-100 text-gray-500"
-                            aria-label={`Ver detalle de ${nombreCompleto}`}
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Link>
+                          <div className="flex items-center justify-end gap-1">
+                            <Link
+                              href={`/clientes/${cliente.id}`}
+                              className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-gray-100 text-gray-500"
+                              aria-label={`Ver detalle de ${nombreCompleto}`}
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Link>
+                            <button
+                              onClick={() => handleDelete(cliente.id, nombreCompleto)}
+                              className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-danger-50 text-gray-400 hover:text-danger-500 transition-colors"
+                              aria-label={`Eliminar cliente ${nombreCompleto}`}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );

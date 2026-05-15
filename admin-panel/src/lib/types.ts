@@ -19,6 +19,9 @@ export enum TipoTramite {
   NACIONALIDAD = 'nacionalidad',
   PERMISO_TRABAJO = 'permiso_trabajo',
   RENOVACION = 'renovacion',
+  CAMBIO_DOMICILIO = 'cambio_domicilio',
+  REPOSICION_DOCUMENTO = 'reposicion_documento',
+  CAMBIO_NACIONALIDAD = 'cambio_nacionalidad',
 }
 
 export enum EstatusTramite {

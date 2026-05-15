@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, MoreHorizontal, Plus } from 'lucide-react';
 import { useTramites } from '@/hooks/use-tramites';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EstatusTramite, TipoTramite } from '@/lib/types';
@@ -27,10 +27,14 @@ const TIPO_OPTIONS: { value: TipoFilter; label: string }[] = [
   { value: TipoTramite.RESIDENCIA_TEMPORAL, label: 'Residencia Temporal' },
   { value: TipoTramite.RESIDENCIA_PERMANENTE, label: 'Residencia Permanente' },
   { value: TipoTramite.REGULARIZACION, label: 'Regularización' },
+  { value: TipoTramite.CAMBIO_CONDICION, label: 'Cambio de Condición' },
   { value: TipoTramite.VISA, label: 'Visa' },
   { value: TipoTramite.NACIONALIDAD, label: 'Nacionalidad' },
   { value: TipoTramite.PERMISO_TRABAJO, label: 'Permiso de Trabajo' },
   { value: TipoTramite.RENOVACION, label: 'Renovación' },
+  { value: TipoTramite.CAMBIO_DOMICILIO, label: 'Cambio de Domicilio' },
+  { value: TipoTramite.REPOSICION_DOCUMENTO, label: 'Reposición de Documento' },
+  { value: TipoTramite.CAMBIO_NACIONALIDAD, label: 'Cambio de Nacionalidad' },
 ];
 
 const ESTATUS_BADGE: Record<string, { className: string; label: string }> = {
@@ -52,6 +56,9 @@ const TIPO_LABELS: Record<string, string> = {
   nacionalidad: 'Nacionalidad',
   permiso_trabajo: 'Permiso de Trabajo',
   renovacion: 'Renovación',
+  cambio_domicilio: 'Cambio de Domicilio',
+  reposicion_documento: 'Reposición de Documento',
+  cambio_nacionalidad: 'Cambio de Nacionalidad',
 };
 
 export default function TramitesPage() {
@@ -77,6 +84,13 @@ export default function TramitesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Trámites</h1>
+        <Link
+          href="/tramites/nuevo"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          Nuevo Trámite
+        </Link>
       </div>
 
       {/* Filters */}

@@ -59,4 +59,8 @@ export const clientesService = {
     const { data } = await api.delete<Cliente>(`/clientes/${id}/etiquetas/${encodeURIComponent(etiqueta)}`);
     return data;
   },
+
+  async deleteCliente(id: string): Promise<void> {
+    await api.delete(`/clientes/${id}`);
+  },
 };

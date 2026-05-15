@@ -111,3 +111,14 @@ export function useRemoveTag() {
     },
   });
 }
+
+export function useDeleteCliente() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => clientesService.deleteCliente(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clientes'] });
+    },
+  });
+}
