@@ -14,15 +14,20 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ModalidadCita } from '../../../common/enums';
 
 export class CreateCitaDto {
-  @ApiProperty({ description: 'UUID del cliente' })
+  @ApiProperty({ description: 'UUID del cliente/extranjero' })
   @IsNotEmpty()
   @IsUUID()
   clienteId: string;
 
-  @ApiProperty({ description: 'UUID del asesor' })
+  @ApiProperty({ description: 'UUID del gestor' })
   @IsNotEmpty()
   @IsUUID()
   asesorId: string;
+
+  @ApiProperty({ description: 'Tipo de cita', example: 'entrevista', enum: ['inm', 'entrevista'] })
+  @IsOptional()
+  @IsString()
+  tipo?: string;
 
   @ApiProperty({ description: 'Fecha de la cita (YYYY-MM-DD)', example: '2024-06-15' })
   @IsNotEmpty()

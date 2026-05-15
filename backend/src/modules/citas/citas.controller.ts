@@ -98,4 +98,15 @@ export class CitasController {
   cancel(@Param('id', ParseUUIDPipe) id: string) {
     return this.citasService.cancel(id);
   }
+
+  /**
+   * Obtener citas por cliente/extranjero
+   */
+  @Get('cliente/:clienteId')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Obtener citas de un extranjero' })
+  @ApiParam({ name: 'clienteId', description: 'UUID del extranjero' })
+  getByCliente(@Param('clienteId', ParseUUIDPipe) clienteId: string) {
+    return this.citasService.getByCliente(clienteId);
+  }
 }

@@ -87,6 +87,34 @@ ${requisitosHtml}
     }
   }
 
+  /**
+   * Enviar recordatorio de cita al extranjero
+   */
+  async sendCitaReminderEmail(params: {
+    to: string;
+    nombreExtranjero: string;
+    tipoCita: string;
+    fecha: string;
+    hora: string;
+    modalidad: string;
+  }): Promise<void> {
+    const { to, nombreExtranjero, tipoCita, fecha, hora, modalidad } = params;
+    const tipoLabel = tipoCita === 'inm' ? 'Cita en el INM' : 'Entrevista con tu Gestor';
+    const modalidadLabel = modalidad === 'videollamada' ? 'Videollamada' : 'Presencial';
+
+    try {
+      await this.resend.emails.send({
+        from: `${this.fromName} <${this.fromEmail}>`,
+        to: [to],
+        subject: `Recordatorio: ${tipoLabel} el ${fecha} — Migración Segura MX`,
+        html: `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;font-family:-apple-system,sans-serif;background:#f5f0e8;"><table width="100%" style="max-width:600px;margin:0 auto;padding:40px 20px;"><tr><td><table width="100%" style="background:#2C1810;border-radius:12px 12px 0 0;padding:24px;"><tr><td align="center"><h1 style="color:#C4A265;margin:0;font-size:20px;">MIGRACIÓN SEGURA MX</h1></td></tr></table><table width="100%" style="background:#fff;padding:32px;"><tr><td><h2 style="color:#2C1810;font-size:18px;">Recordatorio de Cita</h2><p style="color:#4a4a4a;font-size:14px;">Hola ${nombreExtranjero}, te recordamos que tienes una cita en <strong>2 días</strong>:</p><table width="100%" style="margin:20px 0;background:#f8f5f0;border:1px solid #e8dfd3;border-radius:8px;padding:20px;"><tr><td><p style="font-size:12px;color:#6B5B4F;text-transform:uppercase;font-weight:600;margin:0 0 4px;">Tipo</p><p style="font-size:16px;color:#2C1810;margin:0 0 12px;">${tipoLabel}</p><p style="font-size:12px;color:#6B5B4F;text-transform:uppercase;font-weight:600;margin:0 0 4px;">Fecha y hora</p><p style="font-size:16px;color:#2C1810;margin:0 0 12px;">${fecha} a las ${hora}</p><p style="font-size:12px;color:#6B5B4F;text-transform:uppercase;font-weight:600;margin:0 0 4px;">Modalidad</p><p style="font-size:16px;color:#2C1810;margin:0;">${modalidadLabel}</p></td></tr></table><p style="color:#4a4a4a;font-size:14px;">Asegúrate de tener tus documentos listos. Si necesitas reagendar, contacta a tu gestor.</p></td></tr></table><table width="100%" style="background:#f8f5f0;border-radius:0 0 12px 12px;padding:20px;"><tr><td align="center"><p style="color:#6B5B4F;font-size:11px;margin:0;">© ${new Date().getFullYear()} Migración Segura MX</p></td></tr></table></td></tr></table></body></html>`,
+      });
+      this.logger.log(`Recordatorio de cita enviado a ${to}`);
+    } catch (error) {
+      this.logger.error(`Error enviando recordatorio a ${to}:`, error);
+    }
+  }
+
   private buildAsesorWelcomeHtml(params: {
     fullName: string;
     email: string;

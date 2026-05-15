@@ -7,12 +7,16 @@ import { CreateCitaDto } from './dto/create-cita.dto';
 import { RescheduleCitaDto } from './dto/reschedule-cita.dto';
 import { PaginatedResponseDto } from '../../common/dto/pagination.dto';
 import { EstatusCita } from '../../common/enums';
+import { EmailService } from '../email/email.service';
+import { ActivityLogService } from '../users/activity-log.service';
 
 @Injectable()
 export class CitasService {
   constructor(
     @InjectRepository(Cita)
     private readonly citaRepository: Repository<Cita>,
+    private readonly emailService: EmailService,
+    private readonly activityLogService: ActivityLogService,
   ) {}
 
   /**
@@ -22,6 +26,7 @@ export class CitasService {
     const cita = this.citaRepository.create({
       clienteId: dto.clienteId,
       asesorId: dto.asesorId,
+      tipo: dto.tipo || 'entrevista',
       fecha: dto.fecha as unknown as Date,
       hora: dto.hora,
       duracionMinutos: dto.duracionMinutos ?? 30,
@@ -30,7 +35,34 @@ export class CitasService {
       estatus: EstatusCita.PROGRAMADA,
     });
 
-    return this.citaRepository.save(cita);
+    const saved = await this.citaRepository.save(cita);
+
+    // Registrar actividad
+    await this.activityLogService.log({
+      action: 'CITA_CREADA',
+      resource: 'cita',
+      resourceId: saved.id,
+      details: { tipo: saved.tipo, fecha: dto.fecha, hora: dto.hora, modalidad: dto.modalidad, clienteId: dto.clienteId },
+    });
+
+    return saved;
+  }
+
+  /**
+   * Obtener citas que necesitan recordatorio (2 días antes)
+   */
+  async getCitasParaRecordatorio(): Promise<Cita[]> {
+    const twoDaysFromNow = new Date();
+    twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2);
+    const targetDate = twoDaysFromNow.toISOString().split('T')[0];
+
+    return this.citaRepository.find({
+      where: {
+        fecha: targetDate as unknown as Date,
+        estatus: EstatusCita.PROGRAMADA,
+      },
+      relations: ['cliente', 'asesor'],
+    });
   }
 
   /**

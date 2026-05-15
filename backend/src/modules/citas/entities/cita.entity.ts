@@ -22,6 +22,9 @@ export class Cita extends BaseEntity {
   @JoinColumn({ name: 'asesor_id' })
   asesor: User;
 
+  @Column({ type: 'varchar', length: 20, default: 'entrevista' })
+  tipo: string; // 'inm' | 'entrevista'
+
   @Column({ type: 'date' })
   fecha: Date;
 

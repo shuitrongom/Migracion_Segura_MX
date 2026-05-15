@@ -17,6 +17,7 @@ import {
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/auth.store';
 import { UserRole } from '@/lib/types';
+import { CitasTab } from '@/components/citas-tab';
 
 // --- Interfaces ---
 
@@ -610,16 +611,7 @@ export default function ClienteDetailPage() {
 
               {/* Citas Tab */}
               {activeTab === 'citas' && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium text-gray-700">Citas programadas</p>
-                  </div>
-                  <div className="text-center py-8">
-                    <Calendar className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-                    <p className="text-sm text-gray-400">No hay citas registradas para este extranjero.</p>
-                    <p className="text-xs text-gray-300 mt-1">Las citas del INM y entrevistas con el gestor aparecerán aquí.</p>
-                  </div>
-                </div>
+                <CitasTab clienteId={clienteId} />
               )}
 
               {/* Actividad Tab */}
