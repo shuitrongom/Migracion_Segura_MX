@@ -4,7 +4,6 @@ import {
   Users,
   FileText,
   Calendar,
-  Clock,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useDashboardMetrics, useCitasHoy, useRecentActivity } from '@/hooks/use-dashboard';
@@ -31,8 +30,8 @@ export default function DashboardPage() {
   const estatusQuery = useQuery({
     queryKey: ['dashboard', 'estatus-distribution'],
     queryFn: async () => {
-      // Traer todos los trámites (hasta 200) para contar por estatus
-      const res = await api.get('/tramites', { params: { page: 1, limit: 200 } });
+      // Traer trámites (máximo 100 por limitación del API)
+      const res = await api.get('/tramites', { params: { page: 1, limit: 100 } });
       const tramites = res.data?.data || [];
       const counts: Record<string, number> = {};
       tramites.forEach((t: any) => { counts[t.estatus] = (counts[t.estatus] || 0) + 1; });
@@ -52,16 +51,15 @@ export default function DashboardPage() {
       </div>
 
       {/* Metric cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {metricsQuery.isLoading ? (
-          <>{[1,2,3,4].map(i => <MetricCardSkeleton key={i} />)}</>
+          <>{[1,2,3].map(i => <MetricCardSkeleton key={i} />)}</>
         ) : metricsQuery.isError ? (
           <div className="col-span-full text-center py-8 text-red-500 text-sm">Error al cargar métricas.</div>
         ) : (
           <>
             <MetricCard title="Total Clientes" value={metricsQuery.data?.totalClientes?.toString() ?? '0'} icon={<Users className="h-5 w-5 text-brand-500" />} />
             <MetricCard title="Total Trámites" value={metricsQuery.data?.totalTramites?.toString() ?? '0'} icon={<FileText className="h-5 w-5 text-brand-500" />} />
-            <MetricCard title="Trámites en Proceso" value={metricsQuery.data?.tramitesEnProceso?.toString() ?? '0'} icon={<Clock className="h-5 w-5 text-warning-500" />} />
             <MetricCard title="Citas Hoy" value={citasHoyQuery.data?.length?.toString() ?? '0'} icon={<Calendar className="h-5 w-5 text-brand-500" />} />
           </>
         )}

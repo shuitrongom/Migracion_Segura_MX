@@ -9,16 +9,14 @@ export function useDashboardMetrics() {
   return useQuery({
     queryKey: ['dashboard', 'metrics'],
     queryFn: async () => {
-      const [tramitesResponse, clientesResponse, tramitesEnProcesoResponse] = await Promise.all([
+      const [tramitesResponse, clientesResponse] = await Promise.all([
         tramitesService.getTramites({ page: 1, limit: 1 }),
         clientesService.getClientes({ page: 1, limit: 1 }),
-        tramitesService.getTramites({ estatus: 'en_revision' as any, page: 1, limit: 1 }),
       ]);
 
       return {
         totalTramites: tramitesResponse.total,
         totalClientes: clientesResponse.total,
-        tramitesEnProceso: tramitesEnProcesoResponse.total,
       };
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
