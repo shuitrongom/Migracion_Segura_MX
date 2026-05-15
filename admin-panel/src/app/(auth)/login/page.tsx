@@ -45,7 +45,7 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-[#2C1810]">Migración Segura MX</h1>
-            <p className="text-[#6B5B4F] mt-2">Panel Administrativo</p>
+            <p className="text-[#6B5B4F] mt-2">Panel de Gestión</p>
           </div>
 
           {/* Formulario */}

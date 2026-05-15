@@ -1,20 +1,41 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth.store';
+import { UserRole } from '@/lib/types';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
 
+const ADMIN_ONLY_ROUTES = ['/asesores', '/reportes', '/automatizaciones', '/configuracion'];
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { isAuthenticated, isLoading, user } = useAuthStore();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.replace('/login');
     }
   }, [isLoading, isAuthenticated, router]);
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      // Solo admin y asesor pueden acceder al panel
+      if (user.role === UserRole.CLIENTE) {
+        router.replace('/login');
+        return;
+      }
+      // Redirigir asesores que intenten acceder a rutas de admin
+      if (user.role === UserRole.ASESOR) {
+        const isAdminRoute = ADMIN_ONLY_ROUTES.some((route) => pathname.startsWith(route));
+        if (isAdminRoute) {
+          router.replace('/dashboard');
+        }
+      }
+    }
+  }, [isLoading, isAuthenticated, user, pathname, router]);
 
   if (isLoading) {
     return (

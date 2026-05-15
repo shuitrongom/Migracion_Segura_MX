@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 import { User } from './entities/user.entity';
 import { UserRole } from '../../common/enums';
+import { CreateAsesorDto } from './dto/create-asesor.dto';
 
 @Injectable()
 export class UsersService {
@@ -210,6 +212,17 @@ export class UsersService {
   }
 
   /**
+   * Listar usuarios por rol (para selects de asesores, etc.)
+   */
+  async findByRole(role: UserRole): Promise<Pick<User, 'id' | 'fullName' | 'email'>[]> {
+    return this.userRepository.find({
+      where: { role, isVerified: true },
+      select: ['id', 'fullName', 'email'],
+      order: { fullName: 'ASC' },
+    });
+  }
+
+  /**
    * Actualizar última actividad
    */
   async updateLastActivity(userId: string): Promise<void> {
@@ -231,5 +244,41 @@ export class UsersService {
     preferences: Record<string, boolean>,
   ): Promise<void> {
     await this.userRepository.update(userId, { notificationPreferences: preferences });
+  }
+
+  /**
+   * Crear asesor (solo admin)
+   */
+  async createAsesor(dto: CreateAsesorDto): Promise<Pick<User, 'id' | 'fullName' | 'email'>> {
+    const existing = await this.userRepository.findOne({ where: { email: dto.email } });
+    if (existing) {
+      throw new ConflictException('Ya existe un usuario con ese correo electrónico');
+    }
+
+    const passwordHash = await bcrypt.hash(dto.password, 12);
+
+    const user = this.userRepository.create({
+      email: dto.email,
+      fullName: dto.fullName,
+      phone: dto.phone || null,
+      passwordHash,
+      role: UserRole.ASESOR,
+      isVerified: true,
+    });
+
+    const saved = await this.userRepository.save(user);
+    return { id: saved.id, fullName: saved.fullName, email: saved.email };
+  }
+
+  /**
+   * Eliminar asesor (soft delete)
+   */
+  async deleteAsesor(id: string): Promise<{ message: string }> {
+    const user = await this.userRepository.findOne({ where: { id, role: UserRole.ASESOR } });
+    if (!user) {
+      throw new NotFoundException('Asesor no encontrado');
+    }
+    await this.userRepository.softDelete(id);
+    return { message: 'Asesor eliminado exitosamente' };
   }
 }

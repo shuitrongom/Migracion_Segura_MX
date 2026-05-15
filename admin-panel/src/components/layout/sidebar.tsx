@@ -14,25 +14,42 @@ import {
   MessageSquare,
   Settings,
   Zap,
+  UserCog,
 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useAuthStore } from '@/stores/auth.store';
+import { UserRole } from '@/lib/types';
 
-const navigation = [
+interface NavItem {
+  name: string;
+  href: string;
+  icon: typeof LayoutDashboard;
+  adminOnly?: boolean;
+}
+
+const navigation: NavItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Clientes', href: '/clientes', icon: Users },
+  { name: 'Asesores', href: '/asesores', icon: UserCog, adminOnly: true },
   { name: 'Trámites', href: '/tramites', icon: FileText },
   { name: 'Documentos', href: '/documentos', icon: FolderOpen },
   { name: 'Citas', href: '/citas', icon: Calendar },
   { name: 'Soporte', href: '/soporte', icon: MessageSquare },
   { name: 'Financiero', href: '/financiero', icon: DollarSign },
-  { name: 'Reportes', href: '/reportes', icon: BarChart3 },
+  { name: 'Reportes', href: '/reportes', icon: BarChart3, adminOnly: true },
   { name: 'Notificaciones', href: '/notificaciones', icon: Bell },
-  { name: 'Automatizaciones', href: '/automatizaciones', icon: Zap },
-  { name: 'Configuración', href: '/configuracion', icon: Settings },
+  { name: 'Automatizaciones', href: '/automatizaciones', icon: Zap, adminOnly: true },
+  { name: 'Configuración', href: '/configuracion', icon: Settings, adminOnly: true },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role === UserRole.ADMINISTRADOR;
+
+  const filteredNavigation = navigation.filter(
+    (item) => !item.adminOnly || isAdmin,
+  );
 
   return (
     <aside className="hidden lg:flex lg:flex-col w-64 bg-brand-500 text-white">
@@ -45,14 +62,14 @@ export function Sidebar() {
       {/* Version badge */}
       <div className="px-6 py-3">
         <span className="inline-block px-3 py-1 bg-gold-500/20 text-gold-300 text-xs font-medium rounded-full border border-gold-500/30">
-          VERSIÓN ADMINISTRADOR
+          {isAdmin ? 'ADMINISTRADOR' : 'ASESOR'}
         </span>
       </div>
 
       {/* Navegación */}
       <nav className="flex-1 overflow-y-auto py-2 px-3">
         <ul className="space-y-1">
-          {navigation.map((item) => {
+          {filteredNavigation.map((item) => {
             const isActive = pathname.startsWith(item.href);
             return (
               <li key={item.name}>

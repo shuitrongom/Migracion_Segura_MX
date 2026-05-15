@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, X } from 'lucide-react';
 import Link from 'next/link';
@@ -21,14 +21,16 @@ interface FormErrors {
   telefono?: string;
 }
 
-const ASESORES = [
-  { id: 'asesor-1', nombre: 'Carlos Mendoza' },
-  { id: 'asesor-2', nombre: 'Ana Rodríguez' },
-  { id: 'asesor-3', nombre: 'Luis Hernández' },
-];
+interface Asesor {
+  id: string;
+  fullName: string | null;
+  email: string;
+}
 
 export default function NuevoClientePage() {
   const router = useRouter();
+  const [asesores, setAsesores] = useState<Asesor[]>([]);
+  const [loadingAsesores, setLoadingAsesores] = useState(true);
   const [formData, setFormData] = useState<FormData>({
     nombreCompleto: '',
     email: '',
@@ -39,6 +41,21 @@ export default function NuevoClientePage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [tagInput, setTagInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const fetchAsesores = async () => {
+      try {
+        const response = await api.get('/users/asesores');
+        setAsesores(response.data);
+      } catch {
+        // Si falla, el select simplemente no mostrará opciones
+        console.error('Error al cargar asesores');
+      } finally {
+        setLoadingAsesores(false);
+      }
+    };
+    fetchAsesores();
+  }, []);
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
@@ -189,12 +206,13 @@ export default function NuevoClientePage() {
               id="asesorId"
               value={formData.asesorId}
               onChange={(e) => setFormData((prev) => ({ ...prev, asesorId: e.target.value }))}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              disabled={loadingAsesores}
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent disabled:opacity-50"
             >
               <option value="">Sin asignar</option>
-              {ASESORES.map((asesor) => (
+              {asesores.map((asesor) => (
                 <option key={asesor.id} value={asesor.id}>
-                  {asesor.nombre}
+                  {asesor.fullName || asesor.email}
                 </option>
               ))}
             </select>
