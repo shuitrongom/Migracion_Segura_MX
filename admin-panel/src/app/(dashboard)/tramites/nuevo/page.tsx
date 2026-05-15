@@ -88,6 +88,12 @@ export default function NuevoTramitePage() {
   const [contrasenaINM, setContrasenaINM] = useState('');
   const [pdfFile, setPdfFile] = useState<File | null>(null);
 
+  // Errores de validación por campo
+  const [fieldErrors, setFieldErrors] = useState<Record<string, boolean>>({});
+  const hasError = (field: string) => fieldErrors[field] === true;
+  const inputClass = (field: string) => `w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 ${hasError(field) ? 'border-red-400 bg-red-50/30' : 'border-gray-200'}`;
+  const ErrorMsg = ({ field }: { field: string }) => hasError(field) ? <p className="text-[11px] text-red-500 mt-1">Este campo es requerido</p> : null;
+
   // Requisitos y costo
   const [requisitos, setRequisitos] = useState<Requisito[]>([]);
   const [costo, setCosto] = useState<Costo | null>(null);
@@ -105,6 +111,7 @@ export default function NuevoTramitePage() {
 
   const updateExtranjero = (field: string, value: string) => {
     setExtranjero(prev => ({ ...prev, [field]: value }));
+    if (fieldErrors[field]) setFieldErrors(prev => { const n = { ...prev }; delete n[field]; return n; });
   };
 
   const copyToClipboard = (text: string) => {
@@ -136,47 +143,55 @@ export default function NuevoTramitePage() {
   const handleNext = () => {
     if (step === 0 && !selectedTramite) { toast.error('Selecciona un tipo de trámite'); return; }
     if (step === 1) {
-      if (!extranjero.propositoViaje) { toast.error('Selecciona el propósito del viaje'); return; }
-      if (!extranjero.nombre.trim()) { toast.error('Ingresa el nombre del extranjero'); return; }
-      if (!extranjero.apellidos.trim()) { toast.error('Ingresa los apellidos del extranjero'); return; }
-      if (!extranjero.sexo) { toast.error('Selecciona el sexo'); return; }
-      if (!extranjero.fechaNacimiento) { toast.error('Ingresa la fecha de nacimiento'); return; }
-      if (!extranjero.nacionalidad) { toast.error('Selecciona la nacionalidad actual'); return; }
-      if (!extranjero.paisNacimiento) { toast.error('Selecciona el país de nacimiento'); return; }
-      if (!extranjero.estadoProvinciaNacimiento.trim()) { toast.error('Ingresa el estado o provincia de nacimiento'); return; }
-      if (!extranjero.documentoIdentificacion) { toast.error('Selecciona el documento de identificación'); return; }
-      if (!extranjero.numeroDocumento.trim()) { toast.error('Ingresa el número de documento'); return; }
-      if (!extranjero.paisExpedicion) { toast.error('Selecciona el país de expedición'); return; }
-      if (!extranjero.actividadPrincipal) { toast.error('Selecciona la actividad principal'); return; }
-      if (!extranjero.expulsadoMexico) { toast.error('Indica si ha sido expulsado de México'); return; }
-      if (!extranjero.antecedentesPenales) { toast.error('Indica si tiene antecedentes penales'); return; }
-      if (!solicitante.tipoPersona) { toast.error('Selecciona el tipo de persona del solicitante'); return; }
+      const errors: Record<string, boolean> = {};
+      if (!extranjero.propositoViaje) errors['propositoViaje'] = true;
+      if (!extranjero.nombre.trim()) errors['nombre'] = true;
+      if (!extranjero.apellidos.trim()) errors['apellidos'] = true;
+      if (!extranjero.sexo) errors['sexo'] = true;
+      if (!extranjero.fechaNacimiento) errors['fechaNacimiento'] = true;
+      if (!extranjero.nacionalidad) errors['nacionalidad'] = true;
+      if (!extranjero.paisNacimiento) errors['paisNacimiento'] = true;
+      if (!extranjero.estadoProvinciaNacimiento.trim()) errors['estadoProvinciaNacimiento'] = true;
+      if (!extranjero.documentoIdentificacion) errors['documentoIdentificacion'] = true;
+      if (!extranjero.numeroDocumento.trim()) errors['numeroDocumento'] = true;
+      if (!extranjero.paisExpedicion) errors['paisExpedicion'] = true;
+      if (!extranjero.actividadPrincipal) errors['actividadPrincipal'] = true;
+      if (!extranjero.expulsadoMexico) errors['expulsadoMexico'] = true;
+      if (!extranjero.antecedentesPenales) errors['antecedentesPenales'] = true;
+      if (!solicitante.tipoPersona) errors['tipoPersona'] = true;
       if (solicitante.tipoPersona === 'Física') {
-        if (!solicitante.nombre.trim()) { toast.error('Ingresa el nombre del solicitante (persona física)'); return; }
-        if (!solicitante.apellidos.trim()) { toast.error('Ingresa los apellidos del solicitante'); return; }
-        if (!solicitante.nacionalidad) { toast.error('Selecciona la nacionalidad del solicitante'); return; }
-        if (!solicitante.tipoDocumento) { toast.error('Selecciona el tipo de documento del solicitante'); return; }
-        if (!solicitante.numeroDocumento.trim()) { toast.error('Ingresa el número de documento del solicitante'); return; }
-        if (!solicitante.codigoPostal.trim()) { toast.error('Ingresa el código postal del solicitante'); return; }
-        if (!solicitante.estado) { toast.error('Selecciona el estado del solicitante'); return; }
-        if (!solicitante.municipio) { toast.error('Selecciona el municipio del solicitante'); return; }
-        if (!solicitante.colonia.trim()) { toast.error('Ingresa la colonia del solicitante'); return; }
-        if (!solicitante.calle.trim()) { toast.error('Ingresa la calle del solicitante'); return; }
-        if (!solicitante.numeroExterior.trim()) { toast.error('Ingresa el número exterior del solicitante'); return; }
+        if (!solicitante.nombre.trim()) errors['sol_nombre'] = true;
+        if (!solicitante.apellidos.trim()) errors['sol_apellidos'] = true;
+        if (!solicitante.nacionalidad) errors['sol_nacionalidad'] = true;
+        if (!solicitante.tipoDocumento) errors['sol_tipoDocumento'] = true;
+        if (!solicitante.numeroDocumento.trim()) errors['sol_numeroDocumento'] = true;
+        if (!solicitante.codigoPostal.trim()) errors['sol_codigoPostal'] = true;
+        if (!solicitante.estado) errors['sol_estado'] = true;
+        if (!solicitante.municipio) errors['sol_municipio'] = true;
+        if (!solicitante.colonia.trim()) errors['sol_colonia'] = true;
+        if (!solicitante.calle.trim()) errors['sol_calle'] = true;
+        if (!solicitante.numeroExterior.trim()) errors['sol_numeroExterior'] = true;
       }
       if (solicitante.tipoPersona === 'Moral') {
-        if (!solicitante.moralRfc.trim()) { toast.error('Ingresa el RFC de la persona moral'); return; }
-        if (!solicitante.moralRazonSocial.trim()) { toast.error('Ingresa la razón social'); return; }
-        if (!solicitante.moralCodigoPostal.trim()) { toast.error('Ingresa el código postal de la persona moral'); return; }
-        if (!solicitante.moralEstado) { toast.error('Selecciona el estado de la persona moral'); return; }
-        if (!solicitante.moralMunicipio) { toast.error('Selecciona el municipio de la persona moral'); return; }
-        if (!solicitante.moralColonia.trim()) { toast.error('Ingresa la colonia de la persona moral'); return; }
-        if (!solicitante.moralCalle.trim()) { toast.error('Ingresa la calle de la persona moral'); return; }
-        if (!solicitante.moralNumeroExterior.trim()) { toast.error('Ingresa el número exterior de la persona moral'); return; }
+        if (!solicitante.moralRfc.trim()) errors['moral_rfc'] = true;
+        if (!solicitante.moralRazonSocial.trim()) errors['moral_razonSocial'] = true;
+        if (!solicitante.moralCodigoPostal.trim()) errors['moral_codigoPostal'] = true;
+        if (!solicitante.moralEstado) errors['moral_estado'] = true;
+        if (!solicitante.moralMunicipio) errors['moral_municipio'] = true;
+        if (!solicitante.moralColonia.trim()) errors['moral_colonia'] = true;
+        if (!solicitante.moralCalle.trim()) errors['moral_calle'] = true;
+        if (!solicitante.moralNumeroExterior.trim()) errors['moral_numeroExterior'] = true;
       }
-      if (!extranjero.solicitanteEmail.trim()) { toast.error('Ingresa el correo electrónico del promovente'); return; }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(extranjero.solicitanteEmail)) { toast.error('Ingresa un correo electrónico válido'); return; }
-      if (extranjero.solicitanteEmail !== extranjero.solicitanteEmailConfirmacion) { toast.error('Los correos electrónicos no coinciden'); return; }
+      if (!extranjero.solicitanteEmail.trim()) errors['solicitanteEmail'] = true;
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(extranjero.solicitanteEmail)) errors['solicitanteEmail'] = true;
+      if (!extranjero.solicitanteEmailConfirmacion.trim()) errors['solicitanteEmailConfirmacion'] = true;
+      else if (extranjero.solicitanteEmail !== extranjero.solicitanteEmailConfirmacion) errors['solicitanteEmailConfirmacion'] = true;
+
+      setFieldErrors(errors);
+      if (Object.keys(errors).length > 0) {
+        toast.error('Completa todos los campos obligatorios marcados con *');
+        return;
+      }
     }
     if (step === 3) {
       if (!numeroPieza.trim()) { toast.error('Ingresa el número de pieza'); return; }
@@ -266,18 +281,18 @@ export default function NuevoTramitePage() {
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Propósito del viaje</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Propósito de viaje *</label><select value={extranjero.propositoViaje} onChange={e => updateExtranjero('propositoViaje', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{PROPOSITOS_VIAJE.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Propósito de viaje *</label><select value={extranjero.propositoViaje} onChange={e => updateExtranjero('propositoViaje', e.target.value)} className={inputClass('propositoViaje')}><option value="">Selecciona</option>{PROPOSITOS_VIAJE.map(p => <option key={p} value={p}>{p}</option>)}</select><ErrorMsg field="propositoViaje" /></div>
               </div>
             </div>
 
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Datos del extranjero (conforme a pasaporte o documento de identidad)</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre(s) *</label><input type="text" value={extranjero.nombre} onChange={e => updateExtranjero('nombre', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Apellido(s) *</label><input type="text" value={extranjero.apellidos} onChange={e => updateExtranjero('apellidos', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Sexo *</label><select value={extranjero.sexo} onChange={e => updateExtranjero('sexo', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{SEXOS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}</select></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Fecha de nacimiento *</label><DatePicker value={extranjero.fechaNacimiento} onChange={v => updateExtranjero('fechaNacimiento', v)} yearRange={[1940, 2010]} /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nacionalidad actual *</label><select value={extranjero.nacionalidad} onChange={e => updateExtranjero('nacionalidad', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{NACIONALIDADES.map(n => <option key={n} value={n}>{n}</option>)}</select></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre(s) *</label><input type="text" value={extranjero.nombre} onChange={e => updateExtranjero('nombre', e.target.value)} className={inputClass('nombre')} /><ErrorMsg field="nombre" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Apellido(s) *</label><input type="text" value={extranjero.apellidos} onChange={e => updateExtranjero('apellidos', e.target.value)} className={inputClass('apellidos')} /><ErrorMsg field="apellidos" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Sexo *</label><select value={extranjero.sexo} onChange={e => updateExtranjero('sexo', e.target.value)} className={inputClass('sexo')}><option value="">Selecciona</option>{SEXOS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}</select><ErrorMsg field="sexo" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Fecha de nacimiento *</label><DatePicker value={extranjero.fechaNacimiento} onChange={v => updateExtranjero('fechaNacimiento', v)} yearRange={[1940, 2010]} /><ErrorMsg field="fechaNacimiento" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nacionalidad actual *</label><select value={extranjero.nacionalidad} onChange={e => updateExtranjero('nacionalidad', e.target.value)} className={inputClass('nacionalidad')}><option value="">Selecciona</option>{NACIONALIDADES.map(n => <option key={n} value={n}>{n}</option>)}</select><ErrorMsg field="nacionalidad" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Estado civil actual</label><select value={extranjero.estadoCivil} onChange={e => updateExtranjero('estadoCivil', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{ESTADOS_CIVILES.map(ec => <option key={ec.value} value={ec.value}>{ec.label}</option>)}</select></div>
               </div>
             </div>
@@ -285,17 +300,17 @@ export default function NuevoTramitePage() {
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Lugar de nacimiento</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">País de nacimiento *</label><select value={extranjero.paisNacimiento} onChange={e => updateExtranjero('paisNacimiento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{PAISES.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Estado, provincia o departamento *</label><input type="text" value={extranjero.estadoProvinciaNacimiento} onChange={e => updateExtranjero('estadoProvinciaNacimiento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">País de nacimiento *</label><select value={extranjero.paisNacimiento} onChange={e => updateExtranjero('paisNacimiento', e.target.value)} className={inputClass('paisNacimiento')}><option value="">Selecciona</option>{PAISES.map(p => <option key={p} value={p}>{p}</option>)}</select><ErrorMsg field="paisNacimiento" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Estado, provincia o departamento *</label><input type="text" value={extranjero.estadoProvinciaNacimiento} onChange={e => updateExtranjero('estadoProvinciaNacimiento', e.target.value)} className={inputClass('estadoProvinciaNacimiento')} /><ErrorMsg field="estadoProvinciaNacimiento" /></div>
               </div>
             </div>
 
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Pasaporte o documento con el que se identifica el extranjero</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Documento de identificación *</label><select value={extranjero.documentoIdentificacion} onChange={e => updateExtranjero('documentoIdentificacion', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{DOCUMENTOS_IDENTIFICACION.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Número de documento *</label><input type="text" value={extranjero.numeroDocumento} onChange={e => updateExtranjero('numeroDocumento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">País de expedición *</label><select value={extranjero.paisExpedicion} onChange={e => updateExtranjero('paisExpedicion', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{PAISES.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Documento de identificación *</label><select value={extranjero.documentoIdentificacion} onChange={e => updateExtranjero('documentoIdentificacion', e.target.value)} className={inputClass('documentoIdentificacion')}><option value="">Selecciona</option>{DOCUMENTOS_IDENTIFICACION.map(d => <option key={d} value={d}>{d}</option>)}</select><ErrorMsg field="documentoIdentificacion" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Número de documento *</label><input type="text" value={extranjero.numeroDocumento} onChange={e => updateExtranjero('numeroDocumento', e.target.value)} className={inputClass('numeroDocumento')} /><ErrorMsg field="numeroDocumento" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">País de expedición *</label><select value={extranjero.paisExpedicion} onChange={e => updateExtranjero('paisExpedicion', e.target.value)} className={inputClass('paisExpedicion')}><option value="">Selecciona</option>{PAISES.map(p => <option key={p} value={p}>{p}</option>)}</select><ErrorMsg field="paisExpedicion" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Fecha de expedición</label><DatePicker value={extranjero.fechaExpedicion} onChange={v => updateExtranjero('fechaExpedicion', v)} yearRange={[2000, 2026]} /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Fecha de vencimiento</label><DatePicker value={extranjero.fechaVencimiento} onChange={v => updateExtranjero('fechaVencimiento', v)} yearRange={[2024, 2040]} /></div>
               </div>
@@ -304,9 +319,9 @@ export default function NuevoTramitePage() {
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Información adicional del extranjero</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Actividad principal en tu país de residencia *</label><select value={extranjero.actividadPrincipal} onChange={e => updateExtranjero('actividadPrincipal', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{ACTIVIDADES_PRINCIPALES.map(a => <option key={a} value={a}>{a}</option>)}</select></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Has sido expulsado de México? *</label><select value={extranjero.expulsadoMexico} onChange={e => updateExtranjero('expulsadoMexico', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{SI_NO.map(o => <option key={o} value={o}>{o}</option>)}</select></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Tienes antecedentes penales? *</label><select value={extranjero.antecedentesPenales} onChange={e => updateExtranjero('antecedentesPenales', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{SI_NO.map(o => <option key={o} value={o}>{o}</option>)}</select></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Actividad principal en tu país de residencia *</label><select value={extranjero.actividadPrincipal} onChange={e => updateExtranjero('actividadPrincipal', e.target.value)} className={inputClass('actividadPrincipal')}><option value="">Selecciona</option>{ACTIVIDADES_PRINCIPALES.map(a => <option key={a} value={a}>{a}</option>)}</select><ErrorMsg field="actividadPrincipal" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Has sido expulsado de México? *</label><select value={extranjero.expulsadoMexico} onChange={e => updateExtranjero('expulsadoMexico', e.target.value)} className={inputClass('expulsadoMexico')}><option value="">Selecciona</option>{SI_NO.map(o => <option key={o} value={o}>{o}</option>)}</select><ErrorMsg field="expulsadoMexico" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Tienes antecedentes penales? *</label><select value={extranjero.antecedentesPenales} onChange={e => updateExtranjero('antecedentesPenales', e.target.value)} className={inputClass('antecedentesPenales')}><option value="">Selecciona</option>{SI_NO.map(o => <option key={o} value={o}>{o}</option>)}</select><ErrorMsg field="antecedentesPenales" /></div>
               </div>
             </div>
 
@@ -336,7 +351,7 @@ export default function NuevoTramitePage() {
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Datos de la institución, organismo o persona que solicita la autorización de la visa</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Tipo de persona *</label><select value={solicitante.tipoPersona} onChange={e => updateSolicitante('tipoPersona', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{TIPOS_PERSONA.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Tipo de persona *</label><select value={solicitante.tipoPersona} onChange={e => { updateSolicitante('tipoPersona', e.target.value); if (fieldErrors['tipoPersona']) setFieldErrors(prev => { const n = { ...prev }; delete n['tipoPersona']; return n; }); }} className={inputClass('tipoPersona')}><option value="">Selecciona</option>{TIPOS_PERSONA.map(t => <option key={t} value={t}>{t}</option>)}</select><ErrorMsg field="tipoPersona" /></div>
               </div>
 
               {solicitante.tipoPersona === 'Física' && (
@@ -405,8 +420,8 @@ export default function NuevoTramitePage() {
                 <p className="text-xs text-blue-800 text-center">Agrega la dirección de correo electrónico en donde se recibirán las notificaciones asociadas a tu trámite.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico *</label><input type="email" value={extranjero.solicitanteEmail} onChange={e => updateExtranjero('solicitanteEmail', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="nombre@correo.com" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico (confirmación) *</label><input type="email" value={extranjero.solicitanteEmailConfirmacion} onChange={e => updateExtranjero('solicitanteEmailConfirmacion', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="nombre@correo.com" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico *</label><input type="email" value={extranjero.solicitanteEmail} onChange={e => updateExtranjero('solicitanteEmail', e.target.value)} className={inputClass('solicitanteEmail')} placeholder="nombre@correo.com" /><ErrorMsg field="solicitanteEmail" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico (confirmación) *</label><input type="email" value={extranjero.solicitanteEmailConfirmacion} onChange={e => updateExtranjero('solicitanteEmailConfirmacion', e.target.value)} className={inputClass('solicitanteEmailConfirmacion')} placeholder="nombre@correo.com" /><ErrorMsg field="solicitanteEmailConfirmacion" /></div>
               </div>
             </div>
 
