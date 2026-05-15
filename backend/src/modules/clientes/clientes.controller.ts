@@ -32,8 +32,8 @@ export class ClientesController {
   @Post()
   @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
   @ApiOperation({ summary: 'Crear nuevo cliente' })
-  create(@Body() dto: CreateClienteDto, @Request() req: { user: { sub: string } }) {
-    return this.clientesService.create(dto, req.user.sub);
+  create(@Body() dto: CreateClienteDto, @Request() req: { user: { id: string } }) {
+    return this.clientesService.create(dto, req.user.id);
   }
 
   /**
@@ -114,9 +114,9 @@ export class ClientesController {
   createNota(
     @Param('id', ParseUUIDPipe) id: string,
     @Body('contenido') contenido: string,
-    @Request() req: { user: { sub: string } },
+    @Request() req: { user: { id: string } },
   ) {
-    return this.clientesService.createNota(id, req.user.sub, contenido);
+    return this.clientesService.createNota(id, req.user.id, contenido);
   }
 
   /**

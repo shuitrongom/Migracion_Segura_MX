@@ -61,9 +61,9 @@ export class DocumentosController {
   upload(
     @UploadedFile() file: Express.Multer.File,
     @Body() dto: UploadDocumentoDto,
-    @Request() req: { user: { sub: string } },
+    @Request() req: { user: { id: string } },
   ) {
-    return this.documentosService.upload(file, dto, req.user.sub);
+    return this.documentosService.upload(file, dto, req.user.id);
   }
 
   /**
@@ -175,9 +175,9 @@ export class DocumentosController {
   aprobar(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: AprobarDocumentoDto,
-    @Request() req: { user: { sub: string } },
+    @Request() req: { user: { id: string } },
   ) {
-    return this.documentosService.aprobar(id, req.user.sub, dto.comentario);
+    return this.documentosService.aprobar(id, req.user.id, dto.comentario);
   }
 
   /**
@@ -190,8 +190,8 @@ export class DocumentosController {
   rechazar(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: RechazarDocumentoDto,
-    @Request() req: { user: { sub: string } },
+    @Request() req: { user: { id: string } },
   ) {
-    return this.documentosService.rechazar(id, req.user.sub, dto.razon);
+    return this.documentosService.rechazar(id, req.user.id, dto.razon);
   }
 }
