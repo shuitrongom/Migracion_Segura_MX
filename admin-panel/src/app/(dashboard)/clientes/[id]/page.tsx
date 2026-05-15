@@ -167,31 +167,24 @@ export default function ClienteDetailPage() {
 
   // Fetch timeline when tab changes to actividad
   const fetchTimeline = useCallback(async () => {
-    if (tramites.length === 0) {
-      setTimeline([]);
-      return;
-    }
     try {
-      const allEvents: TimelineEvent[] = [];
-      for (const tramite of tramites) {
-        try {
-          const res = await api.get(`/tramites/${tramite.id}/timeline`);
-          const events: TimelineEvent[] = res.data?.data || res.data || [];
-          allEvents.push(...events);
-        } catch {
-          // Skip if no timeline for this tramite
-        }
-      }
-      // Sort by date descending
-      allEvents.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-      setTimeline(allEvents);
+      const res = await api.get(`/clientes/${clienteId}/actividad`);
+      const events = (res.data || []).map((log: any) => ({
+        id: log.id,
+        nombre: log.action === 'TRAMITE_CREADO' ? 'Trámite creado' :
+                log.action === 'CAMBIO_ESTATUS' ? `Estatus cambiado a: ${log.details?.estatusNuevo || ''}` :
+                log.action === 'DOCUMENTO_SUBIDO' ? `Documento subido: ${log.details?.nombre || ''}` :
+                log.action,
+        completada: true,
+        fechaCompletada: log.createdAt,
+        observaciones: log.details?.observaciones || null,
+        createdAt: log.createdAt,
+      }));
+      setTimeline(events);
     } catch {
       setTimeline([]);
     }
-  }, [tramites]);
+  }, [clienteId]);
 
   useEffect(() => {
     if (activeTab === 'documentos') {

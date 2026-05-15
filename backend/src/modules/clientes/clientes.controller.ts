@@ -19,12 +19,16 @@ import { UpdateClienteDto } from './dto/update-cliente.dto';
 import { SearchClientesDto } from './dto/search-clientes.dto';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '../../common/enums';
+import { ActivityLogService } from '../users/activity-log.service';
 
 @ApiTags('Clientes')
 @ApiBearerAuth()
 @Controller('clientes')
 export class ClientesController {
-  constructor(private readonly clientesService: ClientesService) {}
+  constructor(
+    private readonly clientesService: ClientesService,
+    private readonly activityLogService: ActivityLogService,
+  ) {}
 
   /**
    * Req 9.1 - Crear cliente
@@ -101,7 +105,7 @@ export class ClientesController {
   @ApiOperation({ summary: 'Obtener historial de actividad del cliente' })
   @ApiParam({ name: 'id', description: 'UUID del cliente' })
   getActivityHistory(@Param('id', ParseUUIDPipe) id: string) {
-    return this.clientesService.getActivityHistory(id);
+    return this.activityLogService.getByClienteId(id);
   }
 
   /**

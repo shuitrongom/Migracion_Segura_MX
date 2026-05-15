@@ -76,4 +76,27 @@ export class ActivityLogService {
       take: limit,
     });
   }
+
+  /**
+   * Obtener actividad por recurso (tramite, cliente, etc.)
+   */
+  async getByResource(resource: string, resourceId: string): Promise<ActivityLog[]> {
+    return this.logRepository.find({
+      where: { resource, resourceId },
+      order: { createdAt: 'DESC' },
+      take: 50,
+    });
+  }
+
+  /**
+   * Obtener actividad por clienteId (busca en details.clienteId)
+   */
+  async getByClienteId(clienteId: string): Promise<ActivityLog[]> {
+    return this.logRepository
+      .createQueryBuilder('log')
+      .where("log.details->>'clienteId' = :clienteId", { clienteId })
+      .orderBy('log.created_at', 'DESC')
+      .take(50)
+      .getMany();
+  }
 }

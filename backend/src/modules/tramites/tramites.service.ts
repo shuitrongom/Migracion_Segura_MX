@@ -17,6 +17,7 @@ import {
 import { EstatusTramite, TipoTramite, UserRole } from '../../common/enums';
 import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination.dto';
 import { UsersService } from '../users/users.service';
+import { ActivityLogService } from '../users/activity-log.service';
 
 @Injectable()
 export class TramitesService {
@@ -30,6 +31,7 @@ export class TramitesService {
     @InjectRepository(PlantillaProceso)
     private readonly plantillaRepository: Repository<PlantillaProceso>,
     private readonly usersService: UsersService,
+    private readonly activityLogService: ActivityLogService,
   ) {}
 
   /**
@@ -64,6 +66,14 @@ export class TramitesService {
     if (!esBorrador) {
       await this.createExpediente(saved.clienteId, saved.id);
     }
+
+    // Registrar actividad
+    await this.activityLogService.log({
+      action: 'TRAMITE_CREADO',
+      resource: 'tramite',
+      resourceId: saved.id,
+      details: { tipo: saved.tipo, estatus: saved.estatus, clienteId: saved.clienteId, numeroPieza: saved.numeroPieza },
+    });
 
     return this.findOneOrFail(saved.id);
   }
@@ -143,6 +153,19 @@ export class TramitesService {
     }
 
     const saved = await this.tramiteRepository.save(tramite);
+
+    // Registrar cambio de estatus en actividad
+    await this.activityLogService.log({
+      action: 'CAMBIO_ESTATUS',
+      resource: 'tramite',
+      resourceId: tramiteId,
+      details: {
+        estatusAnterior: tramite.estatus !== dto.estatus ? 'anterior' : null,
+        estatusNuevo: dto.estatus,
+        observaciones: dto.observaciones || null,
+        clienteId: tramite.clienteId,
+      },
+    });
 
     // Si hay observaciones, agregarlas a la etapa actual
     if (dto.observaciones) {

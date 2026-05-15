@@ -13,6 +13,7 @@ import { UploadDocumentoDto } from './dto/upload-documento.dto';
 import { StorageService } from '../../common/services/storage.service';
 import { EncryptionService } from '../../common/services/encryption.service';
 import { EstatusDocumento } from '../../common/enums';
+import { ActivityLogService } from '../users/activity-log.service';
 
 @Injectable()
 export class DocumentosService {
@@ -25,6 +26,7 @@ export class DocumentosService {
     private readonly expedienteRepository: Repository<Expediente>,
     private readonly storageService: StorageService,
     private readonly encryptionService: EncryptionService,
+    private readonly activityLogService: ActivityLogService,
   ) {}
 
   /**
@@ -98,6 +100,16 @@ export class DocumentosService {
 
     const saved = await this.documentoRepository.save(documento);
     this.logger.log(`Documento subido: ${saved.id} para expediente ${expedienteId}`);
+
+    // Registrar actividad
+    await this.activityLogService.log({
+      userId: usuarioId,
+      action: 'DOCUMENTO_SUBIDO',
+      resource: 'documento',
+      resourceId: saved.id,
+      details: { nombre: saved.nombre, categoria: saved.categoria, tramiteId: dto.tramiteId, clienteId: expediente.clienteId },
+    });
+
     return saved;
   }
 
