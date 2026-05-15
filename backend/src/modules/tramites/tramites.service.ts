@@ -38,13 +38,19 @@ export class TramitesService {
   async create(dto: CreateTramiteDto): Promise<Tramite> {
     const esBorrador = dto.esBorrador ?? false;
 
+    // Extraer pieza y contraseña del INM si vienen en datosFormulario
+    const datosFormulario = dto.datosFormulario || null;
+    const numeroPiezaINM = datosFormulario?.numeroPiezaINM as string | undefined;
+    const contrasenaINM = datosFormulario?.contrasenaINM as string | undefined;
+
     const tramite = this.tramiteRepository.create({
       clienteId: dto.clienteId,
       tipo: dto.tipo,
-      datosFormulario: dto.datosFormulario || null,
+      datosFormulario,
       asesorId: dto.asesorId || null,
       estatus: esBorrador ? EstatusTramite.BORRADOR : EstatusTramite.RECIBIDO,
-      numeroPieza: esBorrador ? null : await this.generateNumeroPieza(),
+      numeroPieza: numeroPiezaINM || (esBorrador ? null : await this.generateNumeroPieza()),
+      contrasenaTramite: contrasenaINM || null,
     });
 
     const saved = await this.tramiteRepository.save(tramite);
@@ -460,10 +466,11 @@ export class TramitesService {
         { nombre: 'documentoActual', tipo: 'text', requerido: true, label: 'Número de documento migratorio actual' },
       ],
       [TipoTramite.VISA]: [
-        { nombre: 'tipoVisa', tipo: 'select', requerido: true, label: 'Tipo de visa solicitada', opciones: ['Visitante sin permiso para realizar actividades remuneradas', 'Visitante con permiso para realizar actividades remuneradas', 'Residencia temporal', 'Residencia temporal estudiante', 'Residencia permanente'] },
-        { nombre: 'consuladoDestino', tipo: 'text', requerido: true, label: 'Consulado donde se tramitará' },
-        { nombre: 'parentescoSolicitante', tipo: 'select', requerido: false, label: 'Parentesco con el solicitante en México', opciones: ['Cónyuge', 'Concubino/a', 'Hijo/a', 'Padre/Madre', 'Hermano/a'] },
-        { nombre: 'nombreBeneficiario', tipo: 'text', requerido: true, label: 'Nombre completo del beneficiario' },
+        { nombre: 'tipoVisa', tipo: 'select', requerido: true, label: 'Tipo de visa solicitada', opciones: ['Residencia Temporal por Unidad Familiar', 'Visitante sin permiso para actividades remuneradas (Razones Humanitarias)', 'Residencia Temporal o Visitante con permiso para actividades remuneradas (Oferta de Empleo)'] },
+        { nombre: 'consuladoDestino', tipo: 'text', requerido: true, label: 'Consulado donde se tramitará la visa' },
+        { nombre: 'parentescoSolicitante', tipo: 'select', requerido: false, label: 'Parentesco con el extranjero (si aplica)', opciones: ['Cónyuge', 'Concubino/a', 'Hijo/a', 'Padre/Madre', 'Hermano/a', 'Tutor/a', 'Empleador'] },
+        { nombre: 'nombreBeneficiario', tipo: 'text', requerido: true, label: 'Nombre completo del extranjero beneficiario' },
+        { nombre: 'nacionalidadBeneficiario', tipo: 'text', requerido: true, label: 'Nacionalidad del extranjero' },
       ],
       [TipoTramite.NACIONALIDAD]: [
         { nombre: 'fundamentoNacionalidad', tipo: 'select', requerido: true, label: 'Fundamento', opciones: ['Carta de naturalización', 'Declaratoria de nacionalidad por nacimiento', 'Certificado de nacionalidad mexicana'] },
@@ -514,37 +521,26 @@ export class TramitesService {
    */
   getRequisitosByType(tipo: TipoTramite): Array<{ nombre: string; obligatorio: boolean; descripcion: string }> {
     const commonRequisitos = [
-      { nombre: 'Pasaporte vigente', obligatorio: true, descripcion: 'Original y copia de la página de datos y de la última entrada a México' },
-      { nombre: 'Formato de solicitud', obligatorio: true, descripcion: 'Formato oficial llenado y firmado (se genera en el sistema)' },
-      { nombre: 'Fotografía', obligatorio: true, descripcion: 'Una fotografía tamaño infantil, fondo blanco, de frente' },
-      { nombre: 'Comprobante de domicilio', obligatorio: true, descripcion: 'No mayor a 3 meses (luz, agua, teléfono o estado de cuenta bancario)' },
+      { nombre: 'Pasaporte o documento de identidad vigente', obligatorio: true, descripcion: 'Copia legible del pasaporte o documento de identidad y viaje válido conforme al derecho internacional' },
+      { nombre: 'Formato de solicitud', obligatorio: true, descripcion: 'Formato oficial llenado y firmado (se genera en el sistema del INM). Solo original' },
+      { nombre: 'Comprobante de pago de derechos', obligatorio: true, descripcion: 'Original y copia del comprobante de pago por recepción, estudio y autorización de visa' },
     ];
 
     const typeRequisitos: Record<string, Array<{ nombre: string; obligatorio: boolean; descripcion: string }>> = {
-      [TipoTramite.RESIDENCIA_TEMPORAL]: [
-        { nombre: 'Carta de empleo o inscripción escolar', obligatorio: true, descripcion: 'Según el motivo de estancia' },
-        { nombre: 'Solvencia económica', obligatorio: true, descripcion: 'Estados de cuenta bancarios de los últimos 3 meses' },
-        { nombre: 'Documento migratorio vigente', obligatorio: true, descripcion: 'FMM o tarjeta de visitante original y copia' },
-      ],
-      [TipoTramite.RESIDENCIA_PERMANENTE]: [
-        { nombre: 'Tarjeta de residente temporal', obligatorio: true, descripcion: 'Original y copia (si aplica por 4 años de temporal)' },
-        { nombre: 'Acta de nacimiento/matrimonio', obligatorio: true, descripcion: 'Apostillada y traducida si es por vínculo familiar' },
-        { nombre: 'Identificación del familiar mexicano', obligatorio: false, descripcion: 'INE o pasaporte del familiar mexicano' },
-      ],
-      [TipoTramite.REGULARIZACION]: [
-        { nombre: 'Documento migratorio vencido', obligatorio: false, descripcion: 'Si lo tiene disponible' },
-        { nombre: 'Acreditación de vínculo familiar', obligatorio: false, descripcion: 'Si aplica regularización por familia' },
-        { nombre: 'Constancia de situación migratoria', obligatorio: false, descripcion: 'Emitida por el INM si fue detenido' },
-      ],
-      [TipoTramite.CAMBIO_CONDICION]: [
-        { nombre: 'Documento migratorio actual', obligatorio: true, descripcion: 'Original y copia del documento vigente' },
-        { nombre: 'Justificación del cambio', obligatorio: true, descripcion: 'Carta explicando el motivo del cambio' },
-        { nombre: 'Documentos de soporte', obligatorio: true, descripcion: 'Según la nueva condición solicitada' },
-      ],
       [TipoTramite.VISA]: [
-        { nombre: 'Acta de nacimiento del familiar', obligatorio: false, descripcion: 'Si es visa por vínculo familiar' },
-        { nombre: 'Comprobante de solvencia económica', obligatorio: true, descripcion: 'Del solicitante en México' },
-        { nombre: 'Carta de invitación', obligatorio: false, descripcion: 'Si aplica' },
+        { nombre: 'Identificación oficial vigente del promovente', obligatorio: true, descripcion: 'Pasaporte, INE, cédula profesional, cartilla militar, matrícula consular, carta de naturalización, licencia de conducir o tarjeta de residencia vigente. Original y copia' },
+        { nombre: 'Acta de nacimiento del promovente', obligatorio: false, descripcion: 'Si el vínculo es padre/madre del promovente. Original y copia. Apostillada si es extranjera' },
+        { nombre: 'Acta de nacimiento del extranjero', obligatorio: false, descripcion: 'Si el vínculo es hijo/a del promovente (menor de edad o en interdicción). Original y copia' },
+        { nombre: 'Acta de matrimonio', obligatorio: false, descripcion: 'Si el vínculo es cónyuge. Si el promovente es mexicano debe ser acta mexicana. Original y copia' },
+        { nombre: 'Documento de disolución matrimonial', obligatorio: false, descripcion: 'Si el promovente acreditó vínculo de matrimonio con otra persona previamente. Original y copia' },
+        { nombre: 'Documento de concubinato', obligatorio: false, descripcion: 'Otorgado ante autoridad competente que acredite convivencia mínima de 5 años. Original y copia' },
+        { nombre: 'Consentimiento del otro padre/madre', obligatorio: false, descripcion: 'Para menores: documento emitido por autoridad competente donde el otro padre consiente la salida del menor. Original y copia' },
+        { nombre: 'Documento de tutela o curatela', obligatorio: false, descripcion: 'Si aplica para menores bajo tutela del promovente. Emitido por autoridad competente. Original y copia' },
+        { nombre: 'Oferta de empleo en papel membretado', obligatorio: false, descripcion: 'Para visa por oferta de empleo: señalando ocupación (SINCO), temporalidad, lugar de trabajo y remuneración. Original' },
+        { nombre: 'Constancia de inscripción del empleador', obligatorio: false, descripcion: 'Para visa por oferta de empleo: debidamente actualizada. Copia' },
+        { nombre: 'Carta responsiva de gastos', obligatorio: false, descripcion: 'Para visa por razones humanitarias: carta asumiendo gastos de viaje y permanencia. Original' },
+        { nombre: 'Documentos que acrediten razón humanitaria', obligatorio: false, descripcion: 'Certificado médico, constancia de desastre natural, o escrito de autoridad pública según el caso. Original' },
+        { nombre: 'Reconocimiento de condición de refugiado', obligatorio: false, descripcion: 'Si el promovente obtuvo residencia permanente por refugio. Emitido por COMAR. Original y copia' },
       ],
       [TipoTramite.NACIONALIDAD]: [
         { nombre: 'Tarjeta de residente permanente', obligatorio: true, descripcion: 'Vigente, original y copia' },
@@ -593,7 +589,7 @@ export class TramitesService {
       [TipoTramite.RESIDENCIA_PERMANENTE]: { concepto: 'Residencia Permanente', monto: 5_765, moneda: 'MXN', fundamentoLegal: 'Art. 8, fracción II, Ley Federal de Derechos' },
       [TipoTramite.REGULARIZACION]: { concepto: 'Regularización migratoria', monto: 6_073, moneda: 'MXN', fundamentoLegal: 'Art. 8, fracción VII, Ley Federal de Derechos' },
       [TipoTramite.CAMBIO_CONDICION]: { concepto: 'Cambio de condición de estancia', monto: 4_613, moneda: 'MXN', fundamentoLegal: 'Art. 8, fracción III, Ley Federal de Derechos' },
-      [TipoTramite.VISA]: { concepto: 'Expedición de visa', monto: 2_741, moneda: 'MXN', fundamentoLegal: 'Art. 8, fracción IV, Ley Federal de Derechos' },
+      [TipoTramite.VISA]: { concepto: 'Recepción y estudio de la solicitud, y en su caso, autorización de visa por unidad familiar u oferta de empleo', monto: 248, moneda: 'MXN', fundamentoLegal: 'Nota: Visa por razones humanitarias está exenta de pago. Pago con tarjeta Visa/MasterCard en oficina del INM o mediante hoja de ayuda bancaria. El INM no acepta pagos en efectivo.' },
       [TipoTramite.NACIONALIDAD]: { concepto: 'Carta de naturalización', monto: 8_183, moneda: 'MXN', fundamentoLegal: 'Art. 20-A, Ley Federal de Derechos' },
       [TipoTramite.PERMISO_TRABAJO]: { concepto: 'Permiso de trabajo', monto: 3_686, moneda: 'MXN', fundamentoLegal: 'Art. 8, fracción V, Ley Federal de Derechos' },
       [TipoTramite.RENOVACION]: { concepto: 'Renovación de documento', monto: 1_523, moneda: 'MXN', fundamentoLegal: 'Art. 8, fracción VI, Ley Federal de Derechos' },

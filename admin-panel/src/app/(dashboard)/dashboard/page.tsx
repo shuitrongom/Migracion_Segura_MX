@@ -176,7 +176,7 @@ export default function DashboardPage() {
                     </span>
                     <div>
                       <p className="text-sm font-medium text-gray-900">
-                        {cita.cliente ? `${cita.cliente.nombre} ${cita.cliente.apellidos}` : 'Cliente'}
+                        {cita.cliente ? (cita.cliente.nombreCompleto || `${cita.cliente.nombre || ''} ${cita.cliente.apellidos || ''}`.trim() || 'Cliente') : 'Cliente'}
                       </p>
                       <p className="text-xs text-gray-500">
                         {cita.asesor?.fullName ?? 'Asesor'}
@@ -225,7 +225,7 @@ export default function DashboardPage() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-gray-700">
                     Trámite {tramite.numeroPieza ?? tramite.id} — {tramite.estatus}
-                    {tramite.cliente && ` (${tramite.cliente.nombre} ${tramite.cliente.apellidos})`}
+                    {tramite.cliente && ` (${tramite.cliente.nombreCompleto || `${tramite.cliente.nombre || ''} ${tramite.cliente.apellidos || ''}`.trim()})`}
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5">{tramite.createdAt}</p>
                 </div>

@@ -111,8 +111,9 @@ export interface User {
 
 export interface Cliente {
   id: string;
-  nombre: string;
-  apellidos: string;
+  nombreCompleto: string;
+  nombre?: string;
+  apellidos?: string;
   email: string;
   telefono: string;
   nacionalidad?: string;
@@ -307,8 +308,7 @@ export interface SearchNotificacionesParams {
 }
 
 export interface CreateClienteData {
-  nombre: string;
-  apellidos: string;
+  nombreCompleto: string;
   email: string;
   telefono: string;
   nacionalidad?: string;
@@ -319,8 +319,7 @@ export interface CreateClienteData {
 }
 
 export interface UpdateClienteData {
-  nombre?: string;
-  apellidos?: string;
+  nombreCompleto?: string;
   email?: string;
   telefono?: string;
   nacionalidad?: string;

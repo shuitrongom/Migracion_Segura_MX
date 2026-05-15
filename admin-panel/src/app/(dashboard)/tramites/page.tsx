@@ -89,7 +89,7 @@ export default function TramitesPage() {
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors"
         >
           <Plus className="h-4 w-4" />
-          Nuevo Trámite
+          Iniciar Trámite
         </Link>
       </div>
 
@@ -209,7 +209,7 @@ export default function TramitesPage() {
                       label: tramite.estatus,
                     };
                     const clienteName = tramite.cliente
-                      ? `${tramite.cliente.nombre} ${tramite.cliente.apellidos}`
+                      ? (tramite.cliente.nombreCompleto || `${tramite.cliente.nombre || ''} ${tramite.cliente.apellidos || ''}`.trim() || '--')
                       : '--';
                     return (
                       <tr key={tramite.id} className="border-b last:border-b-0 hover:bg-gray-50">
