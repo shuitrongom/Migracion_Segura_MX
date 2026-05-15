@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { UserCog, Plus, Trash2, X } from 'lucide-react';
+import { UserCog, Plus, Trash2, X, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 
@@ -16,6 +16,7 @@ export default function AsesoresPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -47,15 +48,23 @@ export default function AsesoresPage() {
 
     setSubmitting(true);
     try {
-      await api.post('/users/asesores', {
+      const response = await api.post('/users/asesores', {
         fullName: formData.fullName,
         email: formData.email,
         phone: formData.phone || undefined,
         password: formData.password,
       });
-      toast.success('Asesor creado exitosamente');
+
+      toast.success('Asesor creado. Se envió email con sus credenciales.');
+
+      // Si el backend devuelve un link de WhatsApp, abrirlo
+      if (response.data?.whatsappUrl) {
+        window.open(response.data.whatsappUrl, '_blank');
+      }
+
       setShowModal(false);
       setFormData({ fullName: '', email: '', phone: '', password: '' });
+      setShowPassword(false);
       fetchAsesores();
     } catch (error: unknown) {
       const message =
@@ -64,6 +73,12 @@ export default function AsesoresPage() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setShowPassword(false);
+    setFormData({ fullName: '', email: '', phone: '', password: '' });
   };
 
   const handleDelete = async (id: string, name: string | null) => {
@@ -152,7 +167,7 @@ export default function AsesoresPage() {
             <div className="flex items-center justify-between px-6 py-4 border-b">
               <h2 className="text-lg font-semibold text-gray-900">Nuevo Asesor</h2>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={handleCloseModal}
                 className="p-1 rounded-lg hover:bg-gray-100 text-gray-400"
                 aria-label="Cerrar"
               >
@@ -191,7 +206,7 @@ export default function AsesoresPage() {
 
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                  Teléfono
+                  Teléfono (para envío de WhatsApp)
                 </label>
                 <input
                   id="phone"
@@ -207,16 +222,26 @@ export default function AsesoresPage() {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                   Contraseña temporal *
                 </label>
-                <input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                  placeholder="Mínimo 8 caracteres"
-                />
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={formData.password}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
+                    className="w-full px-4 py-2.5 pr-12 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                    placeholder="Mínimo 8 caracteres"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 <p className="mt-1 text-xs text-gray-400">
-                  El asesor podrá cambiarla después de iniciar sesión.
+                  Se enviará por correo y WhatsApp al asesor. Podrá cambiarla después.
                 </p>
               </div>
 
@@ -230,7 +255,7 @@ export default function AsesoresPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
+                  onClick={handleCloseModal}
                   className="px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
                 >
                   Cancelar

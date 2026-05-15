@@ -1,17 +1,21 @@
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 
 import { User } from './entities/user.entity';
 import { UserRole } from '../../common/enums';
 import { CreateAsesorDto } from './dto/create-asesor.dto';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly emailService: EmailService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
@@ -267,6 +271,35 @@ export class UsersService {
     });
 
     const saved = await this.userRepository.save(user);
+
+    // Enviar email de bienvenida con credenciales
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'https://migracion-segura-mx-admin-panel.vercel.app';
+    const loginUrl = `${frontendUrl}/login`;
+
+    await this.emailService.sendAsesorWelcomeEmail({
+      to: dto.email,
+      fullName: dto.fullName,
+      password: dto.password,
+      loginUrl,
+    });
+
+    // Generar link de WhatsApp con credenciales (si tiene teléfono)
+    if (dto.phone) {
+      const whatsappMessage = encodeURIComponent(
+        `¡Hola ${dto.fullName}! 👋\n\n` +
+        `Se te ha dado acceso como Asesor en Migración Segura MX.\n\n` +
+        `📧 Email: ${dto.email}\n` +
+        `🔑 Contraseña: ${dto.password}\n\n` +
+        `🔗 Accede aquí: ${loginUrl}\n\n` +
+        `Te recomendamos cambiar tu contraseña después del primer inicio de sesión.`,
+      );
+      const phoneClean = dto.phone.replace(/[^0-9]/g, '');
+      const whatsappUrl = `https://wa.me/${phoneClean}?text=${whatsappMessage}`;
+
+      // Retornamos el link de WhatsApp para que el admin lo abra manualmente
+      return { id: saved.id, fullName: saved.fullName, email: saved.email, whatsappUrl } as any;
+    }
+
     return { id: saved.id, fullName: saved.fullName, email: saved.email };
   }
 

@@ -25,6 +25,7 @@ import { FinancieroModule } from './modules/financiero/financiero.module';
 import { ReportesModule } from './modules/reportes/reportes.module';
 import { AutomatizacionesModule } from './modules/automatizaciones/automatizaciones.module';
 import { HealthModule } from './modules/health/health.module';
+import { EmailModule } from './modules/email/email.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { HealthModule } from './modules/health/health.module';
 
     // Módulos de negocio
     HealthModule,
+    EmailModule,
     AuthModule,
     UsersModule,
     ClientesModule,
