@@ -137,8 +137,6 @@ export default function NuevoTramitePage() {
     if (step === 1) {
       if (!extranjero.nombre.trim()) { toast.error('Ingresa el nombre del extranjero'); return; }
       if (!extranjero.apellidos.trim()) { toast.error('Ingresa los apellidos'); return; }
-      if (!extranjero.email.trim()) { toast.error('Ingresa el email'); return; }
-      if (!extranjero.telefono.trim()) { toast.error('Ingresa el teléfono'); return; }
       if (extranjero.solicitanteEmail && extranjero.solicitanteEmail !== extranjero.solicitanteEmailConfirmacion) {
         toast.error('Los correos electrónicos del promovente no coinciden'); return;
       }
@@ -158,8 +156,8 @@ export default function NuevoTramitePage() {
     try {
       const clienteRes = await api.post('/clientes', {
         nombreCompleto: `${extranjero.nombre} ${extranjero.apellidos}`.trim(),
-        email: extranjero.email,
-        telefono: extranjero.telefono,
+        email: extranjero.solicitanteEmail || extranjero.email || 'sin-email@pendiente.com',
+        telefono: extranjero.telefono || 'pendiente',
       });
       const clienteId = clienteRes.data.id;
 
@@ -370,8 +368,6 @@ export default function NuevoTramitePage() {
                 <p className="text-xs text-blue-800 text-center">Agrega la dirección de correo electrónico en donde se recibirán las notificaciones asociadas a tu trámite.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Teléfono de contacto *</label><input type="tel" value={extranjero.telefono} onChange={e => updateExtranjero('telefono', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="+52 55 1234 5678" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Email *</label><input type="email" value={extranjero.email} onChange={e => updateExtranjero('email', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico *</label><input type="email" value={extranjero.solicitanteEmail} onChange={e => updateExtranjero('solicitanteEmail', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="nombre@correo.com" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico (confirmación) *</label><input type="email" value={extranjero.solicitanteEmailConfirmacion} onChange={e => updateExtranjero('solicitanteEmailConfirmacion', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="nombre@correo.com" /></div>
               </div>
@@ -384,14 +380,14 @@ export default function NuevoTramitePage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Clave Única de Registro de Población (CURP)</label><input type="text" value={personaTemp.curp} onChange={e => setPersonaTemp(prev => ({ ...prev, curp: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre(s) *</label><input type="text" value={personaTemp.nombre} onChange={e => setPersonaTemp(prev => ({ ...prev, nombre: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /><p className="text-[10px] text-red-500 mt-0.5">Este campo es obligatorio</p></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Apellido(s) *</label><input type="text" value={personaTemp.apellidos} onChange={e => setPersonaTemp(prev => ({ ...prev, apellidos: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /><p className="text-[10px] text-red-500 mt-0.5">Este campo es obligatorio</p></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nacionalidad actual *</label><select value={personaTemp.nacionalidad} onChange={e => setPersonaTemp(prev => ({ ...prev, nacionalidad: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{NACIONALIDADES.map(n => <option key={n} value={n}>{n}</option>)}</select><p className="text-[10px] text-red-500 mt-0.5">Este campo es obligatorio</p></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre(s) *</label><input type="text" value={personaTemp.nombre} onChange={e => setPersonaTemp(prev => ({ ...prev, nombre: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Apellido(s) *</label><input type="text" value={personaTemp.apellidos} onChange={e => setPersonaTemp(prev => ({ ...prev, apellidos: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nacionalidad actual *</label><select value={personaTemp.nacionalidad} onChange={e => setPersonaTemp(prev => ({ ...prev, nacionalidad: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{NACIONALIDADES.map(n => <option key={n} value={n}>{n}</option>)}</select></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Tipo de documento de identificación</label><select value={personaTemp.tipoDocumento} onChange={e => setPersonaTemp(prev => ({ ...prev, tipoDocumento: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{DOCUMENTOS_IDENTIFICACION_PERSONA.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Número de documento</label><input type="text" value={personaTemp.numeroDocumento} onChange={e => setPersonaTemp(prev => ({ ...prev, numeroDocumento: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
               </div>
               <div className="flex justify-end mt-4 max-w-4xl">
-                <button type="button" onClick={handleAddPersona} className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Agregar persona</button>
+                <button type="button" onClick={handleAddPersona} className="px-4 py-2 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors">Agregar persona</button>
               </div>
               {personasAutorizadas.length > 0 && (
                 <div className="mt-4 max-w-4xl">
