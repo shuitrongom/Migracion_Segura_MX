@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { TipoTramite } from '@/lib/types';
-import { PROPOSITOS_VIAJE, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO, TIPOS_PERSONA, DOCUMENTOS_IDENTIFICACION_PERSONA } from '@/lib/catalogos-inm';
+import { PROPOSITOS_VIAJE, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO, TIPOS_PERSONA, DOCUMENTOS_IDENTIFICACION_PERSONA, SITUACIONES_TRABAJO, OCUPACIONES_TRABAJO } from '@/lib/catalogos-inm';
 import { ESTADOS_MEXICO, MUNICIPIOS_POR_ESTADO, SECTORES_ACTIVIDAD, DOCUMENTOS_PERSONA_FISICA } from '@/lib/catalogos-mexico';
 import { DatePicker } from '@/components/ui/date-picker';
 
@@ -48,7 +48,8 @@ export default function NuevoTramitePage() {
     documentoIdentificacion: '', numeroDocumento: '', paisExpedicion: '',
     fechaExpedicion: '', fechaVencimiento: '',
     // Información adicional
-    actividadPrincipal: '', expulsadoMexico: '', antecedentesPenales: '',
+    actividadPrincipal: '', sectorTrabajo: '', situacionTrabajo: '', ocupacionTrabajo: '',
+    expulsadoMexico: '', antecedentesPenales: '',
     telefono: '', email: '',
     visasActuales: '', comentarios: '',
     // Datos del promovente (correo y teléfono de contacto)
@@ -182,6 +183,11 @@ export default function NuevoTramitePage() {
       if (!extranjero.numeroDocumento.trim()) errors['numeroDocumento'] = true;
       if (!extranjero.paisExpedicion) errors['paisExpedicion'] = true;
       if (!extranjero.actividadPrincipal) errors['actividadPrincipal'] = true;
+      if (extranjero.actividadPrincipal === 'Trabajar') {
+        if (!extranjero.sectorTrabajo) errors['sectorTrabajo'] = true;
+        if (!extranjero.situacionTrabajo) errors['situacionTrabajo'] = true;
+        if (!extranjero.ocupacionTrabajo) errors['ocupacionTrabajo'] = true;
+      }
       if (!extranjero.expulsadoMexico) errors['expulsadoMexico'] = true;
       if (!extranjero.antecedentesPenales) errors['antecedentesPenales'] = true;
       if (!solicitante.tipoPersona) errors['tipoPersona'] = true;
@@ -361,6 +367,13 @@ export default function NuevoTramitePage() {
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Información adicional del extranjero</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Actividad principal en tu país de residencia *</label><select value={extranjero.actividadPrincipal} onChange={e => updateExtranjero('actividadPrincipal', e.target.value)} className={inputClass('actividadPrincipal')}><option value="">Selecciona</option>{ACTIVIDADES_PRINCIPALES.map(a => <option key={a} value={a}>{a}</option>)}</select><ErrorMsg field="actividadPrincipal" /></div>
+                {extranjero.actividadPrincipal === 'Trabajar' && (
+                  <>
+                    <div className="md:col-span-2"><label className="block text-xs font-medium text-gray-600 mb-1">Sector o rama de actividad de la empresa o trabajo *</label><select value={extranjero.sectorTrabajo} onChange={e => updateExtranjero('sectorTrabajo', e.target.value)} className={inputClass('sectorTrabajo')}><option value="">Selecciona</option>{SECTORES_ACTIVIDAD.map(s => <option key={s} value={s}>{s}</option>)}</select><ErrorMsg field="sectorTrabajo" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Situación en el trabajo *</label><select value={extranjero.situacionTrabajo} onChange={e => updateExtranjero('situacionTrabajo', e.target.value)} className={inputClass('situacionTrabajo')}><option value="">Selecciona</option>{SITUACIONES_TRABAJO.map(s => <option key={s} value={s}>{s}</option>)}</select><ErrorMsg field="situacionTrabajo" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Ocupación en el trabajo *</label><select value={extranjero.ocupacionTrabajo} onChange={e => updateExtranjero('ocupacionTrabajo', e.target.value)} className={inputClass('ocupacionTrabajo')}><option value="">Selecciona</option>{OCUPACIONES_TRABAJO.map(o => <option key={o} value={o}>{o}</option>)}</select><ErrorMsg field="ocupacionTrabajo" /></div>
+                  </>
+                )}
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Has sido expulsado de México? *</label><select value={extranjero.expulsadoMexico} onChange={e => updateExtranjero('expulsadoMexico', e.target.value)} className={inputClass('expulsadoMexico')}><option value="">Selecciona</option>{SI_NO.map(o => <option key={o} value={o}>{o}</option>)}</select><ErrorMsg field="expulsadoMexico" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Tienes antecedentes penales? *</label><select value={extranjero.antecedentesPenales} onChange={e => updateExtranjero('antecedentesPenales', e.target.value)} className={inputClass('antecedentesPenales')}><option value="">Selecciona</option>{SI_NO.map(o => <option key={o} value={o}>{o}</option>)}</select><ErrorMsg field="antecedentesPenales" /></div>
               </div>
@@ -515,58 +528,138 @@ export default function NuevoTramitePage() {
               {/* Ficha de datos (izquierda) */}
               <div className="lg:col-span-1 overflow-y-auto border rounded-lg p-4 bg-gray-50">
                 <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">Ficha del Extranjero</h4>
-                <div className="space-y-2">
-                  {[
-                    { label: 'Nombre(s)', value: extranjero.nombre },
-                    { label: 'Apellido(s)', value: extranjero.apellidos },
-                    { label: 'Sexo', value: extranjero.sexo === 'H' ? 'Hombre' : extranjero.sexo === 'M' ? 'Mujer' : '' },
-                    { label: 'Fecha nacimiento', value: extranjero.fechaNacimiento },
-                    { label: 'Nacionalidad', value: extranjero.nacionalidad },
-                    { label: 'Estado civil', value: extranjero.estadoCivil },
-                    { label: 'País nacimiento', value: extranjero.paisNacimiento },
-                    { label: 'Estado/Provincia', value: extranjero.estadoProvinciaNacimiento },
-                    { label: 'Documento', value: extranjero.documentoIdentificacion },
-                    { label: 'Nº documento', value: extranjero.numeroDocumento },
-                    { label: 'País expedición', value: extranjero.paisExpedicion },
-                    { label: 'Expedición', value: extranjero.fechaExpedicion },
-                    { label: 'Vencimiento', value: extranjero.fechaVencimiento },
-                    { label: 'Teléfono', value: extranjero.telefono },
-                    { label: 'Email', value: extranjero.email },
-                    { label: 'Propósito viaje', value: extranjero.propositoViaje },
-                    { label: 'Actividad principal', value: extranjero.actividadPrincipal },
-                    { label: 'Expulsado de México', value: extranjero.expulsadoMexico },
-                    { label: 'Antecedentes penales', value: extranjero.antecedentesPenales },
-                  ].filter(item => item.value).map(item => (
-                    <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-2 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
-                      <p className="text-[10px] text-gray-400 uppercase">{item.label}</p>
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-gray-900">{item.value}</p>
-                        <Copy className="h-3 w-3 text-gray-300 group-hover:text-brand-500" />
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                {solicitante.tipoPersona && (
-                  <>
-                    <h4 className="text-xs font-semibold text-gray-500 uppercase mt-4 mb-3">Solicitante</h4>
-                    <div className="space-y-2">
-                      {[
-                        { label: 'Tipo persona', value: solicitante.tipoPersona },
-                        { label: 'Nombre', value: solicitante.tipoPersona === 'Física' ? `${solicitante.nombre} ${solicitante.apellidos}`.trim() : solicitante.moralRazonSocial },
-                        { label: 'RFC', value: solicitante.tipoPersona === 'Física' ? solicitante.rfc : solicitante.moralRfc },
-                        { label: 'Email promovente', value: extranjero.solicitanteEmail },
-                      ].filter(item => item.value).map(item => (
-                        <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-2 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
-                          <p className="text-[10px] text-gray-400 uppercase">{item.label}</p>
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm text-gray-900">{item.value}</p>
-                            <Copy className="h-3 w-3 text-gray-300 group-hover:text-brand-500" />
-                          </div>
-                        </button>
-                      ))}
+                <div className="space-y-4">
+                  {/* Propósito de viaje */}
+                  {extranjero.propositoViaje && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Propósito de viaje</p>
+                      <button type="button" onClick={() => copyToClipboard(extranjero.propositoViaje)} className="w-full text-left p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
+                        <div className="flex items-center justify-between"><p className="text-sm text-gray-900">{extranjero.propositoViaje}</p><Copy className="h-3 w-3 text-gray-300 group-hover:text-brand-500" /></div>
+                      </button>
                     </div>
-                  </>
-                )}
+                  )}
+
+                  {/* Datos del extranjero */}
+                  {(extranjero.nombre || extranjero.apellidos) && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Datos del extranjero</p>
+                      <div className="space-y-1">
+                        {[
+                          { label: 'Nombre(s)', value: extranjero.nombre },
+                          { label: 'Apellido(s)', value: extranjero.apellidos },
+                          { label: 'Sexo', value: extranjero.sexo === 'H' ? 'Hombre' : extranjero.sexo === 'M' ? 'Mujer' : '' },
+                          { label: 'Fecha nacimiento', value: extranjero.fechaNacimiento },
+                          { label: 'Nacionalidad', value: extranjero.nacionalidad },
+                          { label: 'Estado civil', value: extranjero.estadoCivil },
+                        ].filter(item => item.value).map(item => (
+                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
+                            <p className="text-[10px] text-gray-400">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-gray-900">{item.value}</p><Copy className="h-3 w-3 text-gray-300 group-hover:text-brand-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Lugar de nacimiento */}
+                  {(extranjero.paisNacimiento || extranjero.estadoProvinciaNacimiento) && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Lugar de nacimiento</p>
+                      <div className="space-y-1">
+                        {[
+                          { label: 'País', value: extranjero.paisNacimiento },
+                          { label: 'Estado/Provincia', value: extranjero.estadoProvinciaNacimiento },
+                        ].filter(item => item.value).map(item => (
+                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
+                            <p className="text-[10px] text-gray-400">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-gray-900">{item.value}</p><Copy className="h-3 w-3 text-gray-300 group-hover:text-brand-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Pasaporte */}
+                  {(extranjero.documentoIdentificacion || extranjero.numeroDocumento) && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Pasaporte / Documento</p>
+                      <div className="space-y-1">
+                        {[
+                          { label: 'Documento', value: extranjero.documentoIdentificacion },
+                          { label: 'Número', value: extranjero.numeroDocumento },
+                          { label: 'País expedición', value: extranjero.paisExpedicion },
+                          { label: 'Expedición', value: extranjero.fechaExpedicion },
+                          { label: 'Vencimiento', value: extranjero.fechaVencimiento },
+                        ].filter(item => item.value).map(item => (
+                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
+                            <p className="text-[10px] text-gray-400">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-gray-900">{item.value}</p><Copy className="h-3 w-3 text-gray-300 group-hover:text-brand-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Información adicional */}
+                  {(extranjero.actividadPrincipal || extranjero.expulsadoMexico) && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Información adicional</p>
+                      <div className="space-y-1">
+                        {[
+                          { label: 'Actividad principal', value: extranjero.actividadPrincipal },
+                          { label: 'Sector trabajo', value: extranjero.sectorTrabajo },
+                          { label: 'Situación trabajo', value: extranjero.situacionTrabajo },
+                          { label: 'Ocupación', value: extranjero.ocupacionTrabajo },
+                          { label: 'Expulsado de México', value: extranjero.expulsadoMexico },
+                          { label: 'Antecedentes penales', value: extranjero.antecedentesPenales },
+                        ].filter(item => item.value).map(item => (
+                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
+                            <p className="text-[10px] text-gray-400">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-gray-900">{item.value}</p><Copy className="h-3 w-3 text-gray-300 group-hover:text-brand-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Contacto */}
+                  {(extranjero.telefono || extranjero.solicitanteEmail) && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Correo electrónico</p>
+                      <div className="space-y-1">
+                        {[
+                          { label: 'Teléfono', value: extranjero.telefono },
+                          { label: 'Email', value: extranjero.solicitanteEmail },
+                        ].filter(item => item.value).map(item => (
+                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
+                            <p className="text-[10px] text-gray-400">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-gray-900">{item.value}</p><Copy className="h-3 w-3 text-gray-300 group-hover:text-brand-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Solicitante */}
+                  {solicitante.tipoPersona && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Solicitante</p>
+                      <div className="space-y-1">
+                        {[
+                          { label: 'Tipo persona', value: solicitante.tipoPersona },
+                          { label: 'Nombre', value: solicitante.tipoPersona === 'Física' ? `${solicitante.nombre} ${solicitante.apellidos}`.trim() : solicitante.moralRazonSocial },
+                          { label: 'RFC', value: solicitante.tipoPersona === 'Física' ? solicitante.rfc : solicitante.moralRfc },
+                          { label: 'CURP', value: solicitante.curp },
+                        ].filter(item => item.value).map(item => (
+                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
+                            <p className="text-[10px] text-gray-400">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-gray-900">{item.value}</p><Copy className="h-3 w-3 text-gray-300 group-hover:text-brand-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
               {/* Iframe del INM (derecha) */}
               <div className="lg:col-span-2 border rounded-lg overflow-hidden">

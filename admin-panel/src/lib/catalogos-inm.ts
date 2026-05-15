@@ -58,3 +58,23 @@ export const DOCUMENTOS_IDENTIFICACION_PERSONA = [
   'Cartilla de Servicio Militar Nacional',
   'Otro',
 ];
+
+export const SITUACIONES_TRABAJO = [
+  'Empleado u obrero',
+  'Jornalero o peón',
+  'Patrón',
+  'Trabajador independiente',
+  'Trabajador sin pago en el negocio o predio familiar',
+  'Otro',
+];
+
+export const OCUPACIONES_TRABAJO = [
+  'Profesionista o técnico',
+  'Funcionario superior o personal directivo',
+  'Personal administrativo',
+  'Comerciante o vendedor',
+  'Trabajador en servicios',
+  'Trabajador agropecuario',
+  'Trabajador industrial',
+  'Otro',
+];
