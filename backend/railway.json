@@ -1,12 +1,10 @@
 {
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "cd backend && npm install --legacy-peer-deps && npm run build"
+    "buildCommand": "npm install --legacy-peer-deps && npm run build"
   },
   "deploy": {
-    "startCommand": "cd backend && node dist/main",
-    "healthcheckPath": "/api/v1/health",
-    "healthcheckTimeout": 10,
+    "startCommand": "node dist/main",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 3
   }
