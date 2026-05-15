@@ -1,10 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, X, Send, Loader2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  Loader2,
+  Camera,
+  Pencil,
+  Check,
+  X,
+  FileText,
+  Clock,
+} from 'lucide-react';
 import { api } from '@/lib/api';
+import { useAuthStore } from '@/stores/auth.store';
+import { UserRole } from '@/lib/types';
+
+// --- Interfaces ---
 
 interface ClienteDetail {
   id: string;
@@ -16,28 +29,38 @@ interface ClienteDetail {
   createdAt: string;
 }
 
-interface Nota {
-  id: string;
-  contenido: string;
-  autor?: { fullName: string } | null;
-  autorId: string;
-  createdAt: string;
-}
-
 interface TramiteResumen {
   id: string;
   tipo: string;
   estatus: string;
-  numeroPieza: string | null;
-  created_at: string;
+  numeroPieza?: string | null;
+  clienteId: string;
+  datosFormulario?: Record<string, unknown> | null;
+  createdAt: string;
 }
 
-type TabKey = 'tramites' | 'documentos' | 'notas' | 'actividad';
+interface DocumentoItem {
+  id: string;
+  nombre: string;
+  categoria?: string;
+  estatus: string;
+  createdAt: string;
+}
+
+interface TimelineEvent {
+  id: string;
+  nombre: string;
+  completada: boolean;
+  fechaCompletada?: string | null;
+  observaciones?: string | null;
+  createdAt: string;
+}
+
+type TabKey = 'tramites' | 'documentos' | 'actividad';
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'tramites', label: 'Trámites' },
   { key: 'documentos', label: 'Documentos' },
-  { key: 'notas', label: 'Notas' },
   { key: 'actividad', label: 'Actividad' },
 ];
 
@@ -48,6 +71,8 @@ const ESTATUS_BADGE: Record<string, string> = {
   rechazado: 'bg-red-50 text-red-700',
   borrador: 'bg-gray-50 text-gray-700',
   en_espera_resolucion: 'bg-orange-50 text-orange-700',
+  cancelado: 'bg-red-50 text-red-600',
+  pendiente: 'bg-yellow-50 text-yellow-700',
 };
 
 const TIPO_LABELS: Record<string, string> = {
@@ -67,29 +92,47 @@ const TIPO_LABELS: Record<string, string> = {
 export default function ClienteDetailPage() {
   const params = useParams();
   const clienteId = params.id as string;
+  const { user } = useAuthStore();
 
   const [cliente, setCliente] = useState<ClienteDetail | null>(null);
   const [tramites, setTramites] = useState<TramiteResumen[]>([]);
-  const [notas, setNotas] = useState<Nota[]>([]);
+  const [documentos, setDocumentos] = useState<DocumentoItem[]>([]);
+  const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>('tramites');
-  const [newNota, setNewNota] = useState('');
-  const [etiquetas, setEtiquetas] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState('');
 
+  // Inline edit states
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [editingTelefono, setEditingTelefono] = useState(false);
+  const [emailValue, setEmailValue] = useState('');
+  const [telefonoValue, setTelefonoValue] = useState('');
+  const [savingField, setSavingField] = useState<string | null>(null);
+
+  const isAdmin = user?.role === UserRole.ADMINISTRADOR;
+  const isGestor = user?.role === UserRole.ASESOR;
+  const canEditEmail = isAdmin;
+  const canEditTelefono = isAdmin || isGestor;
+
+  // Fetch client data
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
-        const [clienteRes, notasRes] = await Promise.all([
-          api.get(`/clientes/${clienteId}`),
-          api.get(`/clientes/${clienteId}/notas`),
-        ]);
+        const clienteRes = await api.get(`/clientes/${clienteId}`);
         setCliente(clienteRes.data);
-        setNotas(notasRes.data || []);
-        setEtiquetas(clienteRes.data.etiquetas || []);
-        setTramites(clienteRes.data.tramites || []);
+        setEmailValue(clienteRes.data.email || '');
+        setTelefonoValue(clienteRes.data.telefono || '');
+
+        // Fetch tramites separately
+        const tramitesRes = await api.get('/tramites', {
+          params: { page: 1, limit: 50 },
+        });
+        const allTramites: TramiteResumen[] = tramitesRes.data?.data || tramitesRes.data || [];
+        const clienteTramites = allTramites.filter(
+          (t) => t.clienteId === clienteId
+        );
+        setTramites(clienteTramites);
       } catch {
         setError('Error al cargar los datos del cliente');
       } finally {
@@ -99,53 +142,150 @@ export default function ClienteDetailPage() {
     if (clienteId) fetchData();
   }, [clienteId]);
 
-  const formatDate = (dateStr: string): string => {
-    return new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(dateStr));
-  };
-
-  const formatDateTime = (dateStr: string): string => {
-    return new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(dateStr));
-  };
-
-  const handleAddNota = async () => {
-    if (!newNota.trim()) return;
+  // Fetch documents when tab changes to documentos
+  const fetchDocumentos = useCallback(async () => {
+    if (tramites.length === 0) {
+      setDocumentos([]);
+      return;
+    }
     try {
-      const res = await api.post(`/clientes/${clienteId}/notas`, { contenido: newNota.trim() });
-      setNotas([res.data, ...notas]);
-      setNewNota('');
-    } catch { /* ignore */ }
+      const allDocs: DocumentoItem[] = [];
+      for (const tramite of tramites) {
+        try {
+          const res = await api.get(`/documentos/tramite/${tramite.id}`);
+          const docs: DocumentoItem[] = res.data?.data || res.data || [];
+          allDocs.push(...docs);
+        } catch {
+          // Skip if no documents for this tramite
+        }
+      }
+      setDocumentos(allDocs);
+    } catch {
+      setDocumentos([]);
+    }
+  }, [tramites]);
+
+  // Fetch timeline when tab changes to actividad
+  const fetchTimeline = useCallback(async () => {
+    if (tramites.length === 0) {
+      setTimeline([]);
+      return;
+    }
+    try {
+      const allEvents: TimelineEvent[] = [];
+      for (const tramite of tramites) {
+        try {
+          const res = await api.get(`/tramites/${tramite.id}/timeline`);
+          const events: TimelineEvent[] = res.data?.data || res.data || [];
+          allEvents.push(...events);
+        } catch {
+          // Skip if no timeline for this tramite
+        }
+      }
+      // Sort by date descending
+      allEvents.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setTimeline(allEvents);
+    } catch {
+      setTimeline([]);
+    }
+  }, [tramites]);
+
+  useEffect(() => {
+    if (activeTab === 'documentos') {
+      fetchDocumentos();
+    } else if (activeTab === 'actividad') {
+      fetchTimeline();
+    }
+  }, [activeTab, fetchDocumentos, fetchTimeline]);
+
+  const formatDate = (dateStr: string): string => {
+    return new Intl.DateTimeFormat('es-MX', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    }).format(new Date(dateStr));
   };
 
-  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      const tag = tagInput.trim().toLowerCase();
-      if (tag && !etiquetas.includes(tag)) {
-        setEtiquetas([...etiquetas, tag]);
-        api.post(`/clientes/${clienteId}/etiquetas`, { etiqueta: tag }).catch(() => {});
-      }
-      setTagInput('');
+  // Save email
+  const handleSaveEmail = async () => {
+    if (!emailValue.trim() || emailValue === cliente?.email) {
+      setEditingEmail(false);
+      return;
+    }
+    try {
+      setSavingField('email');
+      await api.put(`/clientes/${clienteId}`, { email: emailValue.trim() });
+      setCliente((prev) =>
+        prev ? { ...prev, email: emailValue.trim() } : prev
+      );
+      setEditingEmail(false);
+    } catch {
+      // Revert on error
+      setEmailValue(cliente?.email || '');
+    } finally {
+      setSavingField(null);
     }
   };
 
-  const handleRemoveTag = (tag: string) => {
-    setEtiquetas(etiquetas.filter(t => t !== tag));
-    api.delete(`/clientes/${clienteId}/etiquetas/${encodeURIComponent(tag)}`).catch(() => {});
+  // Save telefono
+  const handleSaveTelefono = async () => {
+    if (!telefonoValue.trim() || telefonoValue === cliente?.telefono) {
+      setEditingTelefono(false);
+      return;
+    }
+    try {
+      setSavingField('telefono');
+      await api.put(`/clientes/${clienteId}`, {
+        telefono: telefonoValue.trim(),
+      });
+      setCliente((prev) =>
+        prev ? { ...prev, telefono: telefonoValue.trim() } : prev
+      );
+      setEditingTelefono(false);
+    } catch {
+      // Revert on error
+      setTelefonoValue(cliente?.telefono || '');
+    } finally {
+      setSavingField(null);
+    }
   };
 
+  // Get pieza and clave from first tramite's datosFormulario
+  const firstTramite = tramites.length > 0 ? tramites[0] : null;
+  const numeroPiezaINM =
+    (firstTramite?.datosFormulario?.numeroPiezaINM as string) || null;
+  const contrasenaINM =
+    (firstTramite?.datosFormulario?.contrasenaINM as string) || null;
+
   if (loading) {
-    return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 text-brand-500 animate-spin" /></div>;
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 text-brand-500 animate-spin" />
+      </div>
+    );
   }
 
   if (error || !cliente) {
     return (
       <div>
         <div className="flex items-center gap-4 mb-6">
-          <Link href="/clientes" className="p-2 rounded-lg hover:bg-gray-100 text-gray-500"><ArrowLeft className="h-5 w-5" /></Link>
-          <h1 className="text-2xl font-bold text-gray-900">Detalle del Cliente</h1>
+          <Link
+            href="/clientes"
+            className="p-2 rounded-lg hover:bg-gray-100 text-gray-500"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Detalle del Cliente
+          </h1>
         </div>
         <div className="bg-white rounded-xl border shadow-sm p-12 text-center">
-          <p className="text-sm text-gray-500">{error || 'No se encontró el cliente'}</p>
+          <p className="text-sm text-gray-500">
+            {error || 'No se encontró el cliente'}
+          </p>
         </div>
       </div>
     );
@@ -153,114 +293,376 @@ export default function ClienteDetailPage() {
 
   return (
     <div>
+      {/* Header */}
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/clientes" className="p-2 rounded-lg hover:bg-gray-100 text-gray-500"><ArrowLeft className="h-5 w-5" /></Link>
-        <h1 className="text-2xl font-bold text-gray-900">Detalle del Cliente</h1>
+        <Link
+          href="/clientes"
+          className="p-2 rounded-lg hover:bg-gray-100 text-gray-500"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Link>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Detalle del Cliente
+        </h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Profile card */}
+        {/* Profile Card - Left Side */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-xl border shadow-sm p-6">
+            {/* Avatar + Name */}
             <div className="flex items-center gap-4 mb-6">
-              <div className="h-14 w-14 bg-brand-100 rounded-full flex items-center justify-center">
-                <span className="text-xl font-bold text-brand-600">{cliente.nombreCompleto.charAt(0)}</span>
+              <div className="relative">
+                <div className="h-14 w-14 bg-brand-100 rounded-full flex items-center justify-center">
+                  <span className="text-xl font-bold text-brand-600">
+                    {cliente.nombreCompleto.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <button
+                  className="absolute -bottom-1 -right-1 h-6 w-6 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50"
+                  title="Subir foto"
+                >
+                  <Camera className="h-3 w-3 text-gray-500" />
+                </button>
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">{cliente.nombreCompleto}</h2>
-                <p className="text-sm text-gray-500">Cliente desde {formatDate(cliente.createdAt)}</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Email</p>
-                <p className="text-sm text-gray-900 mt-0.5">{cliente.email}</p>
-              </div>
-              <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Teléfono</p>
-                <p className="text-sm text-gray-900 mt-0.5">{cliente.telefono}</p>
-              </div>
-              <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Gestor</p>
-                <p className="text-sm text-gray-900 mt-0.5">{cliente.asesor?.fullName || 'Sin asignar'}</p>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {cliente.nombreCompleto}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Cliente desde {formatDate(cliente.createdAt)}
+                </p>
               </div>
             </div>
 
-            {/* Tags */}
-            <div className="mt-6 pt-6 border-t">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">Etiquetas</p>
-              <div className="flex flex-wrap gap-2 mb-3">
-                {etiquetas.map(tag => (
-                  <span key={tag} className="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-50 text-brand-700 rounded-md text-xs font-medium">
-                    {tag}
-                    <button onClick={() => handleRemoveTag(tag)} className="hover:text-brand-900" aria-label={`Eliminar etiqueta ${tag}`}><X className="h-3 w-3" /></button>
-                  </span>
-                ))}
+            {/* Info Fields */}
+            <div className="space-y-4">
+              {/* Email */}
+              <div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    Email
+                  </p>
+                  {canEditEmail && !editingEmail && (
+                    <button
+                      onClick={() => setEditingEmail(true)}
+                      className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                      title="Editar email"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+                {editingEmail ? (
+                  <div className="flex items-center gap-2 mt-1">
+                    <input
+                      type="email"
+                      value={emailValue}
+                      onChange={(e) => setEmailValue(e.target.value)}
+                      className="flex-1 px-2.5 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleSaveEmail}
+                      disabled={savingField === 'email'}
+                      className="p-1.5 rounded-md bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-50"
+                      title="Guardar"
+                    >
+                      {savingField === 'email' ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Check className="h-3.5 w-3.5" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingEmail(false);
+                        setEmailValue(cliente.email);
+                      }}
+                      className="p-1.5 rounded-md border border-gray-200 text-gray-500 hover:bg-gray-50"
+                      title="Cancelar"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-900 mt-0.5">
+                    {cliente.email}
+                  </p>
+                )}
               </div>
-              <input type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={handleAddTag} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Agregar etiqueta (Enter)" />
+
+              {/* Teléfono */}
+              <div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    Teléfono
+                  </p>
+                  {canEditTelefono && !editingTelefono && (
+                    <button
+                      onClick={() => setEditingTelefono(true)}
+                      className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                      title="Editar teléfono"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+                {editingTelefono ? (
+                  <div className="flex items-center gap-2 mt-1">
+                    <input
+                      type="tel"
+                      value={telefonoValue}
+                      onChange={(e) => setTelefonoValue(e.target.value)}
+                      className="flex-1 px-2.5 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleSaveTelefono}
+                      disabled={savingField === 'telefono'}
+                      className="p-1.5 rounded-md bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-50"
+                      title="Guardar"
+                    >
+                      {savingField === 'telefono' ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Check className="h-3.5 w-3.5" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingTelefono(false);
+                        setTelefonoValue(cliente.telefono);
+                      }}
+                      className="p-1.5 rounded-md border border-gray-200 text-gray-500 hover:bg-gray-50"
+                      title="Cancelar"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-900 mt-0.5">
+                    {cliente.telefono}
+                  </p>
+                )}
+              </div>
+
+              {/* Gestor */}
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Gestor asignado
+                </p>
+                <p className="text-sm text-gray-900 mt-0.5">
+                  {cliente.asesor?.fullName || 'Sin asignar'}
+                </p>
+              </div>
+
+              {/* Fecha de registro */}
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Fecha de registro
+                </p>
+                <p className="text-sm text-gray-900 mt-0.5">
+                  {formatDate(cliente.createdAt)}
+                </p>
+              </div>
             </div>
+
+            {/* Pieza & Clave INM */}
+            {(numeroPiezaINM || contrasenaINM) && (
+              <div className="mt-6 pt-6 border-t space-y-4">
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Datos INM
+                </p>
+                {numeroPiezaINM && (
+                  <div>
+                    <p className="text-xs text-gray-500">Pieza</p>
+                    <p className="text-sm font-mono text-gray-900">
+                      {numeroPiezaINM}
+                    </p>
+                  </div>
+                )}
+                {contrasenaINM && (
+                  <div>
+                    <p className="text-xs text-gray-500">Clave</p>
+                    <p className="text-sm font-mono text-gray-900">
+                      {contrasenaINM}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs - Right Side */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-xl border shadow-sm">
+            {/* Tab Navigation */}
             <div className="border-b">
               <nav className="flex">
-                {TABS.map(tab => (
-                  <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.key ? 'border-brand-500 text-brand-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`} role="tab">
+                {TABS.map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                      activeTab === tab.key
+                        ? 'border-brand-500 text-brand-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                    role="tab"
+                  >
                     {tab.label}
                   </button>
                 ))}
               </nav>
             </div>
+
+            {/* Tab Content */}
             <div className="p-6">
+              {/* Trámites Tab */}
               {activeTab === 'tramites' && (
                 <div className="space-y-3">
                   {tramites.length === 0 ? (
-                    <p className="text-sm text-gray-400 text-center py-8">Este cliente no tiene trámites registrados.</p>
-                  ) : tramites.map(tramite => (
-                    <Link key={tramite.id} href={`/tramites/${tramite.id}`} className="block p-4 border rounded-lg hover:bg-gray-50">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">{TIPO_LABELS[tramite.tipo] ?? tramite.tipo}</p>
-                          <p className="text-xs text-gray-500 mt-0.5">{tramite.numeroPieza || 'Sin número de pieza'}</p>
-                        </div>
-                        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${ESTATUS_BADGE[tramite.estatus] ?? 'bg-gray-50 text-gray-700'}`}>{tramite.estatus}</span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
-              {activeTab === 'documentos' && (
-                <div className="text-center py-12"><p className="text-sm text-gray-400">Los documentos del cliente aparecerán aquí.</p></div>
-              )}
-              {activeTab === 'notas' && (
-                <div>
-                  <div className="flex gap-3 mb-6">
-                    <textarea value={newNota} onChange={(e) => setNewNota(e.target.value)} className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Escribe una nota interna..." rows={2} />
-                    <button onClick={handleAddNota} disabled={!newNota.trim()} className="self-end px-4 py-2.5 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 disabled:opacity-50" aria-label="Enviar nota"><Send className="h-4 w-4" /></button>
-                  </div>
-                  {notas.length === 0 ? (
-                    <p className="text-sm text-gray-400 text-center py-8">No hay notas registradas.</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {notas.map(nota => (
-                        <div key={nota.id} className="p-4 bg-gray-50 rounded-lg">
-                          <p className="text-sm text-gray-800">{nota.contenido}</p>
-                          <div className="flex items-center gap-2 mt-2">
-                            <span className="text-xs font-medium text-gray-500">{nota.autor?.fullName || 'Sistema'}</span>
-                            <span className="text-xs text-gray-400">·</span>
-                            <span className="text-xs text-gray-400">{formatDateTime(nota.createdAt)}</span>
-                          </div>
-                        </div>
-                      ))}
+                    <div className="text-center py-12">
+                      <FileText className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+                      <p className="text-sm text-gray-400">
+                        Este cliente no tiene trámites registrados.
+                      </p>
                     </div>
+                  ) : (
+                    tramites.map((tramite) => (
+                      <Link
+                        key={tramite.id}
+                        href={`/tramites/${tramite.id}`}
+                        className="block p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              {TIPO_LABELS[tramite.tipo] ?? tramite.tipo}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              {tramite.numeroPieza ||
+                                (tramite.datosFormulario
+                                  ?.numeroPiezaINM as string) ||
+                                'Sin número de pieza'}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              {formatDate(tramite.createdAt)}
+                            </p>
+                          </div>
+                          <span
+                            className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              ESTATUS_BADGE[tramite.estatus] ??
+                              'bg-gray-50 text-gray-700'
+                            }`}
+                          >
+                            {tramite.estatus.replace(/_/g, ' ')}
+                          </span>
+                        </div>
+                      </Link>
+                    ))
                   )}
                 </div>
               )}
+
+              {/* Documentos Tab */}
+              {activeTab === 'documentos' && (
+                <div className="space-y-3">
+                  {documentos.length === 0 ? (
+                    <div className="text-center py-12">
+                      <FileText className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+                      <p className="text-sm text-gray-400">
+                        No hay documentos registrados para este cliente.
+                      </p>
+                    </div>
+                  ) : (
+                    documentos.map((doc) => (
+                      <div
+                        key={doc.id}
+                        className="flex items-center justify-between p-4 border rounded-lg"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="h-9 w-9 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <FileText className="h-4 w-4 text-gray-500" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              {doc.nombre}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {doc.categoria || 'Sin categoría'} •{' '}
+                              {formatDate(doc.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+                        <span
+                          className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            ESTATUS_BADGE[doc.estatus] ??
+                            'bg-gray-50 text-gray-700'
+                          }`}
+                        >
+                          {doc.estatus.replace(/_/g, ' ')}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {/* Actividad Tab */}
               {activeTab === 'actividad' && (
-                <div className="text-center py-12"><p className="text-sm text-gray-400">El historial de actividad aparecerá aquí.</p></div>
+                <div>
+                  {timeline.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Clock className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+                      <p className="text-sm text-gray-400">
+                        No hay actividad registrada.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <div className="absolute left-4 top-0 bottom-0 w-px bg-gray-200" />
+                      <div className="space-y-6">
+                        {timeline.map((event) => (
+                          <div
+                            key={event.id}
+                            className="relative flex items-start gap-4 pl-10"
+                          >
+                            <div
+                              className={`absolute left-2.5 top-1.5 h-3 w-3 rounded-full border-2 ${
+                                event.completada
+                                  ? 'bg-green-500 border-green-500'
+                                  : 'bg-white border-gray-300'
+                              }`}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900">
+                                {event.nombre}
+                              </p>
+                              {event.observaciones && (
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                  {event.observaciones}
+                                </p>
+                              )}
+                              <p className="text-xs text-gray-400 mt-1">
+                                {event.fechaCompletada
+                                  ? formatDate(event.fechaCompletada)
+                                  : formatDate(event.createdAt)}
+                              </p>
+                            </div>
+                            {event.completada && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">
+                                Completada
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>
