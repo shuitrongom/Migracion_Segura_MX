@@ -45,9 +45,8 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger / OpenAPI
-  if (configService.get<string>('NODE_ENV') !== 'production') {
-    const swaggerConfig = new DocumentBuilder()
+  // Swagger / OpenAPI (habilitado en todos los entornos)
+  const swaggerConfig = new DocumentBuilder()
       .setTitle('Migración Segura MX API')
       .setDescription('API REST para la plataforma de gestión migratoria')
       .setVersion('1.0')
@@ -79,7 +78,6 @@ async function bootstrap() {
         persistAuthorization: true,
       },
     });
-  }
 
   await app.listen(port);
 
