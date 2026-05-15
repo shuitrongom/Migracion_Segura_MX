@@ -357,16 +357,19 @@ export default function ClienteDetailPage() {
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
+                    const preview = URL.createObjectURL(file);
+                    setFotoUrl(preview); // Mostrar preview inmediato
                     try {
                       const formData = new FormData();
                       formData.append('file', file);
                       const res = await api.post(`/clientes/${clienteId}/foto`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-                      setFotoUrl(res.data.fotoUrl || URL.createObjectURL(file));
+                      if (res.data.fotoUrl) {
+                        setFotoUrl(res.data.fotoUrl);
+                      }
                       toast.success('Foto subida exitosamente');
-                    } catch {
-                      // Fallback: mostrar preview local
-                      setFotoUrl(URL.createObjectURL(file));
-                      toast.success('Foto cargada (preview)');
+                    } catch (err: any) {
+                      const msg = err?.response?.data?.message || 'Error al subir foto al servidor';
+                      toast.error(typeof msg === 'string' ? msg : JSON.stringify(msg));
                     }
                   }}
                 />
