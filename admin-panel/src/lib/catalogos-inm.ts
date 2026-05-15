@@ -44,3 +44,5 @@ export const ACTIVIDADES_PRINCIPALES = [
 ];
 
 export const SI_NO = ['Sí', 'No'];
+
+export const TIPOS_PERSONA = ['Física', 'Moral'];

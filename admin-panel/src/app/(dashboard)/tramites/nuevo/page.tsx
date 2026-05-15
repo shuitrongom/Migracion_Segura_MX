@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { TipoTramite } from '@/lib/types';
-import { PROPOSITOS_VIAJE, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO } from '@/lib/catalogos-inm';
+import { PROPOSITOS_VIAJE, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO, TIPOS_PERSONA } from '@/lib/catalogos-inm';
 
 const TRAMITES_INM: { tipo: TipoTramite; nombre: string; descripcion: string; urlSolicitud: string }[] = [
   { tipo: TipoTramite.VISA, nombre: 'Visas solicitadas ante el INM', descripcion: 'Solicitud de visa por unidad familiar, razones humanitarias u oferta de empleo', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
@@ -50,9 +50,14 @@ export default function NuevoTramitePage() {
     domicilioMexico: '', telefono: '', email: '',
     tiempoEstancia: '', visasActuales: '', comentarios: '',
     // Datos del solicitante/promovente
-    solicitanteNombre: '', solicitanteParentesco: '', solicitanteEmail: '',
+    solicitanteTipoPersona: '', solicitanteNombre: '', solicitanteParentesco: '', 
+    solicitanteEmail: '', solicitanteEmailConfirmacion: '',
     personaAutorizada: '',
   });
+
+  // Visas del extranjero (array dinámico)
+  const [visas, setVisas] = useState<{ pais: string; numero: string; vencimiento: string }[]>([]);
+  const [visaTemp, setVisaTemp] = useState({ pais: '', numero: '', vencimiento: '' });
 
   // Pieza y contraseña
   const [numeroPieza, setNumeroPieza] = useState('');
@@ -83,6 +88,16 @@ export default function NuevoTramitePage() {
     toast.success('Copiado al portapapeles');
   };
 
+  const handleAddVisa = () => {
+    if (!visaTemp.pais) { toast.error('Selecciona el país de la visa'); return; }
+    setVisas([...visas, { ...visaTemp }]);
+    setVisaTemp({ pais: '', numero: '', vencimiento: '' });
+  };
+
+  const handleRemoveVisa = (index: number) => {
+    setVisas(visas.filter((_, i) => i !== index));
+  };
+
   const handleNext = () => {
     if (step === 0 && !selectedTramite) { toast.error('Selecciona un tipo de trámite'); return; }
     if (step === 1) {
@@ -90,6 +105,9 @@ export default function NuevoTramitePage() {
       if (!extranjero.apellidos.trim()) { toast.error('Ingresa los apellidos'); return; }
       if (!extranjero.email.trim()) { toast.error('Ingresa el email'); return; }
       if (!extranjero.telefono.trim()) { toast.error('Ingresa el teléfono'); return; }
+      if (extranjero.solicitanteEmail && extranjero.solicitanteEmail !== extranjero.solicitanteEmailConfirmacion) {
+        toast.error('Los correos electrónicos del promovente no coinciden'); return;
+      }
     }
     if (step === 3) {
       if (!numeroPieza.trim()) { toast.error('Ingresa el número de pieza'); return; }
@@ -114,7 +132,7 @@ export default function NuevoTramitePage() {
       const tramiteRes = await api.post('/tramites', {
         tipo: selectedTramite.tipo,
         clienteId,
-        datosFormulario: { ...extranjero, numeroPiezaINM: numeroPieza, contrasenaINM },
+        datosFormulario: { ...extranjero, visas, numeroPiezaINM: numeroPieza, contrasenaINM },
         esBorrador: false,
       });
       const tramiteId = tramiteRes.data.id;
@@ -229,16 +247,50 @@ export default function NuevoTramitePage() {
             </div>
 
             <div>
-              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Datos del solicitante (vínculo familiar con el extranjero)</h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Señala las visas con las que cuenta el extranjero</h3>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <p className="text-xs text-blue-800 text-center">Si deseas agregar visas será necesario que lo efectúes con el botón &apos;Agregar visa&apos;, de lo contrario los datos de esta sección no serán guardados.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl items-end">
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">País</label><select value={visaTemp.pais} onChange={e => setVisaTemp(prev => ({ ...prev, pais: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{PAISES.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Número</label><input type="text" value={visaTemp.numero} onChange={e => setVisaTemp(prev => ({ ...prev, numero: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                <div className="flex gap-2 items-end">
+                  <div className="flex-1"><label className="block text-xs font-medium text-gray-600 mb-1">Fecha de vencimiento</label><input type="date" value={visaTemp.vencimiento} onChange={e => setVisaTemp(prev => ({ ...prev, vencimiento: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                  <button type="button" onClick={handleAddVisa} className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 whitespace-nowrap">Agregar visa</button>
+                </div>
+              </div>
+              {visas.length > 0 && (
+                <div className="mt-4 max-w-4xl">
+                  <table className="w-full text-sm border rounded-lg overflow-hidden">
+                    <thead><tr className="bg-gray-50 border-b"><th className="text-left px-3 py-2 text-xs font-medium text-gray-500">País</th><th className="text-left px-3 py-2 text-xs font-medium text-gray-500">Número</th><th className="text-left px-3 py-2 text-xs font-medium text-gray-500">Vencimiento</th><th className="px-3 py-2"></th></tr></thead>
+                    <tbody>{visas.map((v, i) => (<tr key={i} className="border-b last:border-0"><td className="px-3 py-2">{v.pais}</td><td className="px-3 py-2">{v.numero}</td><td className="px-3 py-2">{v.vencimiento}</td><td className="px-3 py-2 text-right"><button type="button" onClick={() => handleRemoveVisa(i)} className="text-xs text-red-500 hover:text-red-700">Eliminar</button></td></tr>))}</tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Datos del solicitante que tiene el vínculo familiar con el extranjero</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Tipo de persona *</label><select value={extranjero.solicitanteTipoPersona} onChange={e => updateExtranjero('solicitanteTipoPersona', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{TIPOS_PERSONA.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre del solicitante</label><input type="text" value={extranjero.solicitanteNombre} onChange={e => updateExtranjero('solicitanteNombre', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Parentesco</label><input type="text" value={extranjero.solicitanteParentesco} onChange={e => updateExtranjero('solicitanteParentesco', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Ej: Cónyuge, Hijo, Empleador" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico para notificaciones</label><input type="email" value={extranjero.solicitanteEmail} onChange={e => updateExtranjero('solicitanteEmail', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Parentesco con el extranjero</label><input type="text" value={extranjero.solicitanteParentesco} onChange={e => updateExtranjero('solicitanteParentesco', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Ej: Cónyuge, Hijo, Empleador" /></div>
               </div>
             </div>
 
             <div>
-              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Persona autorizada para tramitar</h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Correo electrónico para notificar al promovente</h3>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <p className="text-xs text-blue-800 text-center">Agrega la dirección de correo electrónico en donde se recibirán las notificaciones asociadas a tu trámite.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico *</label><input type="email" value={extranjero.solicitanteEmail} onChange={e => updateExtranjero('solicitanteEmail', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="nombre@correo.com" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico (confirmación) *</label><input type="email" value={extranjero.solicitanteEmailConfirmacion} onChange={e => updateExtranjero('solicitanteEmailConfirmacion', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="nombre@correo.com" /></div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">En su caso, persona autorizada para tramitar, oír o recibir notificaciones</h3>
               <div className="max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre de persona autorizada</label><input type="text" value={extranjero.personaAutorizada} onChange={e => updateExtranjero('personaAutorizada', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
               </div>
