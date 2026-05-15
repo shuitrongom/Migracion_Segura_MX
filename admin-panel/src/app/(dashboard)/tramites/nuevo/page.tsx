@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { TipoTramite } from '@/lib/types';
+import { PROPOSITOS_VIAJE, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES } from '@/lib/catalogos-inm';
 
 const TRAMITES_INM: { tipo: TipoTramite; nombre: string; descripcion: string; urlSolicitud: string }[] = [
   { tipo: TipoTramite.VISA, nombre: 'Visas solicitadas ante el INM', descripcion: 'Solicitud de visa por unidad familiar, razones humanitarias u oferta de empleo', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
@@ -35,12 +36,18 @@ export default function NuevoTramitePage() {
 
   // Datos del extranjero (se guardan en nuestra BD)
   const [extranjero, setExtranjero] = useState({
-    nombreCompleto: '', nacionalidad: '', fechaNacimiento: '', sexo: '',
-    paisNacimiento: '', ciudadNacimiento: '',
-    pasaporteNumero: '', pasaporteVigencia: '',
+    propositoViaje: '', 
+    // Datos conforme a pasaporte
+    nombre: '', apellidos: '', sexo: '', fechaNacimiento: '',
+    nacionalidad: '', estadoCivil: '',
+    // Lugar de nacimiento
+    paisNacimiento: '', estadoProvinciaNacimiento: '',
+    // Pasaporte
+    documentoIdentificacion: '', numeroDocumento: '', paisExpedicion: '',
+    fechaExpedicion: '', fechaVencimiento: '',
+    // Información adicional
     domicilioMexico: '', telefono: '', email: '',
-    propositoViaje: '', tiempoEstancia: '',
-    visasActuales: '', comentarios: '',
+    tiempoEstancia: '', visasActuales: '', comentarios: '',
     // Datos del solicitante/promovente
     solicitanteNombre: '', solicitanteParentesco: '', solicitanteEmail: '',
     personaAutorizada: '',
@@ -78,7 +85,8 @@ export default function NuevoTramitePage() {
   const handleNext = () => {
     if (step === 0 && !selectedTramite) { toast.error('Selecciona un tipo de trámite'); return; }
     if (step === 1) {
-      if (!extranjero.nombreCompleto.trim()) { toast.error('Ingresa el nombre del extranjero'); return; }
+      if (!extranjero.nombre.trim()) { toast.error('Ingresa el nombre del extranjero'); return; }
+      if (!extranjero.apellidos.trim()) { toast.error('Ingresa los apellidos'); return; }
       if (!extranjero.email.trim()) { toast.error('Ingresa el email'); return; }
       if (!extranjero.telefono.trim()) { toast.error('Ingresa el teléfono'); return; }
     }
@@ -96,7 +104,7 @@ export default function NuevoTramitePage() {
     setSubmitting(true);
     try {
       const clienteRes = await api.post('/clientes', {
-        nombreCompleto: extranjero.nombreCompleto,
+        nombreCompleto: `${extranjero.nombre} ${extranjero.apellidos}`.trim(),
         email: extranjero.email,
         telefono: extranjero.telefono,
       });
@@ -164,54 +172,76 @@ export default function NuevoTramitePage() {
           </div>
         )}
 
-        {/* Step 1: Datos del extranjero */}
+        {/* Step 1: Datos del extranjero - idéntico al formulario INM */}
         {step === 1 && (
           <div className="space-y-6">
             <div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-3">Propósito del viaje</h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Propósito del viaje</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Propósito del viaje</label><input type="text" value={extranjero.propositoViaje} onChange={e => updateExtranjero('propositoViaje', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Ej: Reunificación familiar" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Propósito de viaje *</label><select value={extranjero.propositoViaje} onChange={e => updateExtranjero('propositoViaje', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{PROPOSITOS_VIAJE.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Tiempo de estancia</label><input type="text" value={extranjero.tiempoEstancia} onChange={e => updateExtranjero('tiempoEstancia', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Ej: 1 año" /></div>
               </div>
             </div>
+
             <div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-3">Datos del extranjero (conforme a pasaporte)</h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Datos del extranjero (conforme a pasaporte o documento de identidad)</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre completo *</label><input type="text" value={extranjero.nombreCompleto} onChange={e => updateExtranjero('nombreCompleto', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Nombre y apellidos" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nacionalidad</label><input type="text" value={extranjero.nacionalidad} onChange={e => updateExtranjero('nacionalidad', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Fecha de nacimiento</label><input type="date" value={extranjero.fechaNacimiento} onChange={e => updateExtranjero('fechaNacimiento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Sexo</label><select value={extranjero.sexo} onChange={e => updateExtranjero('sexo', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Seleccionar</option><option value="M">Masculino</option><option value="F">Femenino</option></select></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">País de nacimiento</label><input type="text" value={extranjero.paisNacimiento} onChange={e => updateExtranjero('paisNacimiento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Ciudad de nacimiento</label><input type="text" value={extranjero.ciudadNacimiento} onChange={e => updateExtranjero('ciudadNacimiento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre(s) *</label><input type="text" value={extranjero.nombre} onChange={e => updateExtranjero('nombre', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Apellido(s) *</label><input type="text" value={extranjero.apellidos} onChange={e => updateExtranjero('apellidos', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Sexo *</label><select value={extranjero.sexo} onChange={e => updateExtranjero('sexo', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{SEXOS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}</select></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Fecha de nacimiento *</label><input type="date" value={extranjero.fechaNacimiento} onChange={e => updateExtranjero('fechaNacimiento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nacionalidad actual *</label><select value={extranjero.nacionalidad} onChange={e => updateExtranjero('nacionalidad', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{NACIONALIDADES.map(n => <option key={n} value={n}>{n}</option>)}</select></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Estado civil actual</label><select value={extranjero.estadoCivil} onChange={e => updateExtranjero('estadoCivil', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{ESTADOS_CIVILES.map(ec => <option key={ec.value} value={ec.value}>{ec.label}</option>)}</select></div>
               </div>
             </div>
+
             <div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-3">Pasaporte o documento de identidad</h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Lugar de nacimiento</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Número de pasaporte</label><input type="text" value={extranjero.pasaporteNumero} onChange={e => updateExtranjero('pasaporteNumero', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Vigencia del pasaporte</label><input type="date" value={extranjero.pasaporteVigencia} onChange={e => updateExtranjero('pasaporteVigencia', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">País de nacimiento *</label><select value={extranjero.paisNacimiento} onChange={e => updateExtranjero('paisNacimiento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{PAISES.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Estado, provincia o departamento *</label><input type="text" value={extranjero.estadoProvinciaNacimiento} onChange={e => updateExtranjero('estadoProvinciaNacimiento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
               </div>
             </div>
+
             <div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-3">Información adicional y contacto</h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Pasaporte o documento con el que se identifica el extranjero</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Documento de identificación *</label><select value={extranjero.documentoIdentificacion} onChange={e => updateExtranjero('documentoIdentificacion', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{DOCUMENTOS_IDENTIFICACION.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Número de documento *</label><input type="text" value={extranjero.numeroDocumento} onChange={e => updateExtranjero('numeroDocumento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">País de expedición *</label><select value={extranjero.paisExpedicion} onChange={e => updateExtranjero('paisExpedicion', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{PAISES.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Fecha de expedición</label><input type="date" value={extranjero.fechaExpedicion} onChange={e => updateExtranjero('fechaExpedicion', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Fecha de vencimiento</label><input type="date" value={extranjero.fechaVencimiento} onChange={e => updateExtranjero('fechaVencimiento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Información adicional del extranjero</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Domicilio en México</label><input type="text" value={extranjero.domicilioMexico} onChange={e => updateExtranjero('domicilioMexico', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Teléfono *</label><input type="tel" value={extranjero.telefono} onChange={e => updateExtranjero('telefono', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="+52 55 1234 5678" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Email *</label><input type="email" value={extranjero.email} onChange={e => updateExtranjero('email', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
-                <div className="md:col-span-3"><label className="block text-xs font-medium text-gray-600 mb-1">Visas actuales del extranjero</label><input type="text" value={extranjero.visasActuales} onChange={e => updateExtranjero('visasActuales', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Ej: Visa americana B1/B2 vigente" /></div>
+                <div className="md:col-span-3"><label className="block text-xs font-medium text-gray-600 mb-1">Visas con las que cuenta el extranjero</label><input type="text" value={extranjero.visasActuales} onChange={e => updateExtranjero('visasActuales', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Ej: Visa americana B1/B2 vigente" /></div>
               </div>
             </div>
+
             <div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-3">Datos del solicitante (promovente en México)</h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Datos del solicitante (vínculo familiar con el extranjero)</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre del solicitante</label><input type="text" value={extranjero.solicitanteNombre} onChange={e => updateExtranjero('solicitanteNombre', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Parentesco</label><input type="text" value={extranjero.solicitanteParentesco} onChange={e => updateExtranjero('solicitanteParentesco', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Ej: Cónyuge, Hijo, Empleador" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Email para notificaciones</label><input type="email" value={extranjero.solicitanteEmail} onChange={e => updateExtranjero('solicitanteEmail', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
-                <div className="md:col-span-2"><label className="block text-xs font-medium text-gray-600 mb-1">Persona autorizada para tramitar</label><input type="text" value={extranjero.personaAutorizada} onChange={e => updateExtranjero('personaAutorizada', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico para notificaciones</label><input type="email" value={extranjero.solicitanteEmail} onChange={e => updateExtranjero('solicitanteEmail', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
               </div>
             </div>
+
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Comentarios</label>
+              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Persona autorizada para tramitar</h3>
+              <div className="max-w-4xl">
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre de persona autorizada</label><input type="text" value={extranjero.personaAutorizada} onChange={e => updateExtranjero('personaAutorizada', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Comentarios</h3>
               <textarea value={extranjero.comentarios} onChange={e => updateExtranjero('comentarios', e.target.value)} rows={3} className="w-full max-w-4xl px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none" placeholder="Observaciones adicionales..." />
             </div>
           </div>
@@ -233,19 +263,23 @@ export default function NuevoTramitePage() {
                 <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">Ficha del Extranjero</h4>
                 <div className="space-y-2">
                   {[
-                    { label: 'Nombre', value: extranjero.nombreCompleto },
-                    { label: 'Nacionalidad', value: extranjero.nacionalidad },
-                    { label: 'Fecha nacimiento', value: extranjero.fechaNacimiento },
+                    { label: 'Nombre(s)', value: extranjero.nombre },
+                    { label: 'Apellido(s)', value: extranjero.apellidos },
                     { label: 'Sexo', value: extranjero.sexo === 'M' ? 'Masculino' : extranjero.sexo === 'F' ? 'Femenino' : '' },
+                    { label: 'Fecha nacimiento', value: extranjero.fechaNacimiento },
+                    { label: 'Nacionalidad', value: extranjero.nacionalidad },
+                    { label: 'Estado civil', value: extranjero.estadoCivil },
                     { label: 'País nacimiento', value: extranjero.paisNacimiento },
-                    { label: 'Ciudad nacimiento', value: extranjero.ciudadNacimiento },
-                    { label: 'Pasaporte', value: extranjero.pasaporteNumero },
-                    { label: 'Vigencia pasaporte', value: extranjero.pasaporteVigencia },
+                    { label: 'Estado/Provincia', value: extranjero.estadoProvinciaNacimiento },
+                    { label: 'Documento', value: extranjero.documentoIdentificacion },
+                    { label: 'Nº documento', value: extranjero.numeroDocumento },
+                    { label: 'País expedición', value: extranjero.paisExpedicion },
+                    { label: 'Expedición', value: extranjero.fechaExpedicion },
+                    { label: 'Vencimiento', value: extranjero.fechaVencimiento },
                     { label: 'Domicilio México', value: extranjero.domicilioMexico },
                     { label: 'Teléfono', value: extranjero.telefono },
                     { label: 'Email', value: extranjero.email },
                     { label: 'Propósito viaje', value: extranjero.propositoViaje },
-                    { label: 'Tiempo estancia', value: extranjero.tiempoEstancia },
                     { label: 'Visas actuales', value: extranjero.visasActuales },
                   ].filter(item => item.value).map(item => (
                     <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-2 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
