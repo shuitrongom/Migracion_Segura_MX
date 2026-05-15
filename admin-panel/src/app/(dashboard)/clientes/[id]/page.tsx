@@ -13,8 +13,11 @@ import {
   FileText,
   Clock,
   Calendar,
+  RefreshCw,
+  Trash2,
 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { toast } from 'sonner';
 import { useAuthStore } from '@/stores/auth.store';
 import { UserRole } from '@/lib/types';
 import { CitasTab } from '@/components/citas-tab';
@@ -111,6 +114,8 @@ export default function ClienteDetailPage() {
   const [emailValue, setEmailValue] = useState('');
   const [telefonoValue, setTelefonoValue] = useState('');
   const [savingField, setSavingField] = useState<string | null>(null);
+  const [fotoUrl, setFotoUrl] = useState<string | null>(null);
+  const [reassigning, setReassigning] = useState(false);
 
   const isAdmin = user?.role === UserRole.ADMINISTRADOR;
   const isGestor = user?.role === UserRole.ASESOR;
@@ -308,12 +313,16 @@ export default function ClienteDetailPage() {
           <div className="bg-white rounded-xl border shadow-sm p-6">
             {/* Avatar + Name */}
             <div className="flex items-center gap-4 mb-6">
-              <div className="relative">
-                <div className="h-14 w-14 bg-brand-100 rounded-full flex items-center justify-center">
-                  <span className="text-xl font-bold text-brand-600">
-                    {cliente.nombreCompleto.charAt(0).toUpperCase()}
-                  </span>
-                </div>
+              <div className="relative group">
+                {fotoUrl ? (
+                  <img src={fotoUrl} alt={cliente.nombreCompleto} className="h-14 w-14 rounded-full object-cover border-2 border-brand-200" />
+                ) : (
+                  <div className="h-14 w-14 bg-brand-100 rounded-full flex items-center justify-center">
+                    <span className="text-xl font-bold text-brand-600">
+                      {cliente.nombreCompleto.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
                 <label
                   htmlFor="foto-extranjero"
                   className="absolute -bottom-1 -right-1 h-6 w-6 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 cursor-pointer"
@@ -321,7 +330,29 @@ export default function ClienteDetailPage() {
                 >
                   <Camera className="h-3 w-3 text-gray-500" />
                 </label>
-                <input id="foto-extranjero" type="file" accept="image/*" className="hidden" onChange={(e) => { /* TODO: upload photo */ }} />
+                {fotoUrl && (
+                  <button
+                    onClick={() => { setFotoUrl(null); toast.success('Foto eliminada'); }}
+                    className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 border border-white rounded-full flex items-center justify-center shadow-sm hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Eliminar foto"
+                  >
+                    <Trash2 className="h-2.5 w-2.5 text-white" />
+                  </button>
+                )}
+                <input
+                  id="foto-extranjero"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const url = URL.createObjectURL(file);
+                      setFotoUrl(url);
+                      toast.success('Foto cargada');
+                    }
+                  }}
+                />
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
@@ -447,9 +478,30 @@ export default function ClienteDetailPage() {
 
               {/* Gestor */}
               <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                  Gestor asignado
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    Gestor asignado
+                  </p>
+                  {isAdmin && (
+                    <button
+                      onClick={async () => {
+                        setReassigning(true);
+                        try {
+                          const res = await api.patch(`/clientes/${clienteId}/asesor`, { asesorId: 'auto' });
+                          setCliente(prev => prev ? { ...prev, asesor: res.data?.asesor || prev.asesor } : prev);
+                          toast.success('Gestor reasignado');
+                          window.location.reload();
+                        } catch { toast.error('Error al reasignar gestor'); }
+                        finally { setReassigning(false); }
+                      }}
+                      disabled={reassigning}
+                      className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-brand-500 transition-colors disabled:opacity-50"
+                      title="Reasignar gestor automáticamente"
+                    >
+                      <RefreshCw className={`h-3.5 w-3.5 ${reassigning ? 'animate-spin' : ''}`} />
+                    </button>
+                  )}
+                </div>
                 <p className="text-sm text-gray-900 mt-0.5">
                   {cliente.asesor?.fullName || 'Sin asignar'}
                 </p>

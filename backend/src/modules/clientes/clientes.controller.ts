@@ -88,11 +88,11 @@ export class ClientesController {
    */
   @Patch(':id/asesor')
   @Roles(UserRole.ADMINISTRADOR)
-  @ApiOperation({ summary: 'Asignar o reasignar asesor al cliente' })
+  @ApiOperation({ summary: 'Asignar o reasignar gestor al cliente' })
   @ApiParam({ name: 'id', description: 'UUID del cliente' })
   assignAsesor(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body('asesorId', ParseUUIDPipe) asesorId: string,
+    @Body('asesorId') asesorId: string,
   ) {
     return this.clientesService.assignAsesor(id, asesorId);
   }

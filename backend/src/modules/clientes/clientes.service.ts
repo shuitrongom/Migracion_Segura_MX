@@ -8,6 +8,8 @@ import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
 import { SearchClientesDto } from './dto/search-clientes.dto';
 import { PaginatedResponseDto } from '../../common/dto/pagination.dto';
+import { UsersService } from '../users/users.service';
+import { UserRole } from '../../common/enums';
 
 @Injectable()
 export class ClientesService {
@@ -16,6 +18,7 @@ export class ClientesService {
     private readonly clienteRepository: Repository<Cliente>,
     @InjectRepository(NotaInterna)
     private readonly notaInternaRepository: Repository<NotaInterna>,
+    private readonly usersService: UsersService,
   ) {}
 
   /**
@@ -60,8 +63,32 @@ export class ClientesService {
    */
   async assignAsesor(clienteId: string, asesorId: string): Promise<Cliente> {
     const cliente = await this.findOneOrFail(clienteId);
-    cliente.asesorId = asesorId;
-    return this.clienteRepository.save(cliente);
+
+    if (asesorId === 'auto') {
+      // Auto-asignar: gestor con menos clientes, o admin si no hay gestores
+      const gestores = await this.usersService.findByRole(UserRole.ASESOR);
+      if (gestores.length > 0) {
+        // Round-robin por carga
+        const counts = await Promise.all(
+          gestores.map(async (g) => {
+            const count = await this.clienteRepository.count({ where: { asesorId: g.id } });
+            return { id: g.id, count };
+          }),
+        );
+        counts.sort((a, b) => a.count - b.count);
+        cliente.asesorId = counts[0].id;
+      } else {
+        const admins = await this.usersService.findByRole(UserRole.ADMINISTRADOR);
+        if (admins.length > 0) {
+          cliente.asesorId = admins[0].id;
+        }
+      }
+    } else {
+      cliente.asesorId = asesorId;
+    }
+
+    const saved = await this.clienteRepository.save(cliente);
+    return this.clienteRepository.findOne({ where: { id: saved.id }, relations: ['asesor'] }) as Promise<Cliente>;
   }
 
   /**
