@@ -11,7 +11,11 @@ import type {
 
 export const clientesService = {
   async getClientes(params: SearchClientesParams): Promise<PaginatedResponse<Cliente>> {
-    const { data } = await api.get<PaginatedResponse<Cliente>>('/clientes', { params });
+    const { data } = await api.get('/clientes', { params });
+    // Backend devuelve { data, meta: { total, page, limit, totalPages } }
+    if (data.meta) {
+      return { data: data.data, total: data.meta.total, page: data.meta.page, limit: data.meta.limit, totalPages: data.meta.totalPages };
+    }
     return data;
   },
 

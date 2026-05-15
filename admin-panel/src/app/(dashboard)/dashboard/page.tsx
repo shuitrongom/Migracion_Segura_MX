@@ -3,10 +3,8 @@
 import {
   Users,
   FileText,
-  AlertTriangle,
   Calendar,
   Clock,
-  TrendingUp,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useDashboardMetrics, useCitasHoy, useRecentActivity } from '@/hooks/use-dashboard';
@@ -33,17 +31,12 @@ export default function DashboardPage() {
   const estatusQuery = useQuery({
     queryKey: ['dashboard', 'estatus-distribution'],
     queryFn: async () => {
-      const results = await Promise.all(
-        ESTATUS_CONFIG.map(async (item) => {
-          try {
-            const res = await api.get('/tramites', { params: { estatus: item.key, page: 1, limit: 1 } });
-            return { ...item, cantidad: res.data?.total ?? 0 };
-          } catch {
-            return { ...item, cantidad: 0 };
-          }
-        })
-      );
-      return results;
+      // Traer todos los trámites (hasta 200) para contar por estatus
+      const res = await api.get('/tramites', { params: { page: 1, limit: 200 } });
+      const tramites = res.data?.data || [];
+      const counts: Record<string, number> = {};
+      tramites.forEach((t: any) => { counts[t.estatus] = (counts[t.estatus] || 0) + 1; });
+      return ESTATUS_CONFIG.map(item => ({ ...item, cantidad: counts[item.key] || 0 }));
     },
     staleTime: 5 * 60 * 1000,
   });
@@ -68,7 +61,7 @@ export default function DashboardPage() {
           <>
             <MetricCard title="Total Clientes" value={metricsQuery.data?.totalClientes?.toString() ?? '0'} icon={<Users className="h-5 w-5 text-brand-500" />} />
             <MetricCard title="Total Trámites" value={metricsQuery.data?.totalTramites?.toString() ?? '0'} icon={<FileText className="h-5 w-5 text-brand-500" />} />
-            <MetricCard title="Docs por Vencer" value={metricsQuery.data?.documentosPorVencer?.toString() ?? '0'} icon={<AlertTriangle className="h-5 w-5 text-warning-500" />} />
+            <MetricCard title="Trámites en Proceso" value={metricsQuery.data?.tramitesEnProceso?.toString() ?? '0'} icon={<Clock className="h-5 w-5 text-warning-500" />} />
             <MetricCard title="Citas Hoy" value={citasHoyQuery.data?.length?.toString() ?? '0'} icon={<Calendar className="h-5 w-5 text-brand-500" />} />
           </>
         )}

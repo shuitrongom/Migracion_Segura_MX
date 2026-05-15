@@ -3,23 +3,22 @@ import { citasService } from '@/lib/services/citas.service';
 import { tramitesService } from '@/lib/services/tramites.service';
 import { clientesService } from '@/lib/services/clientes.service';
 import { notificacionesService } from '@/lib/services/notificaciones.service';
-import { documentosService } from '@/lib/services/documentos.service';
 import type { EstatusTramite } from '@/lib/types';
 
 export function useDashboardMetrics() {
   return useQuery({
     queryKey: ['dashboard', 'metrics'],
     queryFn: async () => {
-      const [tramitesResponse, clientesResponse, documentosPorVencer] = await Promise.all([
+      const [tramitesResponse, clientesResponse, tramitesEnProcesoResponse] = await Promise.all([
         tramitesService.getTramites({ page: 1, limit: 1 }),
         clientesService.getClientes({ page: 1, limit: 1 }),
-        documentosService.getPorVencer(),
+        tramitesService.getTramites({ estatus: 'en_revision' as any, page: 1, limit: 1 }),
       ]);
 
       return {
         totalTramites: tramitesResponse.total,
         totalClientes: clientesResponse.total,
-        documentosPorVencer: documentosPorVencer.length,
+        tramitesEnProceso: tramitesEnProcesoResponse.total,
       };
     },
     staleTime: 5 * 60 * 1000, // 5 minutes

@@ -29,7 +29,11 @@ export interface ConsultaPiezaResult {
 
 export const tramitesService = {
   async getTramites(params: SearchTramitesParams): Promise<PaginatedResponse<Tramite>> {
-    const { data } = await api.get<PaginatedResponse<Tramite>>('/tramites', { params });
+    const { data } = await api.get('/tramites', { params });
+    // Backend devuelve { data, meta: { total, page, limit, totalPages } }
+    if (data.meta) {
+      return { data: data.data, total: data.meta.total, page: data.meta.page, limit: data.meta.limit, totalPages: data.meta.totalPages };
+    }
     return data;
   },
 
