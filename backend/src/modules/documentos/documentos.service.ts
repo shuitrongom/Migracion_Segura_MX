@@ -36,12 +36,27 @@ export class DocumentosService {
     dto: UploadDocumentoDto,
     usuarioId: string,
   ): Promise<Documento> {
+    // Si no viene expedienteId pero sí tramiteId, buscar el expediente del trámite
+    let expedienteId = dto.expedienteId;
+    if (!expedienteId && dto.tramiteId) {
+      const expediente = await this.expedienteRepository.findOne({
+        where: { tramiteId: dto.tramiteId },
+      });
+      if (expediente) {
+        expedienteId = expediente.id;
+      }
+    }
+
+    if (!expedienteId) {
+      throw new NotFoundException('No se encontró un expediente para este documento. Proporcione expedienteId o tramiteId.');
+    }
+
     // Verificar que el expediente existe
     const expediente = await this.expedienteRepository.findOne({
-      where: { id: dto.expedienteId },
+      where: { id: expedienteId },
     });
     if (!expediente) {
-      throw new NotFoundException(`Expediente con ID ${dto.expedienteId} no encontrado`);
+      throw new NotFoundException(`Expediente con ID ${expedienteId} no encontrado`);
     }
 
     // Cifrar el buffer antes de almacenar
@@ -52,7 +67,7 @@ export class DocumentosService {
       encryptedBuffer,
       file.mimetype,
       {
-        folder: `expedientes/${dto.expedienteId}`,
+        folder: `expedientes/${expedienteId}`,
         fileName: `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`,
       },
     );
@@ -62,7 +77,7 @@ export class DocumentosService {
 
     // Crear registro del documento
     const documento = this.documentoRepository.create({
-      expedienteId: dto.expedienteId,
+      expedienteId: expedienteId,
       tramiteId: dto.tramiteId || null,
       nombre: dto.nombre,
       categoria,
@@ -82,7 +97,7 @@ export class DocumentosService {
     });
 
     const saved = await this.documentoRepository.save(documento);
-    this.logger.log(`Documento subido: ${saved.id} para expediente ${dto.expedienteId}`);
+    this.logger.log(`Documento subido: ${saved.id} para expediente ${expedienteId}`);
     return saved;
   }
 

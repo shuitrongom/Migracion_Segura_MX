@@ -2,10 +2,10 @@ import { IsNotEmpty, IsString, IsUUID, IsOptional, IsDateString } from 'class-va
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UploadDocumentoDto {
-  @ApiProperty({ description: 'ID del expediente al que pertenece el documento' })
-  @IsNotEmpty()
+  @ApiPropertyOptional({ description: 'ID del expediente al que pertenece el documento' })
+  @IsOptional()
   @IsUUID()
-  expedienteId: string;
+  expedienteId?: string;
 
   @ApiPropertyOptional({ description: 'ID del trámite asociado' })
   @IsOptional()

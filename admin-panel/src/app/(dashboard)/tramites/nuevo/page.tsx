@@ -303,7 +303,7 @@ export default function NuevoTramitePage() {
       if (pdfFile) {
         const formData = new FormData();
         formData.append('file', pdfFile);
-        formData.append('nombre', `Solicitud INM - ${selectedTramite.nombre}`);
+        formData.append('nombre', 'Solicitud generada por el INM');
         formData.append('categoria', 'solicitud');
         formData.append('tramiteId', tramiteId);
         await api.post('/documentos/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(() => {});

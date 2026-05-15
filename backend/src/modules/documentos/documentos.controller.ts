@@ -55,7 +55,7 @@ export class DocumentosController {
         categoria: { type: 'string' },
         fechaVencimiento: { type: 'string', format: 'date' },
       },
-      required: ['file', 'expedienteId', 'nombre'],
+      required: ['file', 'nombre'],
     },
   })
   upload(

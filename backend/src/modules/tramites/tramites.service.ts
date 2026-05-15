@@ -426,13 +426,15 @@ export class TramitesService {
   /**
    * Req 10.9 - Crea un expediente para el trámite
    */
-  private async createExpediente(clienteId: string, tramiteId: string): Promise<void> {
-    await this.tramiteRepository.query(
+  private async createExpediente(clienteId: string, tramiteId: string): Promise<string> {
+    const result = await this.tramiteRepository.query(
       `INSERT INTO expedientes (id, cliente_id, tramite_id, created_at, updated_at)
        VALUES (gen_random_uuid(), $1, $2, NOW(), NOW())
-       ON CONFLICT DO NOTHING`,
+       ON CONFLICT DO NOTHING
+       RETURNING id`,
       [clienteId, tramiteId],
     );
+    return result?.[0]?.id || tramiteId;
   }
 
   /**
