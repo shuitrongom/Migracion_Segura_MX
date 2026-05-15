@@ -91,6 +91,7 @@ export default function NuevoTramitePage() {
   const [numeroPieza, setNumeroPieza] = useState('');
   const [contrasenaINM, setContrasenaINM] = useState('');
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [confirmRfcINM, setConfirmRfcINM] = useState(false);
 
   // Errores de validación por campo
   const [fieldErrors, setFieldErrors] = useState<Record<string, boolean>>({});
@@ -217,6 +218,7 @@ export default function NuevoTramitePage() {
         if (!solicitante.moralColonia.trim()) errors['moral_colonia'] = true;
         if (!solicitante.moralCalle.trim()) errors['moral_calle'] = true;
         if (!solicitante.moralNumeroExterior.trim()) errors['moral_numeroExterior'] = true;
+        if (!confirmRfcINM) errors['confirmRfcINM'] = true;
       }
       if (!extranjero.solicitanteEmail.trim()) errors['solicitanteEmail'] = true;
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(extranjero.solicitanteEmail)) errors['solicitanteEmail'] = true;
@@ -444,6 +446,10 @@ export default function NuevoTramitePage() {
               {solicitante.tipoPersona === 'Moral' && (
                 <div className="mt-6 space-y-4">
                   <h4 className="text-sm font-semibold text-gray-800 border-b pb-1">Datos de la persona moral</h4>
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="text-sm text-red-800 font-medium">⚠️ Importante: El RFC de la persona moral debe estar dado de alta ante el INM</p>
+                    <p className="text-xs text-red-700 mt-1">La empresa debe contar con la Constancia de Inscripción del Empleador vigente y actualizada ante el Instituto Nacional de Migración. Si el RFC no está registrado, el trámite será rechazado por el INM.</p>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
                     <div><label className="block text-xs font-medium text-gray-600 mb-1">RFC *</label><input type="text" value={solicitante.moralRfc} onChange={e => updateSolicitante('moralRfc', e.target.value)} className={inputClassUpper('moral_rfc')} maxLength={13} /><CustomErrorMsg field="moral_rfc_format" /></div>
                     <div className="md:col-span-2"><label className="block text-xs font-medium text-gray-600 mb-1">Nombre o razón social *</label><input type="text" value={solicitante.moralRazonSocial} onChange={e => updateSolicitante('moralRazonSocial', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
@@ -468,6 +474,15 @@ export default function NuevoTramitePage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
                     <div><label className="block text-xs font-medium text-gray-600 mb-1">Número de acta constitutiva</label><input type="text" value={solicitante.moralNumeroActa} onChange={e => updateSolicitante('moralNumeroActa', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
                     <div><label className="block text-xs font-medium text-gray-600 mb-1">Fecha de registro del acta</label><DatePicker value={solicitante.moralFechaActa} onChange={v => updateSolicitante('moralFechaActa', v)} yearRange={[1950, 2026]} /></div>
+                  </div>
+
+                  {/* Confirmación RFC dado de alta en INM */}
+                  <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input type="checkbox" checked={confirmRfcINM} onChange={e => setConfirmRfcINM(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" />
+                      <span className="text-sm text-gray-700">Confirmo que el RFC <strong className="font-mono">{solicitante.moralRfc || '___'}</strong> está dado de alta ante el INM y cuenta con la Constancia de Inscripción del Empleador vigente y actualizada.</span>
+                    </label>
+                    {hasError('confirmRfcINM') && <p className="text-[11px] text-red-500 mt-2 ml-7">Debes confirmar que el RFC está dado de alta en el INM para continuar</p>}
                   </div>
                 </div>
               )}
