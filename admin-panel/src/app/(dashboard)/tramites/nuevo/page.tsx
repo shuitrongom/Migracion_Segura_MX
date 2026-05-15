@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { TipoTramite } from '@/lib/types';
-import { PROPOSITOS_VIAJE, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO, TIPOS_PERSONA, DOCUMENTOS_IDENTIFICACION_PERSONA, SITUACIONES_TRABAJO, OCUPACIONES_TRABAJO } from '@/lib/catalogos-inm';
+import { PROPOSITOS_VIAJE, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO, TIPOS_PERSONA, DOCUMENTOS_IDENTIFICACION_PERSONA, SITUACIONES_TRABAJO, OCUPACIONES_TRABAJO, VINCULOS_PARENTESCO } from '@/lib/catalogos-inm';
 import { ESTADOS_MEXICO, MUNICIPIOS_POR_ESTADO, SECTORES_ACTIVIDAD, DOCUMENTOS_PERSONA_FISICA } from '@/lib/catalogos-mexico';
 import { DatePicker } from '@/components/ui/date-picker';
 
@@ -28,7 +28,7 @@ const TRAMITES_INM: { tipo: TipoTramite; nombre: string; descripcion: string; ur
 interface Requisito { nombre: string; obligatorio: boolean; descripcion: string; }
 interface Costo { concepto: string; monto: number; moneda: string; fundamentoLegal: string; }
 
-const STEPS = ['Trámite', 'Datos del Extranjero', 'Solicitud INM', 'Pieza y Contraseña', 'Requisitos', 'Pago'];
+const STEPS = ['Trámite', 'Datos del Extranjero', 'Solicitud INM', 'Requisitos', 'Pago'];
 
 export default function NuevoTramitePage() {
   const router = useRouter();
@@ -70,7 +70,7 @@ export default function NuevoTramitePage() {
     tipoPersona: '',
     // Persona física
     curp: '', rfc: '', nombre: '', apellidos: '', nacionalidad: '',
-    tipoDocumento: '', numeroDocumento: '',
+    tipoDocumento: '', numeroDocumento: '', vinculoParentesco: '',
     // Domicilio
     codigoPostal: '', estado: '', municipio: '', colonia: '', calle: '',
     numeroExterior: '', numeroInterior: '', lada: '', telefonoFijo: '',
@@ -107,10 +107,13 @@ export default function NuevoTramitePage() {
     return null;
   };
 
-  const validateRfc = (value: string): string | null => {
-    if (!value) return null; // No es obligatorio, solo valida si hay valor
-    if (value.length < 12 || value.length > 13) return 'El RFC debe tener 12 o 13 caracteres';
-    const rfcRegex = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{0,3}$/;
+  const validateRfc = (value: string, isMoral: boolean = false): string | null => {
+    if (!value) return null;
+    const expectedLength = isMoral ? 12 : 13;
+    if (value.length !== expectedLength) return `El RFC debe tener ${expectedLength} caracteres${isMoral ? '' : ' (con homoclave)'}`;
+    const rfcRegex = isMoral
+      ? /^[A-ZÑ&]{3}\d{6}[A-Z0-9]{3}$/
+      : /^[A-ZÑ&]{4}\d{6}[A-Z0-9]{3}$/;
     if (!rfcRegex.test(value)) return 'Formato de RFC inválido';
     return null;
   };
@@ -197,6 +200,7 @@ export default function NuevoTramitePage() {
         if (!solicitante.nacionalidad) errors['sol_nacionalidad'] = true;
         if (!solicitante.tipoDocumento) errors['sol_tipoDocumento'] = true;
         if (!solicitante.numeroDocumento.trim()) errors['sol_numeroDocumento'] = true;
+        if (!solicitante.vinculoParentesco) errors['sol_vinculoParentesco'] = true;
         if (!solicitante.codigoPostal.trim()) errors['sol_codigoPostal'] = true;
         if (!solicitante.estado) errors['sol_estado'] = true;
         if (!solicitante.municipio) errors['sol_municipio'] = true;
@@ -226,11 +230,11 @@ export default function NuevoTramitePage() {
       if (solicitante.tipoPersona === 'Física') {
         const curpErr = validateCurp(solicitante.curp);
         if (curpErr) cErrors['sol_curp'] = curpErr;
-        const rfcErr = validateRfc(solicitante.rfc);
+        const rfcErr = validateRfc(solicitante.rfc, false);
         if (rfcErr) cErrors['sol_rfc'] = rfcErr;
       }
       if (solicitante.tipoPersona === 'Moral') {
-        const rfcErr = validateRfc(solicitante.moralRfc);
+        const rfcErr = validateRfc(solicitante.moralRfc, true);
         if (rfcErr) cErrors['moral_rfc_format'] = rfcErr;
       }
       setCustomErrors(cErrors);
@@ -240,9 +244,9 @@ export default function NuevoTramitePage() {
         return;
       }
     }
-    if (step === 3) {
-      if (!numeroPieza.trim()) { toast.error('Ingresa el número de pieza'); return; }
-      if (!contrasenaINM.trim()) { toast.error('Ingresa la contraseña del INM'); return; }
+    if (step === 2) {
+      if (!numeroPieza.trim()) { toast.error('Ingresa el número de pieza que generó el INM'); return; }
+      if (!contrasenaINM.trim()) { toast.error('Ingresa la clave que generó el INM'); return; }
     }
     setStep(s => Math.min(s + 1, STEPS.length - 1));
   };
@@ -419,6 +423,7 @@ export default function NuevoTramitePage() {
                     <div><label className="block text-xs font-medium text-gray-600 mb-1">Nacionalidad actual *</label><select value={solicitante.nacionalidad} onChange={e => updateSolicitante('nacionalidad', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{NACIONALIDADES.map(n => <option key={n} value={n}>{n}</option>)}</select></div>
                     <div><label className="block text-xs font-medium text-gray-600 mb-1">Tipo de documento *</label><select value={solicitante.tipoDocumento} onChange={e => updateSolicitante('tipoDocumento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{DOCUMENTOS_PERSONA_FISICA.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
                     <div><label className="block text-xs font-medium text-gray-600 mb-1">Número de documento *</label><input type="text" value={solicitante.numeroDocumento} onChange={e => updateSolicitante('numeroDocumento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div className="md:col-span-3"><label className="block text-xs font-medium text-gray-600 mb-1">Vínculo o parentesco entre el solicitante y el extranjero *</label><select value={solicitante.vinculoParentesco} onChange={e => updateSolicitante('vinculoParentesco', e.target.value)} className={inputClass('sol_vinculoParentesco')}><option value="">Selecciona</option>{VINCULOS_PARENTESCO.map(v => <option key={v} value={v}>{v}</option>)}</select><ErrorMsg field="sol_vinculoParentesco" /></div>
                   </div>
 
                   <h4 className="text-sm font-semibold text-gray-800 border-b pb-1 pt-2">Domicilio de la persona física</h4>
@@ -663,40 +668,42 @@ export default function NuevoTramitePage() {
               </div>
               {/* Iframe del INM (derecha) */}
               <div className="lg:col-span-2 border rounded-lg overflow-hidden">
-                <iframe src={selectedTramite.urlSolicitud} className="w-full h-full" title="Formulario INM" sandbox="allow-same-origin allow-scripts allow-forms allow-popups" />
+                <iframe src={selectedTramite.urlSolicitud} className="w-full h-full" title="Formulario INM" />
               </div>
             </div>
             <div className="flex items-center gap-2 mt-3 text-sm text-gray-500">
               <ExternalLink className="h-4 w-4" />
               <a href={selectedTramite.urlSolicitud} target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:text-brand-700 font-medium">Abrir en nueva pestaña</a>
             </div>
-          </div>
-        )}
 
-        {/* Step 3: Pieza y contraseña */}
-        {step === 3 && (
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Key className="h-5 w-5 text-brand-500" />
-              <h2 className="text-lg font-semibold text-gray-900">Número de Pieza y Contraseña</h2>
-            </div>
-            <p className="text-sm text-gray-500 mb-6">Ingresa los datos que generó el INM al completar la solicitud.</p>
-            <div className="max-w-md space-y-4">
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">Número de Pieza (NUT) *</label><input type="text" value={numeroPieza} onChange={e => setNumeroPieza(e.target.value)} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Ej: INM/2026/..." /></div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">Contraseña del INM *</label><input type="text" value={contrasenaINM} onChange={e => setContrasenaINM(e.target.value)} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Contraseña generada" /></div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">PDF de la solicitud (opcional)</label>
-                <label className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 cursor-pointer w-fit">
-                  <Upload className="h-4 w-4" />{pdfFile ? pdfFile.name : 'Seleccionar archivo'}
-                  <input type="file" accept=".pdf" onChange={e => setPdfFile(e.target.files?.[0] || null)} className="hidden" />
-                </label>
+            {/* Campos de pieza y clave debajo del iframe */}
+            <div className="mt-6 pt-6 border-t">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                <p className="text-sm text-amber-800"><strong>Al finalizar la solicitud en el INM:</strong> Copia aquí el número de pieza y la clave que te muestra. Luego haz clic en &quot;Imprimir ahora&quot;, guarda el PDF en tu dispositivo y súbelo abajo.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Número de Pieza *</label>
+                  <input type="text" value={numeroPieza} onChange={e => setNumeroPieza(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Ej: 0000011969016" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Clave *</label>
+                  <input type="text" value={contrasenaINM} onChange={e => setContrasenaINM(e.target.value.toUpperCase())} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Ej: QFCSA" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">PDF Solicitud generada por el INM</label>
+                  <label className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 cursor-pointer">
+                    <Upload className="h-4 w-4" />{pdfFile ? pdfFile.name : 'Seleccionar PDF...'}
+                    <input type="file" accept=".pdf" onChange={e => setPdfFile(e.target.files?.[0] || null)} className="hidden" />
+                  </label>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Step 4: Requisitos */}
-        {step === 4 && (
+        {/* Step 3: Requisitos */}
+        {step === 3 && (
           <div>
             <div className="flex items-center gap-2 mb-4">
               <ClipboardList className="h-5 w-5 text-brand-500" />
@@ -719,8 +726,8 @@ export default function NuevoTramitePage() {
           </div>
         )}
 
-        {/* Step 5: Pago */}
-        {step === 5 && costo && (
+        {/* Step 4: Pago */}
+        {step === 4 && costo && (
           <div>
             <div className="flex items-center gap-2 mb-4">
               <DollarSign className="h-5 w-5 text-brand-500" />

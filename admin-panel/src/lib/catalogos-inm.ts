@@ -78,3 +78,13 @@ export const OCUPACIONES_TRABAJO = [
   'Trabajador industrial',
   'Otro',
 ];
+
+export const VINCULOS_PARENTESCO = [
+  'Cónyuge',
+  'Concubinario - Concubina',
+  'Padre/Madre - Hijo',
+  'Hijo (menor y soltero, o mayor bajo tutela o custodia) del cónyuge/concubina/concubinario',
+  'Hermano (menor y soltero, o mayor bajo tutela o custodia) del residente permanente o mexicano',
+  'Otro (por derivación de la condición de refugiado)',
+  'Hijo(s) mayor(es) de edad',
+];
