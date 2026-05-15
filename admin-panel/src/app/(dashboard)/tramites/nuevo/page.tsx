@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { TipoTramite } from '@/lib/types';
-import { PROPOSITOS_VIAJE, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES } from '@/lib/catalogos-inm';
+import { PROPOSITOS_VIAJE, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO } from '@/lib/catalogos-inm';
 
 const TRAMITES_INM: { tipo: TipoTramite; nombre: string; descripcion: string; urlSolicitud: string }[] = [
   { tipo: TipoTramite.VISA, nombre: 'Visas solicitadas ante el INM', descripcion: 'Solicitud de visa por unidad familiar, razones humanitarias u oferta de empleo', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
@@ -46,6 +46,7 @@ export default function NuevoTramitePage() {
     documentoIdentificacion: '', numeroDocumento: '', paisExpedicion: '',
     fechaExpedicion: '', fechaVencimiento: '',
     // Información adicional
+    actividadPrincipal: '', expulsadoMexico: '', antecedentesPenales: '',
     domicilioMexico: '', telefono: '', email: '',
     tiempoEstancia: '', visasActuales: '', comentarios: '',
     // Datos del solicitante/promovente
@@ -217,6 +218,9 @@ export default function NuevoTramitePage() {
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Información adicional del extranjero</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Actividad principal en tu país de residencia *</label><select value={extranjero.actividadPrincipal} onChange={e => updateExtranjero('actividadPrincipal', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{ACTIVIDADES_PRINCIPALES.map(a => <option key={a} value={a}>{a}</option>)}</select></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Has sido expulsado de México? *</label><select value={extranjero.expulsadoMexico} onChange={e => updateExtranjero('expulsadoMexico', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{SI_NO.map(o => <option key={o} value={o}>{o}</option>)}</select></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Tienes antecedentes penales? *</label><select value={extranjero.antecedentesPenales} onChange={e => updateExtranjero('antecedentesPenales', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{SI_NO.map(o => <option key={o} value={o}>{o}</option>)}</select></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Domicilio en México</label><input type="text" value={extranjero.domicilioMexico} onChange={e => updateExtranjero('domicilioMexico', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Teléfono *</label><input type="tel" value={extranjero.telefono} onChange={e => updateExtranjero('telefono', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="+52 55 1234 5678" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Email *</label><input type="email" value={extranjero.email} onChange={e => updateExtranjero('email', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
@@ -280,6 +284,9 @@ export default function NuevoTramitePage() {
                     { label: 'Teléfono', value: extranjero.telefono },
                     { label: 'Email', value: extranjero.email },
                     { label: 'Propósito viaje', value: extranjero.propositoViaje },
+                    { label: 'Actividad principal', value: extranjero.actividadPrincipal },
+                    { label: 'Expulsado de México', value: extranjero.expulsadoMexico },
+                    { label: 'Antecedentes penales', value: extranjero.antecedentesPenales },
                     { label: 'Visas actuales', value: extranjero.visasActuales },
                   ].filter(item => item.value).map(item => (
                     <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-2 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
