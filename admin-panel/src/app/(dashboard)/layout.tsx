@@ -7,7 +7,7 @@ import { UserRole } from '@/lib/types';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
 
-const ADMIN_ONLY_ROUTES = ['/asesores', '/reportes', '/automatizaciones', '/configuracion'];
+const ADMIN_ONLY_ROUTES = ['/gestores', '/reportes', '/automatizaciones', '/configuracion'];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading, user } = useAuthStore();

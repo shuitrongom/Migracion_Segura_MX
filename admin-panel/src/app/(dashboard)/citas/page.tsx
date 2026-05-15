@@ -36,9 +36,9 @@ export default function CitasPage() {
               </select>
             </div>
             <div>
-              <label htmlFor="cita-asesor" className="block text-sm font-medium text-gray-700 mb-1">Asesor</label>
+              <label htmlFor="cita-asesor" className="block text-sm font-medium text-gray-700 mb-1">Gestor</label>
               <select id="cita-asesor" className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
-                <option value="">Seleccionar asesor</option>
+                <option value="">Seleccionar gestor</option>
               </select>
             </div>
             <div>

@@ -82,7 +82,7 @@ export default function ClientesPage() {
                   <th className="text-left px-4 py-3 font-medium text-gray-500">Nombre</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-500">Email</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-500 hidden md:table-cell">Teléfono</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-500 hidden lg:table-cell">Asesor</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-500 hidden lg:table-cell">Gestor</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-500 hidden lg:table-cell">Etiquetas</th>
                   <th className="text-right px-4 py-3 font-medium text-gray-500">Ver</th>
                 </tr>

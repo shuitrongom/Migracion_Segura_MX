@@ -30,7 +30,7 @@ interface NavItem {
 const navigation: NavItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Clientes', href: '/clientes', icon: Users },
-  { name: 'Asesores', href: '/asesores', icon: UserCog, adminOnly: true },
+  { name: 'Gestores', href: '/gestores', icon: UserCog, adminOnly: true },
   { name: 'Trámites', href: '/tramites', icon: FileText },
   { name: 'Documentos', href: '/documentos', icon: FolderOpen },
   { name: 'Citas', href: '/citas', icon: Calendar },
@@ -62,7 +62,7 @@ export function Sidebar() {
       {/* Version badge */}
       <div className="px-6 py-3">
         <span className="inline-block px-3 py-1 bg-gold-500/20 text-gold-300 text-xs font-medium rounded-full border border-gold-500/30">
-          {isAdmin ? 'ADMINISTRADOR' : 'ASESOR'}
+          {isAdmin ? 'ADMINISTRADOR' : 'GESTOR'}
         </span>
       </div>
 

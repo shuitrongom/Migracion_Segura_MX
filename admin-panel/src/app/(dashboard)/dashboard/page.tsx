@@ -179,7 +179,7 @@ export default function DashboardPage() {
                         {cita.cliente ? (cita.cliente.nombreCompleto || `${cita.cliente.nombre || ''} ${cita.cliente.apellidos || ''}`.trim() || 'Cliente') : 'Cliente'}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {cita.asesor?.fullName ?? 'Asesor'}
+                        {cita.asesor?.fullName ?? 'Gestor'}
                       </p>
                     </div>
                   </div>

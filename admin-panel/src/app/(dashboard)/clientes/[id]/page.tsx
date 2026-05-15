@@ -181,7 +181,7 @@ export default function ClienteDetailPage() {
                 <p className="text-sm text-gray-900 mt-0.5">{cliente.telefono}</p>
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Asesor</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Gestor</p>
                 <p className="text-sm text-gray-900 mt-0.5">{cliente.asesor?.fullName || 'Sin asignar'}</p>
               </div>
             </div>

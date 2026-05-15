@@ -5,14 +5,14 @@ import { UserCog, Plus, Trash2, X, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 
-interface Asesor {
+interface Gestor {
   id: string;
   fullName: string | null;
   email: string;
 }
 
-export default function AsesoresPage() {
-  const [asesores, setAsesores] = useState<Asesor[]>([]);
+export default function GestoresPage() {
+  const [Gestores, setGestores] = useState<Gestor[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -24,20 +24,20 @@ export default function AsesoresPage() {
     password: '',
   });
 
-  const fetchAsesores = useCallback(async () => {
+  const fetchGestores = useCallback(async () => {
     try {
       const response = await api.get('/users/asesores');
-      setAsesores(response.data);
+      setGestores(response.data);
     } catch {
-      toast.error('Error al cargar asesores');
+      toast.error('Error al cargar Gestores');
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchAsesores();
-  }, [fetchAsesores]);
+    fetchGestores();
+  }, [fetchGestores]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +55,7 @@ export default function AsesoresPage() {
         password: formData.password,
       });
 
-      toast.success('Asesor creado. Se envió email con sus credenciales.');
+      toast.success('Gestor creado. Se envió email con sus credenciales.');
 
       // Si el backend devuelve un link de WhatsApp, abrirlo
       if (response.data?.whatsappUrl) {
@@ -65,10 +65,10 @@ export default function AsesoresPage() {
       setShowModal(false);
       setFormData({ fullName: '', email: '', phone: '', password: '' });
       setShowPassword(false);
-      fetchAsesores();
+      fetchGestores();
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : 'Error al crear asesor';
+        error instanceof Error ? error.message : 'Error al crear Gestor';
       toast.error(message);
     } finally {
       setSubmitting(false);
@@ -82,14 +82,14 @@ export default function AsesoresPage() {
   };
 
   const handleDelete = async (id: string, name: string | null) => {
-    if (!confirm(`¿Estás seguro de eliminar al asesor ${name || 'sin nombre'}?`)) return;
+    if (!confirm(`¿Estás seguro de eliminar al Gestor ${name || 'sin nombre'}?`)) return;
 
     try {
       await api.delete(`/users/asesores/${id}`);
-      toast.success('Asesor eliminado');
-      fetchAsesores();
+      toast.success('Gestor eliminado');
+      fetchGestores();
     } catch {
-      toast.error('Error al eliminar asesor');
+      toast.error('Error al eliminar Gestor');
     }
   };
 
@@ -99,27 +99,27 @@ export default function AsesoresPage() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <UserCog className="h-6 w-6 text-brand-500" />
-          <h1 className="text-2xl font-bold text-gray-900">Asesores</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Gestores</h1>
         </div>
         <button
           onClick={() => setShowModal(true)}
           className="flex items-center gap-2 px-4 py-2.5 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors"
         >
           <Plus className="h-4 w-4" />
-          Nuevo Asesor
+          Nuevo Gestor
         </button>
       </div>
 
-      {/* Lista de asesores */}
+      {/* Lista de Gestores */}
       <div className="bg-white rounded-xl border shadow-sm">
         {loading ? (
           <div className="p-12 text-center text-gray-400">Cargando...</div>
-        ) : asesores.length === 0 ? (
+        ) : Gestores.length === 0 ? (
           <div className="p-12 text-center">
             <UserCog className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">No hay asesores registrados.</p>
+            <p className="text-gray-500">No hay Gestores registrados.</p>
             <p className="text-sm text-gray-400 mt-1">
-              Crea el primer asesor para poder asignarlos a clientes y trámites.
+              Crea el primer Gestor para poder asignarlos a clientes y trámites.
             </p>
           </div>
         ) : (
@@ -138,17 +138,17 @@ export default function AsesoresPage() {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {asesores.map((asesor) => (
-                <tr key={asesor.id} className="hover:bg-gray-50">
+              {Gestores.map((Gestor) => (
+                <tr key={Gestor.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                    {asesor.fullName || '—'}
+                    {Gestor.fullName || '—'}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{asesor.email}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{Gestor.email}</td>
                   <td className="px-6 py-4 text-right">
                     <button
-                      onClick={() => handleDelete(asesor.id, asesor.fullName)}
+                      onClick={() => handleDelete(Gestor.id, Gestor.fullName)}
                       className="p-2 text-gray-400 hover:text-danger-500 rounded-lg hover:bg-danger-50 transition-colors"
-                      aria-label={`Eliminar asesor ${asesor.fullName}`}
+                      aria-label={`Eliminar Gestor ${Gestor.fullName}`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -160,12 +160,12 @@ export default function AsesoresPage() {
         )}
       </div>
 
-      {/* Modal crear asesor */}
+      {/* Modal crear Gestor */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
             <div className="flex items-center justify-between px-6 py-4 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">Nuevo Asesor</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Nuevo Gestor</h2>
               <button
                 onClick={handleCloseModal}
                 className="p-1 rounded-lg hover:bg-gray-100 text-gray-400"
@@ -186,7 +186,7 @@ export default function AsesoresPage() {
                   value={formData.fullName}
                   onChange={(e) => setFormData((prev) => ({ ...prev, fullName: e.target.value }))}
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                  placeholder="Nombre del asesor"
+                  placeholder="Nombre del Gestor"
                 />
               </div>
 
@@ -241,7 +241,7 @@ export default function AsesoresPage() {
                   </button>
                 </div>
                 <p className="mt-1 text-xs text-gray-400">
-                  Se enviará por correo y WhatsApp al asesor. Podrá cambiarla después.
+                  Se enviará por correo y WhatsApp al Gestor. Podrá cambiarla después.
                 </p>
               </div>
 
@@ -251,7 +251,7 @@ export default function AsesoresPage() {
                   disabled={submitting}
                   className="flex-1 px-4 py-2.5 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors disabled:opacity-50"
                 >
-                  {submitting ? 'Creando...' : 'Crear Asesor'}
+                  {submitting ? 'Creando...' : 'Crear Gestor'}
                 </button>
                 <button
                   type="button"
