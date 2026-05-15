@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   Query,
+  Request,
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
@@ -128,8 +129,8 @@ export class TramitesController {
   @ApiBearerAuth()
   @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
   @ApiOperation({ summary: 'Listar todos los trámites' })
-  findAll(@Query() pagination: PaginationDto) {
-    return this.tramitesService.findAll(pagination);
+  findAll(@Query() pagination: PaginationDto, @Request() req: { user: { id: string; role: string } }) {
+    return this.tramitesService.findAll(pagination, req.user);
   }
 
   /**

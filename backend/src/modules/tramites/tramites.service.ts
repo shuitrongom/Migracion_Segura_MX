@@ -337,16 +337,25 @@ export class TramitesService {
   /**
    * Listar trámites con paginación
    */
-  async findAll(pagination: PaginationDto): Promise<PaginatedResponseDto<Tramite>> {
+  async findAll(pagination: PaginationDto, user?: { id: string; role: string }): Promise<PaginatedResponseDto<Tramite>> {
     const page = pagination.page ?? 1;
     const limit = pagination.limit ?? 20;
 
-    const [data, total] = await this.tramiteRepository.findAndCount({
-      relations: ['cliente', 'asesor', 'responsable'],
-      order: { createdAt: 'DESC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+    const qb = this.tramiteRepository
+      .createQueryBuilder('tramite')
+      .leftJoinAndSelect('tramite.cliente', 'cliente')
+      .leftJoinAndSelect('tramite.asesor', 'asesor')
+      .leftJoinAndSelect('tramite.responsable', 'responsable')
+      .orderBy('tramite.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    // Si es gestor (ASESOR), solo ve sus trámites asignados
+    if (user && user.role === UserRole.ASESOR) {
+      qb.where('tramite.asesorId = :userId', { userId: user.id });
+    }
+
+    const [data, total] = await qb.getManyAndCount();
 
     return new PaginatedResponseDto(data, total, page, limit);
   }

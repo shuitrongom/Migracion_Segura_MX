@@ -42,8 +42,8 @@ export class ClientesController {
   @Get()
   @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
   @ApiOperation({ summary: 'Buscar clientes con filtros' })
-  search(@Query() dto: SearchClientesDto) {
-    return this.clientesService.search(dto);
+  search(@Query() dto: SearchClientesDto, @Request() req: { user: { id: string; role: string } }) {
+    return this.clientesService.search(dto, req.user);
   }
 
   /**

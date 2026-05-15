@@ -76,13 +76,18 @@ export class ClientesService {
   /**
    * Req 9.4, 9.5 - Buscar y filtrar clientes
    */
-  async search(dto: SearchClientesDto): Promise<PaginatedResponseDto<Cliente>> {
+  async search(dto: SearchClientesDto, user?: { id: string; role: string }): Promise<PaginatedResponseDto<Cliente>> {
     const page = dto.page ?? 1;
     const limit = dto.limit ?? 20;
 
     const qb: SelectQueryBuilder<Cliente> = this.clienteRepository
       .createQueryBuilder('cliente')
       .leftJoinAndSelect('cliente.asesor', 'asesor');
+
+    // Si es gestor (ASESOR), solo ve sus clientes asignados
+    if (user && user.role === 'asesor') {
+      qb.andWhere('cliente.asesorId = :currentUserId', { currentUserId: user.id });
+    }
 
     // Req 9.4 - Búsqueda por nombre, email, teléfono o número de pieza
     if (dto.q) {
