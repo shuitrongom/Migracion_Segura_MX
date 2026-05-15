@@ -41,6 +41,52 @@ export class EmailService {
     }
   }
 
+  /**
+   * Enviar lista de requisitos al extranjero
+   */
+  async sendRequisitosEmail(params: {
+    to: string;
+    nombreExtranjero: string;
+    requisitos: string[];
+  }): Promise<void> {
+    const { to, nombreExtranjero, requisitos } = params;
+
+    const requisitosHtml = requisitos.map((r, i) => `<tr><td style="padding: 8px 12px; border-bottom: 1px solid #e8dfd3; font-size: 14px; color: #2C1810;"><strong>${i + 1}.</strong> ${r}</td></tr>`).join('');
+
+    try {
+      await this.resend.emails.send({
+        from: `${this.fromName} <${this.fromEmail}>`,
+        to: [to],
+        subject: 'Requisitos para tu trámite migratorio — Migración Segura MX',
+        html: `
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background-color:#f5f0e8;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;margin:0 auto;padding:40px 20px;">
+<tr><td>
+<table role="presentation" width="100%" style="background-color:#2C1810;border-radius:12px 12px 0 0;padding:24px;"><tr><td align="center"><h1 style="color:#C4A265;margin:0;font-size:20px;">MIGRACIÓN SEGURA MX</h1></td></tr></table>
+<table role="presentation" width="100%" style="background-color:#fff;padding:32px;">
+<tr><td>
+<h2 style="color:#2C1810;margin:0 0 16px;font-size:18px;">Hola ${nombreExtranjero},</h2>
+<p style="color:#4a4a4a;font-size:14px;line-height:1.6;">Para continuar con tu trámite migratorio, necesitas reunir los siguientes documentos:</p>
+<table role="presentation" width="100%" style="margin:20px 0;border:1px solid #e8dfd3;border-radius:8px;overflow:hidden;">
+<tr><td style="background:#f8f5f0;padding:10px 12px;font-size:12px;font-weight:600;color:#6B5B4F;text-transform:uppercase;">Documentos requeridos</td></tr>
+${requisitosHtml}
+</table>
+<p style="color:#4a4a4a;font-size:14px;line-height:1.6;">Una vez que tengas todos los documentos listos, puedes entregarlos a tu gestor o subirlos directamente en la plataforma.</p>
+<p style="color:#888;font-size:12px;margin-top:20px;">Si tienes dudas, contacta a tu gestor asignado.</p>
+</td></tr></table>
+<table role="presentation" width="100%" style="background-color:#f8f5f0;border-radius:0 0 12px 12px;padding:20px;"><tr><td align="center"><p style="color:#6B5B4F;font-size:11px;margin:0;">© ${new Date().getFullYear()} Migración Segura MX</p></td></tr></table>
+</td></tr></table>
+</body></html>`,
+      });
+      this.logger.log(`Requisitos enviados a ${to}`);
+    } catch (error) {
+      this.logger.error(`Error enviando requisitos a ${to}:`, error);
+    }
+  }
+
   private buildAsesorWelcomeHtml(params: {
     fullName: string;
     email: string;

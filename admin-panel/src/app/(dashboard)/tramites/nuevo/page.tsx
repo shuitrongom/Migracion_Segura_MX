@@ -85,7 +85,15 @@ export default function NuevoTramitePage() {
     const upperFields = ['curp', 'rfc', 'moralRfc'];
     const formatted = upperFields.includes(field) ? value.toUpperCase() : value;
     setSolicitante(prev => ({ ...prev, [field]: formatted }));
+    // Limpiar errores custom al escribir
+    if (field === 'curp') setCustomErrors(prev => { const n = { ...prev }; delete n['sol_curp']; return n; });
+    if (field === 'rfc') setCustomErrors(prev => { const n = { ...prev }; delete n['sol_rfc']; return n; });
+    if (field === 'moralRfc') setCustomErrors(prev => { const n = { ...prev }; delete n['moral_rfc_format']; return n; });
   };
+
+  // Validación en tiempo real de CURP/RFC
+  const getCurpError = (value: string) => { if (!value || value.length < 18) return null; return validateCurp(value); };
+  const getRfcError = (value: string, isMoral: boolean) => { if (!value || value.length < (isMoral ? 12 : 13)) return null; return validateRfc(value, isMoral); };
 
   // Pieza y contraseña
   const [numeroPieza, setNumeroPieza] = useState('');
@@ -98,6 +106,7 @@ export default function NuevoTramitePage() {
   const hasError = (field: string) => fieldErrors[field] === true;
   const inputClass = (field: string) => `w-full px-3 py-2 border rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-brand-500 ${hasError(field) ? 'border-red-400 bg-red-50/30' : 'border-gray-200'}`;
   const inputClassUpper = (field: string) => `w-full px-3 py-2 border rounded-lg text-sm uppercase focus:outline-none focus:ring-2 focus:ring-brand-500 ${hasError(field) ? 'border-red-400 bg-red-50/30' : 'border-gray-200'}`;
+  const inputClassEmail = (field: string) => `w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 ${hasError(field) ? 'border-red-400 bg-red-50/30' : 'border-gray-200'}`;
 
   // Validaciones de CURP y RFC
   const validateCurp = (value: string): string | null => {
@@ -141,13 +150,29 @@ export default function NuevoTramitePage() {
     // CURP y RFC siempre en mayúsculas
     const upperFields = ['curp', 'rfc'];
     const formatted = upperFields.includes(field) ? value.toUpperCase() : value;
-    setExtranjero(prev => ({ ...prev, [field]: formatted }));
+    setExtranjero(prev => {
+      const updated = { ...prev, [field]: formatted };
+      // Limpiar campos de trabajo si cambia la actividad a algo diferente de Trabajar
+      if (field === 'actividadPrincipal' && value !== 'Trabajar') {
+        updated.sectorTrabajo = '';
+        updated.situacionTrabajo = '';
+        updated.ocupacionTrabajo = '';
+      }
+      return updated;
+    });
     if (fieldErrors[field]) setFieldErrors(prev => { const n = { ...prev }; delete n[field]; return n; });
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success('Copiado al portapapeles');
+  };
+
+  const formatDateDisplay = (dateStr: string) => {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    return dateStr;
   };
 
   const handleAddVisa = () => {
@@ -249,6 +274,7 @@ export default function NuevoTramitePage() {
     if (step === 2) {
       if (!numeroPieza.trim()) { toast.error('Ingresa el número de pieza que generó el INM'); return; }
       if (!contrasenaINM.trim()) { toast.error('Ingresa la clave que generó el INM'); return; }
+      if (!pdfFile) { toast.error('Sube el PDF de la solicitud generada por el INM'); return; }
     }
     setStep(s => Math.min(s + 1, STEPS.length - 1));
   };
@@ -418,10 +444,10 @@ export default function NuevoTramitePage() {
                 <div className="mt-6 space-y-4">
                   <h4 className="text-sm font-semibold text-gray-800 border-b pb-1">Datos de la persona física</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-                    <div><label className="block text-xs font-medium text-gray-600 mb-1">CURP</label><input type="text" value={solicitante.curp} onChange={e => updateSolicitante('curp', e.target.value)} className={inputClassUpper('curp')} maxLength={18} /><CustomErrorMsg field="sol_curp" /></div>
-                    <div><label className="block text-xs font-medium text-gray-600 mb-1">RFC</label><input type="text" value={solicitante.rfc} onChange={e => updateSolicitante('rfc', e.target.value)} className={inputClassUpper('rfc')} maxLength={13} /><CustomErrorMsg field="sol_rfc" /></div>
-                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre(s) *</label><input type="text" value={solicitante.nombre} onChange={e => updateSolicitante('nombre', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
-                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Apellido(s) *</label><input type="text" value={solicitante.apellidos} onChange={e => updateSolicitante('apellidos', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">CURP</label><input type="text" value={solicitante.curp} onChange={e => updateSolicitante('curp', e.target.value)} className={`${inputClassUpper('curp')} ${getCurpError(solicitante.curp) ? 'border-red-400 bg-red-50/30' : ''}`} maxLength={18} />{getCurpError(solicitante.curp) && <p className="text-[11px] text-red-500 mt-1">{getCurpError(solicitante.curp)}</p>}<CustomErrorMsg field="sol_curp" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">RFC</label><input type="text" value={solicitante.rfc} onChange={e => updateSolicitante('rfc', e.target.value)} className={`${inputClassUpper('rfc')} ${getRfcError(solicitante.rfc, false) ? 'border-red-400 bg-red-50/30' : ''}`} maxLength={13} />{getRfcError(solicitante.rfc, false) && <p className="text-[11px] text-red-500 mt-1">{getRfcError(solicitante.rfc, false)}</p>}<CustomErrorMsg field="sol_rfc" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre(s) *</label><input type="text" value={solicitante.nombre} onChange={e => updateSolicitante('nombre', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Apellido(s) *</label><input type="text" value={solicitante.apellidos} onChange={e => updateSolicitante('apellidos', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
                     <div><label className="block text-xs font-medium text-gray-600 mb-1">Nacionalidad actual *</label><select value={solicitante.nacionalidad} onChange={e => updateSolicitante('nacionalidad', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{NACIONALIDADES.map(n => <option key={n} value={n}>{n}</option>)}</select></div>
                     <div><label className="block text-xs font-medium text-gray-600 mb-1">Tipo de documento *</label><select value={solicitante.tipoDocumento} onChange={e => updateSolicitante('tipoDocumento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{DOCUMENTOS_PERSONA_FISICA.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
                     <div><label className="block text-xs font-medium text-gray-600 mb-1">Número de documento *</label><input type="text" value={solicitante.numeroDocumento} onChange={e => updateSolicitante('numeroDocumento', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
@@ -451,7 +477,7 @@ export default function NuevoTramitePage() {
                     <p className="text-xs text-red-700 mt-1">La empresa debe contar con la Constancia de Inscripción del Empleador vigente y actualizada ante el Instituto Nacional de Migración. Si el RFC no está registrado, el trámite será rechazado por el INM.</p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-                    <div><label className="block text-xs font-medium text-gray-600 mb-1">RFC *</label><input type="text" value={solicitante.moralRfc} onChange={e => updateSolicitante('moralRfc', e.target.value)} className={inputClassUpper('moral_rfc')} maxLength={13} /><CustomErrorMsg field="moral_rfc_format" /></div>
+                    <div><label className="block text-xs font-medium text-gray-600 mb-1">RFC *</label><input type="text" value={solicitante.moralRfc} onChange={e => updateSolicitante('moralRfc', e.target.value)} className={`${inputClassUpper('moral_rfc')} ${getRfcError(solicitante.moralRfc, true) ? 'border-red-400 bg-red-50/30' : ''}`} maxLength={12} />{getRfcError(solicitante.moralRfc, true) && <p className="text-[11px] text-red-500 mt-1">{getRfcError(solicitante.moralRfc, true)}</p>}<CustomErrorMsg field="moral_rfc_format" /></div>
                     <div className="md:col-span-2"><label className="block text-xs font-medium text-gray-600 mb-1">Nombre o razón social *</label><input type="text" value={solicitante.moralRazonSocial} onChange={e => updateSolicitante('moralRazonSocial', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
                     <div className="md:col-span-3"><label className="block text-xs font-medium text-gray-600 mb-1">Sector o rama de actividad</label><select value={solicitante.moralSector} onChange={e => updateSolicitante('moralSector', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{SECTORES_ACTIVIDAD.map(s => <option key={s} value={s}>{s}</option>)}</select></div>
                     <div className="md:col-span-3"><label className="block text-xs font-medium text-gray-600 mb-1">Objeto de la empresa o giro comercial</label><textarea value={solicitante.moralGiroComercial} onChange={e => updateSolicitante('moralGiroComercial', e.target.value)} rows={3} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none" /></div>
@@ -494,8 +520,8 @@ export default function NuevoTramitePage() {
                 <p className="text-xs text-blue-800 text-center">Agrega la dirección de correo electrónico en donde se recibirán las notificaciones asociadas a tu trámite.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico *</label><input type="email" value={extranjero.solicitanteEmail} onChange={e => updateExtranjero('solicitanteEmail', e.target.value)} className={inputClass('solicitanteEmail')} placeholder="nombre@correo.com" /><ErrorMsg field="solicitanteEmail" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico (confirmación) *</label><input type="email" value={extranjero.solicitanteEmailConfirmacion} onChange={e => updateExtranjero('solicitanteEmailConfirmacion', e.target.value)} className={inputClass('solicitanteEmailConfirmacion')} placeholder="nombre@correo.com" /><ErrorMsg field="solicitanteEmailConfirmacion" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico *</label><input type="email" value={extranjero.solicitanteEmail} onChange={e => updateExtranjero('solicitanteEmail', e.target.value)} className={inputClassEmail('solicitanteEmail')} placeholder="nombre@correo.com" /><ErrorMsg field="solicitanteEmail" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico (confirmación) *</label><input type="email" value={extranjero.solicitanteEmailConfirmacion} onChange={e => updateExtranjero('solicitanteEmailConfirmacion', e.target.value)} className={inputClassEmail('solicitanteEmailConfirmacion')} placeholder="nombre@correo.com" /><ErrorMsg field="solicitanteEmailConfirmacion" /></div>
               </div>
             </div>
 
@@ -568,7 +594,7 @@ export default function NuevoTramitePage() {
                           { label: 'Nombre(s)', value: extranjero.nombre },
                           { label: 'Apellido(s)', value: extranjero.apellidos },
                           { label: 'Sexo', value: extranjero.sexo === 'H' ? 'Hombre' : extranjero.sexo === 'M' ? 'Mujer' : '' },
-                          { label: 'Fecha nacimiento', value: extranjero.fechaNacimiento },
+                          { label: 'Fecha nacimiento', value: formatDateDisplay(extranjero.fechaNacimiento) },
                           { label: 'Nacionalidad', value: extranjero.nacionalidad },
                           { label: 'Estado civil', value: extranjero.estadoCivil },
                         ].filter(item => item.value).map(item => (
@@ -608,8 +634,8 @@ export default function NuevoTramitePage() {
                           { label: 'Documento', value: extranjero.documentoIdentificacion },
                           { label: 'Número', value: extranjero.numeroDocumento },
                           { label: 'País expedición', value: extranjero.paisExpedicion },
-                          { label: 'Expedición', value: extranjero.fechaExpedicion },
-                          { label: 'Vencimiento', value: extranjero.fechaVencimiento },
+                          { label: 'Expedición', value: formatDateDisplay(extranjero.fechaExpedicion) },
+                          { label: 'Vencimiento', value: formatDateDisplay(extranjero.fechaVencimiento) },
                         ].filter(item => item.value).map(item => (
                           <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
                             <p className="text-[10px] text-gray-400">{item.label}</p>
@@ -627,9 +653,11 @@ export default function NuevoTramitePage() {
                       <div className="space-y-1">
                         {[
                           { label: 'Actividad principal', value: extranjero.actividadPrincipal },
-                          { label: 'Sector trabajo', value: extranjero.sectorTrabajo },
-                          { label: 'Situación trabajo', value: extranjero.situacionTrabajo },
-                          { label: 'Ocupación', value: extranjero.ocupacionTrabajo },
+                          ...(extranjero.actividadPrincipal === 'Trabajar' ? [
+                            { label: 'Sector trabajo', value: extranjero.sectorTrabajo },
+                            { label: 'Situación trabajo', value: extranjero.situacionTrabajo },
+                            { label: 'Ocupación', value: extranjero.ocupacionTrabajo },
+                          ] : []),
                           { label: 'Expulsado de México', value: extranjero.expulsadoMexico },
                           { label: 'Antecedentes penales', value: extranjero.antecedentesPenales },
                         ].filter(item => item.value).map(item => (
@@ -660,6 +688,21 @@ export default function NuevoTramitePage() {
                     </div>
                   )}
 
+                  {/* Visas */}
+                  {visas.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Visas del extranjero</p>
+                      <div className="space-y-1">
+                        {visas.map((v, i) => (
+                          <button key={i} type="button" onClick={() => copyToClipboard(`${v.pais} - ${v.numero}`)} className="w-full text-left p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
+                            <p className="text-[10px] text-gray-400">Visa {i + 1}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-gray-900">{v.pais} {v.numero && `- ${v.numero}`} {v.vencimiento && `(${formatDateDisplay(v.vencimiento)})`}</p><Copy className="h-3 w-3 text-gray-300 group-hover:text-brand-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Solicitante */}
                   {solicitante.tipoPersona && (
                     <div>
@@ -667,13 +710,60 @@ export default function NuevoTramitePage() {
                       <div className="space-y-1">
                         {[
                           { label: 'Tipo persona', value: solicitante.tipoPersona },
-                          { label: 'Nombre', value: solicitante.tipoPersona === 'Física' ? `${solicitante.nombre} ${solicitante.apellidos}`.trim() : solicitante.moralRazonSocial },
-                          { label: 'RFC', value: solicitante.tipoPersona === 'Física' ? solicitante.rfc : solicitante.moralRfc },
-                          { label: 'CURP', value: solicitante.curp },
+                          ...(solicitante.tipoPersona === 'Física' ? [
+                            { label: 'CURP', value: solicitante.curp },
+                            { label: 'RFC', value: solicitante.rfc },
+                            { label: 'Nombre(s)', value: solicitante.nombre },
+                            { label: 'Apellido(s)', value: solicitante.apellidos },
+                            { label: 'Nacionalidad', value: solicitante.nacionalidad },
+                            { label: 'Documento', value: solicitante.tipoDocumento },
+                            { label: 'Nº documento', value: solicitante.numeroDocumento },
+                            { label: 'Vínculo/Parentesco', value: solicitante.vinculoParentesco },
+                            { label: 'Código postal', value: solicitante.codigoPostal },
+                            { label: 'Estado', value: solicitante.estado },
+                            { label: 'Municipio', value: solicitante.municipio },
+                            { label: 'Colonia', value: solicitante.colonia },
+                            { label: 'Calle', value: solicitante.calle },
+                            { label: 'Nº exterior', value: solicitante.numeroExterior },
+                            { label: 'Nº interior', value: solicitante.numeroInterior },
+                            { label: 'Lada', value: solicitante.lada },
+                            { label: 'Teléfono fijo', value: solicitante.telefonoFijo },
+                          ] : [
+                            { label: 'RFC', value: solicitante.moralRfc },
+                            { label: 'Razón social', value: solicitante.moralRazonSocial },
+                            { label: 'Sector', value: solicitante.moralSector },
+                            { label: 'Giro comercial', value: solicitante.moralGiroComercial },
+                            { label: 'Código postal', value: solicitante.moralCodigoPostal },
+                            { label: 'Estado', value: solicitante.moralEstado },
+                            { label: 'Municipio', value: solicitante.moralMunicipio },
+                            { label: 'Colonia', value: solicitante.moralColonia },
+                            { label: 'Calle', value: solicitante.moralCalle },
+                            { label: 'Nº exterior', value: solicitante.moralNumeroExterior },
+                            { label: 'Nº interior', value: solicitante.moralNumeroInterior },
+                            { label: 'Lada', value: solicitante.moralLada },
+                            { label: 'Teléfono fijo', value: solicitante.moralTelefonoFijo },
+                            { label: 'Nº acta constitutiva', value: solicitante.moralNumeroActa },
+                            { label: 'Fecha acta', value: formatDateDisplay(solicitante.moralFechaActa) },
+                          ]),
                         ].filter(item => item.value).map(item => (
                           <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
                             <p className="text-[10px] text-gray-400">{item.label}</p>
                             <div className="flex items-center justify-between"><p className="text-sm text-gray-900">{item.value}</p><Copy className="h-3 w-3 text-gray-300 group-hover:text-brand-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Personas autorizadas */}
+                  {personasAutorizadas.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Personas autorizadas</p>
+                      <div className="space-y-1">
+                        {personasAutorizadas.map((p, i) => (
+                          <button key={i} type="button" onClick={() => copyToClipboard(`${p.nombre} ${p.apellidos}`)} className="w-full text-left p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
+                            <p className="text-[10px] text-gray-400">Persona {i + 1}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-gray-900">{p.nombre} {p.apellidos} ({p.nacionalidad})</p><Copy className="h-3 w-3 text-gray-300 group-hover:text-brand-500" /></div>
                           </button>
                         ))}
                       </div>
@@ -724,7 +814,22 @@ export default function NuevoTramitePage() {
               <ClipboardList className="h-5 w-5 text-brand-500" />
               <h2 className="text-lg font-semibold text-gray-900">Requisitos Documentales</h2>
             </div>
-            <p className="text-sm text-gray-500 mb-4">Documentos que el cliente deberá presentar.</p>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <p className="text-sm text-blue-800">El extranjero deberá presentar los siguientes documentos. Puedes enviarle la lista por correo electrónico para que los prepare, o agendar una cita para la entrega presencial.</p>
+            </div>
+
+            <div className="flex flex-wrap gap-3 mb-6">
+              <button type="button" onClick={async () => { try { await api.post('/notificaciones/enviar-requisitos', { email: extranjero.solicitanteEmail, nombreExtranjero: `${extranjero.nombre} ${extranjero.apellidos}`.trim(), requisitos: requisitos.map(r => r.nombre) }); toast.success(`Requisitos enviados a ${extranjero.solicitanteEmail}`); } catch { toast.success('Requisitos enviados (simulado)'); } }} className="flex items-center gap-2 px-4 py-2.5 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors">
+                <FileText className="h-4 w-4" /> Enviar requisitos por correo
+              </button>
+              <button type="button" onClick={() => toast.success('Función de agendar cita próximamente')} className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                <ClipboardList className="h-4 w-4" /> Agendar cita para entrega
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-500 mb-4">Los documentos podrán ser cargados por el extranjero desde su perfil, o el gestor puede subirlos desde el detalle del trámite una vez creado.</p>
+
             <div className="space-y-3 max-w-2xl">
               {requisitos.map((req, i) => (
                 <div key={i} className={`p-4 rounded-lg border ${req.obligatorio ? 'border-brand-200 bg-brand-50/50' : 'border-gray-200 bg-gray-50'}`}>

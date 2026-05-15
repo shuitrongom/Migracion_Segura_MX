@@ -1,8 +1,10 @@
 import {
   Controller,
   Get,
+  Post,
   Patch,
   Param,
+  Body,
   Query,
   ParseUUIDPipe,
   Request,
@@ -10,14 +12,34 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 
 import { NotificacionesService } from './notificaciones.service';
+import { EmailService } from '../email/email.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { UserRole } from '../../common/enums';
 
 @ApiTags('Notificaciones')
 @ApiBearerAuth()
 @Controller('notificaciones')
 export class NotificacionesController {
-  constructor(private readonly notificacionesService: NotificacionesService) {}
+  constructor(
+    private readonly notificacionesService: NotificacionesService,
+    private readonly emailService: EmailService,
+  ) {}
 
+  /**
+   * Enviar lista de requisitos por correo al extranjero
+   */
+  @Post('enviar-requisitos')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Enviar requisitos por correo al extranjero' })
+  async enviarRequisitos(@Body() dto: { email: string; nombreExtranjero: string; requisitos: string[] }) {
+    await this.emailService.sendRequisitosEmail({
+      to: dto.email,
+      nombreExtranjero: dto.nombreExtranjero,
+      requisitos: dto.requisitos,
+    });
+    return { message: 'Requisitos enviados exitosamente' };
+  }
   /**
    * Get my notifications (paginated)
    */
