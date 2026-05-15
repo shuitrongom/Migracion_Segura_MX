@@ -39,19 +39,19 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#F5F0E8] px-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-lg p-8">
           {/* Logo */}
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900">Migración Segura MX</h1>
-            <p className="text-gray-500 mt-2">Panel Administrativo</p>
+            <h1 className="text-2xl font-bold text-[#2C1810]">Migración Segura MX</h1>
+            <p className="text-[#6B5B4F] mt-2">Panel Administrativo</p>
           </div>
 
           {/* Formulario */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-[#2C1810] mb-1">
                 Correo electrónico
               </label>
               <input
@@ -60,13 +60,13 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-2.5 border border-[#E8DFD3] rounded-lg focus:ring-2 focus:ring-[#C4A265] focus:border-transparent outline-none transition"
                 placeholder="tu@email.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-[#2C1810] mb-1">
                 Contraseña
               </label>
               <input
@@ -75,7 +75,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-2.5 border border-[#E8DFD3] rounded-lg focus:ring-2 focus:ring-[#C4A265] focus:border-transparent outline-none transition"
                 placeholder="••••••••"
               />
             </div>
@@ -83,7 +83,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-brand-500 hover:bg-brand-600 text-white font-medium py-2.5 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#3D2B1F] hover:bg-[#C4A265] text-white font-medium py-2.5 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
             </button>

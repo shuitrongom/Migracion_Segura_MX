@@ -35,15 +35,22 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200">
+    <aside className="hidden lg:flex lg:flex-col w-64 bg-brand-500 text-white">
       {/* Logo */}
-      <div className="flex items-center h-16 px-6 border-b border-gray-200">
-        <span className="text-lg font-bold text-brand-600">MSM</span>
-        <span className="ml-2 text-sm text-gray-500">Admin</span>
+      <div className="flex items-center h-16 px-6 border-b border-brand-400/30">
+        <span className="text-lg font-bold text-gold-400">MIGRACIÓN</span>
+        <span className="ml-1 text-sm text-brand-200">SEGURA MX</span>
+      </div>
+
+      {/* Version badge */}
+      <div className="px-6 py-3">
+        <span className="inline-block px-3 py-1 bg-gold-500/20 text-gold-300 text-xs font-medium rounded-full border border-gold-500/30">
+          VERSIÓN ADMINISTRADOR
+        </span>
       </div>
 
       {/* Navegación */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3">
+      <nav className="flex-1 overflow-y-auto py-2 px-3">
         <ul className="space-y-1">
           {navigation.map((item) => {
             const isActive = pathname.startsWith(item.href);
@@ -54,8 +61,8 @@ export function Sidebar() {
                   className={clsx(
                     'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                     isActive
-                      ? 'bg-brand-50 text-brand-700'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+                      ? 'bg-gold-500/20 text-gold-300'
+                      : 'text-brand-200 hover:bg-brand-400/20 hover:text-white',
                   )}
                 >
                   <item.icon className="h-5 w-5 flex-shrink-0" />
@@ -68,8 +75,10 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-200">
-        <p className="text-xs text-gray-400 text-center">Migración Segura MX v0.1.0</p>
+      <div className="p-4 border-t border-brand-400/30">
+        <p className="text-xs text-brand-300 text-center">
+          Panel de gestión y control de trámites y clientes.
+        </p>
       </div>
     </aside>
   );

@@ -6,7 +6,6 @@
   "workspaces": [
     "backend",
     "admin-panel",
-    "mobile-app",
     "packages/*"
   ],
   "scripts": {
