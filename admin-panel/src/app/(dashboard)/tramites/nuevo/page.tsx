@@ -136,11 +136,47 @@ export default function NuevoTramitePage() {
   const handleNext = () => {
     if (step === 0 && !selectedTramite) { toast.error('Selecciona un tipo de trámite'); return; }
     if (step === 1) {
+      if (!extranjero.propositoViaje) { toast.error('Selecciona el propósito del viaje'); return; }
       if (!extranjero.nombre.trim()) { toast.error('Ingresa el nombre del extranjero'); return; }
-      if (!extranjero.apellidos.trim()) { toast.error('Ingresa los apellidos'); return; }
-      if (extranjero.solicitanteEmail && extranjero.solicitanteEmail !== extranjero.solicitanteEmailConfirmacion) {
-        toast.error('Los correos electrónicos del promovente no coinciden'); return;
+      if (!extranjero.apellidos.trim()) { toast.error('Ingresa los apellidos del extranjero'); return; }
+      if (!extranjero.sexo) { toast.error('Selecciona el sexo'); return; }
+      if (!extranjero.fechaNacimiento) { toast.error('Ingresa la fecha de nacimiento'); return; }
+      if (!extranjero.nacionalidad) { toast.error('Selecciona la nacionalidad actual'); return; }
+      if (!extranjero.paisNacimiento) { toast.error('Selecciona el país de nacimiento'); return; }
+      if (!extranjero.estadoProvinciaNacimiento.trim()) { toast.error('Ingresa el estado o provincia de nacimiento'); return; }
+      if (!extranjero.documentoIdentificacion) { toast.error('Selecciona el documento de identificación'); return; }
+      if (!extranjero.numeroDocumento.trim()) { toast.error('Ingresa el número de documento'); return; }
+      if (!extranjero.paisExpedicion) { toast.error('Selecciona el país de expedición'); return; }
+      if (!extranjero.actividadPrincipal) { toast.error('Selecciona la actividad principal'); return; }
+      if (!extranjero.expulsadoMexico) { toast.error('Indica si ha sido expulsado de México'); return; }
+      if (!extranjero.antecedentesPenales) { toast.error('Indica si tiene antecedentes penales'); return; }
+      if (!solicitante.tipoPersona) { toast.error('Selecciona el tipo de persona del solicitante'); return; }
+      if (solicitante.tipoPersona === 'Física') {
+        if (!solicitante.nombre.trim()) { toast.error('Ingresa el nombre del solicitante (persona física)'); return; }
+        if (!solicitante.apellidos.trim()) { toast.error('Ingresa los apellidos del solicitante'); return; }
+        if (!solicitante.nacionalidad) { toast.error('Selecciona la nacionalidad del solicitante'); return; }
+        if (!solicitante.tipoDocumento) { toast.error('Selecciona el tipo de documento del solicitante'); return; }
+        if (!solicitante.numeroDocumento.trim()) { toast.error('Ingresa el número de documento del solicitante'); return; }
+        if (!solicitante.codigoPostal.trim()) { toast.error('Ingresa el código postal del solicitante'); return; }
+        if (!solicitante.estado) { toast.error('Selecciona el estado del solicitante'); return; }
+        if (!solicitante.municipio) { toast.error('Selecciona el municipio del solicitante'); return; }
+        if (!solicitante.colonia.trim()) { toast.error('Ingresa la colonia del solicitante'); return; }
+        if (!solicitante.calle.trim()) { toast.error('Ingresa la calle del solicitante'); return; }
+        if (!solicitante.numeroExterior.trim()) { toast.error('Ingresa el número exterior del solicitante'); return; }
       }
+      if (solicitante.tipoPersona === 'Moral') {
+        if (!solicitante.moralRfc.trim()) { toast.error('Ingresa el RFC de la persona moral'); return; }
+        if (!solicitante.moralRazonSocial.trim()) { toast.error('Ingresa la razón social'); return; }
+        if (!solicitante.moralCodigoPostal.trim()) { toast.error('Ingresa el código postal de la persona moral'); return; }
+        if (!solicitante.moralEstado) { toast.error('Selecciona el estado de la persona moral'); return; }
+        if (!solicitante.moralMunicipio) { toast.error('Selecciona el municipio de la persona moral'); return; }
+        if (!solicitante.moralColonia.trim()) { toast.error('Ingresa la colonia de la persona moral'); return; }
+        if (!solicitante.moralCalle.trim()) { toast.error('Ingresa la calle de la persona moral'); return; }
+        if (!solicitante.moralNumeroExterior.trim()) { toast.error('Ingresa el número exterior de la persona moral'); return; }
+      }
+      if (!extranjero.solicitanteEmail.trim()) { toast.error('Ingresa el correo electrónico del promovente'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(extranjero.solicitanteEmail)) { toast.error('Ingresa un correo electrónico válido'); return; }
+      if (extranjero.solicitanteEmail !== extranjero.solicitanteEmailConfirmacion) { toast.error('Los correos electrónicos no coinciden'); return; }
     }
     if (step === 3) {
       if (!numeroPieza.trim()) { toast.error('Ingresa el número de pieza'); return; }
