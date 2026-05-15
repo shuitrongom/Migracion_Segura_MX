@@ -46,3 +46,15 @@ export const ACTIVIDADES_PRINCIPALES = [
 export const SI_NO = ['Sí', 'No'];
 
 export const TIPOS_PERSONA = ['Física', 'Moral'];
+
+export const DOCUMENTOS_IDENTIFICACION_PERSONA = [
+  'Pasaporte',
+  'Documento de identidad y viaje',
+  'Forma migratoria (con fotografía)',
+  'Credencial para votar IFE/INE',
+  'Cédula profesional',
+  'Certificado de matrícula consular',
+  'Carta de naturalización',
+  'Cartilla de Servicio Militar Nacional',
+  'Otro',
+];

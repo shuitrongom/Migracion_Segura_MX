@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { TipoTramite } from '@/lib/types';
-import { PROPOSITOS_VIAJE, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO, TIPOS_PERSONA } from '@/lib/catalogos-inm';
+import { PROPOSITOS_VIAJE, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO, TIPOS_PERSONA, DOCUMENTOS_IDENTIFICACION_PERSONA } from '@/lib/catalogos-inm';
 
 const TRAMITES_INM: { tipo: TipoTramite; nombre: string; descripcion: string; urlSolicitud: string }[] = [
   { tipo: TipoTramite.VISA, nombre: 'Visas solicitadas ante el INM', descripcion: 'Solicitud de visa por unidad familiar, razones humanitarias u oferta de empleo', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
@@ -59,6 +59,10 @@ export default function NuevoTramitePage() {
   const [visas, setVisas] = useState<{ pais: string; numero: string; vencimiento: string }[]>([]);
   const [visaTemp, setVisaTemp] = useState({ pais: '', numero: '', vencimiento: '' });
 
+  // Personas autorizadas (array dinámico)
+  const [personasAutorizadas, setPersonasAutorizadas] = useState<{ curp: string; nombre: string; apellidos: string; nacionalidad: string; tipoDocumento: string; numeroDocumento: string }[]>([]);
+  const [personaTemp, setPersonaTemp] = useState({ curp: '', nombre: '', apellidos: '', nacionalidad: '', tipoDocumento: '', numeroDocumento: '' });
+
   // Pieza y contraseña
   const [numeroPieza, setNumeroPieza] = useState('');
   const [contrasenaINM, setContrasenaINM] = useState('');
@@ -98,6 +102,17 @@ export default function NuevoTramitePage() {
     setVisas(visas.filter((_, i) => i !== index));
   };
 
+  const handleAddPersona = () => {
+    if (!personaTemp.nombre.trim() || !personaTemp.apellidos.trim()) { toast.error('Nombre y apellidos son obligatorios'); return; }
+    if (!personaTemp.nacionalidad) { toast.error('Selecciona la nacionalidad'); return; }
+    setPersonasAutorizadas([...personasAutorizadas, { ...personaTemp }]);
+    setPersonaTemp({ curp: '', nombre: '', apellidos: '', nacionalidad: '', tipoDocumento: '', numeroDocumento: '' });
+  };
+
+  const handleRemovePersona = (index: number) => {
+    setPersonasAutorizadas(personasAutorizadas.filter((_, i) => i !== index));
+  };
+
   const handleNext = () => {
     if (step === 0 && !selectedTramite) { toast.error('Selecciona un tipo de trámite'); return; }
     if (step === 1) {
@@ -132,7 +147,7 @@ export default function NuevoTramitePage() {
       const tramiteRes = await api.post('/tramites', {
         tipo: selectedTramite.tipo,
         clienteId,
-        datosFormulario: { ...extranjero, visas, numeroPiezaINM: numeroPieza, contrasenaINM },
+        datosFormulario: { ...extranjero, visas, personasAutorizadas, numeroPiezaINM: numeroPieza, contrasenaINM },
         esBorrador: false,
       });
       const tramiteId = tramiteRes.data.id;
@@ -291,14 +306,35 @@ export default function NuevoTramitePage() {
 
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">En su caso, persona autorizada para tramitar, oír o recibir notificaciones</h3>
-              <div className="max-w-4xl">
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre de persona autorizada</label><input type="text" value={extranjero.personaAutorizada} onChange={e => updateExtranjero('personaAutorizada', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <p className="text-xs text-blue-800 text-center">Si deseas agregar personas autorizadas es necesario que lo efectúes con el botón &apos;Agregar persona&apos;, de lo contrario los datos capturados en esta sección no serán guardados.</p>
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Clave Única de Registro de Población (CURP)</label><input type="text" value={personaTemp.curp} onChange={e => setPersonaTemp(prev => ({ ...prev, curp: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre(s) *</label><input type="text" value={personaTemp.nombre} onChange={e => setPersonaTemp(prev => ({ ...prev, nombre: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /><p className="text-[10px] text-red-500 mt-0.5">Este campo es obligatorio</p></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Apellido(s) *</label><input type="text" value={personaTemp.apellidos} onChange={e => setPersonaTemp(prev => ({ ...prev, apellidos: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /><p className="text-[10px] text-red-500 mt-0.5">Este campo es obligatorio</p></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Nacionalidad actual *</label><select value={personaTemp.nacionalidad} onChange={e => setPersonaTemp(prev => ({ ...prev, nacionalidad: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{NACIONALIDADES.map(n => <option key={n} value={n}>{n}</option>)}</select><p className="text-[10px] text-red-500 mt-0.5">Este campo es obligatorio</p></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Tipo de documento de identificación</label><select value={personaTemp.tipoDocumento} onChange={e => setPersonaTemp(prev => ({ ...prev, tipoDocumento: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option>{DOCUMENTOS_IDENTIFICACION_PERSONA.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Número de documento</label><input type="text" value={personaTemp.numeroDocumento} onChange={e => setPersonaTemp(prev => ({ ...prev, numeroDocumento: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+              </div>
+              <div className="flex justify-end mt-4 max-w-4xl">
+                <button type="button" onClick={handleAddPersona} className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Agregar persona</button>
+              </div>
+              {personasAutorizadas.length > 0 && (
+                <div className="mt-4 max-w-4xl">
+                  <table className="w-full text-sm border rounded-lg overflow-hidden">
+                    <thead><tr className="bg-gray-50 border-b"><th className="text-left px-3 py-2 text-xs font-medium text-gray-500">Nombre</th><th className="text-left px-3 py-2 text-xs font-medium text-gray-500">Nacionalidad</th><th className="text-left px-3 py-2 text-xs font-medium text-gray-500">Documento</th><th className="px-3 py-2"></th></tr></thead>
+                    <tbody>{personasAutorizadas.map((p, i) => (<tr key={i} className="border-b last:border-0"><td className="px-3 py-2">{p.nombre} {p.apellidos}</td><td className="px-3 py-2">{p.nacionalidad}</td><td className="px-3 py-2">{p.tipoDocumento} {p.numeroDocumento}</td><td className="px-3 py-2 text-right"><button type="button" onClick={() => handleRemovePersona(i)} className="text-xs text-red-500 hover:text-red-700">Eliminar</button></td></tr>))}</tbody>
+                  </table>
+                </div>
+              )}
             </div>
 
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Comentarios</h3>
-              <textarea value={extranjero.comentarios} onChange={e => updateExtranjero('comentarios', e.target.value)} rows={3} className="w-full max-w-4xl px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none" placeholder="Observaciones adicionales..." />
+              <p className="text-sm text-gray-500 mb-3">Si lo deseas, puedes agregar algún comentario a la solicitud.</p>
+              <textarea value={extranjero.comentarios} onChange={e => updateExtranjero('comentarios', e.target.value)} rows={4} className="w-full max-w-4xl px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none" />
+              <p className="text-xs text-gray-400 mt-2">* Campos obligatorios</p>
             </div>
           </div>
         )}
