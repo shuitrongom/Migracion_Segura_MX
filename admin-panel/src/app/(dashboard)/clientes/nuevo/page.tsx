@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, X } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from 'sonner';
+import { api } from '@/lib/api';
 
 interface FormData {
   nombreCompleto: string;
@@ -63,16 +65,28 @@ export default function NuevoClientePage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     setSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      setSubmitting(false);
+    try {
+      // El backend espera: nombreCompleto, email, telefono, asesorId, etiquetas
+      await api.post('/clientes', {
+        nombreCompleto: formData.nombreCompleto,
+        email: formData.email,
+        telefono: formData.telefono,
+        asesorId: formData.asesorId || undefined,
+        etiquetas: formData.etiquetas,
+      });
+      toast.success('Cliente creado exitosamente');
       router.push('/clientes');
-    }, 1000);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error al crear cliente';
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
