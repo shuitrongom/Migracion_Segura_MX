@@ -14,8 +14,9 @@ import {
   CreateTareaInternaDto,
   CreatePlantillaProcesoDto,
 } from './dto/update-estatus.dto';
-import { EstatusTramite, TipoTramite } from '../../common/enums';
+import { EstatusTramite, TipoTramite, UserRole } from '../../common/enums';
 import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination.dto';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class TramitesService {
@@ -28,6 +29,7 @@ export class TramitesService {
     private readonly tareaInternaRepository: Repository<TareaInterna>,
     @InjectRepository(PlantillaProceso)
     private readonly plantillaRepository: Repository<PlantillaProceso>,
+    private readonly usersService: UsersService,
   ) {}
 
   /**
@@ -47,7 +49,7 @@ export class TramitesService {
       clienteId: dto.clienteId,
       tipo: dto.tipo,
       datosFormulario,
-      asesorId: dto.asesorId || null,
+      asesorId: dto.asesorId || await this.autoAssignGestor(),
       estatus: esBorrador ? EstatusTramite.BORRADOR : EstatusTramite.RECIBIDO,
       numeroPieza: numeroPiezaINM || (esBorrador ? null : await this.generateNumeroPieza()),
       contrasenaTramite: contrasenaINM || null,
@@ -422,6 +424,38 @@ export class TramitesService {
        ON CONFLICT DO NOTHING`,
       [clienteId, tramiteId],
     );
+  }
+
+  /**
+   * Auto-asignar gestor al trámite usando round-robin.
+   * Si hay gestores, asigna al que tenga menos trámites activos.
+   * Si no hay gestores, asigna al primer admin.
+   */
+  private async autoAssignGestor(): Promise<string | null> {
+    // Buscar gestores disponibles
+    const gestores = await this.usersService.findByRole(UserRole.ASESOR);
+
+    if (gestores.length > 0) {
+      // Asignar al gestor con menos trámites activos
+      const counts = await Promise.all(
+        gestores.map(async (g) => {
+          const count = await this.tramiteRepository.count({
+            where: { asesorId: g.id, estatus: EstatusTramite.RECIBIDO },
+          });
+          return { id: g.id, count };
+        }),
+      );
+      counts.sort((a, b) => a.count - b.count);
+      return counts[0].id;
+    }
+
+    // Si no hay gestores, asignar al primer admin
+    const admins = await this.usersService.findByRole(UserRole.ADMINISTRADOR);
+    if (admins.length > 0) {
+      return admins[0].id;
+    }
+
+    return null;
   }
 
   /**
