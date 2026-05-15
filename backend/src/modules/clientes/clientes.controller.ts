@@ -10,8 +10,11 @@ import {
   Query,
   ParseUUIDPipe,
   Request,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam, ApiConsumes } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import { ClientesService } from './clientes.service';
 import { CreateClienteDto } from './dto/create-cliente.dto';
@@ -95,6 +98,33 @@ export class ClientesController {
     @Body('asesorId') asesorId: string,
   ) {
     return this.clientesService.assignAsesor(id, asesorId);
+  }
+
+  /**
+   * Subir foto del extranjero
+   */
+  @Post(':id/foto')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Subir foto del extranjero' })
+  @ApiParam({ name: 'id', description: 'UUID del cliente' })
+  uploadFoto(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.clientesService.uploadFoto(id, file);
+  }
+
+  /**
+   * Eliminar foto del extranjero
+   */
+  @Delete(':id/foto')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Eliminar foto del extranjero' })
+  @ApiParam({ name: 'id', description: 'UUID del cliente' })
+  deleteFoto(@Param('id', ParseUUIDPipe) id: string) {
+    return this.clientesService.deleteFoto(id);
   }
 
   /**

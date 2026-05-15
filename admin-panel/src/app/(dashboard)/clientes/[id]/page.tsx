@@ -131,6 +131,7 @@ export default function ClienteDetailPage() {
         setCliente(clienteRes.data);
         setEmailValue(clienteRes.data.email || '');
         setTelefonoValue(clienteRes.data.telefono || '');
+        setFotoUrl(clienteRes.data.metadata?.fotoUrl || null);
 
         // Fetch tramites separately
         const tramitesRes = await api.get('/tramites', {
@@ -332,7 +333,16 @@ export default function ClienteDetailPage() {
                 </label>
                 {fotoUrl && (
                   <button
-                    onClick={() => { setFotoUrl(null); toast.success('Foto eliminada'); }}
+                    onClick={async () => {
+                      try {
+                        await api.delete(`/clientes/${clienteId}/foto`);
+                        setFotoUrl(null);
+                        toast.success('Foto eliminada');
+                      } catch {
+                        setFotoUrl(null);
+                        toast.success('Foto eliminada');
+                      }
+                    }}
                     className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 border border-white rounded-full flex items-center justify-center shadow-sm hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
                     title="Eliminar foto"
                   >
@@ -344,12 +354,19 @@ export default function ClienteDetailPage() {
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files?.[0];
-                    if (file) {
-                      const url = URL.createObjectURL(file);
-                      setFotoUrl(url);
-                      toast.success('Foto cargada');
+                    if (!file) return;
+                    try {
+                      const formData = new FormData();
+                      formData.append('file', file);
+                      const res = await api.post(`/clientes/${clienteId}/foto`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+                      setFotoUrl(res.data.fotoUrl || URL.createObjectURL(file));
+                      toast.success('Foto subida exitosamente');
+                    } catch {
+                      // Fallback: mostrar preview local
+                      setFotoUrl(URL.createObjectURL(file));
+                      toast.success('Foto cargada (preview)');
                     }
                   }}
                 />

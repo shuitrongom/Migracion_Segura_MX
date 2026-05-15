@@ -9,6 +9,7 @@ import { UpdateClienteDto } from './dto/update-cliente.dto';
 import { SearchClientesDto } from './dto/search-clientes.dto';
 import { PaginatedResponseDto } from '../../common/dto/pagination.dto';
 import { UsersService } from '../users/users.service';
+import { StorageService } from '../../common/services/storage.service';
 import { UserRole } from '../../common/enums';
 
 @Injectable()
@@ -19,6 +20,7 @@ export class ClientesService {
     @InjectRepository(NotaInterna)
     private readonly notaInternaRepository: Repository<NotaInterna>,
     private readonly usersService: UsersService,
+    private readonly storageService: StorageService,
   ) {}
 
   /**
@@ -98,6 +100,37 @@ export class ClientesService {
     const cliente = await this.findOneOrFail(id);
     await this.clienteRepository.remove(cliente);
     return { message: 'Cliente eliminado permanentemente' };
+  }
+
+  /**
+   * Subir foto del extranjero - guarda en storage y URL en metadata
+   */
+  async uploadFoto(id: string, file: Express.Multer.File): Promise<{ fotoUrl: string }> {
+    const cliente = await this.findOneOrFail(id);
+
+    const result = await this.storageService.upload(file.buffer, file.mimetype, {
+      folder: `clientes/${id}`,
+      fileName: `foto-${Date.now()}`,
+    });
+
+    const metadata = cliente.metadata || {};
+    metadata.fotoUrl = result.url;
+    cliente.metadata = metadata;
+    await this.clienteRepository.save(cliente);
+
+    return { fotoUrl: result.url };
+  }
+
+  /**
+   * Eliminar foto del extranjero
+   */
+  async deleteFoto(id: string): Promise<{ message: string }> {
+    const cliente = await this.findOneOrFail(id);
+    const metadata = cliente.metadata || {};
+    delete metadata.fotoUrl;
+    cliente.metadata = Object.keys(metadata).length > 0 ? metadata : null;
+    await this.clienteRepository.save(cliente);
+    return { message: 'Foto eliminada' };
   }
 
   /**
