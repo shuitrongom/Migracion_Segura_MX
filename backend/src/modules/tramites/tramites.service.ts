@@ -659,6 +659,18 @@ export class TramitesService {
         { nombre: 'Pasaporte de la nueva nacionalidad, certificado de nacionalidad o carta de naturalización', obligatorio: false, descripcion: 'Para cambio de nacionalidad. Original y copia' },
         { nombre: 'Pasaporte o documento de identidad con el nuevo nombre', obligatorio: false, descripcion: 'Para cambio de nombre. Y en su caso, documento de autoridad competente que conste el cambio. Original y copia' },
       ],
+      ['expedicion_documento']: [
+        { nombre: 'Comprobante de pago de derechos por expedición de documento migratorio', obligatorio: true, descripcion: 'Original y copia, de conformidad con la Ley Federal de Derechos' },
+        { nombre: 'Tarjeta de residente o visitante vigente (para renovación)', obligatorio: false, descripcion: 'Con vigencia de hasta 30 días naturales para su cancelación. Original' },
+        { nombre: 'Constancia de continuidad laboral (renovación por oferta de empleo)', obligatorio: false, descripcion: 'En papel membretado del empleador indicando periodo de vigencia. Original y copia' },
+        { nombre: 'Carta o constancia de institución educativa (renovación estudiante)', obligatorio: false, descripcion: 'Indicando que continúan estudios o está en proceso de obtención de título. Original y copia' },
+        { nombre: 'Escrito bajo protesta de decir verdad (renovación por unidad familiar)', obligatorio: false, descripcion: 'Manifestando que subsisten las condiciones. Firma de ambos cónyuges si aplica. Original' },
+        { nombre: 'Pasaporte o documento de identidad vigente (para canje)', obligatorio: false, descripcion: 'Válido conforme al derecho internacional. Original y copia' },
+        { nombre: 'Visa mexicana (para canje)', obligatorio: false, descripcion: 'Original y copia' },
+        { nombre: 'FMM válida y vigente (para canje)', obligatorio: false, descripcion: 'Forma Migratoria Múltiple. Original y copia' },
+        { nombre: 'Documento oficial para reposición', obligatorio: false, descripcion: 'Pasaporte o documento con el que obtuvo la condición de estancia. Original y copia' },
+        { nombre: 'Oficio de la Dirección General de Protocolo de la SRE (por acuerdo)', obligatorio: false, descripcion: 'Informando suspensión de privilegios o conclusión de encargo oficial. Original y copia' },
+      ],
     };
 
     return [...commonRequisitos, ...(typeRequisitos[tipo] || [])];
@@ -681,6 +693,7 @@ export class TramitesService {
       [TipoTramite.REPOSICION_DOCUMENTO]: { concepto: 'Reposición de documento migratorio', monto: 1_523, moneda: 'MXN', fundamentoLegal: 'Art. 8, fracción VI, Ley Federal de Derechos' },
       [TipoTramite.CAMBIO_NACIONALIDAD]: { concepto: 'Notificación de cambio de nacionalidad', monto: 0, moneda: 'MXN', fundamentoLegal: 'Sin costo - trámite gratuito' },
       ['notificacion_cambio']: { concepto: 'Notificación de cambio (estado civil, nombre, nacionalidad, domicilio o lugar de trabajo)', monto: 0, moneda: 'MXN', fundamentoLegal: 'Sin costo - trámite gratuito. Art. 158 Ley de Migración: susceptible de multa si no se notifica o se hace de forma extemporánea.' },
+      ['expedicion_documento']: { concepto: 'Expedición de documento migratorio (renovación, canje, reposición o acuerdo)', monto: 1_523, moneda: 'MXN', fundamentoLegal: 'Art. 8, Ley Federal de Derechos. Pago con tarjeta Visa/MasterCard en oficina del INM o mediante hoja de ayuda bancaria. Visitantes por razones humanitarias exentos de pago (Art. 16 LFD).' },
     };
 
     return costos[tipo] || { concepto: 'Trámite migratorio', monto: 0, moneda: 'MXN', fundamentoLegal: 'Consultar con asesor' };

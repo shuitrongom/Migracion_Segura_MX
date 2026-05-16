@@ -17,6 +17,7 @@ const TRAMITES_INM: { tipo: TipoTramite; nombre: string; descripcion: string; ur
   { tipo: TipoTramite.VISA, nombre: 'Visas solicitadas ante el INM', descripcion: 'Solicitud de visa por unidad familiar, razones humanitarias u oferta de empleo', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
   { tipo: TipoTramite.PERMISO_TRABAJO, nombre: 'Permisos solicitados al INM', descripcion: 'Permiso para trabajar o permiso de salida y regreso', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_estancia.html' },
   { tipo: TipoTramite.NOTIFICACION_CAMBIO, nombre: 'Notificación de Cambio (EC, NOM, NAC, DOM, LT)', descripcion: 'Notificar cambio de estado civil, nombre, nacionalidad, domicilio o lugar de trabajo', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_estancia.html' },
+  { tipo: TipoTramite.EXPEDICION_DOCUMENTO, nombre: 'Expedición de Documento Migratorio', descripcion: 'Renovación, canje, reposición o expedición por acuerdo de documento migratorio', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_estancia.html' },
 ];
 
 interface Requisito { nombre: string; obligatorio: boolean; descripcion: string; }
@@ -206,9 +207,9 @@ export default function NuevoTramitePage() {
     if (step === 0 && !selectedTramite) { toast.error('Selecciona un tipo de trámite'); return; }
     if (step === 1) {
       const errors: Record<string, boolean> = {};
-      // propositoViaje solo es requerido para visa, permiso_trabajo y notificacion_cambio
-      if ((selectedTramite?.tipo === 'visa' || selectedTramite?.tipo === 'permiso_trabajo' || selectedTramite?.tipo === 'notificacion_cambio') && !extranjero.propositoViaje) errors['propositoViaje'] = true;
-      if (selectedTramite?.tipo === 'notificacion_cambio' && !extranjero.especificaTramite) errors['especificaTramite'] = true;
+      // propositoViaje solo es requerido para visa, permiso_trabajo, notificacion_cambio y expedicion_documento
+      if ((selectedTramite?.tipo === 'visa' || selectedTramite?.tipo === 'permiso_trabajo' || selectedTramite?.tipo === 'notificacion_cambio' || selectedTramite?.tipo === 'expedicion_documento') && !extranjero.propositoViaje) errors['propositoViaje'] = true;
+      if ((selectedTramite?.tipo === 'notificacion_cambio' || selectedTramite?.tipo === 'expedicion_documento') && !extranjero.especificaTramite) errors['especificaTramite'] = true;
       if (!extranjero.nombre.trim()) errors['nombre'] = true;
       if (!extranjero.apellidos.trim()) errors['apellidos'] = true;
       if (!extranjero.sexo) errors['sexo'] = true;
@@ -245,8 +246,8 @@ export default function NuevoTramitePage() {
           if (!solicitante.numeroExterior.trim()) errors['sol_numeroExterior'] = true;
         }
       }
-      // Campos solo para permisos
-      if (selectedTramite?.tipo === 'permiso_trabajo') {
+      // Campos solo para permisos y expedición de documento
+      if (selectedTramite?.tipo === 'permiso_trabajo' || selectedTramite?.tipo === 'expedicion_documento') {
         if (!extranjero.domCodigoPostal.trim()) errors['domCodigoPostal'] = true;
         if (!extranjero.domEstado) errors['domEstado'] = true;
         if (!extranjero.domMunicipio) errors['domMunicipio'] = true;
@@ -421,10 +422,21 @@ export default function NuevoTramitePage() {
             </div>
             )}
 
+            {/* Sección condicional: Tipo de trámite (solo Expedición de Documento) */}
+            {selectedTramite?.tipo === 'expedicion_documento' && (
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Tipo de trámite</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Qué deseas hacer? *</label><select value={extranjero.propositoViaje} onChange={e => { updateExtranjero('propositoViaje', e.target.value); updateExtranjero('especificaTramite', ''); }} className={inputClass('propositoViaje')}><option value="">Selecciona</option><option value="Extender la estancia">Extender la estancia</option><option value="Canjear o reponer documento migratorio">Canjear o reponer documento migratorio</option></select><ErrorMsg field="propositoViaje" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Especifica *</label><select value={extranjero.especificaTramite} onChange={e => updateExtranjero('especificaTramite', e.target.value)} disabled={!extranjero.propositoViaje} className={`w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 ${!extranjero.propositoViaje ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''}`}><option value="">Selecciona</option>{extranjero.propositoViaje === 'Extender la estancia' && (<><option value="Expedición de Tarjeta de Residente por Renovación">Expedición de Tarjeta de Residente por Renovación</option><option value="Expedición de Tarjeta de Visitante por Ampliación">Expedición de Tarjeta de Visitante por Ampliación</option></>)}{extranjero.propositoViaje === 'Canjear o reponer documento migratorio' && (<><option value="Canje de FMM por Tarjeta de Visitante o de Residente">Canje de FMM por Tarjeta de Visitante o de Residente</option><option value="Reposición de documento migratorio por pérdida, robo o deterioro">Reposición de documento migratorio por pérdida, robo o deterioro</option><option value="Expedición de Tarjeta de Residente cuando se otorga la condición por acuerdo">Expedición de Tarjeta de Residente cuando se otorga la condición por acuerdo</option></>)}</select><ErrorMsg field="especificaTramite" /></div>
+              </div>
+            </div>
+            )}
+
             <div>
               <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Datos del extranjero (conforme a pasaporte o documento de identidad)</h3>
-              {/* CURP solo para permisos y notificación de cambio */}
-              {(selectedTramite?.tipo === 'permiso_trabajo' || selectedTramite?.tipo === 'notificacion_cambio') && (
+              {/* CURP para permisos, notificación de cambio y expedición de documento */}
+              {(selectedTramite?.tipo === 'permiso_trabajo' || selectedTramite?.tipo === 'notificacion_cambio' || selectedTramite?.tipo === 'expedicion_documento') && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mb-4">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Clave Única de Registro de Población (CURP)</label><input type="text" value={extranjero.curpExtranjero} onChange={e => updateExtranjero('curpExtranjero', e.target.value.toUpperCase())} className={inputClassUpper('curpExtranjero')} maxLength={18} />{extranjero.curpExtranjero && validateCurp(extranjero.curpExtranjero) && <p className="text-[11px] text-red-500 mt-1">{validateCurp(extranjero.curpExtranjero)}</p>}</div>
               </div>
@@ -458,8 +470,8 @@ export default function NuevoTramitePage() {
               </div>
             </div>
 
-            {/* Domicilio del extranjero en México (solo Permisos) */}
-            {selectedTramite?.tipo === 'permiso_trabajo' && (
+            {/* Domicilio del extranjero en México (Permisos y Expedición de Documento) */}
+            {(selectedTramite?.tipo === 'permiso_trabajo' || selectedTramite?.tipo === 'expedicion_documento') && (
             <div>
               <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Domicilio del extranjero en México</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
