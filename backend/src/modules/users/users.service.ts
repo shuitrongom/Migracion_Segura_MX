@@ -304,14 +304,14 @@ export class UsersService {
   }
 
   /**
-   * Eliminar asesor (soft delete)
+   * Eliminar gestor (hard delete)
    */
   async deleteAsesor(id: string): Promise<{ message: string }> {
     const user = await this.userRepository.findOne({ where: { id, role: UserRole.ASESOR } });
     if (!user) {
-      throw new NotFoundException('Asesor no encontrado');
+      throw new NotFoundException('Gestor no encontrado');
     }
-    await this.userRepository.softDelete(id);
-    return { message: 'Asesor eliminado exitosamente' };
+    await this.userRepository.remove(user);
+    return { message: 'Gestor eliminado exitosamente' };
   }
 }
