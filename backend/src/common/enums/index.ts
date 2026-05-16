@@ -20,6 +20,7 @@ export enum TipoTramite {
   PERMISO_TRABAJO = 'permiso_trabajo',
   NOTIFICACION_CAMBIO = 'notificacion_cambio',
   EXPEDICION_DOCUMENTO = 'expedicion_documento',
+  REGULARIZACION_MIGRATORIA = 'regularizacion_migratoria',
   RENOVACION = 'renovacion',
   CAMBIO_DOMICILIO = 'cambio_domicilio',
   REPOSICION_DOCUMENTO = 'reposicion_documento',

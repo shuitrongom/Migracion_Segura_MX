@@ -671,6 +671,16 @@ export class TramitesService {
         { nombre: 'Documento oficial para reposición', obligatorio: false, descripcion: 'Pasaporte o documento con el que obtuvo la condición de estancia. Original y copia' },
         { nombre: 'Oficio de la Dirección General de Protocolo de la SRE (por acuerdo)', obligatorio: false, descripcion: 'Informando suspensión de privilegios o conclusión de encargo oficial. Original y copia' },
       ],
+      ['regularizacion_migratoria']: [
+        { nombre: 'Escrito solicitando la regularización de situación migratoria', obligatorio: true, descripcion: 'Especificando la irregularidad en la que incurrió (Art. 135 Ley de Migración). Original' },
+        { nombre: 'Pasaporte o documento de identidad y viaje', obligatorio: true, descripcion: 'Documento oficial con nombre, nacionalidad, fecha de nacimiento y fotografía. Original y copia' },
+        { nombre: 'Comparecer ante autoridad migratoria (entrevista)', obligatorio: true, descripcion: 'Se asentará en acta las circunstancias del caso y motivos para solicitar la regularización' },
+        { nombre: 'Comprobante de pago de derechos por regularización', obligatorio: false, descripcion: 'Para unidad familiar y documento vencido. Original y copia' },
+        { nombre: 'Comprobante de pago de multa', obligatorio: false, descripcion: 'Para unidad familiar (20-40 UMA) y documento vencido (20-100 UMA). Original y copia' },
+        { nombre: 'Documentos que acrediten el supuesto humanitario', obligatorio: false, descripcion: 'Para razones humanitarias: documental de autoridad competente según el caso. Original y copia' },
+        { nombre: 'Documentos que acrediten vínculo familiar', obligatorio: false, descripcion: 'Para unidad familiar: acta de matrimonio, nacimiento, tutela, etc. Original y copia' },
+        { nombre: 'FMM, tarjeta de visitante o residente temporal (documento vencido)', obligatorio: false, descripcion: 'No mayor a 60 días naturales de vencimiento. Original' },
+      ],
     };
 
     return [...commonRequisitos, ...(typeRequisitos[tipo] || [])];
