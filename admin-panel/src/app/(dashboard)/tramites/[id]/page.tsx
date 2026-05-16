@@ -214,6 +214,16 @@ export default function TramiteDetailPage() {
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* Botón continuar trámite (Caso B: extranjero ya lo creó, gestor continúa) */}
+          {tramite && !tramite.numeroPieza && (estatus === 'recibido' || estatus === 'borrador') && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
+              <h3 className="text-sm font-semibold text-amber-900 mb-2">Trámite pendiente de gestión</h3>
+              <p className="text-xs text-amber-700 mb-4">Este trámite fue iniciado por el extranjero. Continúa con la solicitud ante el INM.</p>
+              <Link href={`/tramites/continuar/${tramiteId}`} className="block w-full px-4 py-2.5 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 text-center transition-colors">
+                Continuar trámite →
+              </Link>
+            </div>
+          )}
           {/* Cambiar estatus */}
           <div className="bg-white rounded-xl border shadow-sm p-6">
             <h3 className="text-sm font-semibold text-gray-900 mb-4">Cambiar estatus</h3>
