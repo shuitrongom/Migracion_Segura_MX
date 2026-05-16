@@ -82,6 +82,13 @@ export default function GestoresPage() {
     }
   };
 
+  const generatePassword = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+    let pass = '';
+    for (let i = 0; i < 10; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
+    return pass;
+  };
+
   const handleCloseModal = () => {
     setShowModal(false);
     setShowPassword(false);
@@ -109,7 +116,7 @@ export default function GestoresPage() {
           <h1 className="text-2xl font-bold text-gray-900">Gestores</h1>
         </div>
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => { setShowModal(true); setFormData(prev => ({ ...prev, password: generatePassword() })); }}
           className="flex items-center gap-2 px-4 py-2.5 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors"
         >
           <Plus className="h-4 w-4" />
