@@ -22,6 +22,11 @@ export default function GestoresPage() {
     email: '',
     phone: '',
     password: '',
+    sexo: '',
+    fechaNacimiento: '',
+    curp: '',
+    rfc: '',
+    direccion: '',
   });
 
   const fetchGestores = useCallback(async () => {
@@ -63,7 +68,7 @@ export default function GestoresPage() {
       }
 
       setShowModal(false);
-      setFormData({ fullName: '', email: '', phone: '', password: '' });
+      setFormData({ fullName: '', email: '', phone: '', password: '', sexo: '', fechaNacimiento: '', curp: '', rfc: '', direccion: '' });
       setShowPassword(false);
       fetchGestores();
     } catch (error: unknown) {
@@ -78,7 +83,7 @@ export default function GestoresPage() {
   const handleCloseModal = () => {
     setShowModal(false);
     setShowPassword(false);
-    setFormData({ fullName: '', email: '', phone: '', password: '' });
+    setFormData({ fullName: '', email: '', phone: '', password: '', sexo: '', fechaNacimiento: '', curp: '', rfc: '', direccion: '' });
   };
 
   const handleDelete = async (id: string, name: string | null) => {
@@ -163,7 +168,7 @@ export default function GestoresPage() {
       {/* Modal crear Gestor */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
             <div className="flex items-center justify-between px-6 py-4 border-b">
               <h2 className="text-lg font-semibold text-gray-900">Nuevo Gestor</h2>
               <button
@@ -175,89 +180,62 @@ export default function GestoresPage() {
               </button>
             </div>
 
-            <form onSubmit={handleCreate} className="p-6 space-y-4">
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre completo *
-                </label>
-                <input
-                  id="fullName"
-                  type="text"
-                  value={formData.fullName}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, fullName: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                  placeholder="Nombre del Gestor"
-                />
+            <form onSubmit={handleCreate} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">Nombre completo *</label>
+                  <input id="fullName" type="text" value={formData.fullName} onChange={(e) => setFormData((prev) => ({ ...prev, fullName: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Nombre y apellidos" />
+                </div>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Correo electrónico *</label>
+                  <input id="email" type="email" value={formData.email} onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="correo@ejemplo.com" />
+                </div>
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Teléfono *</label>
+                  <input id="phone" type="tel" value={formData.phone} onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="+52 55 1234 5678" />
+                </div>
+                <div>
+                  <label htmlFor="sexo" className="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
+                  <select id="sexo" value={formData.sexo} onChange={(e) => setFormData((prev) => ({ ...prev, sexo: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <option value="">Selecciona</option>
+                    <option value="H">Hombre</option>
+                    <option value="M">Mujer</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="fechaNacimiento" className="block text-sm font-medium text-gray-700 mb-1">Fecha de nacimiento</label>
+                  <input id="fechaNacimiento" type="date" value={formData.fechaNacimiento} onChange={(e) => setFormData((prev) => ({ ...prev, fechaNacimiento: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                </div>
+                <div>
+                  <label htmlFor="curp" className="block text-sm font-medium text-gray-700 mb-1">CURP</label>
+                  <input id="curp" type="text" value={formData.curp} onChange={(e) => setFormData((prev) => ({ ...prev, curp: e.target.value.toUpperCase() }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm uppercase focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="18 caracteres" maxLength={18} />
+                </div>
+                <div>
+                  <label htmlFor="rfc" className="block text-sm font-medium text-gray-700 mb-1">RFC</label>
+                  <input id="rfc" type="text" value={formData.rfc} onChange={(e) => setFormData((prev) => ({ ...prev, rfc: e.target.value.toUpperCase() }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm uppercase focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="13 caracteres" maxLength={13} />
+                </div>
+                <div className="md:col-span-2">
+                  <label htmlFor="direccion" className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+                  <input id="direccion" type="text" value={formData.direccion} onChange={(e) => setFormData((prev) => ({ ...prev, direccion: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Calle, número, colonia, ciudad" />
+                </div>
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Correo electrónico *
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                  placeholder="correo@ejemplo.com"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                  Teléfono (para envío de WhatsApp)
-                </label>
-                <input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                  placeholder="+52 55 1234 5678"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                  Contraseña temporal *
-                </label>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Contraseña temporal *</label>
                 <div className="relative">
-                  <input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
-                    className="w-full px-4 py-2.5 pr-12 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                    placeholder="Mínimo 8 caracteres"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
-                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                  >
+                  <input id="password" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))} className="w-full px-4 py-2.5 pr-12 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Mínimo 8 caracteres" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600" aria-label={showPassword ? 'Ocultar' : 'Mostrar'}>
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
-                <p className="mt-1 text-xs text-gray-400">
-                  Se enviará por correo y WhatsApp al Gestor. Podrá cambiarla después.
-                </p>
+                <p className="mt-1 text-xs text-gray-400">Se enviará por correo y WhatsApp al Gestor.</p>
               </div>
 
               <div className="flex items-center gap-3 pt-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 px-4 py-2.5 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors disabled:opacity-50"
-                >
+                <button type="submit" disabled={submitting} className="flex-1 px-4 py-2.5 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors disabled:opacity-50">
                   {submitting ? 'Creando...' : 'Crear Gestor'}
                 </button>
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
-                >
+                <button type="button" onClick={handleCloseModal} className="px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
                   Cancelar
                 </button>
               </div>
