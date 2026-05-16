@@ -20,7 +20,7 @@ const TRAMITES_INM: { tipo: TipoTramite; nombre: string; descripcion: string; ur
   { tipo: TipoTramite.REGULARIZACION, nombre: 'Regularización Migratoria', descripcion: 'Para extranjeros en situación irregular', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
   { tipo: TipoTramite.CAMBIO_CONDICION, nombre: 'Cambio de Condición de Estancia', descripcion: 'Cambiar de una condición migratoria a otra', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
   { tipo: TipoTramite.NACIONALIDAD, nombre: 'Nacionalidad Mexicana', descripcion: 'Carta de naturalización o declaratoria', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
-  { tipo: TipoTramite.PERMISO_TRABAJO, nombre: 'Permiso de Trabajo', descripcion: 'Autorización para actividades remuneradas', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
+  { tipo: TipoTramite.PERMISO_TRABAJO, nombre: 'Permisos solicitados al INM', descripcion: 'Permiso para trabajar o permiso de salida y regreso', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_estancia.html' },
   { tipo: TipoTramite.RENOVACION, nombre: 'Renovación de Documento', descripcion: 'Renovar tarjeta de residente', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
   { tipo: TipoTramite.CAMBIO_DOMICILIO, nombre: 'Cambio de Domicilio', descripcion: 'Notificar cambio de domicilio', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
   { tipo: TipoTramite.REPOSICION_DOCUMENTO, nombre: 'Reposición de Documento', descripcion: 'Reponer documento por robo o extravío', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
@@ -375,12 +375,28 @@ export default function NuevoTramitePage() {
         {/* Step 1: Datos del extranjero - idéntico al formulario INM */}
         {step === 1 && (
           <div className="space-y-6">
+            {/* Sección condicional: Propósito del viaje (solo Visas) */}
+            {selectedTramite?.tipo === 'visa' && (
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Propósito del viaje</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Propósito de viaje *</label><select value={extranjero.propositoViaje} onChange={e => updateExtranjero('propositoViaje', e.target.value)} className={inputClass('propositoViaje')}><option value="">Selecciona</option>{PROPOSITOS_VIAJE.map(p => <option key={p} value={p}>{p}</option>)}</select><ErrorMsg field="propositoViaje" /></div>
               </div>
             </div>
+            )}
+
+            {/* Sección condicional: Tipo de trámite (solo Permisos) */}
+            {selectedTramite?.tipo === 'permiso_trabajo' && (
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Tipo de trámite</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Qué deseas hacer? *</label><select value={extranjero.propositoViaje} onChange={e => updateExtranjero('propositoViaje', e.target.value)} className={inputClass('propositoViaje')}><option value="">Selecciona</option><option value="Obtener permiso para trabajar">Obtener permiso para trabajar</option><option value="Obtener permiso de salida y regreso">Obtener permiso de salida y regreso</option></select><ErrorMsg field="propositoViaje" /></div>
+                {extranjero.propositoViaje === 'Obtener permiso para trabajar' && (
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Especifica</label><select value={extranjero.tiempoEstancia} onChange={e => updateExtranjero('tiempoEstancia', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option><option value="Con empleador">Obtener permiso para trabajar con empleador</option><option value="Independiente/autoempleo">Obtener permiso para trabajar (actividades independientes/autoempleo)</option></select></div>
+                )}
+              </div>
+            </div>
+            )}
 
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Datos del extranjero (conforme a pasaporte o documento de identidad)</h3>
