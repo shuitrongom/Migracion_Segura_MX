@@ -44,6 +44,9 @@ export default function NuevoTramitePage() {
     // Pasaporte
     documentoIdentificacion: '', numeroDocumento: '', paisExpedicion: '',
     fechaExpedicion: '', fechaVencimiento: '',
+    // Domicilio del extranjero en México (para permisos)
+    domCodigoPostal: '', domEstado: '', domMunicipio: '', domColonia: '', domCalle: '',
+    domNumeroExterior: '', domNumeroInterior: '', domLada: '', domTelefonoFijo: '',
     // Información adicional
     actividadPrincipal: '', sectorTrabajo: '', situacionTrabajo: '', ocupacionTrabajo: '',
     expulsadoMexico: '', antecedentesPenales: '',
@@ -211,30 +214,42 @@ export default function NuevoTramitePage() {
       if (!extranjero.documentoIdentificacion) errors['documentoIdentificacion'] = true;
       if (!extranjero.numeroDocumento.trim()) errors['numeroDocumento'] = true;
       if (!extranjero.paisExpedicion) errors['paisExpedicion'] = true;
-      if (!extranjero.actividadPrincipal) errors['actividadPrincipal'] = true;
-      if (extranjero.actividadPrincipal === 'Trabajar') {
-        if (!extranjero.sectorTrabajo) errors['sectorTrabajo'] = true;
-        if (!extranjero.situacionTrabajo) errors['situacionTrabajo'] = true;
-        if (!extranjero.ocupacionTrabajo) errors['ocupacionTrabajo'] = true;
+      // Campos solo para visa
+      if (selectedTramite?.tipo === 'visa') {
+        if (!extranjero.actividadPrincipal) errors['actividadPrincipal'] = true;
+        if (extranjero.actividadPrincipal === 'Trabajar') {
+          if (!extranjero.sectorTrabajo) errors['sectorTrabajo'] = true;
+          if (!extranjero.situacionTrabajo) errors['situacionTrabajo'] = true;
+          if (!extranjero.ocupacionTrabajo) errors['ocupacionTrabajo'] = true;
+        }
+        if (!extranjero.expulsadoMexico) errors['expulsadoMexico'] = true;
+        if (!extranjero.antecedentesPenales) errors['antecedentesPenales'] = true;
+        if (!solicitante.tipoPersona) errors['tipoPersona'] = true;
+        if (solicitante.tipoPersona === 'Física') {
+          if (!solicitante.nombre.trim()) errors['sol_nombre'] = true;
+          if (!solicitante.apellidos.trim()) errors['sol_apellidos'] = true;
+          if (!solicitante.nacionalidad) errors['sol_nacionalidad'] = true;
+          if (!solicitante.tipoDocumento) errors['sol_tipoDocumento'] = true;
+          if (!solicitante.numeroDocumento.trim()) errors['sol_numeroDocumento'] = true;
+          if (!solicitante.vinculoParentesco) errors['sol_vinculoParentesco'] = true;
+          if (!solicitante.codigoPostal.trim()) errors['sol_codigoPostal'] = true;
+          if (!solicitante.estado) errors['sol_estado'] = true;
+          if (!solicitante.municipio) errors['sol_municipio'] = true;
+          if (!solicitante.colonia.trim()) errors['sol_colonia'] = true;
+          if (!solicitante.calle.trim()) errors['sol_calle'] = true;
+          if (!solicitante.numeroExterior.trim()) errors['sol_numeroExterior'] = true;
+        }
       }
-      if (!extranjero.expulsadoMexico) errors['expulsadoMexico'] = true;
-      if (!extranjero.antecedentesPenales) errors['antecedentesPenales'] = true;
-      if (!solicitante.tipoPersona) errors['tipoPersona'] = true;
-      if (solicitante.tipoPersona === 'Física') {
-        if (!solicitante.nombre.trim()) errors['sol_nombre'] = true;
-        if (!solicitante.apellidos.trim()) errors['sol_apellidos'] = true;
-        if (!solicitante.nacionalidad) errors['sol_nacionalidad'] = true;
-        if (!solicitante.tipoDocumento) errors['sol_tipoDocumento'] = true;
-        if (!solicitante.numeroDocumento.trim()) errors['sol_numeroDocumento'] = true;
-        if (!solicitante.vinculoParentesco) errors['sol_vinculoParentesco'] = true;
-        if (!solicitante.codigoPostal.trim()) errors['sol_codigoPostal'] = true;
-        if (!solicitante.estado) errors['sol_estado'] = true;
-        if (!solicitante.municipio) errors['sol_municipio'] = true;
-        if (!solicitante.colonia.trim()) errors['sol_colonia'] = true;
-        if (!solicitante.calle.trim()) errors['sol_calle'] = true;
-        if (!solicitante.numeroExterior.trim()) errors['sol_numeroExterior'] = true;
+      // Campos solo para permisos
+      if (selectedTramite?.tipo === 'permiso_trabajo') {
+        if (!extranjero.domCodigoPostal.trim()) errors['domCodigoPostal'] = true;
+        if (!extranjero.domEstado) errors['domEstado'] = true;
+        if (!extranjero.domMunicipio) errors['domMunicipio'] = true;
+        if (!extranjero.domColonia.trim()) errors['domColonia'] = true;
+        if (!extranjero.domCalle.trim()) errors['domCalle'] = true;
+        if (!extranjero.domNumeroExterior.trim()) errors['domNumeroExterior'] = true;
       }
-      if (solicitante.tipoPersona === 'Moral') {
+      if (selectedTramite?.tipo === 'visa' && solicitante.tipoPersona === 'Moral') {
         if (!solicitante.moralRfc.trim()) errors['moral_rfc'] = true;
         if (!solicitante.moralRazonSocial.trim()) errors['moral_razonSocial'] = true;
         if (!solicitante.moralCodigoPostal.trim()) errors['moral_codigoPostal'] = true;
@@ -421,6 +436,26 @@ export default function NuevoTramitePage() {
               </div>
             </div>
 
+            {/* Domicilio del extranjero en México (solo Permisos) */}
+            {selectedTramite?.tipo === 'permiso_trabajo' && (
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Domicilio del extranjero en México</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Código postal *</label><input type="text" value={extranjero.domCodigoPostal} onChange={e => updateExtranjero('domCodigoPostal', e.target.value)} className={inputClass('domCodigoPostal')} /><ErrorMsg field="domCodigoPostal" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Estado *</label><select value={extranjero.domEstado} onChange={e => { updateExtranjero('domEstado', e.target.value); updateExtranjero('domMunicipio', ''); }} className={inputClass('domEstado')}><option value="">Selecciona</option>{ESTADOS_MEXICO.map(est => <option key={est} value={est}>{est}</option>)}</select><ErrorMsg field="domEstado" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Municipio o Alcaldía *</label><select value={extranjero.domMunicipio} onChange={e => updateExtranjero('domMunicipio', e.target.value)} className={inputClass('domMunicipio')}><option value="">Selecciona</option>{(MUNICIPIOS_POR_ESTADO[extranjero.domEstado] || []).map(m => <option key={m} value={m}>{m}</option>)}</select><ErrorMsg field="domMunicipio" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Colonia *</label><input type="text" value={extranjero.domColonia} onChange={e => updateExtranjero('domColonia', e.target.value)} className={inputClass('domColonia')} /><ErrorMsg field="domColonia" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Calle *</label><input type="text" value={extranjero.domCalle} onChange={e => updateExtranjero('domCalle', e.target.value)} className={inputClass('domCalle')} /><ErrorMsg field="domCalle" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Número exterior *</label><input type="text" value={extranjero.domNumeroExterior} onChange={e => updateExtranjero('domNumeroExterior', e.target.value)} className={inputClass('domNumeroExterior')} /><ErrorMsg field="domNumeroExterior" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Número interior</label><input type="text" value={extranjero.domNumeroInterior} onChange={e => updateExtranjero('domNumeroInterior', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Lada</label><input type="text" value={extranjero.domLada} onChange={e => updateExtranjero('domLada', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Teléfono fijo</label><input type="text" value={extranjero.domTelefonoFijo} onChange={e => updateExtranjero('domTelefonoFijo', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+              </div>
+            </div>
+            )}
+
+            {/* Información adicional (solo Visas) */}
+            {selectedTramite?.tipo === 'visa' && (
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Información adicional del extranjero</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
@@ -436,7 +471,10 @@ export default function NuevoTramitePage() {
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Tienes antecedentes penales? *</label><select value={extranjero.antecedentesPenales} onChange={e => updateExtranjero('antecedentesPenales', e.target.value)} className={inputClass('antecedentesPenales')}><option value="">Selecciona</option>{SI_NO.map(o => <option key={o} value={o}>{o}</option>)}</select><ErrorMsg field="antecedentesPenales" /></div>
               </div>
             </div>
+            )}
 
+            {/* Señala las visas (solo Visas) */}
+            {selectedTramite?.tipo === 'visa' && (
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Señala las visas con las que cuenta el extranjero</h3>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
@@ -459,7 +497,10 @@ export default function NuevoTramitePage() {
                 </div>
               )}
             </div>
+            )}
 
+            {/* Datos de la institución (solo Visas) */}
+            {selectedTramite?.tipo === 'visa' && (
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Datos de la institución, organismo o persona que solicita la autorización de la visa</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
@@ -539,6 +580,7 @@ export default function NuevoTramitePage() {
                 </div>
               )}
             </div>
+            )}
 
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Correo electrónico para notificar al promovente</h3>
