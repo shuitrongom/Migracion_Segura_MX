@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Check, Circle, Clock, Plus, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 interface Etapa {
   id: string;
@@ -28,6 +29,7 @@ interface TramiteDetail {
   numeroPieza: string;
   tipo: string;
   estatus: string;
+  clienteId: string;
   clienteNombre: string;
   etapas: Etapa[];
 }
@@ -244,6 +246,42 @@ export default function TramiteDetailPage() {
             <div className="flex gap-2">
               <input type="text" value={newTarea} onChange={(e) => setNewTarea(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAddTarea()} className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Nueva tarea..." />
               <button onClick={handleAddTarea} disabled={!newTarea.trim()} className="p-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 disabled:opacity-50" aria-label="Agregar tarea"><Plus className="h-4 w-4" /></button>
+            </div>
+          </div>
+
+          {/* Captura de pago (solo admin) */}
+          <div className="bg-white rounded-xl border shadow-sm p-6">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">Pago de Derechos</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Monto total (MXN)</label>
+                <input type="number" id="monto-pago" min="0" step="0.01" className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="0.00" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Concepto</label>
+                <input type="text" id="concepto-pago" className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Pago de derechos migratorios" />
+              </div>
+              <button
+                onClick={async () => {
+                  const monto = (document.getElementById('monto-pago') as HTMLInputElement)?.value;
+                  const concepto = (document.getElementById('concepto-pago') as HTMLInputElement)?.value;
+                  if (!monto || parseFloat(monto) <= 0) return;
+                  try {
+                    // Registrar pago y notificar al extranjero
+                    await api.post('/financiero/pagos', {
+                      clienteId: tramite?.clienteId || '',
+                      tramiteId: tramiteId,
+                      monto: parseFloat(monto),
+                      metodoPago: 'transferencia_bancaria',
+                      concepto: concepto || 'Pago de derechos migratorios',
+                    });
+                    toast.success('Pago registrado y notificación enviada al extranjero');
+                  } catch { toast.error('Error al registrar pago'); }
+                }}
+                className="w-full px-4 py-2.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700"
+              >
+                Registrar Pago
+              </button>
             </div>
           </div>
         </div>

@@ -10,6 +10,8 @@ import { TipoTramite } from '@/lib/types';
 import { PROPOSITOS_VIAJE, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO, TIPOS_PERSONA, DOCUMENTOS_IDENTIFICACION_PERSONA, SITUACIONES_TRABAJO, OCUPACIONES_TRABAJO, VINCULOS_PARENTESCO } from '@/lib/catalogos-inm';
 import { ESTADOS_MEXICO, MUNICIPIOS_POR_ESTADO, SECTORES_ACTIVIDAD, DOCUMENTOS_PERSONA_FISICA } from '@/lib/catalogos-mexico';
 import { DatePicker } from '@/components/ui/date-picker';
+import { useAuthStore } from '@/stores/auth.store';
+import { UserRole } from '@/lib/types';
 
 const TRAMITES_INM: { tipo: TipoTramite; nombre: string; descripcion: string; urlSolicitud: string }[] = [
   { tipo: TipoTramite.VISA, nombre: 'Visas solicitadas ante el INM', descripcion: 'Solicitud de visa por unidad familiar, razones humanitarias u oferta de empleo', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
@@ -28,10 +30,14 @@ const TRAMITES_INM: { tipo: TipoTramite; nombre: string; descripcion: string; ur
 interface Requisito { nombre: string; obligatorio: boolean; descripcion: string; }
 interface Costo { concepto: string; monto: number; moneda: string; fundamentoLegal: string; }
 
-const STEPS = ['Trámite', 'Datos del Extranjero', 'Solicitud INM', 'Requisitos', 'Pago'];
+const STEPS_ADMIN = ['Trámite', 'Datos del Extranjero', 'Solicitud INM', 'Requisitos', 'Pago'];
+const STEPS_GESTOR = ['Trámite', 'Datos del Extranjero', 'Solicitud INM', 'Requisitos'];
 
 export default function NuevoTramitePage() {
   const router = useRouter();
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === UserRole.ADMINISTRADOR;
+  const STEPS = isAdmin ? STEPS_ADMIN : STEPS_GESTOR;
   const [step, setStep] = useState(0);
   const [selectedTramite, setSelectedTramite] = useState<(typeof TRAMITES_INM)[0] | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -310,6 +316,18 @@ export default function NuevoTramitePage() {
       }
 
       toast.success('Trámite iniciado exitosamente');
+      
+      // Si es gestor, notificar al admin que hay un nuevo trámite pendiente de pago
+      if (!isAdmin) {
+        try {
+          await api.post('/notificaciones/enviar-requisitos', {
+            email: 'admin@migracion-segura.mx', // TODO: obtener email del admin dinámicamente
+            nombreExtranjero: `Gestor: ${user?.fullName || 'Sin nombre'}`,
+            requisitos: [`Nuevo trámite creado por ${user?.fullName} para ${extranjero.nombre} ${extranjero.apellidos}. Pendiente de captura de pago.`],
+          });
+        } catch { /* no bloquear */ }
+      }
+
       router.push(`/tramites/${tramiteId}`);
     } catch (error: unknown) {
       toast.error(error instanceof Error ? error.message : 'Error al crear trámite');
@@ -846,8 +864,8 @@ export default function NuevoTramitePage() {
           </div>
         )}
 
-        {/* Step 4: Pago */}
-        {step === 4 && costo && (
+        {/* Step 4: Pago (solo admin) */}
+        {isAdmin && step === 4 && costo && (
           <div>
             <div className="flex items-center gap-2 mb-4">
               <DollarSign className="h-5 w-5 text-brand-500" />
