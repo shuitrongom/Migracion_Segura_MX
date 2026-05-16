@@ -18,6 +18,7 @@ export default function GestoresPage() {
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedGestor, setSelectedGestor] = useState<Gestor | null>(null);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -155,7 +156,9 @@ export default function GestoresPage() {
               {Gestores.map((Gestor) => (
                 <tr key={Gestor.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                    {Gestor.fullName || '—'}
+                    <button onClick={() => setSelectedGestor(Gestor)} className="text-brand-600 hover:text-brand-700 hover:underline font-medium">
+                      {Gestor.fullName || '—'}
+                    </button>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">{Gestor.email}</td>
                   <td className="px-6 py-4 text-right">
@@ -197,7 +200,7 @@ export default function GestoresPage() {
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Correo electrónico *</label>
-                  <input id="email" type="email" value={formData.email} onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="correo@ejemplo.com" />
+                  <input id="email" type="email" autoComplete="new-email" value={formData.email} onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="correo@ejemplo.com" />
                 </div>
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Teléfono *</label>
@@ -249,6 +252,36 @@ export default function GestoresPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal detalle gestor */}
+      {selectedGestor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+            <div className="flex items-center justify-between px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold text-gray-900">Información del Gestor</h2>
+              <button onClick={() => setSelectedGestor(null)} className="p-1 rounded-lg hover:bg-gray-100 text-gray-400"><X className="h-5 w-5" /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="h-12 w-12 bg-brand-100 rounded-full flex items-center justify-center">
+                  <span className="text-lg font-bold text-brand-600">{(selectedGestor.fullName || '?').charAt(0).toUpperCase()}</span>
+                </div>
+                <div>
+                  <p className="text-lg font-semibold text-gray-900">{selectedGestor.fullName || '—'}</p>
+                  <p className="text-sm text-gray-500">{selectedGestor.email}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div><p className="text-xs text-gray-500 uppercase">Email</p><p className="text-sm text-gray-900 mt-0.5">{selectedGestor.email}</p></div>
+                <div><p className="text-xs text-gray-500 uppercase">ID</p><p className="text-sm text-gray-900 mt-0.5 font-mono text-xs">{selectedGestor.id.slice(0, 8)}...</p></div>
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t flex justify-end">
+              <button onClick={() => setSelectedGestor(null)} className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">Cerrar</button>
+            </div>
           </div>
         </div>
       )}
