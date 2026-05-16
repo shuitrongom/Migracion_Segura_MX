@@ -58,6 +58,8 @@ export default function NuevoTramitePage() {
     expulsadoMexico: '', antecedentesPenales: '',
     telefono: '', email: '',
     visasActuales: '', comentarios: '',
+    // Específico por trámite
+    especificaTramite: '',
     // Datos del promovente (correo y teléfono de contacto)
     solicitanteEmail: '', solicitanteEmailConfirmacion: '',
     personaAutorizada: '',
@@ -206,7 +208,8 @@ export default function NuevoTramitePage() {
     if (step === 0 && !selectedTramite) { toast.error('Selecciona un tipo de trámite'); return; }
     if (step === 1) {
       const errors: Record<string, boolean> = {};
-      if (!extranjero.propositoViaje) errors['propositoViaje'] = true;
+      // propositoViaje solo es requerido para visa y permiso_trabajo
+      if ((selectedTramite?.tipo === 'visa' || selectedTramite?.tipo === 'permiso_trabajo') && !extranjero.propositoViaje) errors['propositoViaje'] = true;
       if (!extranjero.nombre.trim()) errors['nombre'] = true;
       if (!extranjero.apellidos.trim()) errors['apellidos'] = true;
       if (!extranjero.sexo) errors['sexo'] = true;
@@ -392,7 +395,7 @@ export default function NuevoTramitePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Qué deseas hacer? *</label><select value={extranjero.propositoViaje} onChange={e => updateExtranjero('propositoViaje', e.target.value)} className={inputClass('propositoViaje')}><option value="">Selecciona</option><option value="Obtener permiso para trabajar">Obtener permiso para trabajar</option><option value="Obtener permiso de salida y regreso">Obtener permiso de salida y regreso</option></select><ErrorMsg field="propositoViaje" /></div>
                 {extranjero.propositoViaje === 'Obtener permiso para trabajar' && (
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Especifica</label><select value={extranjero.tiempoEstancia} onChange={e => updateExtranjero('tiempoEstancia', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option><option value="Con empleador">Obtener permiso para trabajar con empleador</option><option value="Independiente/autoempleo">Obtener permiso para trabajar (actividades independientes/autoempleo)</option></select></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Especifica</label><select value={extranjero.especificaTramite} onChange={e => updateExtranjero('especificaTramite', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"><option value="">Selecciona</option><option value="Con empleador">Obtener permiso para trabajar con empleador</option><option value="Independiente/autoempleo">Obtener permiso para trabajar (actividades independientes/autoempleo)</option></select></div>
                 )}
               </div>
             </div>
