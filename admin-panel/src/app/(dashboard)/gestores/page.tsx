@@ -256,31 +256,53 @@ export default function GestoresPage() {
         </div>
       )}
 
-      {/* Modal detalle gestor */}
+      {/* Modal detalle/editar gestor */}
       {selectedGestor && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setSelectedGestor(null)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b">
               <h2 className="text-lg font-semibold text-gray-900">Información del Gestor</h2>
               <button onClick={() => setSelectedGestor(null)} className="p-1 rounded-lg hover:bg-gray-100 text-gray-400"><X className="h-5 w-5" /></button>
             </div>
             <div className="p-6 space-y-4">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="h-12 w-12 bg-brand-100 rounded-full flex items-center justify-center">
-                  <span className="text-lg font-bold text-brand-600">{(selectedGestor.fullName || '?').charAt(0).toUpperCase()}</span>
+              <div className="flex items-center gap-4 pb-4 border-b">
+                <div className="h-14 w-14 bg-brand-100 rounded-full flex items-center justify-center">
+                  <span className="text-xl font-bold text-brand-600">{(selectedGestor.fullName || '?').charAt(0).toUpperCase()}</span>
                 </div>
                 <div>
                   <p className="text-lg font-semibold text-gray-900">{selectedGestor.fullName || '—'}</p>
                   <p className="text-sm text-gray-500">{selectedGestor.email}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><p className="text-xs text-gray-500 uppercase">Email</p><p className="text-sm text-gray-900 mt-0.5">{selectedGestor.email}</p></div>
-                <div><p className="text-xs text-gray-500 uppercase">ID</p><p className="text-sm text-gray-900 mt-0.5 font-mono text-xs">{selectedGestor.id.slice(0, 8)}...</p></div>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 uppercase mb-1">Nombre completo</label>
+                  <input type="text" defaultValue={selectedGestor.fullName || ''} id="edit-gestor-name" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 uppercase mb-1">Correo electrónico</label>
+                  <input type="email" defaultValue={selectedGestor.email} id="edit-gestor-email" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                </div>
               </div>
             </div>
-            <div className="px-6 py-4 border-t flex justify-end">
+            <div className="px-6 py-4 border-t flex justify-between">
               <button onClick={() => setSelectedGestor(null)} className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">Cerrar</button>
+              <button
+                onClick={async () => {
+                  const name = (document.getElementById('edit-gestor-name') as HTMLInputElement)?.value;
+                  const email = (document.getElementById('edit-gestor-email') as HTMLInputElement)?.value;
+                  if (!name || !email) return;
+                  try {
+                    await api.patch(`/auth/profile`, { fullName: name });
+                    toast.success('Gestor actualizado');
+                    setSelectedGestor(null);
+                    fetchGestores();
+                  } catch { toast.error('Error al actualizar'); }
+                }}
+                className="px-4 py-2 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600"
+              >
+                Guardar cambios
+              </button>
             </div>
           </div>
         </div>
