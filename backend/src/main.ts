@@ -23,8 +23,9 @@ async function bootstrap() {
   app.use(helmet());
 
   // CORS
+  const frontendUrl = configService.get<string>('FRONTEND_URL', 'http://localhost:3001');
   app.enableCors({
-    origin: configService.get<string>('FRONTEND_URL', 'http://localhost:3001'),
+    origin: [frontendUrl, 'https://migracion-segura-mx-admin-panel.vercel.app', 'http://localhost:3001'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
