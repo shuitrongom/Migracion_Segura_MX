@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { UserCog, Plus, Trash2, X, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
+import { DatePicker } from '@/components/ui/date-picker';
 
 interface Gestor {
   id: string;
@@ -204,7 +205,7 @@ export default function GestoresPage() {
                 </div>
                 <div>
                   <label htmlFor="fechaNacimiento" className="block text-sm font-medium text-gray-700 mb-1">Fecha de nacimiento</label>
-                  <input id="fechaNacimiento" type="date" value={formData.fechaNacimiento} onChange={(e) => setFormData((prev) => ({ ...prev, fechaNacimiento: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  <DatePicker value={formData.fechaNacimiento} onChange={(v) => setFormData((prev) => ({ ...prev, fechaNacimiento: v }))} yearRange={[1960, 2005]} />
                 </div>
                 <div>
                   <label htmlFor="curp" className="block text-sm font-medium text-gray-700 mb-1">CURP</label>
