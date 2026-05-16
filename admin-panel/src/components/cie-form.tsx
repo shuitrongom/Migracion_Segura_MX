@@ -89,9 +89,9 @@ export default function CieForm({ propositoViaje, onChangePropositoViaje, solici
     return null;
   };
 
-  const inputClass = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-brand-500';
-  const inputClassUpper = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm uppercase focus:outline-none focus:ring-2 focus:ring-brand-500';
-  const inputClassEmail = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500';
+  const inputClass = 'w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-sm hover:shadow transition-shadow';
+  const inputClassUpper = 'w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm uppercase focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-sm hover:shadow transition-shadow';
+  const inputClassEmail = 'w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-sm hover:shadow transition-shadow';
   const sectionTitle = 'text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700';
 
   return (
@@ -148,7 +148,7 @@ export default function CieForm({ propositoViaje, onChangePropositoViaje, solici
             <div><label className="block text-xs font-medium text-gray-600 mb-1">RFC *</label><input type="text" value={moral.rfc} onChange={e => updateMoral('rfc', e.target.value)} className={inputClassUpper} maxLength={12} />{validateRfc(moral.rfc, true) && <p className="text-[11px] text-red-500 mt-1">{validateRfc(moral.rfc, true)}</p>}</div>
             <div><label className="block text-xs font-medium text-gray-600 mb-1">Nombre o razón social *</label><input type="text" value={moral.razonSocial} onChange={e => updateMoral('razonSocial', e.target.value)} className={inputClass} /></div>
             <div><label className="block text-xs font-medium text-gray-600 mb-1">Sector o rama de actividad</label><select value={moral.sector} onChange={e => updateMoral('sector', e.target.value)} className={inputClass}><option value="">Selecciona</option>{SECTORES_ACTIVIDAD.map(s => <option key={s} value={s}>{s}</option>)}</select></div>
-            <div className="md:col-span-3"><label className="block text-xs font-medium text-gray-600 mb-1">Objeto de la empresa o giro comercial *</label><textarea value={moral.giroComercial} onChange={e => updateMoral('giroComercial', e.target.value)} rows={3} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none" /></div>
+            <div className="md:col-span-3"><label className="block text-xs font-medium text-gray-600 mb-1">Objeto de la empresa o giro comercial *</label><textarea value={moral.giroComercial} onChange={e => updateMoral('giroComercial', e.target.value)} rows={3} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-sm hover:shadow transition-shadow resize-none" /></div>
           </div>
 
           <h4 className="text-lg font-semibold text-gray-800 border-b pb-2 pt-2">Domicilio de la persona moral</h4>
