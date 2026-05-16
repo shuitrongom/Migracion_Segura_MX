@@ -653,6 +653,12 @@ export class TramitesService {
         { nombre: 'Documento que acredite nueva nacionalidad', obligatorio: true, descripcion: 'Carta de naturalización o certificado del país correspondiente' },
         { nombre: 'Carta bajo protesta de decir verdad', obligatorio: true, descripcion: 'Indicando nacionalidad anterior y nueva' },
       ],
+      ['notificacion_cambio']: [
+        { nombre: 'Carta firmada por la persona extranjera bajo protesta de decir verdad', obligatorio: true, descripcion: 'Manifestando el cambio a notificar (EC, nombre, nacionalidad, domicilio o lugar de trabajo), señalando el anterior y el nuevo dato. En caso de doble nacionalidad indicarlo. Original' },
+        { nombre: 'Acta de matrimonio, sentencia de divorcio o acta de defunción', obligatorio: false, descripcion: 'Para cambio de estado civil. Original y copia' },
+        { nombre: 'Pasaporte de la nueva nacionalidad, certificado de nacionalidad o carta de naturalización', obligatorio: false, descripcion: 'Para cambio de nacionalidad. Original y copia' },
+        { nombre: 'Pasaporte o documento de identidad con el nuevo nombre', obligatorio: false, descripcion: 'Para cambio de nombre. Y en su caso, documento de autoridad competente que conste el cambio. Original y copia' },
+      ],
     };
 
     return [...commonRequisitos, ...(typeRequisitos[tipo] || [])];
@@ -674,6 +680,7 @@ export class TramitesService {
       [TipoTramite.CAMBIO_DOMICILIO]: { concepto: 'Notificación de cambio de domicilio', monto: 0, moneda: 'MXN', fundamentoLegal: 'Sin costo - trámite gratuito' },
       [TipoTramite.REPOSICION_DOCUMENTO]: { concepto: 'Reposición de documento migratorio', monto: 1_523, moneda: 'MXN', fundamentoLegal: 'Art. 8, fracción VI, Ley Federal de Derechos' },
       [TipoTramite.CAMBIO_NACIONALIDAD]: { concepto: 'Notificación de cambio de nacionalidad', monto: 0, moneda: 'MXN', fundamentoLegal: 'Sin costo - trámite gratuito' },
+      ['notificacion_cambio']: { concepto: 'Notificación de cambio (estado civil, nombre, nacionalidad, domicilio o lugar de trabajo)', monto: 0, moneda: 'MXN', fundamentoLegal: 'Sin costo - trámite gratuito. Art. 158 Ley de Migración: susceptible de multa si no se notifica o se hace de forma extemporánea.' },
     };
 
     return costos[tipo] || { concepto: 'Trámite migratorio', monto: 0, moneda: 'MXN', fundamentoLegal: 'Consultar con asesor' };
