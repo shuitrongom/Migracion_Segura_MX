@@ -54,6 +54,8 @@ export default function NuevoTramitePage() {
     visasActuales: '', comentarios: '',
     // Específico por trámite
     especificaTramite: '',
+    // Datos del empleador (solo permiso_trabajo + con empleador)
+    empleadorTipoPersona: '', empleadorRfc: '', empleadorNumeroExpediente: '',
     // Datos del promovente (correo y teléfono de contacto)
     solicitanteEmail: '', solicitanteEmailConfirmacion: '',
     personaAutorizada: '',
@@ -450,6 +452,25 @@ export default function NuevoTramitePage() {
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Número interior</label><input type="text" value={extranjero.domNumeroInterior} onChange={e => updateExtranjero('domNumeroInterior', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Lada</label><input type="text" value={extranjero.domLada} onChange={e => updateExtranjero('domLada', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Teléfono fijo</label><input type="text" value={extranjero.domTelefonoFijo} onChange={e => updateExtranjero('domTelefonoFijo', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" /></div>
+              </div>
+            </div>
+            )}
+
+            {/* Datos del empleador (solo cuando es permiso para trabajar con empleador) */}
+            {selectedTramite?.tipo === 'permiso_trabajo' && extranjero.propositoViaje === 'Obtener permiso para trabajar' && extranjero.especificaTramite === 'Con empleador' && (
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3 border-b pb-2">Datos del empleador</h3>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <p className="text-xs text-blue-800 text-center">Si presenta oferta de empleo, proporcione los datos del empleador.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Tipo de persona *</label><select value={extranjero.empleadorTipoPersona} onChange={e => updateExtranjero('empleadorTipoPersona', e.target.value)} className={inputClass('empleadorTipoPersona')}><option value="">Selecciona</option><option value="Física">Física</option><option value="Moral">Moral</option></select><ErrorMsg field="empleadorTipoPersona" /></div>
+                {extranjero.empleadorTipoPersona && (
+                <>
+                  <div><label className="block text-xs font-medium text-gray-600 mb-1">Registro Federal de Contribuyentes (RFC) *</label><input type="text" value={extranjero.empleadorRfc} onChange={e => updateExtranjero('empleadorRfc', e.target.value.toUpperCase())} className={inputClassUpper('empleadorRfc')} maxLength={extranjero.empleadorTipoPersona === 'Moral' ? 12 : 13} /><ErrorMsg field="empleadorRfc" /></div>
+                  <div><label className="block text-xs font-medium text-gray-600 mb-1">Número expediente *</label><input type="text" value={extranjero.empleadorNumeroExpediente} onChange={e => updateExtranjero('empleadorNumeroExpediente', e.target.value)} className={inputClass('empleadorNumeroExpediente')} /><ErrorMsg field="empleadorNumeroExpediente" /></div>
+                </>
+                )}
               </div>
             </div>
             )}
