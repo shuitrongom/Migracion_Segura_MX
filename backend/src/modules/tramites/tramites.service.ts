@@ -681,6 +681,16 @@ export class TramitesService {
         { nombre: 'Documentos que acrediten vínculo familiar', obligatorio: false, descripcion: 'Para unidad familiar: acta de matrimonio, nacimiento, tutela, etc. Original y copia' },
         { nombre: 'FMM, tarjeta de visitante o residente temporal (documento vencido)', obligatorio: false, descripcion: 'No mayor a 60 días naturales de vencimiento. Original' },
       ],
+      ['constancia_empleador']: [
+        { nombre: 'Acta constitutiva o instrumento público (persona moral)', obligatorio: false, descripcion: 'Que acredite la legal existencia y sus modificaciones. Original y copia' },
+        { nombre: 'Instrumento público de poder o mandato (persona moral)', obligatorio: false, descripcion: 'Con facultades conferidas a representantes legales o apoderados. Original y copia' },
+        { nombre: 'Identificación oficial vigente del representante o apoderado', obligatorio: true, descripcion: 'Original y copia' },
+        { nombre: 'Comprobante de domicilio (no mayor a 30 días)', obligatorio: true, descripcion: 'Original y copia' },
+        { nombre: 'Constancia de inscripción en el RFC', obligatorio: true, descripcion: 'Copia' },
+        { nombre: 'Constancia de presentación de última declaración de impuestos', obligatorio: true, descripcion: 'Emitida por autoridad competente. Copia' },
+        { nombre: 'Lista de empleados y su nacionalidad (persona moral)', obligatorio: false, descripcion: 'Original' },
+        { nombre: 'Comprobante de pago de derechos por CIE', obligatorio: true, descripcion: 'Por recepción, estudio y expedición de la constancia. Original y copia' },
+      ],
     };
 
     return [...commonRequisitos, ...(typeRequisitos[tipo] || [])];

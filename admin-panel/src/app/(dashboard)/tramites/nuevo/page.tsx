@@ -12,6 +12,7 @@ import { ESTADOS_MEXICO, MUNICIPIOS_POR_ESTADO, SECTORES_ACTIVIDAD, DOCUMENTOS_P
 import { DatePicker } from '@/components/ui/date-picker';
 import { useAuthStore } from '@/stores/auth.store';
 import { UserRole } from '@/lib/types';
+import CieForm from '@/components/cie-form';
 
 const TRAMITES_INM: { tipo: TipoTramite; nombre: string; descripcion: string; urlSolicitud: string }[] = [
   { tipo: TipoTramite.VISA, nombre: 'Visas solicitadas ante el INM', descripcion: 'Solicitud de visa por unidad familiar, razones humanitarias u oferta de empleo', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
@@ -19,6 +20,7 @@ const TRAMITES_INM: { tipo: TipoTramite; nombre: string; descripcion: string; ur
   { tipo: TipoTramite.NOTIFICACION_CAMBIO, nombre: 'Notificación de Cambio (EC, NOM, NAC, DOM, LT)', descripcion: 'Notificar cambio de estado civil, nombre, nacionalidad, domicilio o lugar de trabajo', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_estancia.html' },
   { tipo: TipoTramite.EXPEDICION_DOCUMENTO, nombre: 'Expedición de Documento Migratorio', descripcion: 'Renovación, canje, reposición o expedición por acuerdo de documento migratorio', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_estancia.html' },
   { tipo: TipoTramite.REGULARIZACION_MIGRATORIA, nombre: 'Regularización de Situación Migratoria', descripcion: 'Regularización por razones humanitarias, unidad familiar o documento vencido', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_estancia.html' },
+  { tipo: TipoTramite.CONSTANCIA_EMPLEADOR, nombre: 'Constancias de Inscripción de Empleador (CIE)', descripcion: 'Obtención o actualización de constancia para emitir ofertas de empleo a extranjeros', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_empresa.html' },
 ];
 
 interface Requisito { nombre: string; obligatorio: boolean; descripcion: string; }
@@ -64,6 +66,8 @@ export default function NuevoTramitePage() {
     solicitanteEmail: '', solicitanteEmailConfirmacion: '',
     personaAutorizada: '',
   });
+
+  // Estado para CIE se maneja en el componente CieForm
 
   // Visas del extranjero (array dinámico)
   const [visas, setVisas] = useState<{ pais: string; numero: string; vencimiento: string }[]>([]);
@@ -389,7 +393,7 @@ export default function NuevoTramitePage() {
         )}
 
         {/* Step 1: Datos del extranjero - idéntico al formulario INM */}
-        {step === 1 && (
+        {step === 1 && selectedTramite?.tipo !== 'constancia_empleador' && (
           <div className="space-y-6">
             {/* Sección condicional: Propósito del viaje (solo Visas) */}
             {selectedTramite?.tipo === 'visa' && (
@@ -691,6 +695,20 @@ export default function NuevoTramitePage() {
               <p className="text-xs text-gray-400 mt-2">* Campos obligatorios</p>
             </div>
           </div>
+        )}
+
+        {/* Step 1: Formulario CIE (Constancia de Inscripción de Empleador) */}
+        {step === 1 && selectedTramite?.tipo === 'constancia_empleador' && (
+          <CieForm
+            propositoViaje={extranjero.propositoViaje}
+            onChangePropositoViaje={(v) => updateExtranjero('propositoViaje', v)}
+            solicitanteEmail={extranjero.solicitanteEmail}
+            solicitanteEmailConfirmacion={extranjero.solicitanteEmailConfirmacion}
+            onChangeEmail={(field, v) => updateExtranjero(field, v)}
+            comentarios={extranjero.comentarios}
+            onChangeComentarios={(v) => updateExtranjero('comentarios', v)}
+            onDataChange={() => {}}
+          />
         )}
 
         {/* Step 2: Solicitud INM — ficha de datos + iframe lado a lado */}
