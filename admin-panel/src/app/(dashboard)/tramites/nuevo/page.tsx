@@ -15,16 +15,7 @@ import { UserRole } from '@/lib/types';
 
 const TRAMITES_INM: { tipo: TipoTramite; nombre: string; descripcion: string; urlSolicitud: string }[] = [
   { tipo: TipoTramite.VISA, nombre: 'Visas solicitadas ante el INM', descripcion: 'Solicitud de visa por unidad familiar, razones humanitarias u oferta de empleo', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
-  { tipo: TipoTramite.RESIDENCIA_TEMPORAL, nombre: 'Residencia Temporal', descripcion: 'Para extranjeros que desean residir en México de 1 a 4 años', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
-  { tipo: TipoTramite.RESIDENCIA_PERMANENTE, nombre: 'Residencia Permanente', descripcion: 'Para extranjeros que desean residir indefinidamente', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
-  { tipo: TipoTramite.REGULARIZACION, nombre: 'Regularización Migratoria', descripcion: 'Para extranjeros en situación irregular', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
-  { tipo: TipoTramite.CAMBIO_CONDICION, nombre: 'Cambio de Condición de Estancia', descripcion: 'Cambiar de una condición migratoria a otra', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
-  { tipo: TipoTramite.NACIONALIDAD, nombre: 'Nacionalidad Mexicana', descripcion: 'Carta de naturalización o declaratoria', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
   { tipo: TipoTramite.PERMISO_TRABAJO, nombre: 'Permisos solicitados al INM', descripcion: 'Permiso para trabajar o permiso de salida y regreso', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_estancia.html' },
-  { tipo: TipoTramite.RENOVACION, nombre: 'Renovación de Documento', descripcion: 'Renovar tarjeta de residente', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
-  { tipo: TipoTramite.CAMBIO_DOMICILIO, nombre: 'Cambio de Domicilio', descripcion: 'Notificar cambio de domicilio', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
-  { tipo: TipoTramite.REPOSICION_DOCUMENTO, nombre: 'Reposición de Documento', descripcion: 'Reponer documento por robo o extravío', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
-  { tipo: TipoTramite.CAMBIO_NACIONALIDAD, nombre: 'Cambio de Nacionalidad', descripcion: 'Notificar cambio de nacionalidad', urlSolicitud: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html' },
 ];
 
 interface Requisito { nombre: string; obligatorio: boolean; descripcion: string; }
