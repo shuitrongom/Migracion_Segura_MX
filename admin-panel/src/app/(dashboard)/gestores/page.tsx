@@ -47,6 +47,7 @@ export default function GestoresPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     if (!formData.fullName.trim() || !formData.email.trim() || !formData.password.trim()) {
       toast.error('Nombre, email y contraseña son requeridos');
       return;
