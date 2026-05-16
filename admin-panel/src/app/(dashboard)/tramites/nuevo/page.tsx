@@ -393,7 +393,7 @@ export default function NuevoTramitePage() {
             {/* Sección condicional: Propósito del viaje (solo Visas) */}
             {selectedTramite?.tipo === 'visa' && (
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Propósito del viaje</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700">Propósito del viaje</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Propósito de viaje *</label><select value={extranjero.propositoViaje} onChange={e => updateExtranjero('propositoViaje', e.target.value)} className={inputClass('propositoViaje')}><option value="">Selecciona</option>{PROPOSITOS_VIAJE.map(p => <option key={p} value={p}>{p}</option>)}</select><ErrorMsg field="propositoViaje" /></div>
               </div>
@@ -403,7 +403,7 @@ export default function NuevoTramitePage() {
             {/* Sección condicional: Tipo de trámite (solo Permisos) */}
             {selectedTramite?.tipo === 'permiso_trabajo' && (
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Tipo de trámite</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700">Tipo de trámite</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Qué deseas hacer? *</label><select value={extranjero.propositoViaje} onChange={e => { updateExtranjero('propositoViaje', e.target.value); if (e.target.value !== 'Obtener permiso para trabajar') updateExtranjero('especificaTramite', ''); }} className={inputClass('propositoViaje')}><option value="">Selecciona</option><option value="Obtener permiso para trabajar">Obtener permiso para trabajar</option><option value="Obtener permiso de salida y regreso">Obtener permiso de salida y regreso</option></select><ErrorMsg field="propositoViaje" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Especifica *</label><select value={extranjero.especificaTramite} onChange={e => updateExtranjero('especificaTramite', e.target.value)} disabled={extranjero.propositoViaje !== 'Obtener permiso para trabajar'} className={`w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 ${extranjero.propositoViaje !== 'Obtener permiso para trabajar' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''}`}><option value="">Selecciona</option><option value="Con empleador">Obtener permiso para trabajar con empleador</option><option value="Independiente/autoempleo">Obtener permiso para trabajar (actividades independientes/autoempleo)</option></select></div>
@@ -414,7 +414,7 @@ export default function NuevoTramitePage() {
             {/* Sección condicional: Tipo de trámite (solo Notificación de Cambio) */}
             {selectedTramite?.tipo === 'notificacion_cambio' && (
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Tipo de trámite</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700">Tipo de trámite</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Qué deseas hacer? *</label><select value={extranjero.propositoViaje} onChange={e => updateExtranjero('propositoViaje', e.target.value)} className={inputClass('propositoViaje')}><option value="">Selecciona</option><option value="Notificar cambios (residentes temporales y permanentes)">Notificar cambios (residentes temporales y permanentes)</option></select><ErrorMsg field="propositoViaje" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Especifica *</label><select value={extranjero.especificaTramite} onChange={e => updateExtranjero('especificaTramite', e.target.value)} className={inputClass('especificaTramite')}><option value="">Selecciona</option><option value="Notificación de cambio de lugar de trabajo">Notificación de cambio de lugar de trabajo</option><option value="Notificación de cambio de domicilio">Notificación de cambio de domicilio</option><option value="Notificación de cambio de nacionalidad">Notificación de cambio de nacionalidad</option><option value="Notificación de cambio de estado civil">Notificación de cambio de estado civil</option><option value="Notificación de cambio de nombre">Notificación de cambio de nombre</option></select><ErrorMsg field="especificaTramite" /></div>
@@ -425,7 +425,7 @@ export default function NuevoTramitePage() {
             {/* Sección condicional: Tipo de trámite (solo Expedición de Documento) */}
             {selectedTramite?.tipo === 'expedicion_documento' && (
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Tipo de trámite</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700">Tipo de trámite</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">¿Qué deseas hacer? *</label><select value={extranjero.propositoViaje} onChange={e => { updateExtranjero('propositoViaje', e.target.value); updateExtranjero('especificaTramite', ''); }} className={inputClass('propositoViaje')}><option value="">Selecciona</option><option value="Extender la estancia">Extender la estancia</option><option value="Canjear o reponer documento migratorio">Canjear o reponer documento migratorio</option></select><ErrorMsg field="propositoViaje" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Especifica *</label><select value={extranjero.especificaTramite} onChange={e => updateExtranjero('especificaTramite', e.target.value)} disabled={!extranjero.propositoViaje} className={`w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 ${!extranjero.propositoViaje ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''}`}><option value="">Selecciona</option>{extranjero.propositoViaje === 'Extender la estancia' && (<><option value="Expedición de Tarjeta de Residente por Renovación">Expedición de Tarjeta de Residente por Renovación</option><option value="Expedición de Tarjeta de Visitante por Ampliación">Expedición de Tarjeta de Visitante por Ampliación</option></>)}{extranjero.propositoViaje === 'Canjear o reponer documento migratorio' && (<><option value="Canje de FMM por Tarjeta de Visitante o de Residente">Canje de FMM por Tarjeta de Visitante o de Residente</option><option value="Reposición de documento migratorio por pérdida, robo o deterioro">Reposición de documento migratorio por pérdida, robo o deterioro</option><option value="Expedición de Tarjeta de Residente cuando se otorga la condición por acuerdo">Expedición de Tarjeta de Residente cuando se otorga la condición por acuerdo</option></>)}</select><ErrorMsg field="especificaTramite" /></div>
@@ -434,7 +434,7 @@ export default function NuevoTramitePage() {
             )}
 
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Datos del extranjero (conforme a pasaporte o documento de identidad)</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700">Datos del extranjero (conforme a pasaporte o documento de identidad)</h3>
               {/* CURP para permisos, notificación de cambio y expedición de documento */}
               {(selectedTramite?.tipo === 'permiso_trabajo' || selectedTramite?.tipo === 'notificacion_cambio' || selectedTramite?.tipo === 'expedicion_documento') && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mb-4">
@@ -452,7 +452,7 @@ export default function NuevoTramitePage() {
             </div>
 
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Lugar de nacimiento</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700">Lugar de nacimiento</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">País de nacimiento *</label><select value={extranjero.paisNacimiento} onChange={e => updateExtranjero('paisNacimiento', e.target.value)} className={inputClass('paisNacimiento')}><option value="">Selecciona</option>{PAISES.map(p => <option key={p} value={p}>{p}</option>)}</select><ErrorMsg field="paisNacimiento" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Estado, provincia o departamento *</label><input type="text" value={extranjero.estadoProvinciaNacimiento} onChange={e => updateExtranjero('estadoProvinciaNacimiento', e.target.value)} className={inputClass('estadoProvinciaNacimiento')} /><ErrorMsg field="estadoProvinciaNacimiento" /></div>
@@ -460,7 +460,7 @@ export default function NuevoTramitePage() {
             </div>
 
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Pasaporte o documento con el que se identifica el extranjero</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700">Pasaporte o documento con el que se identifica el extranjero</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Documento de identificación *</label><select value={extranjero.documentoIdentificacion} onChange={e => updateExtranjero('documentoIdentificacion', e.target.value)} className={inputClass('documentoIdentificacion')}><option value="">Selecciona</option>{DOCUMENTOS_IDENTIFICACION.map(d => <option key={d} value={d}>{d}</option>)}</select><ErrorMsg field="documentoIdentificacion" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Número de documento *</label><input type="text" value={extranjero.numeroDocumento} onChange={e => updateExtranjero('numeroDocumento', e.target.value)} className={inputClass('numeroDocumento')} /><ErrorMsg field="numeroDocumento" /></div>
@@ -473,7 +473,7 @@ export default function NuevoTramitePage() {
             {/* Domicilio del extranjero en México (Permisos y Expedición de Documento) */}
             {(selectedTramite?.tipo === 'permiso_trabajo' || selectedTramite?.tipo === 'expedicion_documento') && (
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Domicilio del extranjero en México</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700">Domicilio del extranjero en México</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Código postal *</label><input type="text" value={extranjero.domCodigoPostal} onChange={e => updateExtranjero('domCodigoPostal', e.target.value)} className={inputClass('domCodigoPostal')} /><ErrorMsg field="domCodigoPostal" /></div>
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Estado *</label><select value={extranjero.domEstado} onChange={e => { updateExtranjero('domEstado', e.target.value); updateExtranjero('domMunicipio', ''); }} className={inputClass('domEstado')}><option value="">Selecciona</option>{ESTADOS_MEXICO.map(est => <option key={est} value={est}>{est}</option>)}</select><ErrorMsg field="domEstado" /></div>
@@ -491,7 +491,7 @@ export default function NuevoTramitePage() {
             {/* Datos del empleador (solo cuando es permiso para trabajar con empleador) */}
             {selectedTramite?.tipo === 'permiso_trabajo' && extranjero.propositoViaje === 'Obtener permiso para trabajar' && extranjero.especificaTramite === 'Con empleador' && (
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Datos del empleador</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700">Datos del empleador</h3>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                 <p className="text-xs text-blue-800 text-center">Si presenta oferta de empleo, proporcione los datos del empleador.</p>
               </div>
@@ -510,7 +510,7 @@ export default function NuevoTramitePage() {
             {/* Información adicional (solo Visas) */}
             {selectedTramite?.tipo === 'visa' && (
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Información adicional del extranjero</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700">Información adicional del extranjero</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Actividad principal en tu país de residencia *</label><select value={extranjero.actividadPrincipal} onChange={e => updateExtranjero('actividadPrincipal', e.target.value)} className={inputClass('actividadPrincipal')}><option value="">Selecciona</option>{ACTIVIDADES_PRINCIPALES.map(a => <option key={a} value={a}>{a}</option>)}</select><ErrorMsg field="actividadPrincipal" /></div>
                 {extranjero.actividadPrincipal === 'Trabajar' && (
@@ -529,7 +529,7 @@ export default function NuevoTramitePage() {
             {/* Señala las visas (solo Visas) */}
             {selectedTramite?.tipo === 'visa' && (
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Señala las visas con las que cuenta el extranjero</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700">Señala las visas con las que cuenta el extranjero</h3>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                 <p className="text-xs text-blue-800 text-center">Si deseas agregar visas será necesario que lo efectúes con el botón &apos;Agregar visa&apos;, de lo contrario los datos de esta sección no serán guardados.</p>
               </div>
@@ -555,7 +555,7 @@ export default function NuevoTramitePage() {
             {/* Datos de la institución (solo Visas) */}
             {selectedTramite?.tipo === 'visa' && (
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Datos de la institución, organismo o persona que solicita la autorización de la visa</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700">Datos de la institución, organismo o persona que solicita la autorización de la visa</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-medium text-gray-600 mb-1">Tipo de persona *</label><select value={solicitante.tipoPersona} onChange={e => { updateSolicitante('tipoPersona', e.target.value); if (fieldErrors['tipoPersona']) setFieldErrors(prev => { const n = { ...prev }; delete n['tipoPersona']; return n; }); }} className={inputClass('tipoPersona')}><option value="">Selecciona</option>{TIPOS_PERSONA.map(t => <option key={t} value={t}>{t}</option>)}</select><ErrorMsg field="tipoPersona" /></div>
               </div>
@@ -636,7 +636,7 @@ export default function NuevoTramitePage() {
             )}
 
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Correo electrónico para notificar al promovente</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700">Correo electrónico para notificar al promovente</h3>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                 <p className="text-xs text-blue-800 text-center">Agrega la dirección de correo electrónico en donde se recibirán las notificaciones asociadas a tu trámite.</p>
               </div>
@@ -647,7 +647,7 @@ export default function NuevoTramitePage() {
             </div>
 
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">En su caso, persona autorizada para tramitar, oír o recibir notificaciones</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700">En su caso, persona autorizada para tramitar, oír o recibir notificaciones</h3>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                 <p className="text-xs text-blue-800 text-center">Si deseas agregar personas autorizadas es necesario que lo efectúes con el botón &apos;Agregar persona&apos;, de lo contrario los datos capturados en esta sección no serán guardados.</p>
               </div>
@@ -673,7 +673,7 @@ export default function NuevoTramitePage() {
             </div>
 
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-brand-500/30">Comentarios</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700">Comentarios</h3>
               <p className="text-sm text-gray-500 mb-3">Si lo deseas, puedes agregar algún comentario a la solicitud.</p>
               <textarea value={extranjero.comentarios} onChange={e => updateExtranjero('comentarios', e.target.value)} rows={4} className="w-full max-w-4xl px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none" />
               <p className="text-xs text-gray-400 mt-2">* Campos obligatorios</p>
