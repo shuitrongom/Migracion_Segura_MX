@@ -500,8 +500,8 @@ export default function NuevoTramitePage() {
             </div>
             )}
 
-            {/* Datos del empleador (solo cuando es permiso para trabajar con empleador) */}
-            {selectedTramite?.tipo === 'permiso_trabajo' && extranjero.propositoViaje === 'Obtener permiso para trabajar' && extranjero.especificaTramite === 'Con empleador' && (
+            {/* Datos del empleador (permiso trabajar con empleador O regularización por doc vencido) */}
+            {((selectedTramite?.tipo === 'permiso_trabajo' && extranjero.propositoViaje === 'Obtener permiso para trabajar' && extranjero.especificaTramite === 'Con empleador') || (selectedTramite?.tipo === 'regularizacion_migratoria' && extranjero.especificaTramite === 'Regularización por tener documento vencido o por realizar actividades no autorizadas')) && (
             <div>
               <h3 className="text-xl font-bold text-gray-900 mb-4 pb-3 border-b-[3px] border-amber-700">Datos del empleador</h3>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
