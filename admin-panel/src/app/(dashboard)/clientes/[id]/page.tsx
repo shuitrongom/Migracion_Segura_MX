@@ -15,6 +15,7 @@ import {
   Calendar,
   RefreshCw,
   Trash2,
+  Eye,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
@@ -651,7 +652,7 @@ export default function ClienteDetailPage() {
                     documentos.map((doc) => (
                       <div
                         key={doc.id}
-                        className="flex items-center justify-between p-4 border rounded-lg"
+                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
                       >
                         <div className="flex items-center gap-3">
                           <div className="h-9 w-9 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -667,14 +668,39 @@ export default function ClienteDetailPage() {
                             </p>
                           </div>
                         </div>
-                        <span
-                          className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            ESTATUS_BADGE[doc.estatus] ??
-                            'bg-gray-50 text-gray-700'
-                          }`}
-                        >
-                          {doc.estatus.replace(/_/g, ' ')}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              const url = `${process.env.NEXT_PUBLIC_API_URL || 'https://backend-production-79ed.up.railway.app'}/documentos/${doc.id}/download`;
+                              window.open(url, '_blank');
+                            }}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-brand-600 bg-brand-50 rounded-lg hover:bg-brand-100 transition-colors"
+                            title="Ver documento"
+                          >
+                            <Eye className="h-3.5 w-3.5" /> Ver
+                          </button>
+                          <button
+                            onClick={() => {
+                              const url = `${process.env.NEXT_PUBLIC_API_URL || 'https://backend-production-79ed.up.railway.app'}/documentos/${doc.id}/download`;
+                              const printWindow = window.open(url, '_blank');
+                              if (printWindow) {
+                                printWindow.onload = () => { setTimeout(() => printWindow.print(), 1000); };
+                              }
+                            }}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                            title="Imprimir documento"
+                          >
+                            <FileText className="h-3.5 w-3.5" /> Imprimir
+                          </button>
+                          <span
+                            className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              ESTATUS_BADGE[doc.estatus] ??
+                              'bg-gray-50 text-gray-700'
+                            }`}
+                          >
+                            {doc.estatus.replace(/_/g, ' ')}
+                          </span>
+                        </div>
                       </div>
                     ))
                   )}
