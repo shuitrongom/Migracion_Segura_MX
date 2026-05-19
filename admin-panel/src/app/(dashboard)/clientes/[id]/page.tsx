@@ -572,15 +572,15 @@ export default function ClienteDetailPage() {
           <div className="bg-white rounded-xl border shadow-sm">
             {/* Tab Navigation */}
             <div className="border-b">
-              <nav className="flex">
+              <nav className="flex gap-1 px-2 pt-2">
                 {TABS.map((tab) => (
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    className={`px-5 py-2.5 text-sm font-semibold rounded-t-lg transition-all duration-200 ${
                       activeTab === tab.key
-                        ? 'border-brand-500 text-brand-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                        ? 'bg-white text-brand-600 border-2 border-b-0 border-brand-200 shadow-sm -mb-[2px]'
+                        : 'text-gray-500 hover:text-brand-600 hover:bg-brand-50/50'
                     }`}
                     role="tab"
                   >
@@ -653,14 +653,14 @@ export default function ClienteDetailPage() {
                     documentos.map((doc) => (
                       <div
                         key={doc.id}
-                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                        className="flex items-center justify-between p-4 border-2 border-gray-100 rounded-xl hover:border-brand-200 hover:shadow-md bg-gradient-to-r from-white to-gray-50/50 transition-all duration-200"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 bg-gray-100 rounded-lg flex items-center justify-center">
-                            <FileText className="h-4 w-4 text-gray-500" />
+                          <div className="h-10 w-10 bg-gradient-to-br from-brand-100 to-amber-100 rounded-xl flex items-center justify-center shadow-sm">
+                            <FileText className="h-5 w-5 text-brand-600" />
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-sm font-semibold text-gray-900">
                               {doc.nombre}
                             </p>
                             <p className="text-xs text-gray-500">
@@ -682,37 +682,13 @@ export default function ClienteDetailPage() {
                                 toast.error('Error al cargar el documento');
                               }
                             }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-brand-600 bg-brand-50 rounded-lg hover:bg-brand-100 transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-gradient-to-r from-brand-500 to-brand-600 rounded-lg hover:from-brand-600 hover:to-brand-700 shadow-sm transition-all"
                             title="Ver documento"
                           >
                             <Eye className="h-3.5 w-3.5" /> Ver
                           </button>
-                          <button
-                            onClick={async () => {
-                              try {
-                                const res = await api.get(`/documentos/${doc.id}/download`, { responseType: 'blob' });
-                                const contentType = String(res.headers['content-type'] || 'application/pdf');
-                                const blob = new Blob([res.data], { type: contentType });
-                                const url = URL.createObjectURL(blob);
-                                const printWindow = window.open('');
-                                if (printWindow) {
-                                  if (contentType.startsWith('image/')) {
-                                    printWindow.document.write(`<img src="${url}" onload="window.print();window.close();" style="max-width:100%" />`);
-                                  } else {
-                                    printWindow.document.write(`<iframe src="${url}" style="width:100%;height:100%;border:none;" onload="window.print();"></iframe>`);
-                                  }
-                                }
-                              } catch {
-                                toast.error('Error al imprimir el documento');
-                              }
-                            }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                            title="Imprimir documento"
-                          >
-                            <FileText className="h-3.5 w-3.5" /> Imprimir
-                          </button>
                           <span
-                            className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
                               ESTATUS_BADGE[doc.estatus] ??
                               'bg-gray-50 text-gray-700'
                             }`}
