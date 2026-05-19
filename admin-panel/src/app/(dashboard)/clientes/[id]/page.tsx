@@ -674,9 +674,10 @@ export default function ClienteDetailPage() {
                             onClick={async () => {
                               try {
                                 const res = await api.get(`/documentos/${doc.id}/download`, { responseType: 'blob' });
-                                const blob = new Blob([res.data], { type: res.headers['content-type'] || 'application/pdf' });
+                                const contentType = String(res.headers['content-type'] || 'application/pdf');
+                                const blob = new Blob([res.data], { type: contentType });
                                 const url = URL.createObjectURL(blob);
-                                setDocPreview({ url, nombre: doc.nombre, tipo: res.headers['content-type'] || 'application/pdf' });
+                                setDocPreview({ url, nombre: doc.nombre, tipo: contentType });
                               } catch {
                                 toast.error('Error al cargar el documento');
                               }
@@ -690,11 +691,12 @@ export default function ClienteDetailPage() {
                             onClick={async () => {
                               try {
                                 const res = await api.get(`/documentos/${doc.id}/download`, { responseType: 'blob' });
-                                const blob = new Blob([res.data], { type: res.headers['content-type'] || 'application/pdf' });
+                                const contentType = String(res.headers['content-type'] || 'application/pdf');
+                                const blob = new Blob([res.data], { type: contentType });
                                 const url = URL.createObjectURL(blob);
                                 const printWindow = window.open('');
                                 if (printWindow) {
-                                  if (blob.type.startsWith('image/')) {
+                                  if (contentType.startsWith('image/')) {
                                     printWindow.document.write(`<img src="${url}" onload="window.print();window.close();" style="max-width:100%" />`);
                                   } else {
                                     printWindow.document.write(`<iframe src="${url}" style="width:100%;height:100%;border:none;" onload="window.print();"></iframe>`);
