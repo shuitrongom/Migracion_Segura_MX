@@ -59,7 +59,7 @@ export default function CitasPage() {
     try {
       const res = await api.get('/citas', { params: { limit: 50 } });
       setCitas(res.data?.data || res.data || []);
-    } catch { setCitas([]); }
+    } catch (_e) { setCitas([]); }
     finally { setLoading(false); }
   };
 
@@ -67,14 +67,14 @@ export default function CitasPage() {
     try {
       const res = await api.get('/clientes', { params: { limit: 100 } });
       setClientes(res.data?.data || res.data || []);
-    } catch { /* */ }
+    } catch { /* noop */ }
   };
 
   const fetchGestores = async () => {
     try {
       const res = await api.get('/users/asesores');
       setGestores(res.data || []);
-    } catch { /* */ }
+    } catch { /* noop */ }
   };
 
   useEffect(() => {
@@ -108,7 +108,7 @@ export default function CitasPage() {
       setShowForm(false);
       setForm({ clienteId: '', gestorId: '', tipo: 'entrevista', fecha: '', hora: '', modalidad: 'presencial', notas: '' });
       fetchCitas();
-    } catch { toast.error('Error al crear la cita'); }
+    } catch (_e) { toast.error('Error al crear la cita'); }
     finally { setSubmitting(false); }
   };
 
@@ -174,6 +174,7 @@ export default function CitasPage() {
                 <option value="videollamada">Videollamada</option>
               </select>
             </div>
+            <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Fecha * (solo L-V)</label>
               <DatePicker value={form.fecha} onChange={v => setForm(prev => ({ ...prev, fecha: v }))} yearRange={[2025, 2027]} disablePast disableWeekends />
             </div>
