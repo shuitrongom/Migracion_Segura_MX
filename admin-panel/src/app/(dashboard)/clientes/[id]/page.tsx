@@ -301,7 +301,7 @@ export default function ClienteDetailPage() {
       <div className="flex items-center gap-4 mb-6">
         <Link
           href="/clientes"
-          className="p-2 rounded-lg hover:bg-gray-100 text-gray-500"
+          className="p-2 rounded-xl hover:bg-brand-50 text-gray-500 hover:text-brand-600 transition-colors"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
@@ -313,85 +313,90 @@ export default function ClienteDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Card - Left Side */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl border shadow-sm p-6">
-            {/* Avatar + Name */}
-            <div className="flex items-center gap-4 mb-6">
-              <div className="relative group">
-                {fotoUrl ? (
-                  <img src={fotoUrl} alt={cliente.nombreCompleto} className="h-14 w-14 rounded-full object-cover border-2 border-brand-200" />
-                ) : (
-                  <div className="h-14 w-14 bg-brand-100 rounded-full flex items-center justify-center">
-                    <span className="text-xl font-bold text-brand-600">
-                      {cliente.nombreCompleto.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                <label
-                  htmlFor="foto-extranjero"
-                  className="absolute -bottom-1 -right-1 h-6 w-6 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 cursor-pointer"
-                  title="Subir foto"
-                >
-                  <Camera className="h-3 w-3 text-gray-500" />
-                </label>
-                {fotoUrl && (
-                  <button
-                    onClick={async () => {
+          <div className="bg-white rounded-2xl border shadow-lg overflow-hidden">
+            {/* Banner gradient */}
+            <div className="h-20 bg-gradient-to-r from-brand-500 via-brand-600 to-amber-500 relative">
+              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIi8+PC9zdmc+')] opacity-50" />
+            </div>
+            <div className="px-6 pb-6">
+              {/* Avatar + Name */}
+              <div className="flex items-end gap-4 -mt-8 mb-4">
+                <div className="relative group">
+                  {fotoUrl ? (
+                    <img src={fotoUrl} alt={cliente.nombreCompleto} className="h-16 w-16 rounded-2xl object-cover border-4 border-white shadow-lg" />
+                  ) : (
+                    <div className="h-16 w-16 bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl flex items-center justify-center border-4 border-white shadow-lg">
+                      <span className="text-2xl font-bold text-white">
+                        {cliente.nombreCompleto.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                  <label
+                    htmlFor="foto-extranjero"
+                    className="absolute -bottom-1 -right-1 h-7 w-7 bg-white border-2 border-brand-200 rounded-full flex items-center justify-center shadow-md hover:bg-brand-50 cursor-pointer transition-colors"
+                    title="Subir foto"
+                  >
+                    <Camera className="h-3.5 w-3.5 text-brand-600" />
+                  </label>
+                  {fotoUrl && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          await api.delete(`/clientes/${clienteId}/foto`);
+                          setFotoUrl(null);
+                          toast.success('Foto eliminada');
+                        } catch {
+                          setFotoUrl(null);
+                          toast.success('Foto eliminada');
+                        }
+                      }}
+                      className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 border-2 border-white rounded-full flex items-center justify-center shadow-sm hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Eliminar foto"
+                    >
+                      <Trash2 className="h-2.5 w-2.5 text-white" />
+                    </button>
+                  )}
+                  <input
+                    id="foto-extranjero"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const preview = URL.createObjectURL(file);
+                      setFotoUrl(preview);
                       try {
-                        await api.delete(`/clientes/${clienteId}/foto`);
-                        setFotoUrl(null);
-                        toast.success('Foto eliminada');
-                      } catch {
-                        setFotoUrl(null);
-                        toast.success('Foto eliminada');
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        const res = await api.post(`/clientes/${clienteId}/foto`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+                        if (res.data.fotoUrl) {
+                          setFotoUrl(res.data.fotoUrl);
+                        }
+                        toast.success('Foto subida exitosamente');
+                      } catch (err: any) {
+                        const msg = err?.response?.data?.message || 'Error al subir foto al servidor';
+                        toast.error(typeof msg === 'string' ? msg : JSON.stringify(msg));
                       }
                     }}
-                    className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 border border-white rounded-full flex items-center justify-center shadow-sm hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="Eliminar foto"
-                  >
-                    <Trash2 className="h-2.5 w-2.5 text-white" />
-                  </button>
-                )}
-                <input
-                  id="foto-extranjero"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    const preview = URL.createObjectURL(file);
-                    setFotoUrl(preview); // Mostrar preview inmediato
-                    try {
-                      const formData = new FormData();
-                      formData.append('file', file);
-                      const res = await api.post(`/clientes/${clienteId}/foto`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-                      if (res.data.fotoUrl) {
-                        setFotoUrl(res.data.fotoUrl);
-                      }
-                      toast.success('Foto subida exitosamente');
-                    } catch (err: any) {
-                      const msg = err?.response?.data?.message || 'Error al subir foto al servidor';
-                      toast.error(typeof msg === 'string' ? msg : JSON.stringify(msg));
-                    }
-                  }}
-                />
+                  />
+                </div>
+                <div className="pb-1">
+                  <h2 className="text-lg font-bold text-gray-900">
+                    {cliente.nombreCompleto}
+                  </h2>
+                  <p className="text-xs text-gray-500">
+                    Extranjero desde {formatDate(cliente.createdAt)}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  {cliente.nombreCompleto}
-                </h2>
-                <p className="text-sm text-gray-500">
-                  Extranjero desde {formatDate(cliente.createdAt)}
-                </p>
-              </div>
-            </div>
 
             {/* Info Fields */}
-            <div className="space-y-4">
+            <div className="space-y-1">
               {/* Email */}
-              <div>
+              <div className="p-3 rounded-xl hover:bg-gray-50 transition-colors">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                     Email
                   </p>
                   {canEditEmail && !editingEmail && (
@@ -444,9 +449,9 @@ export default function ClienteDetailPage() {
               </div>
 
               {/* Teléfono */}
-              <div>
+              <div className="p-3 rounded-xl hover:bg-gray-50 transition-colors">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                     Teléfono
                   </p>
                   {canEditTelefono && !editingTelefono && (
@@ -499,9 +504,9 @@ export default function ClienteDetailPage() {
               </div>
 
               {/* Gestor */}
-              <div>
+              <div className="p-3 rounded-xl hover:bg-gray-50 transition-colors">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                     Gestor asignado
                   </p>
                   {isAdmin && (
@@ -530,11 +535,11 @@ export default function ClienteDetailPage() {
               </div>
 
               {/* Fecha de registro */}
-              <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <div className="p-3 rounded-xl">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                   Fecha de registro
                 </p>
-                <p className="text-sm text-gray-900 mt-0.5">
+                <p className="text-sm font-medium text-gray-900 mt-0.5">
                   {formatDate(cliente.createdAt)}
                 </p>
               </div>
@@ -542,28 +547,29 @@ export default function ClienteDetailPage() {
 
             {/* Pieza & Clave INM */}
             {(numeroPiezaINM || contrasenaINM) && (
-              <div className="mt-6 pt-6 border-t space-y-4">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                  Datos INM
+              <div className="mt-4 p-4 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl space-y-3">
+                <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
+                  🔑 Datos INM
                 </p>
                 {numeroPiezaINM && (
                   <div>
-                    <p className="text-xs text-gray-500">Pieza</p>
-                    <p className="text-sm font-mono text-gray-900">
+                    <p className="text-[10px] text-amber-600">Pieza</p>
+                    <p className="text-sm font-mono font-bold text-gray-900">
                       {numeroPiezaINM}
                     </p>
                   </div>
                 )}
                 {contrasenaINM && (
                   <div>
-                    <p className="text-xs text-gray-500">Clave</p>
-                    <p className="text-sm font-mono text-gray-900">
+                    <p className="text-[10px] text-amber-600">Clave</p>
+                    <p className="text-sm font-mono font-bold text-gray-900">
                       {contrasenaINM}
                     </p>
                   </div>
                 )}
               </div>
             )}
+            </div>
           </div>
         </div>
 
