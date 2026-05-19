@@ -161,8 +161,19 @@ export default function NuevoTramitePage() {
 
   const updateExtranjero = (field: string, value: string) => {
     // CURP y RFC siempre en mayúsculas
-    const upperFields = ['curp', 'rfc'];
-    const formatted = upperFields.includes(field) ? value.toUpperCase() : value;
+    const upperFields = ['curp', 'rfc', 'curpExtranjero', 'empleadorRfc'];
+    // Campos que NO se capitalizan (emails, selects, etc.)
+    const noCapitalizeFields = ['propositoViaje', 'especificaTramite', 'sexo', 'nacionalidad', 'estadoCivil', 'paisNacimiento', 'documentoIdentificacion', 'paisExpedicion', 'actividadPrincipal', 'sectorTrabajo', 'situacionTrabajo', 'ocupacionTrabajo', 'expulsadoMexico', 'antecedentesPenales', 'solicitanteEmail', 'solicitanteEmailConfirmacion', 'email', 'domEstado', 'domMunicipio', 'empleadorTipoPersona', 'comentarios'];
+    // Campos de texto que se capitalizan (primera letra mayúscula de cada palabra)
+    const capitalize = (str: string) => str.replace(/\b\w/g, c => c.toUpperCase());
+    
+    let formatted = value;
+    if (upperFields.includes(field)) {
+      formatted = value.toUpperCase();
+    } else if (!noCapitalizeFields.includes(field) && value) {
+      formatted = capitalize(value);
+    }
+    
     setExtranjero(prev => {
       const updated = { ...prev, [field]: formatted };
       // Limpiar campos de trabajo si cambia la actividad a algo diferente de Trabajar
@@ -751,6 +762,12 @@ export default function NuevoTramitePage() {
                       <button type="button" onClick={() => copyToClipboard(extranjero.propositoViaje)} className="w-full text-left p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
                         <div className="flex items-center justify-between"><p className="text-sm text-gray-900">{extranjero.propositoViaje}</p><Copy className="h-3 w-3 text-gray-300 group-hover:text-brand-500" /></div>
                       </button>
+                      {extranjero.especificaTramite && (
+                      <button type="button" onClick={() => copyToClipboard(extranjero.especificaTramite)} className="w-full text-left p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group mt-1">
+                        <p className="text-[10px] text-gray-400">Especifica</p>
+                        <div className="flex items-center justify-between"><p className="text-sm text-gray-900">{extranjero.especificaTramite}</p><Copy className="h-3 w-3 text-gray-300 group-hover:text-brand-500" /></div>
+                      </button>
+                      )}
                     </div>
                   )}
 
@@ -760,6 +777,7 @@ export default function NuevoTramitePage() {
                       <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Datos del extranjero</p>
                       <div className="space-y-1">
                         {[
+                          { label: 'CURP', value: extranjero.curpExtranjero },
                           { label: 'Nombre(s)', value: extranjero.nombre },
                           { label: 'Apellido(s)', value: extranjero.apellidos },
                           { label: 'Sexo', value: extranjero.sexo === 'H' ? 'Hombre' : extranjero.sexo === 'M' ? 'Mujer' : '' },
@@ -805,6 +823,29 @@ export default function NuevoTramitePage() {
                           { label: 'País expedición', value: extranjero.paisExpedicion },
                           { label: 'Expedición', value: formatDateDisplay(extranjero.fechaExpedicion) },
                           { label: 'Vencimiento', value: formatDateDisplay(extranjero.fechaVencimiento) },
+                        ].filter(item => item.value).map(item => (
+                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
+                            <p className="text-[10px] text-gray-400">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-gray-900">{item.value}</p><Copy className="h-3 w-3 text-gray-300 group-hover:text-brand-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Domicilio en México */}
+                  {extranjero.domCodigoPostal && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Domicilio en México</p>
+                      <div className="space-y-1">
+                        {[
+                          { label: 'Código postal', value: extranjero.domCodigoPostal },
+                          { label: 'Estado', value: extranjero.domEstado },
+                          { label: 'Municipio/Alcaldía', value: extranjero.domMunicipio },
+                          { label: 'Colonia', value: extranjero.domColonia },
+                          { label: 'Calle', value: extranjero.domCalle },
+                          { label: 'Número exterior', value: extranjero.domNumeroExterior },
+                          { label: 'Número interior', value: extranjero.domNumeroInterior },
                         ].filter(item => item.value).map(item => (
                           <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
                             <p className="text-[10px] text-gray-400">{item.label}</p>
