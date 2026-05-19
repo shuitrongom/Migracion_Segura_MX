@@ -40,6 +40,7 @@ export default function NuevoTramitePage() {
   const [submitting, setSubmitting] = useState(false);
   const [showCitaModal, setShowCitaModal] = useState(false);
   const [citaData, setCitaData] = useState({ fecha: '', horaInicio: '', horaFin: '', notas: '' });
+  const [pagoData, setPagoData] = useState({ concepto: '', monto: '', referencia: '', metodoPago: '', comprobante: null as File | null });
 
   // Datos del extranjero (se guardan en nuestra BD)
   const [extranjero, setExtranjero] = useState({
@@ -160,6 +161,33 @@ export default function NuevoTramitePage() {
       setCosto(costoRes.data || null);
     }).catch(() => toast.error('Error al cargar información del trámite'));
   }, [selectedTramite]);
+
+  // Persistir progreso en localStorage para no perder datos si se va la luz/internet
+  const STORAGE_KEY = 'tramite_nuevo_draft';
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        if (data.step) setStep(data.step);
+        if (data.selectedTramite) setSelectedTramite(data.selectedTramite);
+        if (data.extranjero) setExtranjero(prev => ({ ...prev, ...data.extranjero }));
+        if (data.numeroPieza) setNumeroPieza(data.numeroPieza);
+        if (data.contrasenaINM) setContrasenaINM(data.contrasenaINM);
+        if (data.visas) setVisas(data.visas);
+        if (data.personasAutorizadas) setPersonasAutorizadas(data.personasAutorizadas);
+        if (data.solicitante) setSolicitante(prev => ({ ...prev, ...data.solicitante }));
+        if (data.pagoData) setPagoData(prev => ({ ...prev, ...data.pagoData, comprobante: null }));
+        toast.info('Se recuperó el borrador del trámite anterior');
+      } catch { /* ignorar */ }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (step === 0 && !selectedTramite) return; // No guardar estado vacío
+    const data = { step, selectedTramite, extranjero, numeroPieza, contrasenaINM, visas, personasAutorizadas, solicitante, pagoData: { ...pagoData, comprobante: null } };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }, [step, selectedTramite, extranjero, numeroPieza, contrasenaINM, visas, personasAutorizadas, solicitante, pagoData]);
 
   const updateExtranjero = (field: string, value: string) => {
     // CURP y RFC siempre en mayúsculas
@@ -335,7 +363,7 @@ export default function NuevoTramitePage() {
       const tramiteRes = await api.post('/tramites', {
         tipo: selectedTramite.tipo,
         clienteId,
-        datosFormulario: { ...extranjero, visas, personasAutorizadas, solicitante, numeroPiezaINM: numeroPieza, contrasenaINM },
+        datosFormulario: { ...extranjero, visas, personasAutorizadas, solicitante, numeroPiezaINM: numeroPieza, contrasenaINM, pago: pagoData.monto ? { concepto: pagoData.concepto, monto: parseFloat(pagoData.monto), metodoPago: pagoData.metodoPago, referencia: pagoData.referencia } : undefined },
         esBorrador: false,
       });
       const tramiteId = tramiteRes.data.id;
@@ -350,6 +378,7 @@ export default function NuevoTramitePage() {
       }
 
       toast.success('Trámite iniciado exitosamente');
+      localStorage.removeItem(STORAGE_KEY);
       
       // Si es gestor, notificar al admin que hay un nuevo trámite pendiente de pago
       if (!isAdmin) {
@@ -1059,19 +1088,71 @@ export default function NuevoTramitePage() {
         )}
 
         {/* Step 4: Pago (solo admin) */}
-        {isAdmin && step === 4 && costo && (
+        {isAdmin && step === 4 && (
           <div>
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-2">
               <DollarSign className="h-5 w-5 text-brand-500" />
-              <h2 className="text-lg font-semibold text-gray-900">Pago de Derechos</h2>
+              <h2 className="text-xl font-bold text-gray-900">Pago de Derechos</h2>
             </div>
-            <div className="max-w-md p-6 rounded-lg border border-gray-200 bg-gray-50">
-              <p className="text-sm text-gray-500 mb-1">Concepto</p>
-              <p className="text-base font-medium text-gray-900 mb-4">{costo.concepto}</p>
-              <p className="text-sm text-gray-500 mb-1">Monto</p>
-              <p className="text-3xl font-bold text-gray-900 mb-4">{costo.monto === 0 ? 'Sin costo' : `$${costo.monto.toLocaleString('es-MX')} ${costo.moneda}`}</p>
-              <p className="text-sm text-gray-500 mb-1">Información</p>
-              <p className="text-xs text-gray-600">{costo.fundamentoLegal}</p>
+            <p className="text-sm text-gray-500 mb-6">Registra el pago de derechos del trámite migratorio</p>
+
+            <div className="max-w-2xl space-y-5">
+              {/* Concepto */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Concepto del pago *</label>
+                <input type="text" value={pagoData.concepto || costo?.concepto || ''} onChange={e => setPagoData(prev => ({ ...prev, concepto: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-sm hover:shadow transition-shadow" placeholder="Ej: Pago de derechos por visa" />
+              </div>
+
+              {/* Monto y Método */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Monto (MXN) *</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                    <input type="number" value={pagoData.monto} onChange={e => setPagoData(prev => ({ ...prev, monto: e.target.value }))} className="w-full pl-7 pr-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-sm hover:shadow transition-shadow" placeholder="0.00" min="0" step="0.01" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Método de pago *</label>
+                  <select value={pagoData.metodoPago} onChange={e => setPagoData(prev => ({ ...prev, metodoPago: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-sm hover:shadow transition-shadow">
+                    <option value="">Selecciona</option>
+                    <option value="tarjeta_credito_debito">Tarjeta de crédito/débito</option>
+                    <option value="transferencia_bancaria">Transferencia bancaria</option>
+                    <option value="efectivo">Efectivo</option>
+                    <option value="hoja_ayuda">Hoja de ayuda bancaria</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Referencia */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Número de referencia / folio</label>
+                <input type="text" value={pagoData.referencia} onChange={e => setPagoData(prev => ({ ...prev, referencia: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-sm hover:shadow transition-shadow" placeholder="Ej: REF-2025-001234" />
+              </div>
+
+              {/* Comprobante */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Comprobante de pago (PDF o imagen)</label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-brand-400 transition-colors">
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setPagoData(prev => ({ ...prev, comprobante: e.target.files?.[0] || null }))} className="hidden" id="comprobante-pago" />
+                  <label htmlFor="comprobante-pago" className="cursor-pointer">
+                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                    {pagoData.comprobante ? (
+                      <p className="text-sm text-brand-600 font-medium">{pagoData.comprobante.name}</p>
+                    ) : (
+                      <p className="text-sm text-gray-500">Click para subir comprobante</p>
+                    )}
+                  </label>
+                </div>
+              </div>
+
+              {/* Info referencia del costo sugerido */}
+              {costo && costo.monto > 0 && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-xs text-blue-800"><strong>Referencia:</strong> {costo.concepto} — ${costo.monto.toLocaleString('es-MX')} MXN</p>
+                  <p className="text-[11px] text-blue-600 mt-1">{costo.fundamentoLegal}</p>
+                </div>
+              )}
             </div>
           </div>
         )}
