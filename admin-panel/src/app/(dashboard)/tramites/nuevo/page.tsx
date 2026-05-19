@@ -368,6 +368,11 @@ export default function NuevoTramitePage() {
       });
       const tramiteId = tramiteRes.data.id;
 
+      // Asignar el gestor del trámite al cliente
+      if (tramiteRes.data.asesorId) {
+        await api.patch(`/clientes/${clienteId}/asesor`, { asesorId: tramiteRes.data.asesorId }).catch(() => {});
+      }
+
       if (pdfFile) {
         const formData = new FormData();
         formData.append('file', pdfFile);

@@ -41,9 +41,11 @@ export default function CitasPage() {
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [clientes, setClientes] = useState<{ id: string; nombreCompleto: string }[]>([]);
+  const [gestores, setGestores] = useState<{ id: string; fullName: string }[]>([]);
   const [citasDelDia, setCitasDelDia] = useState<string[]>([]);
   const [form, setForm] = useState({
     clienteId: '',
+    gestorId: '',
     tipo: 'entrevista',
     fecha: '',
     hora: '',
@@ -51,7 +53,7 @@ export default function CitasPage() {
     notas: '',
   });
 
-  useEffect(() => { fetchCitas(); fetchClientes(); }, []);
+  useEffect(() => { fetchCitas(); fetchClientes(); fetchGestores(); }, []);
 
   const fetchCitas = async () => {
     try {
@@ -65,6 +67,13 @@ export default function CitasPage() {
     try {
       const res = await api.get('/clientes', { params: { limit: 100 } });
       setClientes(res.data?.data || res.data || []);
+    } catch { /* */ }
+  };
+
+  const fetchGestores = async () => {
+    try {
+      const res = await api.get('/users/asesores');
+      setGestores(res.data || []);
     } catch { /* */ }
   };
 
@@ -83,12 +92,12 @@ export default function CitasPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.clienteId || !form.fecha || !form.hora) { toast.error('Completa cliente, fecha y hora'); return; }
+    if (!form.clienteId || !form.fecha || !form.hora) { toast.error('Completa extranjero, fecha y hora'); return; }
     setSubmitting(true);
     try {
       await api.post('/citas', {
         clienteId: form.clienteId,
-        asesorId: user?.id,
+        asesorId: form.gestorId || user?.id,
         tipo: form.tipo,
         fecha: form.fecha,
         hora: form.hora,
@@ -97,7 +106,7 @@ export default function CitasPage() {
       });
       toast.success('Cita agendada exitosamente');
       setShowForm(false);
-      setForm({ clienteId: '', tipo: 'entrevista', fecha: '', hora: '', modalidad: 'presencial', notas: '' });
+      setForm({ clienteId: '', gestorId: '', tipo: 'entrevista', fecha: '', hora: '', modalidad: 'presencial', notas: '' });
       fetchCitas();
     } catch { toast.error('Error al crear la cita'); }
     finally { setSubmitting(false); }
@@ -136,9 +145,16 @@ export default function CitasPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Extranjero *</label>
-              <select value={form.clienteId} onChange={e => setForm(prev => ({ ...prev, clienteId: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm">
+              <select value={form.clienteId} onChange={e => setForm(prev => ({ ...prev, clienteId: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm capitalize">
                 <option value="">Selecciona</option>
                 {clientes.map(c => <option key={c.id} value={c.id}>{c.nombreCompleto}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Gestor asignado</label>
+              <select value={form.gestorId} onChange={e => setForm(prev => ({ ...prev, gestorId: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm capitalize">
+                <option value="">Automático (yo)</option>
+                {gestores.map(g => <option key={g.id} value={g.id}>{g.fullName}</option>)}
               </select>
             </div>
             <div>
@@ -149,6 +165,8 @@ export default function CitasPage() {
               </select>
               <p className="text-[10px] text-gray-400 mt-1">{form.tipo === 'inm' ? 'L-V de 9:00 a 15:00' : 'L-V de 9:00 a 19:00'}</p>
             </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Modalidad</label>
               <select value={form.modalidad} onChange={e => setForm(prev => ({ ...prev, modalidad: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm">
@@ -156,9 +174,6 @@ export default function CitasPage() {
                 <option value="videollamada">Videollamada</option>
               </select>
             </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Fecha * (solo L-V)</label>
               <DatePicker value={form.fecha} onChange={v => setForm(prev => ({ ...prev, fecha: v }))} yearRange={[2025, 2027]} disablePast disableWeekends />
             </div>
@@ -224,10 +239,10 @@ export default function CitasPage() {
                         <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border ${tipoInfo.color}`}>{tipoInfo.label}</span>
                         <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${ESTATUS_BADGE[cita.estatus] || 'bg-gray-50 text-gray-600'}`}>{cita.estatus}</span>
                       </div>
-                      <p className="text-sm font-semibold text-gray-900">{formatDate(cita.fecha)} a las {cita.hora}</p>
-                      <p className="text-xs text-gray-500">
-                        {cita.cliente?.nombreCompleto || 'Sin cliente'} • {cita.modalidad === 'videollamada' ? '📹 Videollamada' : '📍 Presencial'}
-                        {cita.asesor && ` • ${cita.asesor.fullName}`}
+                      <p className="text-sm font-semibold text-gray-900">{formatDate(cita.fecha)} a las {cita.hora?.slice(0, 5)}</p>
+                      <p className="text-xs text-gray-500 capitalize">
+                        {cita.cliente?.nombreCompleto || 'Sin asignar'} • {cita.modalidad === 'videollamada' ? '📹 Videollamada' : '📍 Presencial'}
+                        {cita.asesor?.fullName && ` • ${cita.asesor.fullName}`}
                       </p>
                     </div>
                   </div>

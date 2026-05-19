@@ -222,7 +222,7 @@ export class UsersService {
    */
   async findByRole(role: UserRole): Promise<Pick<User, 'id' | 'fullName' | 'email' | 'profilePhotoUrl'>[]> {
     return this.userRepository.find({
-      where: { role, isVerified: true },
+      where: { role },
       select: ['id', 'fullName', 'email', 'profilePhotoUrl'],
       order: { fullName: 'ASC' },
     });

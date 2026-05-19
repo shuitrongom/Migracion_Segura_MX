@@ -267,11 +267,11 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
                         <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${ESTATUS_CITA_BADGE[cita.estatus] || 'bg-gray-50 text-gray-600'}`}>{cita.estatus}</span>
                       </div>
                       <p className="text-sm font-medium text-gray-900 mt-1">
-                        {formatDate(cita.fecha)} a las {cita.hora}
+                        {formatDate(cita.fecha)} a las {cita.hora?.slice(0, 5)}
                       </p>
                       <p className="text-xs text-gray-500">
                         {cita.modalidad === 'videollamada' ? '📹 Videollamada' : '📍 Presencial'}
-                        {cita.asesor && ` • ${cita.asesor.fullName}`}
+                        {cita.asesor?.fullName && ` • ${cita.asesor.fullName}`}
                       </p>
                       {cita.notas && <p className="text-xs text-gray-400 mt-1">{cita.notas}</p>}
                     </div>
