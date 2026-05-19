@@ -41,3 +41,12 @@ export function formatCurrency(amount: number): string {
     currency: 'MXN',
   }).format(amount);
 }
+
+/**
+ * Capitaliza la primera letra de cada palabra de un texto.
+ * "juan alvares pedraza" → "Juan Alvares Pedraza"
+ */
+export function capitalizeName(text: string | null | undefined): string {
+  if (!text) return '';
+  return text.replace(/\b\w/g, c => c.toUpperCase());
+}

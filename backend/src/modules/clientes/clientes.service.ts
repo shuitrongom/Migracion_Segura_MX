@@ -27,8 +27,13 @@ export class ClientesService {
    * Req 9.1 - Crear cliente
    */
   async create(dto: CreateClienteDto, userId: string): Promise<Cliente> {
+    // Capitalizar nombre
+    const capitalized = dto.nombreCompleto
+      ? dto.nombreCompleto.replace(/\b\w/g, c => c.toUpperCase())
+      : dto.nombreCompleto;
     const cliente = this.clienteRepository.create({
       ...dto,
+      nombreCompleto: capitalized,
       userId,
     });
     return this.clienteRepository.save(cliente);

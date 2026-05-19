@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthStore } from '@/stores/auth.store';
 import { UserRole } from '@/lib/types';
 import { api } from '@/lib/api';
+import { capitalizeName } from '@/lib/utils';
 import type { Cliente } from '@/lib/types';
 
 export default function ClientesPage() {
@@ -113,13 +114,13 @@ export default function ClientesPage() {
                   </tr>
                 ) : (
                   clientes.map((cliente: Cliente) => {
-                    const nombreCompleto = cliente.nombreCompleto || '—';
+                    const nombreCompleto = capitalizeName(cliente.nombreCompleto) || '—';
                     return (
                       <tr key={cliente.id} className="border-b last:border-b-0 hover:bg-gray-50">
                         <td className="px-4 py-3">
                           <Link
                             href={`/clientes/${cliente.id}`}
-                            className="font-medium text-gray-900 hover:text-brand-600"
+                            className="font-medium text-gray-900 hover:text-brand-600 capitalize"
                           >
                             {nombreCompleto}
                           </Link>
