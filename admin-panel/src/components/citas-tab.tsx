@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Plus, X } from 'lucide-react';
+import { Calendar, Plus, X, Clock, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/auth.store';
+import { DatePicker } from '@/components/ui/date-picker';
 
 interface CitaItem {
   id: string;
@@ -29,6 +30,12 @@ const ESTATUS_CITA_BADGE: Record<string, string> = {
   cancelada: 'bg-red-50 text-red-600',
   reagendada: 'bg-orange-50 text-orange-700',
 };
+
+// Horarios según tipo de cita
+// INM: L-V 9:00 a 15:00 (sesión 1 hora)
+// Gestor: L-V 9:00 a 19:00 (sesión 1 hora)
+const HORARIOS_INM = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00'];
+const HORARIOS_GESTOR = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
 
 export function CitasTab({ clienteId }: { clienteId: string }) {
   const { user } = useAuthStore();
@@ -59,10 +66,25 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
     }
   };
 
+  const getHorarios = () => form.tipo === 'inm' ? HORARIOS_INM : HORARIOS_GESTOR;
+
+  const getHoraFin = (horaInicio: string) => {
+    const [h] = horaInicio.split(':').map(Number);
+    return `${String(h + 1).padStart(2, '0')}:00`;
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.fecha || !form.hora) {
       toast.error('Fecha y hora son requeridos');
+      return;
+    }
+
+    // Validar que sea día hábil (L-V)
+    const fecha = new Date(form.fecha + 'T12:00:00');
+    const dia = fecha.getDay();
+    if (dia === 0 || dia === 6) {
+      toast.error('Solo se pueden agendar citas de lunes a viernes');
       return;
     }
 
@@ -73,11 +95,34 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
         asesorId: user?.id,
         tipo: form.tipo,
         fecha: form.fecha,
-        hora: form.hora,
+        horaInicio: form.hora,
+        horaFin: getHoraFin(form.hora),
         modalidad: form.modalidad,
         notas: form.notas || undefined,
       });
-      toast.success('Cita creada exitosamente');
+
+      // Enviar notificación por correo
+      try {
+        const clienteRes = await api.get(`/clientes/${clienteId}`);
+        const clienteEmail = clienteRes.data?.email;
+        const clienteNombre = clienteRes.data?.nombreCompleto;
+        const clienteTelefono = clienteRes.data?.telefono;
+        if (clienteEmail) {
+          await api.post('/notificaciones/enviar-requisitos', {
+            email: clienteEmail,
+            nombreExtranjero: clienteNombre || 'Extranjero',
+            requisitos: [`Cita agendada: ${form.tipo === 'inm' ? 'Cita en el INM' : 'Entrevista con Gestor'} el ${formatDate(form.fecha)} a las ${form.hora} hrs. Modalidad: ${form.modalidad}. ${form.notas || ''}`],
+          });
+        }
+        // WhatsApp directo
+        if (clienteTelefono && clienteTelefono !== 'pendiente') {
+          const tel = clienteTelefono.replace(/\D/g, '');
+          const msg = encodeURIComponent(`Hola ${clienteNombre}, tu cita ha sido agendada:\n📅 ${formatDate(form.fecha)}\n🕐 ${form.hora} hrs\n📍 ${form.tipo === 'inm' ? 'INM' : 'Oficina del Gestor'}\n${form.notas || ''}`);
+          window.open(`https://wa.me/${tel}?text=${msg}`, '_blank');
+        }
+      } catch { /* no bloquear */ }
+
+      toast.success('Cita agendada exitosamente');
       setShowForm(false);
       setForm({ tipo: 'entrevista', fecha: '', hora: '', modalidad: 'presencial', notas: '' });
       fetchCitas();
@@ -89,8 +134,9 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
   };
 
   const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr + 'T00:00:00');
-    return d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
+    const parts = dateStr.split('-');
+    if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    return dateStr;
   };
 
   if (loading) {
@@ -99,7 +145,7 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
 
   return (
     <div className="space-y-4">
-      {/* Header con botón agregar */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-gray-700">Citas programadas</p>
         <button
@@ -112,41 +158,53 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
 
       {/* Formulario nueva cita */}
       {showForm && (
-        <form onSubmit={handleCreate} className="p-4 border border-brand-200 rounded-lg bg-brand-50/30 space-y-3">
+        <form onSubmit={handleCreate} className="p-5 border-2 border-brand-200 rounded-xl bg-gradient-to-br from-brand-50/50 to-white space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-gray-900">Agendar cita</p>
-            <button type="button" onClick={() => setShowForm(false)} className="p-1 rounded hover:bg-gray-200"><X className="h-4 w-4 text-gray-500" /></button>
+            <p className="text-base font-bold text-gray-900">Agendar cita</p>
+            <button type="button" onClick={() => setShowForm(false)} className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors"><X className="h-4 w-4 text-gray-500" /></button>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Tipo de cita *</label>
-              <select value={form.tipo} onChange={e => setForm(prev => ({ ...prev, tipo: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
-                <option value="entrevista">Entrevista con Gestor</option>
+              <select value={form.tipo} onChange={e => setForm(prev => ({ ...prev, tipo: e.target.value, hora: '' }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm">
                 <option value="inm">Cita en el INM</option>
+                <option value="entrevista">Entrevista con Gestor</option>
               </select>
+              <p className="text-[10px] text-gray-400 mt-1">{form.tipo === 'inm' ? 'L-V de 9:00 a 15:00' : 'L-V de 9:00 a 19:00'}</p>
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Modalidad</label>
-              <select value={form.modalidad} onChange={e => setForm(prev => ({ ...prev, modalidad: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <select value={form.modalidad} onChange={e => setForm(prev => ({ ...prev, modalidad: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm">
                 <option value="presencial">Presencial</option>
                 <option value="videollamada">Videollamada</option>
               </select>
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Fecha *</label>
-              <input type="date" value={form.fecha} onChange={e => setForm(prev => ({ ...prev, fecha: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+              <label className="block text-xs font-medium text-gray-600 mb-1">Fecha * (solo L-V)</label>
+              <DatePicker value={form.fecha} onChange={v => setForm(prev => ({ ...prev, fecha: v }))} yearRange={[2025, 2027]} />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Hora *</label>
-              <input type="time" value={form.hora} onChange={e => setForm(prev => ({ ...prev, hora: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+              <label className="block text-xs font-medium text-gray-600 mb-1">Hora * (sesión de 1 hora)</label>
+              <select value={form.hora} onChange={e => setForm(prev => ({ ...prev, hora: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm">
+                <option value="">Selecciona horario</option>
+                {getHorarios().map(h => (
+                  <option key={h} value={h}>{h} - {getHoraFin(h)}</option>
+                ))}
+              </select>
             </div>
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Notas</label>
-            <input type="text" value={form.notas} onChange={e => setForm(prev => ({ ...prev, notas: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Observaciones..." />
+            <input type="text" value={form.notas} onChange={e => setForm(prev => ({ ...prev, notas: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm" placeholder="Observaciones..." />
           </div>
-          <button type="submit" disabled={submitting} className="w-full px-4 py-2 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 disabled:opacity-50">
-            {submitting ? 'Creando...' : 'Agendar Cita'}
+          <div className="flex items-center gap-2 pt-1">
+            <Send className="h-3.5 w-3.5 text-gray-400" />
+            <p className="text-[10px] text-gray-400">Se enviará confirmación por correo electrónico y WhatsApp al extranjero</p>
+          </div>
+          <button type="submit" disabled={submitting} className="w-full px-4 py-2.5 bg-brand-500 text-white rounded-lg text-sm font-semibold hover:bg-brand-600 disabled:opacity-50 transition-colors shadow-sm">
+            {submitting ? 'Agendando...' : 'Agendar Cita'}
           </button>
         </form>
       )}
@@ -163,11 +221,11 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
           {citas.map(cita => {
             const tipoInfo = TIPO_CITA_LABELS[cita.tipo] || TIPO_CITA_LABELS.entrevista;
             return (
-              <div key={cita.id} className="p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+              <div key={cita.id} className="p-4 border rounded-xl hover:bg-gray-50 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <Calendar className="h-5 w-5 text-gray-500" />
+                    <div className="h-10 w-10 bg-gray-100 rounded-xl flex items-center justify-center">
+                      <Clock className="h-5 w-5 text-gray-500" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
