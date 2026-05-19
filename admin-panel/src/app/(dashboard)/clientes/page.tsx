@@ -2,17 +2,23 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Eye, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useClientes } from '@/hooks/use-clientes';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuthStore } from '@/stores/auth.store';
+import { UserRole } from '@/lib/types';
+import { api } from '@/lib/api';
 import type { Cliente } from '@/lib/types';
 
 export default function ClientesPage() {
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === UserRole.ADMINISTRADOR;
 
-  const { data, isLoading, isError } = useClientes({
+  const { data, isLoading, isError, refetch } = useClientes({
     search: search || undefined,
     page: currentPage,
     limit: pageSize,
@@ -21,6 +27,17 @@ export default function ClientesPage() {
   const clientes = data?.data ?? [];
   const total = data?.total ?? 0;
   const totalPages = data?.totalPages ?? 1;
+
+  const handleDelete = async (id: string, nombre: string) => {
+    if (!confirm(`¿Estás seguro de eliminar a "${nombre}"? Esta acción no se puede deshacer.`)) return;
+    try {
+      await api.delete(`/clientes/${id}`);
+      toast.success(`"${nombre}" eliminado correctamente`);
+      refetch();
+    } catch {
+      toast.error('Error al eliminar el extranjero');
+    }
+  };
 
   return (
     <div>
@@ -84,7 +101,7 @@ export default function ClientesPage() {
                   <th className="text-left px-4 py-3 font-medium text-gray-500 hidden md:table-cell">Teléfono</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-500 hidden lg:table-cell">Gestor</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-500 hidden lg:table-cell">Etiquetas</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-500">Ver</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-500">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -120,13 +137,24 @@ export default function ClientesPage() {
                           </div>
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <Link
-                            href={`/clientes/${cliente.id}`}
-                            className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-gray-100 text-gray-500"
-                            aria-label={`Ver detalle de ${nombreCompleto}`}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Link>
+                          <div className="flex items-center justify-end gap-1">
+                            <Link
+                              href={`/clientes/${cliente.id}`}
+                              className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-gray-100 text-gray-500"
+                              aria-label={`Ver detalle de ${nombreCompleto}`}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Link>
+                            {isAdmin && (
+                              <button
+                                onClick={() => handleDelete(cliente.id, nombreCompleto)}
+                                className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                                aria-label={`Eliminar ${nombreCompleto}`}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
