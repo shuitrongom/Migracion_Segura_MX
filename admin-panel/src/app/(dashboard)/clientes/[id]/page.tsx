@@ -117,6 +117,7 @@ export default function ClienteDetailPage() {
   const [savingField, setSavingField] = useState<string | null>(null);
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
   const [reassigning, setReassigning] = useState(false);
+  const [docPreview, setDocPreview] = useState<{ url: string; nombre: string; tipo: string } | null>(null);
 
   const isAdmin = user?.role === UserRole.ADMINISTRADOR;
   const isGestor = user?.role === UserRole.ASESOR;
@@ -670,9 +671,15 @@ export default function ClienteDetailPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => {
-                              const url = `${process.env.NEXT_PUBLIC_API_URL || 'https://backend-production-79ed.up.railway.app'}/documentos/${doc.id}/download`;
-                              window.open(url, '_blank');
+                            onClick={async () => {
+                              try {
+                                const res = await api.get(`/documentos/${doc.id}/download`, { responseType: 'blob' });
+                                const blob = new Blob([res.data], { type: res.headers['content-type'] || 'application/pdf' });
+                                const url = URL.createObjectURL(blob);
+                                setDocPreview({ url, nombre: doc.nombre, tipo: res.headers['content-type'] || 'application/pdf' });
+                              } catch {
+                                toast.error('Error al cargar el documento');
+                              }
                             }}
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-brand-600 bg-brand-50 rounded-lg hover:bg-brand-100 transition-colors"
                             title="Ver documento"
@@ -680,11 +687,21 @@ export default function ClienteDetailPage() {
                             <Eye className="h-3.5 w-3.5" /> Ver
                           </button>
                           <button
-                            onClick={() => {
-                              const url = `${process.env.NEXT_PUBLIC_API_URL || 'https://backend-production-79ed.up.railway.app'}/documentos/${doc.id}/download`;
-                              const printWindow = window.open(url, '_blank');
-                              if (printWindow) {
-                                printWindow.onload = () => { setTimeout(() => printWindow.print(), 1000); };
+                            onClick={async () => {
+                              try {
+                                const res = await api.get(`/documentos/${doc.id}/download`, { responseType: 'blob' });
+                                const blob = new Blob([res.data], { type: res.headers['content-type'] || 'application/pdf' });
+                                const url = URL.createObjectURL(blob);
+                                const printWindow = window.open('');
+                                if (printWindow) {
+                                  if (blob.type.startsWith('image/')) {
+                                    printWindow.document.write(`<img src="${url}" onload="window.print();window.close();" style="max-width:100%" />`);
+                                  } else {
+                                    printWindow.document.write(`<iframe src="${url}" style="width:100%;height:100%;border:none;" onload="window.print();"></iframe>`);
+                                  }
+                                }
+                              } catch {
+                                toast.error('Error al imprimir el documento');
                               }
                             }}
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
@@ -769,6 +786,70 @@ export default function ClienteDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal de visualización de documento */}
+      {docPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl w-[95vw] h-[90vh] max-w-5xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+            {/* Header del modal */}
+            <div className="flex items-center justify-between px-6 py-4 border-b bg-gradient-to-r from-gray-50 to-white">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 bg-brand-100 rounded-xl flex items-center justify-center">
+                  <FileText className="h-5 w-5 text-brand-600" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-gray-900">{docPreview.nombre}</h3>
+                  <p className="text-xs text-gray-500">Vista previa del documento</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    const a = document.createElement('a');
+                    a.href = docPreview.url;
+                    a.download = docPreview.nombre;
+                    a.click();
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5 rotate-[270deg]" /> Descargar
+                </button>
+                <button
+                  onClick={() => {
+                    const printWindow = window.open('');
+                    if (printWindow) {
+                      if (docPreview.tipo.startsWith('image/')) {
+                        printWindow.document.write(`<img src="${docPreview.url}" onload="window.print();window.close();" style="max-width:100%" />`);
+                      } else {
+                        printWindow.document.write(`<iframe src="${docPreview.url}" style="width:100%;height:100%;border:none;" onload="window.print();"></iframe>`);
+                      }
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-brand-700 bg-brand-50 rounded-lg hover:bg-brand-100 transition-colors"
+                >
+                  <FileText className="h-3.5 w-3.5" /> Imprimir
+                </button>
+                <button
+                  onClick={() => { URL.revokeObjectURL(docPreview.url); setDocPreview(null); }}
+                  className="inline-flex items-center justify-center h-9 w-9 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+            {/* Contenido del documento */}
+            <div className="flex-1 bg-gray-100 p-4 overflow-auto">
+              {docPreview.tipo.startsWith('image/') ? (
+                <div className="flex items-center justify-center h-full">
+                  <img src={docPreview.url} alt={docPreview.nombre} className="max-w-full max-h-full object-contain rounded-lg shadow-lg" />
+                </div>
+              ) : (
+                <iframe src={docPreview.url} className="w-full h-full rounded-lg shadow-lg border-0 bg-white" title={docPreview.nombre} />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
