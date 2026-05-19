@@ -691,6 +691,15 @@ export class TramitesService {
         { nombre: 'Lista de empleados y su nacionalidad (persona moral)', obligatorio: false, descripcion: 'Original' },
         { nombre: 'Comprobante de pago de derechos por CIE', obligatorio: true, descripcion: 'Por recepción, estudio y expedición de la constancia. Original y copia' },
       ],
+      ['cambio_condicion_estancia']: [
+        { nombre: 'Pasaporte o documento de identidad y viaje', obligatorio: true, descripcion: 'Documento oficial exhibido para obtener la condición de estancia actual. Original y copia' },
+        { nombre: 'Tarjeta de residente, visitante o FMM vigente', obligatorio: true, descripcion: 'Documento migratorio actual válido y vigente. Original' },
+        { nombre: 'Comprobante de pago de derechos por cambio de condición', obligatorio: true, descripcion: 'Por recepción y estudio del cambio. Original y copia' },
+        { nombre: 'Identificación oficial de la persona mexicana o tarjeta de residente', obligatorio: false, descripcion: 'Para acreditar vínculo familiar. Original y copia' },
+        { nombre: 'Documentos que acrediten vínculo familiar', obligatorio: false, descripcion: 'Acta de nacimiento, matrimonio, concubinato, tutela según el caso. Original y copia' },
+        { nombre: 'Resolución de COMAR, SRE o autoridad migratoria', obligatorio: false, descripcion: 'Para cambio por razones humanitarias (refugio, asilo, apátrida). Original y copia' },
+        { nombre: 'Comprobante de pago por expedición de documento migratorio', obligatorio: true, descripcion: 'Por la expedición del nuevo documento según condición autorizada. Original y copia' },
+      ],
     };
 
     return [...commonRequisitos, ...(typeRequisitos[tipo] || [])];

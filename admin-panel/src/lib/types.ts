@@ -22,6 +22,7 @@ export enum TipoTramite {
   EXPEDICION_DOCUMENTO = 'expedicion_documento',
   REGULARIZACION_MIGRATORIA = 'regularizacion_migratoria',
   CONSTANCIA_EMPLEADOR = 'constancia_empleador',
+  CAMBIO_CONDICION_ESTANCIA = 'cambio_condicion_estancia',
   RENOVACION = 'renovacion',
   CAMBIO_DOMICILIO = 'cambio_domicilio',
   REPOSICION_DOCUMENTO = 'reposicion_documento',
