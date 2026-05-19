@@ -108,8 +108,8 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
         asesorId: user?.id,
         tipo: form.tipo,
         fecha: form.fecha,
-        horaInicio: form.hora,
-        horaFin: getHoraFin(form.hora),
+        hora: form.hora,
+        duracion: 60,
         modalidad: form.modalidad,
         notas: form.notas || undefined,
       });

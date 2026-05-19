@@ -1174,16 +1174,16 @@ export default function NuevoTramitePage() {
           <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Agendar cita para entrega de documentos</h3>
             <div className="space-y-4">
-              <div><label className="block text-xs font-medium text-gray-600 mb-1">Fecha *</label><DatePicker value={citaData.fecha} onChange={v => setCitaData(prev => ({ ...prev, fecha: v }))} yearRange={[2025, 2027]} /></div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Hora inicio *</label><input type="time" value={citaData.horaInicio} onChange={e => setCitaData(prev => ({ ...prev, horaInicio: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm" /></div>
-                <div><label className="block text-xs font-medium text-gray-600 mb-1">Hora fin *</label><input type="time" value={citaData.horaFin} onChange={e => setCitaData(prev => ({ ...prev, horaFin: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm" /></div>
+              <div><label className="block text-xs font-medium text-gray-600 mb-1">Fecha *</label><DatePicker value={citaData.fecha} onChange={v => setCitaData(prev => ({ ...prev, fecha: v }))} yearRange={[2025, 2027]} disablePast disableWeekends /></div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Hora *</label>
+                <input type="time" value={citaData.horaInicio} onChange={e => setCitaData(prev => ({ ...prev, horaInicio: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm" />
               </div>
               <div><label className="block text-xs font-medium text-gray-600 mb-1">Notas</label><textarea value={citaData.notas} onChange={e => setCitaData(prev => ({ ...prev, notas: e.target.value }))} rows={3} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm resize-none" placeholder="Ej: Entrega de documentos originales en oficina" /></div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button type="button" onClick={() => setShowCitaModal(false)} className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">Cancelar</button>
-              <button type="button" onClick={async () => { if (!citaData.fecha || !citaData.horaInicio || !citaData.horaFin) { toast.error('Completa fecha y horario'); return; } try { await api.post('/citas', { clienteId: 'pendiente', asesorId: user?.id, fecha: citaData.fecha, horaInicio: citaData.horaInicio, horaFin: citaData.horaFin, modalidad: 'presencial', notas: citaData.notas || `Entrega de documentos - ${extranjero.nombre} ${extranjero.apellidos}`, tipo: 'entrevista' }); toast.success('Cita agendada exitosamente'); setShowCitaModal(false); setCitaData({ fecha: '', horaInicio: '', horaFin: '', notas: '' }); } catch { toast.error('Error al agendar cita'); } }} className="px-4 py-2 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600">Agendar cita</button>
+              <button type="button" onClick={async () => { if (!citaData.fecha || !citaData.horaInicio) { toast.error('Completa fecha y hora'); return; } try { await api.post('/citas', { clienteId: 'pendiente', asesorId: user?.id, fecha: citaData.fecha, hora: citaData.horaInicio, duracion: 60, modalidad: 'presencial', notas: citaData.notas || `Entrega de documentos - ${extranjero.nombre} ${extranjero.apellidos}`, tipo: 'entrevista' }); toast.success('Cita agendada exitosamente'); setShowCitaModal(false); setCitaData({ fecha: '', horaInicio: '', horaFin: '', notas: '' }); } catch { toast.error('Error al agendar cita'); } }} className="px-4 py-2 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600">Agendar cita</button>
             </div>
           </div>
         </div>
