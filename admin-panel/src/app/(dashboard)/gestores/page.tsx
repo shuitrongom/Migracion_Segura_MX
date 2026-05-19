@@ -193,9 +193,9 @@ export default function GestoresPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                    <button onClick={() => setSelectedGestor(Gestor)} className="text-brand-600 hover:text-brand-700 hover:underline font-medium">
+                    <a href={`/gestores/${Gestor.id}`} className="text-brand-600 hover:text-brand-700 hover:underline font-medium capitalize">
                       {Gestor.fullName || '—'}
-                    </button>
+                    </a>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">{Gestor.email}</td>
                   <td className="px-6 py-4 text-right">

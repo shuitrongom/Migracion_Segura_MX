@@ -1,0 +1,254 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft, Loader2, Camera, FileText, Calendar, Users, Clock } from 'lucide-react';
+import { toast } from 'sonner';
+import { api } from '@/lib/api';
+import { useAuthStore } from '@/stores/auth.store';
+import { UserRole } from '@/lib/types';
+import { capitalizeName } from '@/lib/utils';
+
+interface GestorDetail {
+  id: string;
+  fullName: string | null;
+  email: string;
+  phone: string | null;
+  profilePhotoUrl: string | null;
+  createdAt: string;
+}
+
+interface TramiteItem {
+  id: string;
+  tipo: string;
+  estatus: string;
+  numeroPieza: string | null;
+  createdAt: string;
+  cliente?: { nombreCompleto: string } | null;
+}
+
+interface CitaItem {
+  id: string;
+  tipo: string;
+  fecha: string;
+  hora: string;
+  estatus: string;
+  cliente?: { nombreCompleto: string } | null;
+}
+
+interface ClienteItem {
+  id: string;
+  nombreCompleto: string;
+  email: string;
+  telefono: string;
+}
+
+const TIPO_LABELS: Record<string, string> = {
+  visa: 'Visa', permiso_trabajo: 'Permisos INM', notificacion_cambio: 'Notificación Cambio',
+  expedicion_documento: 'Expedición Documento', regularizacion_migratoria: 'Regularización',
+  constancia_empleador: 'CIE', cambio_condicion_estancia: 'Cambio Condición',
+};
+
+const ESTATUS_BADGE: Record<string, string> = {
+  recibido: 'bg-blue-50 text-blue-700', en_revision: 'bg-yellow-50 text-yellow-700',
+  aprobado: 'bg-green-50 text-green-700', rechazado: 'bg-red-50 text-red-700',
+  borrador: 'bg-gray-50 text-gray-600', en_espera_resolucion: 'bg-orange-50 text-orange-700',
+};
+
+export default function GestorDetailPage() {
+  const params = useParams();
+  const gestorId = params.id as string;
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === UserRole.ADMINISTRADOR;
+
+  const [gestor, setGestor] = useState<GestorDetail | null>(null);
+  const [tramites, setTramites] = useState<TramiteItem[]>([]);
+  const [citas, setCitas] = useState<CitaItem[]>([]);
+  const [clientes, setClientes] = useState<ClienteItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'tramites' | 'clientes' | 'citas'>('tramites');
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [gestorRes, tramitesRes, citasRes, clientesRes] = await Promise.all([
+          api.get(`/users/${gestorId}`).catch(() => ({ data: null })),
+          api.get('/tramites', { params: { responsableId: gestorId, limit: 50 } }).catch(() => ({ data: { data: [] } })),
+          api.get('/citas', { params: { asesorId: gestorId, limit: 50 } }).catch(() => ({ data: { data: [] } })),
+          api.get('/clientes', { params: { asesorId: gestorId, limit: 50 } }).catch(() => ({ data: { data: [] } })),
+        ]);
+        setGestor(gestorRes.data);
+        setTramites(tramitesRes.data?.data || tramitesRes.data || []);
+        setCitas(citasRes.data?.data || citasRes.data || []);
+        setClientes(clientesRes.data?.data || clientesRes.data || []);
+      } catch { /* */ }
+      finally { setLoading(false); }
+    }
+    fetchData();
+  }, [gestorId]);
+
+  const formatDate = (d: string) => new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(d));
+
+  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 text-brand-500 animate-spin" /></div>;
+  if (!gestor) return <div className="text-center py-20 text-gray-500">Gestor no encontrado</div>;
+
+  return (
+    <div>
+      <div className="flex items-center gap-4 mb-6">
+        <Link href="/gestores" className="p-2 rounded-xl hover:bg-brand-50 text-gray-500 hover:text-brand-600 transition-colors"><ArrowLeft className="h-5 w-5" /></Link>
+        <h1 className="text-2xl font-bold text-gray-900">Detalle del Gestor</h1>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Perfil */}
+        <div className="lg:col-span-1">
+          <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
+            <div className="p-6 bg-gradient-to-br from-gray-50 to-brand-50/30 border-b">
+              <div className="flex items-center gap-4">
+                <div className="relative group">
+                  {gestor.profilePhotoUrl ? (
+                    <img src={gestor.profilePhotoUrl} alt={gestor.fullName || ''} className="h-16 w-16 rounded-2xl object-cover border-2 border-white shadow-md" />
+                  ) : (
+                    <div className="h-16 w-16 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center shadow-md">
+                      <span className="text-2xl font-bold text-white">{(gestor.fullName || '?').charAt(0).toUpperCase()}</span>
+                    </div>
+                  )}
+                  {(isAdmin || user?.id === gestorId) && (
+                    <label className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                      <Camera className="h-5 w-5 text-white" />
+                      <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          const formData = new FormData();
+                          formData.append('file', file);
+                          const res = await api.post(`/users/${gestorId}/foto`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+                          setGestor(prev => prev ? { ...prev, profilePhotoUrl: res.data.profilePhotoUrl } : prev);
+                          toast.success('Foto actualizada');
+                        } catch { toast.error('Error al subir foto'); }
+                      }} />
+                    </label>
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 capitalize">{gestor.fullName || '—'}</h2>
+                  <p className="text-xs text-gray-500">Gestor desde {formatDate(gestor.createdAt)}</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="p-3 rounded-xl hover:bg-gray-50">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Email</p>
+                <p className="text-sm font-medium text-gray-900 mt-0.5">{gestor.email}</p>
+              </div>
+              <div className="p-3 rounded-xl hover:bg-gray-50">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Teléfono</p>
+                <p className="text-sm font-medium text-gray-900 mt-0.5">{gestor.phone || 'Sin registrar'}</p>
+              </div>
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-2 pt-4 border-t">
+                <div className="text-center p-3 bg-brand-50 rounded-xl">
+                  <p className="text-lg font-bold text-brand-600">{tramites.length}</p>
+                  <p className="text-[10px] text-gray-500">Trámites</p>
+                </div>
+                <div className="text-center p-3 bg-green-50 rounded-xl">
+                  <p className="text-lg font-bold text-green-600">{clientes.length}</p>
+                  <p className="text-[10px] text-gray-500">Extranjeros</p>
+                </div>
+                <div className="text-center p-3 bg-purple-50 rounded-xl">
+                  <p className="text-lg font-bold text-purple-600">{citas.length}</p>
+                  <p className="text-[10px] text-gray-500">Citas</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
+            <div className="border-b px-2 pt-2">
+              <nav className="flex gap-1">
+                {[
+                  { key: 'tramites' as const, label: 'Trámites', icon: FileText },
+                  { key: 'clientes' as const, label: 'Extranjeros', icon: Users },
+                  { key: 'citas' as const, label: 'Citas', icon: Calendar },
+                ].map(tab => (
+                  <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-t-lg transition-all ${activeTab === tab.key ? 'bg-white text-brand-600 border-2 border-b-0 border-brand-200 -mb-[2px]' : 'text-gray-500 hover:text-brand-600 hover:bg-brand-50/50'}`}>
+                    <tab.icon className="h-3.5 w-3.5" /> {tab.label}
+                  </button>
+                ))}
+              </nav>
+            </div>
+            <div className="p-6">
+              {/* Trámites */}
+              {activeTab === 'tramites' && (
+                <div className="space-y-3">
+                  {tramites.length === 0 ? (
+                    <div className="text-center py-12"><FileText className="h-10 w-10 text-gray-300 mx-auto mb-3" /><p className="text-sm text-gray-400">No tiene trámites asignados</p></div>
+                  ) : tramites.map(t => (
+                    <Link key={t.id} href={`/tramites/${t.id}`} className="block p-4 border-2 border-gray-100 rounded-xl hover:border-brand-200 hover:shadow-md transition-all">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">{TIPO_LABELS[t.tipo] || t.tipo}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{t.numeroPieza || 'Sin pieza'} • {capitalizeName(t.cliente?.nombreCompleto)} • {formatDate(t.createdAt)}</p>
+                        </div>
+                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${ESTATUS_BADGE[t.estatus] || 'bg-gray-50 text-gray-600'}`}>{t.estatus.replace(/_/g, ' ')}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {/* Extranjeros */}
+              {activeTab === 'clientes' && (
+                <div className="space-y-3">
+                  {clientes.length === 0 ? (
+                    <div className="text-center py-12"><Users className="h-10 w-10 text-gray-300 mx-auto mb-3" /><p className="text-sm text-gray-400">No tiene extranjeros asignados</p></div>
+                  ) : clientes.map(c => (
+                    <Link key={c.id} href={`/clientes/${c.id}`} className="block p-4 border-2 border-gray-100 rounded-xl hover:border-brand-200 hover:shadow-md transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 bg-gradient-to-br from-brand-400 to-brand-600 rounded-xl flex items-center justify-center">
+                          <span className="text-sm font-bold text-white">{(c.nombreCompleto || '?').charAt(0).toUpperCase()}</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900 capitalize">{c.nombreCompleto}</p>
+                          <p className="text-xs text-gray-500">{c.email} • {c.telefono}</p>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {/* Citas */}
+              {activeTab === 'citas' && (
+                <div className="space-y-3">
+                  {citas.length === 0 ? (
+                    <div className="text-center py-12"><Calendar className="h-10 w-10 text-gray-300 mx-auto mb-3" /><p className="text-sm text-gray-400">No tiene citas registradas</p></div>
+                  ) : citas.map(c => (
+                    <div key={c.id} className="p-4 border-2 border-gray-100 rounded-xl hover:border-brand-200 transition-all">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 bg-gradient-to-br from-purple-100 to-brand-100 rounded-xl flex items-center justify-center">
+                            <Clock className="h-5 w-5 text-brand-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-900">{formatDate(c.fecha)} a las {c.hora}</p>
+                            <p className="text-xs text-gray-500 capitalize">{c.tipo === 'inm' ? 'Cita INM' : 'Entrevista'} • {capitalizeName(c.cliente?.nombreCompleto)}</p>
+                          </div>
+                        </div>
+                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${ESTATUS_BADGE[c.estatus] || 'bg-gray-50 text-gray-600'}`}>{c.estatus}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

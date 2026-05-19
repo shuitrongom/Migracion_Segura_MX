@@ -45,6 +45,17 @@ export class UsersController {
   }
 
   /**
+   * Obtener detalle de un usuario
+   */
+  @Get(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Obtener detalle de un usuario' })
+  @ApiParam({ name: 'id', description: 'UUID del usuario' })
+  getUser(@Param('id', ParseUUIDPipe) id: string) {
+    return this.usersService.findById(id);
+  }
+
+  /**
    * Subir foto de perfil de un usuario
    */
   @Post(':id/foto')
