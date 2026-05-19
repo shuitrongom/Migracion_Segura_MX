@@ -38,6 +38,8 @@ export default function NuevoTramitePage() {
   const [step, setStep] = useState(0);
   const [selectedTramite, setSelectedTramite] = useState<(typeof TRAMITES_INM)[0] | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showCitaModal, setShowCitaModal] = useState(false);
+  const [citaData, setCitaData] = useState({ fecha: '', horaInicio: '', horaFin: '', notas: '' });
 
   // Datos del extranjero (se guardan en nuestra BD)
   const [extranjero, setExtranjero] = useState({
@@ -1033,7 +1035,7 @@ export default function NuevoTramitePage() {
               <button type="button" onClick={async () => { try { await api.post('/notificaciones/enviar-requisitos', { email: extranjero.solicitanteEmail, nombreExtranjero: `${extranjero.nombre} ${extranjero.apellidos}`.trim(), requisitos: requisitos.map(r => r.nombre) }); toast.success(`Requisitos enviados a ${extranjero.solicitanteEmail}`); } catch { toast.success('Requisitos enviados (simulado)'); } }} className="flex items-center gap-2 px-4 py-2.5 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors">
                 <FileText className="h-4 w-4" /> Enviar requisitos por correo
               </button>
-              <button type="button" onClick={() => toast.success('Función de agendar cita próximamente')} className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+              <button type="button" onClick={() => setShowCitaModal(true)} className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
                 <ClipboardList className="h-4 w-4" /> Agendar cita para entrega
               </button>
             </div>
@@ -1084,6 +1086,27 @@ export default function NuevoTramitePage() {
           <button type="button" onClick={handleSubmit} disabled={submitting} className="flex items-center gap-2 px-6 py-2.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50"><Check className="h-4 w-4" /> {submitting ? 'Creando...' : 'Iniciar Trámite'}</button>
         )}
       </div>
+
+      {/* Modal Agendar Cita */}
+      {showCitaModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Agendar cita para entrega de documentos</h3>
+            <div className="space-y-4">
+              <div><label className="block text-xs font-medium text-gray-600 mb-1">Fecha *</label><DatePicker value={citaData.fecha} onChange={v => setCitaData(prev => ({ ...prev, fecha: v }))} yearRange={[2025, 2027]} /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Hora inicio *</label><input type="time" value={citaData.horaInicio} onChange={e => setCitaData(prev => ({ ...prev, horaInicio: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm" /></div>
+                <div><label className="block text-xs font-medium text-gray-600 mb-1">Hora fin *</label><input type="time" value={citaData.horaFin} onChange={e => setCitaData(prev => ({ ...prev, horaFin: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm" /></div>
+              </div>
+              <div><label className="block text-xs font-medium text-gray-600 mb-1">Notas</label><textarea value={citaData.notas} onChange={e => setCitaData(prev => ({ ...prev, notas: e.target.value }))} rows={3} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm resize-none" placeholder="Ej: Entrega de documentos originales en oficina" /></div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button type="button" onClick={() => setShowCitaModal(false)} className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">Cancelar</button>
+              <button type="button" onClick={async () => { if (!citaData.fecha || !citaData.horaInicio || !citaData.horaFin) { toast.error('Completa fecha y horario'); return; } try { await api.post('/citas', { clienteId: 'pendiente', asesorId: user?.id, fecha: citaData.fecha, horaInicio: citaData.horaInicio, horaFin: citaData.horaFin, modalidad: 'presencial', notas: citaData.notas || `Entrega de documentos - ${extranjero.nombre} ${extranjero.apellidos}`, tipo: 'entrevista' }); toast.success('Cita agendada exitosamente'); setShowCitaModal(false); setCitaData({ fecha: '', horaInicio: '', horaFin: '', notas: '' }); } catch { toast.error('Error al agendar cita'); } }} className="px-4 py-2 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600">Agendar cita</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
