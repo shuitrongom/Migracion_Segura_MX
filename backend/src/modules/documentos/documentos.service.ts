@@ -30,6 +30,17 @@ export class DocumentosService {
   ) {}
 
   /**
+   * Listar todos los documentos del sistema (admin)
+   */
+  async findAll(): Promise<{ data: Documento[]; meta: { total: number } }> {
+    const [data, total] = await this.documentoRepository.findAndCount({
+      order: { createdAt: 'DESC' },
+      take: 100,
+    });
+    return { data, meta: { total } };
+  }
+
+  /**
    * Req 5.1, 5.2, 5.3 - Subir documento con cifrado
    * Valida formato/tamaño, cifra el contenido y almacena.
    */

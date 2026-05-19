@@ -67,6 +67,16 @@ export class DocumentosController {
   }
 
   /**
+   * Listar todos los documentos (solo admin)
+   */
+  @Get()
+  @Roles(UserRole.ADMINISTRADOR)
+  @ApiOperation({ summary: 'Listar todos los documentos del sistema' })
+  findAll(@Request() req: { user: { id: string } }) {
+    return this.documentosService.findAll();
+  }
+
+  /**
    * Req 5.6 - Documentos por vencer (próximos 30 días)
    * NOTE: Static routes must be defined before parameterized :id routes
    */

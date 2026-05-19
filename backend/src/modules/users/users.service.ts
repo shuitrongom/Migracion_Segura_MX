@@ -8,6 +8,7 @@ import { User } from './entities/user.entity';
 import { UserRole } from '../../common/enums';
 import { CreateAsesorDto } from './dto/create-asesor.dto';
 import { EmailService } from '../email/email.service';
+import { StorageService } from '../../common/services/storage.service';
 
 @Injectable()
 export class UsersService {
@@ -16,6 +17,7 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
     private readonly emailService: EmailService,
     private readonly configService: ConfigService,
+    private readonly storageService: StorageService,
   ) {}
 
   /**
@@ -324,16 +326,14 @@ export class UsersService {
       throw new NotFoundException('Usuario no encontrado');
     }
 
-    // Guardar en storage
-    const storageService = await import('../../common/services/storage.service');
-    const storage = new storageService.StorageService();
-    const path = `users/${id}/profile.${file.originalname.split('.').pop()}`;
-    const url = await storage.upload(path, file.buffer, file.mimetype);
+    const result = await this.storageService.upload(file.buffer, file.mimetype, {
+      folder: `users/${id}`,
+      fileName: `profile-${Date.now()}`,
+    });
 
-    // Actualizar URL en el usuario
-    user.profilePhotoUrl = url;
+    user.profilePhotoUrl = result.url;
     await this.userRepository.save(user);
 
-    return { profilePhotoUrl: url };
+    return { profilePhotoUrl: result.url };
   }
 }
