@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Check, Circle, Clock, Plus, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
+import RequisitosUpload from '@/components/requisitos-upload';
 
 interface Etapa {
   id: string;
@@ -209,6 +210,12 @@ export default function TramiteDetailPage() {
                 })}
               </div>
             )}
+          </div>
+
+          {/* Requisitos documentales - Upload */}
+          <div className="bg-white rounded-xl border shadow-sm p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Requisitos documentales</h2>
+            <RequisitosUpload tramiteId={tramiteId} tipoTramite={tramite.tipo} />
           </div>
         </div>
 
