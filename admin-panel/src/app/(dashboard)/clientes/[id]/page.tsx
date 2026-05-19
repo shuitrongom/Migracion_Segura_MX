@@ -313,19 +313,15 @@ export default function ClienteDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Card - Left Side */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-2xl border shadow-lg overflow-hidden">
-            {/* Banner gradient */}
-            <div className="h-20 bg-gradient-to-r from-brand-500 via-brand-600 to-amber-500 relative">
-              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIi8+PC9zdmc+')] opacity-50" />
-            </div>
-            <div className="px-6 pb-6">
-              {/* Avatar + Name */}
-              <div className="flex items-end gap-4 -mt-8 mb-4">
+          <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
+            {/* Avatar + Name */}
+            <div className="p-6 pb-4 bg-gradient-to-br from-gray-50 to-brand-50/30 border-b">
+              <div className="flex items-center gap-4">
                 <div className="relative group">
                   {fotoUrl ? (
-                    <img src={fotoUrl} alt={cliente.nombreCompleto} className="h-16 w-16 rounded-2xl object-cover border-4 border-white shadow-lg" />
+                    <img src={fotoUrl} alt={cliente.nombreCompleto} className="h-16 w-16 rounded-2xl object-cover border-2 border-white shadow-md" />
                   ) : (
-                    <div className="h-16 w-16 bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl flex items-center justify-center border-4 border-white shadow-lg">
+                    <div className="h-16 w-16 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center shadow-md">
                       <span className="text-2xl font-bold text-white">
                         {cliente.nombreCompleto.charAt(0).toUpperCase()}
                       </span>
@@ -333,7 +329,7 @@ export default function ClienteDetailPage() {
                   )}
                   <label
                     htmlFor="foto-extranjero"
-                    className="absolute -bottom-1 -right-1 h-7 w-7 bg-white border-2 border-brand-200 rounded-full flex items-center justify-center shadow-md hover:bg-brand-50 cursor-pointer transition-colors"
+                    className="absolute -bottom-1 -right-1 h-7 w-7 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:bg-brand-50 cursor-pointer transition-colors"
                     title="Subir foto"
                   >
                     <Camera className="h-3.5 w-3.5 text-brand-600" />
@@ -381,7 +377,7 @@ export default function ClienteDetailPage() {
                     }}
                   />
                 </div>
-                <div className="pb-1">
+                <div>
                   <h2 className="text-lg font-bold text-gray-900">
                     {cliente.nombreCompleto}
                   </h2>
@@ -390,6 +386,8 @@ export default function ClienteDetailPage() {
                   </p>
                 </div>
               </div>
+            </div>
+            <div className="p-6 pt-4">
 
             {/* Info Fields */}
             <div className="space-y-1">
