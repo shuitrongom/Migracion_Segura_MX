@@ -109,7 +109,6 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
         tipo: form.tipo,
         fecha: form.fecha,
         hora: form.hora,
-        duracion: 60,
         modalidad: form.modalidad,
         notas: form.notas || undefined,
       });
