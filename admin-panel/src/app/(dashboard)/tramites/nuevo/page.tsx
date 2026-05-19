@@ -363,15 +363,15 @@ export default function NuevoTramitePage() {
       </div>
 
       {/* Stepper */}
-      <div className="bg-white rounded-xl border shadow-sm p-4 mb-6">
+      <div className="bg-white rounded-xl border shadow-sm p-5 mb-6">
         <div className="flex items-center justify-between overflow-x-auto">
           {STEPS.map((label, i) => (
-            <div key={label} className="flex items-center gap-1 flex-shrink-0">
-              <div className={`flex items-center justify-center h-7 w-7 rounded-full text-xs font-medium ${i < step ? 'bg-green-500 text-white' : i === step ? 'bg-brand-500 text-white' : 'bg-gray-200 text-gray-500'}`}>
-                {i < step ? <Check className="h-3 w-3" /> : i + 1}
+            <div key={label} className="flex items-center gap-2 flex-shrink-0">
+              <div className={`flex items-center justify-center h-9 w-9 rounded-full text-sm font-semibold transition-all duration-300 ${i < step ? 'bg-green-500 text-white shadow-md shadow-green-200' : i === step ? 'bg-brand-500 text-white shadow-md shadow-brand-200 ring-4 ring-brand-100' : 'bg-gray-100 text-gray-400 border border-gray-200'}`}>
+                {i < step ? <Check className="h-4 w-4" /> : i + 1}
               </div>
-              <span className={`text-xs hidden lg:inline ${i === step ? 'font-medium text-gray-900' : 'text-gray-500'}`}>{label}</span>
-              {i < STEPS.length - 1 && <div className="hidden lg:block w-4 h-px bg-gray-200 mx-1" />}
+              <span className={`text-sm hidden lg:inline transition-colors ${i === step ? 'font-semibold text-gray-900' : i < step ? 'font-medium text-green-600' : 'text-gray-400'}`}>{label}</span>
+              {i < STEPS.length - 1 && <div className={`hidden lg:block w-8 h-0.5 mx-2 rounded transition-colors ${i < step ? 'bg-green-400' : 'bg-gray-200'}`} />}
             </div>
           ))}
         </div>
@@ -381,12 +381,13 @@ export default function NuevoTramitePage() {
         {/* Step 0: Seleccionar trámite */}
         {step === 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">Selecciona el trámite</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Selecciona el trámite</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {TRAMITES_INM.map(t => (
-                <button key={t.tipo} type="button" onClick={() => setSelectedTramite(t)} className={`text-left p-4 rounded-lg border-2 transition-all ${selectedTramite?.tipo === t.tipo ? 'border-brand-500 bg-brand-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                  <p className={`text-sm font-medium ${selectedTramite?.tipo === t.tipo ? 'text-brand-700' : 'text-gray-900'}`}>{t.nombre}</p>
-                  <p className="text-xs text-gray-500 mt-1">{t.descripcion}</p>
+                <button key={t.tipo} type="button" onClick={() => setSelectedTramite(t)} className={`text-left p-5 rounded-xl border-2 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg ${selectedTramite?.tipo === t.tipo ? 'border-brand-500 bg-gradient-to-br from-brand-50 to-white shadow-md shadow-brand-100' : 'border-gray-200 hover:border-brand-300 hover:bg-gray-50/50 shadow-sm'}`}>
+                  <p className={`text-sm font-bold leading-tight ${selectedTramite?.tipo === t.tipo ? 'text-brand-700' : 'text-gray-900'}`}>{t.nombre}</p>
+                  <p className="text-xs text-gray-500 mt-2 leading-relaxed">{t.descripcion}</p>
+                  {selectedTramite?.tipo === t.tipo && <div className="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-brand-600 bg-brand-100 px-2 py-0.5 rounded-full"><Check className="h-3 w-3" /> Seleccionado</div>}
                 </button>
               ))}
             </div>
