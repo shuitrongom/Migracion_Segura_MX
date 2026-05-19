@@ -9,12 +9,14 @@ interface DatePickerProps {
   placeholder?: string;
   className?: string;
   yearRange?: [number, number];
+  disablePast?: boolean;
+  disableWeekends?: boolean;
 }
 
 const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const DIAS_SEMANA = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'];
 
-export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', className = '', yearRange }: DatePickerProps) {
+export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', className = '', yearRange, disablePast = false, disableWeekends = false }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useState<'days' | 'months' | 'years'>('days');
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
@@ -97,17 +99,25 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
           if (day === null) return <div key={`empty-${i}`} />;
           const isSelected = selectedDate && selectedDate.getDate() === day && selectedDate.getMonth() === currentMonth && selectedDate.getFullYear() === currentYear;
           const isToday = new Date().getDate() === day && new Date().getMonth() === currentMonth && new Date().getFullYear() === currentYear;
+          const dateObj = new Date(currentYear, currentMonth, day);
+          const dayOfWeek = dateObj.getDay(); // 0=Sun, 6=Sat
+          const isPast = disablePast && dateObj < new Date(new Date().setHours(0,0,0,0));
+          const isWeekend = disableWeekends && (dayOfWeek === 0 || dayOfWeek === 6);
+          const isDisabled = isPast || isWeekend;
           return (
             <button
               key={day}
               type="button"
-              onClick={() => handleSelectDay(day)}
+              onClick={() => !isDisabled && handleSelectDay(day)}
+              disabled={isDisabled}
               className={`h-8 w-8 rounded-full text-xs font-medium transition-all ${
-                isSelected
-                  ? 'bg-brand-500 text-white shadow-sm'
-                  : isToday
-                    ? 'bg-brand-50 text-brand-700 ring-1 ring-brand-300'
-                    : 'text-gray-700 hover:bg-gray-100'
+                isDisabled
+                  ? 'text-gray-300 cursor-not-allowed'
+                  : isSelected
+                    ? 'bg-brand-500 text-white shadow-sm'
+                    : isToday
+                      ? 'bg-brand-50 text-brand-700 ring-1 ring-brand-300'
+                      : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
               {day}

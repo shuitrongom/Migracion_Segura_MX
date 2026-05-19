@@ -50,6 +50,7 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
     modalidad: 'presencial',
     notas: '',
   });
+  const [citasDelDia, setCitasDelDia] = useState<string[]>([]);
 
   useEffect(() => {
     fetchCitas();
@@ -67,6 +68,18 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
   };
 
   const getHorarios = () => form.tipo === 'inm' ? HORARIOS_INM : HORARIOS_GESTOR;
+
+  // Fetch citas del día seleccionado para bloquear horarios ocupados
+  useEffect(() => {
+    if (!form.fecha) { setCitasDelDia([]); return; }
+    api.get('/citas', { params: { fechaInicio: form.fecha, fechaFin: form.fecha, limit: 50 } })
+      .then(res => {
+        const data = res.data?.data || res.data || [];
+        const horasOcupadas = data.map((c: { horaInicio?: string; hora?: string }) => c.horaInicio || c.hora || '');
+        setCitasDelDia(horasOcupadas.filter(Boolean));
+      })
+      .catch(() => setCitasDelDia([]));
+  }, [form.fecha]);
 
   const getHoraFin = (horaInicio: string) => {
     const [h] = horaInicio.split(':').map(Number);
@@ -183,16 +196,38 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Fecha * (solo L-V)</label>
-              <DatePicker value={form.fecha} onChange={v => setForm(prev => ({ ...prev, fecha: v }))} yearRange={[2025, 2027]} />
+              <DatePicker value={form.fecha} onChange={v => setForm(prev => ({ ...prev, fecha: v }))} yearRange={[2025, 2027]} disablePast disableWeekends />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Hora * (sesión de 1 hora)</label>
-              <select value={form.hora} onChange={e => setForm(prev => ({ ...prev, hora: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm">
-                <option value="">Selecciona horario</option>
-                {getHorarios().map(h => (
-                  <option key={h} value={h}>{h} - {getHoraFin(h)}</option>
-                ))}
-              </select>
+              {form.fecha && (
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="inline-flex items-center gap-1 text-[10px]"><span className="h-2 w-2 rounded-full bg-green-500"></span> Disponible</span>
+                  <span className="inline-flex items-center gap-1 text-[10px]"><span className="h-2 w-2 rounded-full bg-yellow-500"></span> Pocas</span>
+                  <span className="inline-flex items-center gap-1 text-[10px]"><span className="h-2 w-2 rounded-full bg-red-500"></span> Ocupado</span>
+                </div>
+              )}
+              <div className="grid grid-cols-3 gap-2">
+                {getHorarios().map(h => {
+                  const ocupado = citasDelDia.includes(h);
+                  const totalSlots = getHorarios().length;
+                  const ocupados = citasDelDia.length;
+                  const porcentaje = totalSlots > 0 ? ocupados / totalSlots : 0;
+                  const colorIndicator = ocupado ? 'bg-red-100 border-red-300 text-red-400 cursor-not-allowed' : porcentaje > 0.6 ? 'bg-yellow-50 border-yellow-300 text-yellow-800 hover:bg-yellow-100' : 'bg-green-50 border-green-300 text-green-800 hover:bg-green-100';
+                  const isSelected = form.hora === h;
+                  return (
+                    <button
+                      key={h}
+                      type="button"
+                      disabled={ocupado}
+                      onClick={() => !ocupado && setForm(prev => ({ ...prev, hora: h }))}
+                      className={`px-2 py-2 rounded-lg text-xs font-medium border transition-all ${isSelected ? 'bg-brand-500 text-white border-brand-500 shadow-md' : colorIndicator}`}
+                    >
+                      {h} - {getHoraFin(h)}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
           <div>

@@ -218,10 +218,10 @@ export class UsersService {
   /**
    * Listar usuarios por rol (para selects de asesores, etc.)
    */
-  async findByRole(role: UserRole): Promise<Pick<User, 'id' | 'fullName' | 'email'>[]> {
+  async findByRole(role: UserRole): Promise<Pick<User, 'id' | 'fullName' | 'email' | 'profilePhotoUrl'>[]> {
     return this.userRepository.find({
       where: { role, isVerified: true },
-      select: ['id', 'fullName', 'email'],
+      select: ['id', 'fullName', 'email', 'profilePhotoUrl'],
       order: { fullName: 'ASC' },
     });
   }
@@ -313,5 +313,27 @@ export class UsersService {
     }
     await this.userRepository.remove(user);
     return { message: 'Gestor eliminado exitosamente' };
+  }
+
+  /**
+   * Subir foto de perfil de un usuario
+   */
+  async uploadProfilePhoto(id: string, file: Express.Multer.File): Promise<{ profilePhotoUrl: string }> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    // Guardar en storage
+    const storageService = await import('../../common/services/storage.service');
+    const storage = new storageService.StorageService();
+    const path = `users/${id}/profile.${file.originalname.split('.').pop()}`;
+    const url = await storage.upload(path, file.buffer, file.mimetype);
+
+    // Actualizar URL en el usuario
+    user.profilePhotoUrl = url;
+    await this.userRepository.save(user);
+
+    return { profilePhotoUrl: url };
   }
 }

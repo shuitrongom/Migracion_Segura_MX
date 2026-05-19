@@ -1,18 +1,23 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { UserCog, Plus, Trash2, X, Eye, EyeOff } from 'lucide-react';
+import { UserCog, Plus, Trash2, X, Eye, EyeOff, Camera } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { DatePicker } from '@/components/ui/date-picker';
+import { useAuthStore } from '@/stores/auth.store';
+import { UserRole } from '@/lib/types';
 
 interface Gestor {
   id: string;
   fullName: string | null;
   email: string;
+  profilePhotoUrl?: string | null;
 }
 
 export default function GestoresPage() {
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === UserRole.ADMINISTRADOR;
   const [Gestores, setGestores] = useState<Gestor[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -142,6 +147,9 @@ export default function GestoresPage() {
             <thead>
               <tr className="border-b bg-gray-50">
                 <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  Foto
+                </th>
+                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
                   Nombre
                 </th>
                 <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
@@ -153,8 +161,37 @@ export default function GestoresPage() {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {Gestores.map((Gestor) => (
+              {Gestores.map((Gestor) => {
+                const canChangePhoto = isAdmin || user?.id === Gestor.id;
+                return (
                 <tr key={Gestor.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <div className="relative group">
+                      {Gestor.profilePhotoUrl ? (
+                        <img src={Gestor.profilePhotoUrl} alt={Gestor.fullName || ''} className="h-10 w-10 rounded-xl object-cover border border-gray-200" />
+                      ) : (
+                        <div className="h-10 w-10 bg-gradient-to-br from-brand-400 to-brand-600 rounded-xl flex items-center justify-center">
+                          <span className="text-sm font-bold text-white">{(Gestor.fullName || '?').charAt(0).toUpperCase()}</span>
+                        </div>
+                      )}
+                      {canChangePhoto && (
+                        <label className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                          <Camera className="h-4 w-4 text-white" />
+                          <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                              const formData = new FormData();
+                              formData.append('file', file);
+                              await api.post(`/users/${Gestor.id}/foto`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+                              toast.success('Foto actualizada');
+                              fetchGestores();
+                            } catch { toast.error('Error al subir foto'); }
+                          }} />
+                        </label>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
                     <button onClick={() => setSelectedGestor(Gestor)} className="text-brand-600 hover:text-brand-700 hover:underline font-medium">
                       {Gestor.fullName || '—'}
@@ -162,6 +199,7 @@ export default function GestoresPage() {
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">{Gestor.email}</td>
                   <td className="px-6 py-4 text-right">
+                    {isAdmin && (
                     <button
                       onClick={() => handleDelete(Gestor.id, Gestor.fullName)}
                       className="p-2 text-gray-400 hover:text-danger-500 rounded-lg hover:bg-danger-50 transition-colors"
@@ -169,9 +207,11 @@ export default function GestoresPage() {
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
+                    )}
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         )}
