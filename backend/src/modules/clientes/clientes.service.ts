@@ -27,13 +27,6 @@ export class ClientesService {
    * Req 9.1 - Crear cliente
    */
   async create(dto: CreateClienteDto, userId: string): Promise<Cliente> {
-    const existing = await this.clienteRepository.findOne({
-      where: { email: dto.email },
-    });
-    if (existing) {
-      throw new ConflictException('Ya existe un cliente con ese correo electrónico');
-    }
-
     const cliente = this.clienteRepository.create({
       ...dto,
       userId,
@@ -46,16 +39,6 @@ export class ClientesService {
    */
   async update(id: string, dto: UpdateClienteDto): Promise<Cliente> {
     const cliente = await this.findOneOrFail(id);
-
-    if (dto.email && dto.email !== cliente.email) {
-      const existing = await this.clienteRepository.findOne({
-        where: { email: dto.email },
-      });
-      if (existing) {
-        throw new ConflictException('Ya existe un cliente con ese correo electrónico');
-      }
-    }
-
     Object.assign(cliente, dto);
     return this.clienteRepository.save(cliente);
   }
