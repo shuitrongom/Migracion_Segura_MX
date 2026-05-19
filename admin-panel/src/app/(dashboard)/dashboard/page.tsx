@@ -137,8 +137,8 @@ export default function DashboardPage() {
               <div key={tramite.id} className="flex items-start gap-3 py-2 border-b border-gray-50 last:border-b-0">
                 <div className="w-2 h-2 rounded-full bg-brand-400 mt-2 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-700">
-                    Trámite {tramite.numeroPieza ?? tramite.id.slice(0, 8)} — {tramite.estatus}
+                  <p className="text-sm text-gray-700 capitalize">
+                    Trámite {tramite.numeroPieza ?? tramite.id.slice(0, 8)} — {tramite.estatus?.replace(/_/g, ' ')}
                     {tramite.cliente && ` (${tramite.cliente.nombreCompleto || ''})`}
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5">{tramite.createdAt ? new Date(tramite.createdAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}</p>

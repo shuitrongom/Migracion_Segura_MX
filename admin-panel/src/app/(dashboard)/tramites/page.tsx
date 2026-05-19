@@ -54,7 +54,12 @@ const TIPO_LABELS: Record<string, string> = {
   cambio_condicion_migratoria: 'Cambio de Condición',
   visa: 'Visa',
   nacionalidad: 'Nacionalidad',
-  permiso_trabajo: 'Permiso de Trabajo',
+  permiso_trabajo: 'Permisos INM',
+  notificacion_cambio: 'Notificación de Cambio',
+  expedicion_documento: 'Expedición Documento',
+  regularizacion_migratoria: 'Regularización Migratoria',
+  constancia_empleador: 'CIE',
+  cambio_condicion_estancia: 'Cambio de Condición',
   renovacion: 'Renovación',
   cambio_domicilio: 'Cambio de Domicilio',
   reposicion_documento: 'Reposición de Documento',
@@ -221,7 +226,7 @@ export default function TramitesPage() {
                             {tramite.numeroPieza ?? '—'}
                           </Link>
                         </td>
-                        <td className="px-4 py-3 font-medium text-gray-900">{clienteName}</td>
+                        <td className="px-4 py-3 font-medium text-gray-900 capitalize">{clienteName}</td>
                         <td className="px-4 py-3 text-gray-600 hidden md:table-cell">
                           {TIPO_LABELS[tramite.tipo] ?? tramite.tipo}
                         </td>
