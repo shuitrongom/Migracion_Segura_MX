@@ -19,17 +19,19 @@ export const authService = {
     email: string,
     phone: string,
     password: string,
+    fullName?: string,
   ): Promise<RegisterResponse> {
     const { data } = await api.post<RegisterResponse>('/auth/register', {
       email,
       phone,
       password,
+      fullName,
     });
     return data;
   },
 
-  async verify(userId: string, code: string): Promise<{ message: string }> {
-    const { data } = await api.post<{ message: string }>('/auth/verify', { userId, code });
+  async verify(userId: string, code: string): Promise<LoginResponse> {
+    const { data } = await api.post<LoginResponse>('/auth/verify', { userId, code });
     return data;
   },
 

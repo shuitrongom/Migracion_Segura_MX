@@ -17,6 +17,28 @@ export class EmailService {
   }
 
   /**
+   * Enviar código de verificación por email
+   */
+  async sendVerificationCodeEmail(params: {
+    to: string;
+    code: string;
+  }): Promise<void> {
+    const { to, code } = params;
+
+    try {
+      await this.resend.emails.send({
+        from: `${this.fromName} <${this.fromEmail}>`,
+        to: [to],
+        subject: `Tu código de verificación: ${code} — Migración Segura MX`,
+        html: `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;font-family:-apple-system,sans-serif;background:#f5f0e8;"><table width="100%" style="max-width:600px;margin:0 auto;padding:40px 20px;"><tr><td><table width="100%" style="background:#2C1810;border-radius:12px 12px 0 0;padding:24px;"><tr><td align="center"><h1 style="color:#C4A265;margin:0;font-size:20px;">MIGRACIÓN SEGURA MX</h1></td></tr></table><table width="100%" style="background:#fff;padding:32px;"><tr><td><h2 style="color:#2C1810;font-size:18px;margin:0 0 16px;">Verifica tu cuenta</h2><p style="color:#4a4a4a;font-size:14px;line-height:1.6;">Tu código de verificación es:</p><table width="100%" style="margin:20px 0;"><tr><td align="center"><div style="background:#f8f5f0;border:2px solid #C4A265;border-radius:12px;padding:20px 40px;display:inline-block;"><span style="font-size:32px;font-weight:700;color:#2C1810;letter-spacing:8px;">${code}</span></div></td></tr></table><p style="color:#4a4a4a;font-size:14px;">Este código expira en <strong>15 minutos</strong>.</p><p style="color:#888;font-size:12px;margin-top:20px;">Si no solicitaste este código, ignora este correo.</p></td></tr></table><table width="100%" style="background:#f8f5f0;border-radius:0 0 12px 12px;padding:20px;"><tr><td align="center"><p style="color:#6B5B4F;font-size:11px;margin:0;">© ${new Date().getFullYear()} Migración Segura MX</p></td></tr></table></td></tr></table></body></html>`,
+      });
+      this.logger.log(`Código de verificación enviado a ${to}`);
+    } catch (error) {
+      this.logger.error(`Error enviando código a ${to}:`, error);
+    }
+  }
+
+  /**
    * Enviar email de bienvenida al nuevo asesor con sus credenciales
    */
   async sendAsesorWelcomeEmail(params: {

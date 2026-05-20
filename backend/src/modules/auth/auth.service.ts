@@ -11,6 +11,7 @@ import * as crypto from 'crypto';
 
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +19,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly emailService: EmailService,
   ) {}
 
   /**
@@ -43,8 +45,11 @@ export class AuthService {
     });
 
     // Enviar código de verificación por email (Req 1.2)
-    // TODO: Integrar con NotificacionesService cuando esté listo
-    // Por ahora logueamos el código en desarrollo
+    await this.emailService.sendVerificationCodeEmail({
+      to: email,
+      code: verificationCode,
+    });
+
     if (this.configService.get<string>('app.nodeEnv') !== 'production') {
       // eslint-disable-next-line no-console
       console.log(`[DEV] Código de verificación para ${email}: ${verificationCode}`);
@@ -53,6 +58,8 @@ export class AuthService {
     return {
       message: 'Registro exitoso. Se ha enviado un código de verificación a tu correo.',
       userId: user.id,
+      // En desarrollo/staging devolvemos el código para facilitar pruebas
+      ...(this.configService.get<string>('app.nodeEnv') !== 'production' && { verificationCode }),
     };
   }
 
@@ -122,7 +129,12 @@ export class AuthService {
 
     await this.usersService.updateVerificationCode(userId, verificationCode, verificationExpires);
 
-    // TODO: Enviar por email/SMS
+    // Enviar por email
+    await this.emailService.sendVerificationCodeEmail({
+      to: user.email,
+      code: verificationCode,
+    });
+
     if (this.configService.get<string>('app.nodeEnv') !== 'production') {
       // eslint-disable-next-line no-console
       console.log(`[DEV] Nuevo código para ${user.email}: ${verificationCode}`);

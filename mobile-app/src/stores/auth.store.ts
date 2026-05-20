@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import * as SecureStore from 'expo-secure-store';
-import { authService } from '../services/auth.service';
-import type { User } from '../types';
+import { storage } from '../lib/storage';
+import { authService, GoogleProfile } from '../services/auth.service';
+import type { User, UserRole } from '../types';
 
 const ACCESS_TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
@@ -12,36 +12,59 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, phone: string, password: string) => Promise<{ userId: string }>;
+  loginWithGoogle: (profile: GoogleProfile) => Promise<void>;
+  register: (data: {
+    email: string;
+    phone: string;
+    password: string;
+    fullName: string;
+  }) => Promise<{ userId: string }>;
   logout: () => Promise<void>;
   initialize: () => Promise<void>;
+  getUserRole: () => UserRole | null;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
 
   login: async (email: string, password: string) => {
     const response = await authService.login(email, password);
-    await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, response.accessToken);
-    await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, response.refreshToken);
-    await SecureStore.setItemAsync(USER_KEY, JSON.stringify(response.user));
+    await storage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
+    await storage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
+    await storage.setItem(USER_KEY, JSON.stringify(response.user));
     set({
       user: response.user,
       isAuthenticated: true,
     });
   },
 
-  register: async (email: string, phone: string, password: string) => {
-    const response = await authService.register(email, phone, password);
+  loginWithGoogle: async (profile: GoogleProfile) => {
+    const response = await authService.loginWithGoogle(profile);
+    await storage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
+    await storage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
+    await storage.setItem(USER_KEY, JSON.stringify(response.user));
+    set({
+      user: response.user,
+      isAuthenticated: true,
+    });
+  },
+
+  register: async (data) => {
+    const response = await authService.register(
+      data.email,
+      data.phone,
+      data.password,
+      data.fullName,
+    );
     return { userId: response.userId };
   },
 
   logout: async () => {
-    await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
-    await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
-    await SecureStore.deleteItemAsync(USER_KEY);
+    await storage.deleteItem(ACCESS_TOKEN_KEY);
+    await storage.deleteItem(REFRESH_TOKEN_KEY);
+    await storage.deleteItem(USER_KEY);
     set({
       user: null,
       isAuthenticated: false,
@@ -50,8 +73,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   initialize: async () => {
     try {
-      const token = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
-      const userData = await SecureStore.getItemAsync(USER_KEY);
+      const token = await storage.getItem(ACCESS_TOKEN_KEY);
+      const userData = await storage.getItem(USER_KEY);
 
       if (token && userData) {
         const user = JSON.parse(userData) as User;
@@ -64,11 +87,15 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({ isLoading: false });
       }
     } catch {
-      // Clear corrupted data
-      await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
-      await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
-      await SecureStore.deleteItemAsync(USER_KEY);
+      await storage.deleteItem(ACCESS_TOKEN_KEY);
+      await storage.deleteItem(REFRESH_TOKEN_KEY);
+      await storage.deleteItem(USER_KEY);
       set({ isLoading: false });
     }
+  },
+
+  getUserRole: () => {
+    const state = get();
+    return state.user?.role ?? null;
   },
 }));
