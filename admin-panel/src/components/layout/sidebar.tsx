@@ -15,9 +15,11 @@ import {
   Settings,
   Zap,
   UserCog,
+  X,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAuthStore } from '@/stores/auth.store';
+import { useSidebarStore } from '@/stores/sidebar.store';
 import { UserRole } from '@/lib/types';
 
 interface NavItem {
@@ -42,7 +44,7 @@ const navigation: NavItem[] = [
   { name: 'Configuración', href: '/configuracion', icon: Settings, adminOnly: true },
 ];
 
-export function Sidebar() {
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.role === UserRole.ADMINISTRADOR;
@@ -52,7 +54,7 @@ export function Sidebar() {
   );
 
   return (
-    <aside className="hidden lg:flex lg:flex-col w-64 bg-brand-500 text-white">
+    <>
       {/* Logo */}
       <div className="flex items-center h-16 px-6 border-b border-brand-400/30">
         <span className="text-lg font-bold text-gold-400">MIGRACIÓN</span>
@@ -75,6 +77,7 @@ export function Sidebar() {
               <li key={item.name}>
                 <Link
                   href={item.href}
+                  onClick={onNavigate}
                   className={clsx(
                     'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                     isActive
@@ -97,6 +100,40 @@ export function Sidebar() {
           Panel de gestión y control de trámites y clientes.
         </p>
       </div>
-    </aside>
+    </>
+  );
+}
+
+export function Sidebar() {
+  const { isOpen, close } = useSidebarStore();
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex lg:flex-col w-64 bg-brand-500 text-white">
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile sidebar overlay */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Backdrop */}
+          <div className="fixed inset-0 bg-black/50" onClick={close} />
+          
+          {/* Sidebar panel */}
+          <aside className="fixed inset-y-0 left-0 w-72 bg-brand-500 text-white flex flex-col shadow-xl">
+            {/* Close button */}
+            <button
+              onClick={close}
+              className="absolute top-4 right-4 p-2 text-brand-200 hover:text-white rounded-lg"
+              aria-label="Cerrar menú"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <SidebarContent onNavigate={close} />
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

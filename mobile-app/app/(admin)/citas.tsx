@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, Linking } from 'react-native';
 import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
 
@@ -23,7 +23,7 @@ export default function CitasScreen() {
   const onRefresh = async () => { setRefreshing(true); await loadCitas(); setRefreshing(false); };
 
   const handleNewCita = () => {
-    Alert.alert('Nueva cita', 'Para agendar una cita, usa el panel web.\n\nmigracion-segura-mx-admin-panel.vercel.app');
+    Linking.openURL('https://migracion-segura-mx-admin-panel.vercel.app/citas');
   };
 
   if (loading) return <View style={styles.loadingContainer}><ActivityIndicator size="large" color="#C4A265" /></View>;
@@ -48,7 +48,7 @@ export default function CitasScreen() {
               <Text style={styles.cardFecha}>{item.fecha?.slice(0, 10) || ''}</Text>
             </View>
             <View style={styles.cardRight}>
-              <Text style={styles.cardCliente}>{item.cliente?.nombre || 'Sin cliente'} {item.cliente?.apellidos || ''}</Text>
+              <Text style={styles.cardCliente}>{item.cliente?.nombreCompleto || item.cliente?.nombre || 'Sin cliente'}</Text>
               <View style={styles.cardMeta}>
                 <Text style={styles.modalidad}>
                   {item.modalidad === 'presencial' ? '🏢 Presencial' : '📹 Videollamada'}

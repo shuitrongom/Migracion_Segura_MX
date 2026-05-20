@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator, Linking } from 'react-native';
 import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
 
@@ -24,14 +24,13 @@ export default function ExtranjerosScreen() {
   const onRefresh = async () => { setRefreshing(true); await loadClientes(); setRefreshing(false); };
 
   const filtered = clientes.filter((c) =>
-    (c.nombre || '').toLowerCase().includes(search.toLowerCase()) ||
-    (c.apellidos || '').toLowerCase().includes(search.toLowerCase()) ||
+    (c.nombreCompleto || c.nombre || '').toLowerCase().includes(search.toLowerCase()) ||
     (c.email || '').toLowerCase().includes(search.toLowerCase()) ||
     (c.nacionalidad || '').toLowerCase().includes(search.toLowerCase()),
   );
 
   const handleNewCliente = () => {
-    Alert.alert('Nuevo extranjero', 'Para registrar un extranjero completo, usa el panel web.\n\nmigracion-segura-mx-admin-panel.vercel.app');
+    Linking.openURL('https://migracion-segura-mx-admin-panel.vercel.app/clientes/nuevo');
   };
 
   if (loading) return <View style={styles.loadingContainer}><ActivityIndicator size="large" color="#C4A265" /></View>;
@@ -53,10 +52,10 @@ export default function ExtranjerosScreen() {
           <TouchableOpacity style={styles.card}>
             <View style={styles.cardHeader}>
               <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{(item.nombre || '?').charAt(0)}</Text>
+                <Text style={styles.avatarText}>{(item.nombreCompleto || item.nombre || '?').charAt(0)}</Text>
               </View>
               <View style={styles.cardInfo}>
-                <Text style={styles.cardName}>{item.nombre} {item.apellidos || ''}</Text>
+                <Text style={styles.cardName}>{item.nombreCompleto || `${item.nombre || ''} ${item.apellidos || ''}`}</Text>
                 {item.nacionalidad && <Text style={styles.cardNacionalidad}>🌍 {item.nacionalidad}</Text>}
               </View>
             </View>

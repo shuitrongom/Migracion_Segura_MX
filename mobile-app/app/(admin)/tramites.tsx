@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator, Linking } from 'react-native';
 import { useState, useEffect } from 'react';
 import { router } from 'expo-router';
 import { apiFetch } from '@/lib/api';
@@ -34,12 +34,13 @@ export default function AdminTramitesScreen() {
   const onRefresh = async () => { setRefreshing(true); await loadTramites(); setRefreshing(false); };
 
   const filtered = tramites.filter((t) =>
-    (t.cliente?.nombre || '').toLowerCase().includes(search.toLowerCase()) ||
-    (t.tipo || '').toLowerCase().includes(search.toLowerCase()),
+    (t.cliente?.nombreCompleto || t.cliente?.nombre || '').toLowerCase().includes(search.toLowerCase()) ||
+    (t.tipo || '').toLowerCase().includes(search.toLowerCase()) ||
+    (t.numeroPieza || '').includes(search),
   );
 
   const handleNewTramite = () => {
-    Alert.alert('Nuevo trámite', 'Para crear un trámite completo, usa el panel web.\n\nmigracion-segura-mx-admin-panel.vercel.app');
+    Linking.openURL('https://migracion-segura-mx-admin-panel.vercel.app/tramites/nuevo');
   };
 
   if (loading) return <View style={styles.loadingContainer}><ActivityIndicator size="large" color="#C4A265" /></View>;
@@ -67,8 +68,9 @@ export default function AdminTramitesScreen() {
                 </Text>
               </View>
             </View>
-            <Text style={styles.cardCliente}>👤 {item.cliente?.nombre || 'Sin cliente'} {item.cliente?.apellidos || ''}</Text>
+            <Text style={styles.cardCliente}>👤 {item.cliente?.nombreCompleto || item.cliente?.nombre || 'Sin cliente'}</Text>
             <Text style={styles.cardFecha}>📅 {item.createdAt?.slice(0, 10) || ''}</Text>
+            {item.numeroPieza && <Text style={styles.cardPieza}>📋 Pieza: {item.numeroPieza}</Text>}
           </TouchableOpacity>
         )}
       />
@@ -93,6 +95,7 @@ const styles = StyleSheet.create({
   badgeText: { fontSize: 12, fontWeight: '600' },
   cardCliente: { fontSize: 14, color: '#6B5B4F' },
   cardFecha: { fontSize: 13, color: '#8B7B6F' },
+  cardPieza: { fontSize: 13, color: '#3498DB', fontWeight: '500' },
   empty: { alignItems: 'center', paddingVertical: 40 },
   emptyText: { fontSize: 15, color: '#8B7B6F' },
   fab: { position: 'absolute', bottom: 20, right: 20, backgroundColor: '#C4A265', borderRadius: 24, paddingHorizontal: 20, paddingVertical: 14, elevation: 4 },

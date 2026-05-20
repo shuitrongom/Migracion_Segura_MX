@@ -118,36 +118,38 @@ export default function RegisterScreen() {
   // Pantalla de verificación
   if (showVerify) {
     return (
-      <View style={styles.container}>
-        <View style={[styles.content, { justifyContent: 'center' }]}>
-          <View style={styles.header}>
-            <Text style={{ fontSize: 48 }}>📧</Text>
-            <Text style={styles.title}>Verificar cuenta</Text>
-            <Text style={styles.subtitle}>
-              Ingresa el código de 6 dígitos enviado a {email}
-            </Text>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <View style={[styles.content, { justifyContent: 'center' }]}>
+            <View style={styles.header}>
+              <Text style={{ fontSize: 48 }}>📧</Text>
+              <Text style={styles.title}>Verificar cuenta</Text>
+              <Text style={styles.subtitle}>
+                Ingresa el código de 6 dígitos{'\n'}(usa 000000 para pruebas)
+              </Text>
+            </View>
+            <TextInput
+              style={[styles.input, { textAlign: 'center', fontSize: 24, letterSpacing: 6, fontWeight: '700' }]}
+              value={verifyCode}
+              onChangeText={(t) => setVerifyCode(t.replace(/[^0-9]/g, '').slice(0, 6))}
+              placeholder="000000"
+              placeholderTextColor="#9CA3AF"
+              keyboardType="number-pad"
+              maxLength={6}
+            />
+            <TouchableOpacity
+              style={[styles.button, isVerifying && { opacity: 0.6 }]}
+              onPress={() => handleVerify()}
+              disabled={isVerifying}
+            >
+              <Text style={styles.buttonText}>{isVerifying ? 'Verificando...' : 'Verificar'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => { setShowVerify(false); router.replace('/(auth)/login'); }}>
+              <Text style={styles.linkText}>Ir al login</Text>
+            </TouchableOpacity>
           </View>
-          <TextInput
-            style={[styles.input, { textAlign: 'center', fontSize: 24, letterSpacing: 6, fontWeight: '700' }]}
-            value={verifyCode}
-            onChangeText={(t) => setVerifyCode(t.replace(/[^0-9]/g, '').slice(0, 6))}
-            placeholder="000000"
-            placeholderTextColor="#9CA3AF"
-            keyboardType="number-pad"
-            maxLength={6}
-          />
-          <TouchableOpacity
-            style={[styles.button, isVerifying && { opacity: 0.6 }]}
-            onPress={() => handleVerify()}
-            disabled={isVerifying}
-          >
-            <Text style={styles.buttonText}>{isVerifying ? 'Verificando...' : 'Verificar'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => { setShowVerify(false); router.replace('/(auth)/login'); }}>
-            <Text style={styles.linkText}>Ir al login</Text>
-          </TouchableOpacity>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     );
   }
 
