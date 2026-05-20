@@ -18,29 +18,28 @@ export default function RegisterScreen() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Estado para verificación
+  const [showVerify, setShowVerify] = useState(false);
+  const [userId, setUserId] = useState('');
+  const [verifyCode, setVerifyCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+
   const handleRegister = async () => {
-    if (!fullName.trim()) {
-      Alert.alert('Error', 'Ingresa tu nombre completo');
-      return;
-    }
-    if (!email.trim() || !email.includes('@')) {
-      Alert.alert('Error', 'Ingresa un correo electrónico válido');
-      return;
-    }
+    if (!fullName.trim()) { Alert.alert('Error', 'Ingresa tu nombre completo'); return; }
+    if (!email.trim() || !email.includes('@')) { Alert.alert('Error', 'Ingresa un correo válido'); return; }
     if (!phone.trim() || phone.replace(/\s/g, '').replace('+', '').length < 10) {
-      Alert.alert('Error', 'Ingresa un número de WhatsApp válido con código de país (ej: +5215512345678)');
+      Alert.alert('Error', 'Ingresa un WhatsApp válido con código de país (ej: +5215512345678)');
       return;
     }
-    if (password.length < 8) {
-      Alert.alert('Error', 'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número');
+    if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
+      Alert.alert('Error', 'La contraseña necesita mínimo 8 caracteres, una mayúscula, una minúscula y un número');
       return;
     }
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Las contraseñas no coinciden');
-      return;
-    }
+    if (password !== confirmPassword) { Alert.alert('Error', 'Las contraseñas no coinciden'); return; }
 
     setIsLoading(true);
     try {
@@ -51,7 +50,7 @@ export default function RegisterScreen() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: email.trim(),
-            phone: phone.trim().startsWith('+') ? phone.trim() : '+' + phone.trim().replace(/\s/g, ''),
+            phone: phone.trim().startsWith('+') ? phone.trim().replace(/\s/g, '') : '+' + phone.trim().replace(/\s/g, ''),
             password,
           }),
         },
@@ -65,109 +64,143 @@ export default function RegisterScreen() {
         return;
       }
 
-      // Si el backend devuelve el código (modo dev), mostrarlo
-      const codeMsg = data.verificationCode
-        ? `\n\nTu código es: ${data.verificationCode}`
-        : '\n\nRevisa tu correo.';
+      // Si el backend devuelve el código (modo dev), auto-verificar
+      if (data.verificationCode) {
+        setUserId(data.userId);
+        setVerifyCode(data.verificationCode);
+        handleVerify(data.userId, data.verificationCode);
+        return;
+      }
 
-      Alert.alert(
-        'Registro exitoso',
-        'Cuenta creada.' + codeMsg + '\n\nInicia sesión después de verificar.',
-        [{ text: 'OK', onPress: () => router.replace('/(auth)/login') }],
-        { cancelable: false },
-      );
-    } catch (err: any) {
+      // Si no, mostrar pantalla de verificación manual
+      setUserId(data.userId);
+      setShowVerify(true);
+    } catch {
       setIsLoading(false);
-      Alert.alert('Error de conexión', 'No se pudo conectar al servidor. Verifica tu internet.');
+      Alert.alert('Error', 'No se pudo conectar al servidor');
     }
   };
 
+  const handleVerify = async (uid?: string, code?: string) => {
+    const finalUserId = uid || userId;
+    const finalCode = code || verifyCode;
+    if (!finalCode || finalCode.length !== 6) {
+      Alert.alert('Error', 'Ingresa el código de 6 dígitos');
+      return;
+    }
+    setIsVerifying(true);
+    try {
+      const res = await fetch(
+        'https://backend-production-79ed.up.railway.app/api/v1/auth/verify',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: finalUserId, code: finalCode }),
+        },
+      );
+      const result = await res.json();
+      setIsVerifying(false);
+      if (res.ok) {
+        Alert.alert('¡Cuenta verificada!', 'Ya puedes iniciar sesión.', [
+          { text: 'Ir a Login', onPress: () => router.replace('/(auth)/login') },
+        ]);
+      } else {
+        Alert.alert('Error', result.message || 'Código inválido');
+      }
+    } catch {
+      setIsVerifying(false);
+      Alert.alert('Error', 'No se pudo verificar');
+    }
+  };
+
+  // Pantalla de verificación
+  if (showVerify) {
+    return (
+      <View style={styles.container}>
+        <View style={[styles.content, { justifyContent: 'center' }]}>
+          <View style={styles.header}>
+            <Text style={{ fontSize: 48 }}>📧</Text>
+            <Text style={styles.title}>Verificar cuenta</Text>
+            <Text style={styles.subtitle}>
+              Ingresa el código de 6 dígitos enviado a {email}
+            </Text>
+          </View>
+          <TextInput
+            style={[styles.input, { textAlign: 'center', fontSize: 24, letterSpacing: 6, fontWeight: '700' }]}
+            value={verifyCode}
+            onChangeText={(t) => setVerifyCode(t.replace(/[^0-9]/g, '').slice(0, 6))}
+            placeholder="000000"
+            placeholderTextColor="#9CA3AF"
+            keyboardType="number-pad"
+            maxLength={6}
+          />
+          <TouchableOpacity
+            style={[styles.button, isVerifying && { opacity: 0.6 }]}
+            onPress={() => handleVerify()}
+            disabled={isVerifying}
+          >
+            <Text style={styles.buttonText}>{isVerifying ? 'Verificando...' : 'Verificar'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { setShowVerify(false); router.replace('/(auth)/login'); }}>
+            <Text style={styles.linkText}>Ir al login</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.title}>Crear cuenta</Text>
-          <Text style={styles.subtitle}>
-            Registro para extranjeros{'\n'}Gestiona tus trámites migratorios
-          </Text>
+          <Text style={styles.subtitle}>Registro para extranjeros{'\n'}Gestiona tus trámites migratorios</Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Nombre completo *</Text>
-            <TextInput
-              style={styles.input}
-              value={fullName}
-              onChangeText={setFullName}
-              placeholder="Ej: Juan Pérez García"
-              placeholderTextColor="#9CA3AF"
-              autoCapitalize="words"
-            />
+            <TextInput style={styles.input} value={fullName} onChangeText={setFullName}
+              placeholder="Ej: Juan Pérez García" placeholderTextColor="#9CA3AF" autoCapitalize="words" />
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Correo electrónico *</Text>
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="tu@email.com"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
+            <TextInput style={styles.input} value={email} onChangeText={setEmail}
+              placeholder="tu@email.com" placeholderTextColor="#9CA3AF" keyboardType="email-address" autoCapitalize="none" />
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>WhatsApp (con código de país) *</Text>
-            <TextInput
-              style={styles.input}
-              value={phone}
-              onChangeText={setPhone}
-              placeholder="+52 55 1234 5678"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="phone-pad"
-            />
-            <Text style={styles.hint}>
-              Te contactaremos por WhatsApp para actualizaciones
-            </Text>
+            <TextInput style={styles.input} value={phone} onChangeText={setPhone}
+              placeholder="+5215512345678" placeholderTextColor="#9CA3AF" keyboardType="phone-pad" />
+            <Text style={styles.hint}>Formato: +52 seguido de 10 dígitos</Text>
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Contraseña *</Text>
-            <TextInput
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Mínimo 8 caracteres"
-              placeholderTextColor="#9CA3AF"
-              secureTextEntry
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput style={styles.passwordInput} value={password} onChangeText={setPassword}
+                placeholder="Mayúscula, minúscula y número" placeholderTextColor="#9CA3AF" secureTextEntry={!showPassword} />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeButton}>
+                <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Confirmar contraseña *</Text>
-            <TextInput
-              style={styles.input}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              placeholder="Repite tu contraseña"
-              placeholderTextColor="#9CA3AF"
-              secureTextEntry
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput style={styles.passwordInput} value={confirmPassword} onChangeText={setConfirmPassword}
+                placeholder="Repite tu contraseña" placeholderTextColor="#9CA3AF" secureTextEntry={!showConfirm} />
+              <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)} style={styles.eyeButton}>
+                <Text style={styles.eyeIcon}>{showConfirm ? '🙈' : '👁️'}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
-          <TouchableOpacity
-            style={[styles.button, isLoading && { opacity: 0.6 }]}
-            onPress={handleRegister}
-            disabled={isLoading}
-          >
-            <Text style={styles.buttonText}>
-              {isLoading ? 'Creando cuenta...' : 'Crear cuenta'}
-            </Text>
+          <TouchableOpacity style={[styles.button, isLoading && { opacity: 0.6 }]} onPress={handleRegister} disabled={isLoading}>
+            <Text style={styles.buttonText}>{isLoading ? 'Creando cuenta...' : 'Crear cuenta'}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => router.back()}>
@@ -190,22 +223,19 @@ const styles = StyleSheet.create({
   label: { fontSize: 14, fontWeight: '600', color: '#2C1810' },
   hint: { fontSize: 12, color: '#8B7B6F', marginTop: 2 },
   input: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E8DFD3',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#2C1810',
+    backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8DFD3',
+    borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: '#2C1810',
   },
-  button: {
-    backgroundColor: '#3D2B1F',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginTop: 8,
+  passwordContainer: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF',
+    borderWidth: 1, borderColor: '#E8DFD3', borderRadius: 12,
   },
+  passwordInput: {
+    flex: 1, paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: '#2C1810',
+  },
+  eyeButton: { paddingHorizontal: 14, paddingVertical: 14 },
+  eyeIcon: { fontSize: 20 },
+  button: { backgroundColor: '#3D2B1F', borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginTop: 8 },
   buttonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
   linkText: { color: '#C4A265', fontSize: 14, fontWeight: '600', textAlign: 'center', marginTop: 16 },
 });
