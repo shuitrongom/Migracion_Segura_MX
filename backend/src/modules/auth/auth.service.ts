@@ -89,9 +89,9 @@ export class AuthService {
 
     // Verificar código
     if (user.verificationCode !== code) {
-      // Código de bypass para desarrollo/staging
+      // Código de bypass para pruebas (quitar cuando se tenga dominio de email verificado)
       const bypassCode = '000000';
-      if (code !== bypassCode || this.configService.get<string>('app.nodeEnv') === 'production') {
+      if (code !== bypassCode) {
         throw new BadRequestException('El código de verificación es incorrecto.');
       }
     }

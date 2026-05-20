@@ -17,32 +17,14 @@ export default function AdminLayout() {
           paddingBottom: 8,
           height: 68,
         },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '500',
-        },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '500' },
       }}
     >
-      <Tabs.Screen
-        name="dashboard"
-        options={{ title: 'Panel', tabBarLabel: 'Inicio' }}
-      />
-      <Tabs.Screen
-        name="tramites"
-        options={{ title: 'Trámites', tabBarLabel: 'Trámites' }}
-      />
-      <Tabs.Screen
-        name="extranjeros"
-        options={{ title: 'Extranjeros', tabBarLabel: 'Extranjeros' }}
-      />
-      <Tabs.Screen
-        name="citas"
-        options={{ title: 'Citas', tabBarLabel: 'Citas' }}
-      />
-      <Tabs.Screen
-        name="perfil"
-        options={{ title: 'Perfil', tabBarLabel: 'Perfil' }}
-      />
+      <Tabs.Screen name="dashboard" options={{ title: 'Panel', tabBarLabel: 'Inicio' }} />
+      <Tabs.Screen name="tramites" options={{ title: 'Trámites', tabBarLabel: 'Trámites' }} />
+      <Tabs.Screen name="extranjeros" options={{ title: 'Extranjeros', tabBarLabel: 'Clientes' }} />
+      <Tabs.Screen name="citas" options={{ title: 'Citas', tabBarLabel: 'Citas' }} />
+      <Tabs.Screen name="perfil" options={{ title: 'Perfil', tabBarLabel: 'Perfil' }} />
     </Tabs>
   );
 }

@@ -1,33 +1,20 @@
-import axios from 'axios';
 import { storage } from './storage';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+const BASE_URL = 'https://backend-production-79ed.up.railway.app/api/v1';
 
-export const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 15000,
-});
-
-// Interceptor para agregar token
-api.interceptors.request.use(async (config) => {
+export async function apiFetch(path: string, options?: RequestInit) {
   const token = await storage.getItem('access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(`${BASE_URL}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options?.headers,
+    },
+  });
+  if (res.status === 401) {
+    await storage.deleteItem('access_token');
+    await storage.deleteItem('user_data');
   }
-  return config;
-});
-
-// Interceptor para manejar errores
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    if (error.response?.status === 401) {
-      await storage.deleteItem('access_token');
-      await storage.deleteItem('refresh_token');
-    }
-    return Promise.reject(error);
-  },
-);
+  return res;
+}

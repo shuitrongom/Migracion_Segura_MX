@@ -8,10 +8,13 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import { useState } from 'react';
 import { router } from 'expo-router';
 import PasswordInput from '@/components/PasswordInput';
+import PhoneInput from '@/components/PhoneInput';
 
 export default function RegisterScreen() {
   const [fullName, setFullName] = useState('');
@@ -30,8 +33,8 @@ export default function RegisterScreen() {
   const handleRegister = async () => {
     if (!fullName.trim()) { Alert.alert('Error', 'Ingresa tu nombre completo'); return; }
     if (!email.trim() || !email.includes('@')) { Alert.alert('Error', 'Ingresa un correo válido'); return; }
-    if (!phone.trim() || phone.replace(/\s/g, '').replace('+', '').length < 10) {
-      Alert.alert('Error', 'Ingresa un WhatsApp válido con código de país (ej: +5215512345678)');
+    if (!phone || phone.replace(/\D/g, '').length < 12) {
+      Alert.alert('Error', 'Ingresa un número de WhatsApp válido');
       return;
     }
     if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
@@ -49,7 +52,7 @@ export default function RegisterScreen() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: email.trim(),
-            phone: phone.trim().startsWith('+') ? phone.trim().replace(/\s/g, '') : '+' + phone.trim().replace(/\s/g, ''),
+            phone: phone,
             password,
           }),
         },
@@ -150,7 +153,8 @@ export default function RegisterScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.title}>Crear cuenta</Text>
           <Text style={styles.subtitle}>Registro para extranjeros{'\n'}Gestiona tus trámites migratorios</Text>
@@ -170,10 +174,8 @@ export default function RegisterScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>WhatsApp (con código de país) *</Text>
-            <TextInput style={styles.input} value={phone} onChangeText={setPhone}
-              placeholder="+5215512345678" placeholderTextColor="#9CA3AF" keyboardType="phone-pad" />
-            <Text style={styles.hint}>Formato: +52 seguido de 10 dígitos</Text>
+            <Text style={styles.label}>WhatsApp *</Text>
+            <PhoneInput value={phone} onChangeText={setPhone} />
           </View>
 
           <View style={styles.inputGroup}>
@@ -194,7 +196,8 @@ export default function RegisterScreen() {
             <Text style={styles.linkText}>¿Ya tienes cuenta? Inicia sesión</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+        </ScrollView>
+      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 }
