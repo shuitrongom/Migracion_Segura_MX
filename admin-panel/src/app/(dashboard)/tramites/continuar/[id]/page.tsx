@@ -2,10 +2,27 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Check, FileText, ClipboardList, ExternalLink, Upload, Key, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, FileText, ClipboardList, ExternalLink, Upload, Key, Loader2, Copy } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
+
+function CopyField({ label, value }: { label: string; value?: string }) {
+  if (!value) return null;
+  const handleCopy = () => {
+    navigator.clipboard.writeText(value);
+    toast.success(`"${value}" copiado`);
+  };
+  return (
+    <button type="button" onClick={handleCopy} className="w-full text-left p-1.5 rounded hover:bg-white border border-transparent hover:border-gray-200 transition-all group">
+      {label && <p className="text-[10px] text-gray-400">{label}</p>}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-900">{value}</p>
+        <Copy className="h-3 w-3 text-gray-300 group-hover:text-brand-500" />
+      </div>
+    </button>
+  );
+}
 
 interface Requisito { nombre: string; obligatorio: boolean; descripcion: string; }
 
@@ -136,27 +153,77 @@ export default function ContinuarTramitePage() {
               <h2 className="text-lg font-semibold text-gray-900">Llenar Solicitud en el INM</h2>
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-              <p className="text-sm text-blue-800">Llena el formulario del INM con los datos del extranjero. Al finalizar, copia la pieza y clave abajo.</p>
+              <p className="text-sm text-blue-800">Usa la ficha de la izquierda como referencia para llenar el formulario del INM a la derecha. Haz clic en cualquier dato para copiarlo.</p>
             </div>
 
-            {/* Datos del extranjero como referencia */}
-            {tramite?.datosFormulario && (
-              <div className="mb-4 p-4 bg-gray-50 border rounded-lg">
-                <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Datos del extranjero (referencia)</p>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div><span className="text-gray-400">Nombre:</span> <span className="text-gray-900">{tramite.datosFormulario.nombre} {tramite.datosFormulario.apellidos}</span></div>
-                  <div><span className="text-gray-400">Nacionalidad:</span> <span className="text-gray-900">{tramite.datosFormulario.nacionalidad}</span></div>
-                  <div><span className="text-gray-400">Pasaporte:</span> <span className="text-gray-900">{tramite.datosFormulario.pasaporteNumero}</span></div>
-                  <div><span className="text-gray-400">Email:</span> <span className="text-gray-900">{tramite.datosFormulario.email}</span></div>
-                </div>
+            {/* Layout lado a lado: Ficha + Iframe */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ height: '620px' }}>
+              {/* Ficha de datos (izquierda) */}
+              <div className="lg:col-span-1 overflow-y-auto border rounded-lg p-4 bg-gray-50">
+                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">Ficha del Extranjero</h4>
+                {tramite?.datosFormulario && (
+                  <div className="space-y-4">
+                    {/* Propósito */}
+                    {tramite.datosFormulario.propositoViaje && (
+                      <div>
+                        <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Propósito de viaje</p>
+                        <CopyField label="" value={tramite.datosFormulario.propositoViaje} />
+                        {tramite.datosFormulario.especificaTramite && <CopyField label="Especifica" value={tramite.datosFormulario.especificaTramite} />}
+                      </div>
+                    )}
+                    {/* Datos personales */}
+                    <div>
+                      <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Datos del extranjero</p>
+                      {tramite.datosFormulario.curpExtranjero && <CopyField label="CURP" value={tramite.datosFormulario.curpExtranjero} />}
+                      <CopyField label="Nombre(s)" value={tramite.datosFormulario.nombre} />
+                      <CopyField label="Apellido(s)" value={tramite.datosFormulario.apellidos} />
+                      <CopyField label="Sexo" value={tramite.datosFormulario.sexo === 'H' ? 'Hombre' : tramite.datosFormulario.sexo === 'M' ? 'Mujer' : ''} />
+                      <CopyField label="Fecha nacimiento" value={tramite.datosFormulario.fechaNacimiento} />
+                      <CopyField label="Nacionalidad" value={tramite.datosFormulario.nacionalidad} />
+                      <CopyField label="Estado civil" value={tramite.datosFormulario.estadoCivil} />
+                    </div>
+                    {/* Lugar de nacimiento */}
+                    <div>
+                      <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Lugar de nacimiento</p>
+                      <CopyField label="País" value={tramite.datosFormulario.paisNacimiento} />
+                      <CopyField label="Estado/Provincia" value={tramite.datosFormulario.estadoProvinciaNacimiento} />
+                    </div>
+                    {/* Documento */}
+                    <div>
+                      <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Documento de identidad</p>
+                      <CopyField label="Tipo" value={tramite.datosFormulario.documentoIdentificacion} />
+                      <CopyField label="Número" value={tramite.datosFormulario.numeroDocumento} />
+                      <CopyField label="País expedición" value={tramite.datosFormulario.paisExpedicion} />
+                      <CopyField label="Expedición" value={tramite.datosFormulario.fechaExpedicion} />
+                      <CopyField label="Vencimiento" value={tramite.datosFormulario.fechaVencimiento} />
+                    </div>
+                    {/* Domicilio */}
+                    {tramite.datosFormulario.domEstado && (
+                      <div>
+                        <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Domicilio en México</p>
+                        <CopyField label="CP" value={tramite.datosFormulario.domCodigoPostal} />
+                        <CopyField label="Estado" value={tramite.datosFormulario.domEstado} />
+                        <CopyField label="Municipio" value={tramite.datosFormulario.domMunicipio} />
+                        <CopyField label="Colonia" value={tramite.datosFormulario.domColonia} />
+                        <CopyField label="Calle" value={`${tramite.datosFormulario.domCalle} ${tramite.datosFormulario.domNumeroExterior || ''}`} />
+                      </div>
+                    )}
+                    {/* Contacto */}
+                    <div>
+                      <p className="text-[10px] font-semibold text-brand-600 uppercase border-b border-brand-200 pb-1 mb-2">Contacto</p>
+                      <CopyField label="Email" value={tramite.datosFormulario.solicitanteEmail || tramite.datosFormulario.email} />
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
 
-            {/* Iframe */}
-            <div className="border rounded-lg overflow-hidden mb-4" style={{ height: '500px' }}>
-              <iframe src={urlSolicitud} className="w-full h-full" title="Formulario INM" />
+              {/* Iframe INM (derecha) */}
+              <div className="lg:col-span-2 border rounded-lg overflow-hidden">
+                <iframe src={urlSolicitud} className="w-full h-full" title="Formulario INM" />
+              </div>
             </div>
-            <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
+
+            <div className="flex items-center gap-2 mt-4 mb-4 text-sm text-gray-500">
               <ExternalLink className="h-4 w-4" />
               <a href={urlSolicitud} target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:text-brand-700 font-medium">Abrir en nueva pestaña</a>
             </div>
@@ -164,7 +231,7 @@ export default function ContinuarTramitePage() {
             {/* Campos pieza y clave */}
             <div className="border-t pt-4">
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
-                <p className="text-sm text-amber-800"><strong>Al finalizar:</strong> Copia aquí el número de pieza y la clave. Luego sube el PDF.</p>
+                <p className="text-sm text-amber-800"><strong>Al finalizar:</strong> Copia aquí el número de pieza y la clave que te dio el INM. Luego sube el PDF.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
