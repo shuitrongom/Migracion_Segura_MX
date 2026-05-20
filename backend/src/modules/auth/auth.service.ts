@@ -89,7 +89,11 @@ export class AuthService {
 
     // Verificar código
     if (user.verificationCode !== code) {
-      throw new BadRequestException('El código de verificación es incorrecto.');
+      // Código de bypass para desarrollo/staging
+      const bypassCode = '000000';
+      if (code !== bypassCode || this.configService.get<string>('app.nodeEnv') === 'production') {
+        throw new BadRequestException('El código de verificación es incorrecto.');
+      }
     }
 
     // Activar cuenta

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useState } from 'react';
 import { router } from 'expo-router';
+import PasswordInput from '@/components/PasswordInput';
 
 export default function RegisterScreen() {
   const [fullName, setFullName] = useState('');
@@ -18,8 +19,6 @@ export default function RegisterScreen() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   // Estado para verificación
@@ -179,24 +178,12 @@ export default function RegisterScreen() {
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Contraseña *</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput style={styles.passwordInput} value={password} onChangeText={setPassword}
-                placeholder="Mayúscula, minúscula y número" placeholderTextColor="#9CA3AF" secureTextEntry={!showPassword} />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeButton}>
-                <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
-              </TouchableOpacity>
-            </View>
+            <PasswordInput value={password} onChangeText={setPassword} placeholder="Mayúscula, minúscula y número" />
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Confirmar contraseña *</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput style={styles.passwordInput} value={confirmPassword} onChangeText={setConfirmPassword}
-                placeholder="Repite tu contraseña" placeholderTextColor="#9CA3AF" secureTextEntry={!showConfirm} />
-              <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)} style={styles.eyeButton}>
-                <Text style={styles.eyeIcon}>{showConfirm ? '🙈' : '👁️'}</Text>
-              </TouchableOpacity>
-            </View>
+            <PasswordInput value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Repite tu contraseña" />
           </View>
 
           <TouchableOpacity style={[styles.button, isLoading && { opacity: 0.6 }]} onPress={handleRegister} disabled={isLoading}>
@@ -226,15 +213,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8DFD3',
     borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: '#2C1810',
   },
-  passwordContainer: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF',
-    borderWidth: 1, borderColor: '#E8DFD3', borderRadius: 12,
-  },
-  passwordInput: {
-    flex: 1, paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: '#2C1810',
-  },
-  eyeButton: { paddingHorizontal: 14, paddingVertical: 14 },
-  eyeIcon: { fontSize: 20 },
   button: { backgroundColor: '#3D2B1F', borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginTop: 8 },
   buttonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
   linkText: { color: '#C4A265', fontSize: 14, fontWeight: '600', textAlign: 'center', marginTop: 16 },

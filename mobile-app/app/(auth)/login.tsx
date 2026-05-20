@@ -2,11 +2,11 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvo
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { storage } from '@/lib/storage';
+import PasswordInput from '@/components/PasswordInput';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
@@ -31,17 +31,15 @@ export default function LoginScreen() {
         return;
       }
 
-      // Guardar datos
       await storage.setItem('access_token', data.accessToken);
       await storage.setItem('user_data', JSON.stringify(data.user));
 
-      // Redirigir según rol
       if (data.user.role === 'administrador' || data.user.role === 'asesor') {
         router.replace('/(admin)/dashboard');
       } else {
         router.replace('/(cliente)/mis-tramites');
       }
-    } catch (err: any) {
+    } catch {
       Alert.alert('Error', 'No se pudo conectar al servidor');
     } finally {
       setIsLoading(false);
@@ -49,10 +47,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.logo}>🇲🇽</Text>
@@ -76,19 +71,7 @@ export default function LoginScreen() {
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Contraseña</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={styles.passwordInput}
-                value={password}
-                onChangeText={setPassword}
-                placeholder="••••••••"
-                placeholderTextColor="#9CA3AF"
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeButton}>
-                <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
-              </TouchableOpacity>
-            </View>
+            <PasswordInput value={password} onChangeText={setPassword} placeholder="••••••••" />
           </View>
 
           <TouchableOpacity
@@ -96,9 +79,7 @@ export default function LoginScreen() {
             onPress={handleLogin}
             disabled={isLoading}
           >
-            <Text style={styles.buttonText}>
-              {isLoading ? 'Iniciando...' : 'Iniciar sesión'}
-            </Text>
+            <Text style={styles.buttonText}>{isLoading ? 'Iniciando...' : 'Iniciar sesión'}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
@@ -121,39 +102,10 @@ const styles = StyleSheet.create({
   inputGroup: { gap: 6 },
   label: { fontSize: 14, fontWeight: '600', color: '#2C1810' },
   input: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E8DFD3',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#2C1810',
+    backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8DFD3',
+    borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: '#2C1810',
   },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E8DFD3',
-    borderRadius: 12,
-  },
-  passwordInput: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#2C1810',
-  },
-  eyeButton: { paddingHorizontal: 14, paddingVertical: 14 },
-  eyeIcon: { fontSize: 20 },
-  button: {
-    backgroundColor: '#3D2B1F',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginTop: 8,
-  },
+  button: { backgroundColor: '#3D2B1F', borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginTop: 8 },
   buttonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
   linkText: { color: '#C4A265', fontSize: 14, fontWeight: '600', textAlign: 'center', marginTop: 16 },
 });
