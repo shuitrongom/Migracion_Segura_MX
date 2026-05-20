@@ -12,7 +12,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#2563eb"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "mx.migracion-segura.app",
@@ -27,7 +29,10 @@
         "backgroundColor": "#2563eb"
       },
       "package": "mx.migracion_segura.app",
-      "permissions": ["CAMERA", "READ_EXTERNAL_STORAGE"]
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -35,7 +40,14 @@
       "favicon": "./assets/icon.png"
     },
     "plugins": [
-      "expo-router"
-    ]
+      "expo-router",
+      "@react-native-community/datetimepicker"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "429519f6-9f00-4a9a-84b3-67a1d30dbbe8"
+      }
+    }
   }
 }

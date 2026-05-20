@@ -1,6 +1,11 @@
 import { Tabs } from 'expo-router';
+import { Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function AdminLayout() {
+  const insets = useSafeAreaInsets();
+  const bottomPadding = Platform.OS === 'android' ? Math.max(insets.bottom, 10) : insets.bottom;
+
   return (
     <Tabs
       screenOptions={{
@@ -14,8 +19,8 @@ export default function AdminLayout() {
           backgroundColor: '#2C1810',
           borderTopWidth: 0,
           paddingTop: 6,
-          paddingBottom: 8,
-          height: 68,
+          paddingBottom: bottomPadding + 6,
+          height: 60 + bottomPadding,
         },
         tabBarLabelStyle: { fontSize: 10, fontWeight: '500' },
       }}

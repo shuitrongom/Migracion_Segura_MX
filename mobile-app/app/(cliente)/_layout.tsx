@@ -1,13 +1,15 @@
 import { Tabs } from 'expo-router';
+import { Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ClienteLayout() {
+  const insets = useSafeAreaInsets();
+  const bottomPadding = Platform.OS === 'android' ? Math.max(insets.bottom, 10) : insets.bottom;
+
   return (
     <Tabs
       screenOptions={{
-        headerShown: true,
-        headerStyle: { backgroundColor: '#FFFFFF' },
-        headerTintColor: '#2C1810',
-        headerTitleStyle: { fontWeight: '600' },
+        headerShown: false,
         tabBarActiveTintColor: '#C4A265',
         tabBarInactiveTintColor: '#8B7B6F',
         tabBarStyle: {
@@ -15,31 +17,17 @@ export default function ClienteLayout() {
           borderTopWidth: 1,
           borderTopColor: '#E8DFD3',
           paddingTop: 6,
-          paddingBottom: 8,
-          height: 68,
+          paddingBottom: bottomPadding + 6,
+          height: 60 + bottomPadding,
         },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '500',
-        },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '500' },
       }}
     >
-      <Tabs.Screen
-        name="mis-tramites"
-        options={{ title: 'Mis Trámites', tabBarLabel: 'Trámites' }}
-      />
-      <Tabs.Screen
-        name="documentos"
-        options={{ title: 'Documentos', tabBarLabel: 'Documentos' }}
-      />
-      <Tabs.Screen
-        name="citas"
-        options={{ title: 'Citas', tabBarLabel: 'Citas' }}
-      />
-      <Tabs.Screen
-        name="perfil"
-        options={{ title: 'Perfil', tabBarLabel: 'Perfil' }}
-      />
+      <Tabs.Screen name="mis-tramites" options={{ tabBarLabel: 'Inicio' }} />
+      <Tabs.Screen name="tramite-nuevo" options={{ tabBarLabel: 'Trámite' }} />
+      <Tabs.Screen name="consulta" options={{ tabBarLabel: 'Consultar' }} />
+      <Tabs.Screen name="documentos" options={{ tabBarLabel: 'Docs' }} />
+      <Tabs.Screen name="perfil" options={{ tabBarLabel: 'Perfil' }} />
     </Tabs>
   );
 }

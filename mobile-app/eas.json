@@ -1,28 +1,28 @@
 {
   "cli": {
-    "version": ">= 7.0.0"
+    "version": ">= 12.0.0"
   },
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal",
-      "env": {
-        "EXPO_PUBLIC_API_URL": "http://192.168.1.100:3000/api/v1"
-      }
+      "distribution": "internal"
     },
     "preview": {
       "distribution": "internal",
-      "env": {
-        "EXPO_PUBLIC_API_URL": "https://tu-backend-staging.railway.app/api/v1"
+      "ios": {
+        "simulator": false
+      },
+      "android": {
+        "buildType": "apk"
       }
     },
     "production": {
-      "env": {
-        "EXPO_PUBLIC_API_URL": "https://tu-backend.railway.app/api/v1"
+      "ios": {
+        "autoIncrement": true
+      },
+      "android": {
+        "autoIncrement": true
       }
     }
-  },
-  "submit": {
-    "production": {}
   }
 }

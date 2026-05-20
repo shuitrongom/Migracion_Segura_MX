@@ -244,13 +244,21 @@ export default function TramitesPage() {
                           {tramite.createdAt ? new Date(tramite.createdAt).toLocaleDateString('es-MX') : '--'}
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <Link
-                            href={`/tramites/${tramite.id}`}
-                            className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-gray-100 text-gray-500"
-                            aria-label={`Ver detalle del trámite ${tramite.numeroPieza ?? tramite.id}`}
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Link>
+                          <div className="flex items-center justify-end gap-1">
+                            <Link
+                              href={`/tramites/continuar/${tramite.id}`}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-brand-50 text-brand-700 hover:bg-brand-100 transition-colors"
+                            >
+                              Continuar
+                            </Link>
+                            <Link
+                              href={`/tramites/${tramite.id}`}
+                              className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-gray-100 text-gray-500"
+                              aria-label={`Ver detalle del trámite ${tramite.numeroPieza ?? tramite.id}`}
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Link>
+                          </div>
                         </td>
                       </tr>
                     );
