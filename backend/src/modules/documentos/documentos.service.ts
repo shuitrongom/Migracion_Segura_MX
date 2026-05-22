@@ -12,8 +12,9 @@ import { Expediente } from './entities/expediente.entity';
 import { UploadDocumentoDto } from './dto/upload-documento.dto';
 import { StorageService } from '../../common/services/storage.service';
 import { EncryptionService } from '../../common/services/encryption.service';
-import { EstatusDocumento } from '../../common/enums';
+import { EstatusDocumento, TipoNotificacion, CanalNotificacion } from '../../common/enums';
 import { ActivityLogService } from '../users/activity-log.service';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 
 @Injectable()
 export class DocumentosService {
@@ -27,6 +28,7 @@ export class DocumentosService {
     private readonly storageService: StorageService,
     private readonly encryptionService: EncryptionService,
     private readonly activityLogService: ActivityLogService,
+    private readonly notificacionesService: NotificacionesService,
   ) {}
 
   /**
@@ -120,6 +122,23 @@ export class DocumentosService {
       resourceId: saved.id,
       details: { nombre: saved.nombre, categoria: saved.categoria, tramiteId: dto.tramiteId, clienteId: expediente.clienteId },
     });
+
+    // Notificar al admin que se subió un documento nuevo
+    try {
+      const admins = await this.documentoRepository.manager.query(
+        `SELECT id FROM users WHERE role = 'administrador' AND "deletedAt" IS NULL LIMIT 1`
+      );
+      if (admins?.[0]?.id && admins[0].id !== usuarioId) {
+        await this.notificacionesService.sendNotification({
+          destinatarioId: admins[0].id,
+          tipo: TipoNotificacion.DOCUMENTO_FALTANTE,
+          canal: CanalNotificacion.PUSH,
+          titulo: '📎 Nuevo documento subido',
+          contenido: `Se subió el documento "${dto.nombre}" para revisión.`,
+          metadata: { documentoId: saved.id, tramiteId: dto.tramiteId },
+        }).catch(() => {});
+      }
+    } catch {}
 
     return saved;
   }
@@ -253,6 +272,27 @@ export class DocumentosService {
 
     const saved = await this.documentoRepository.save(documento);
     this.logger.log(`Documento rechazado: ${id} por usuario ${usuarioId}`);
+
+    // Notificar al extranjero que su documento fue rechazado
+    try {
+      const expediente = await this.expedienteRepository.findOne({ where: { id: documento.expedienteId } });
+      if (expediente?.clienteId) {
+        const cliente = await this.documentoRepository.manager.query(
+          `SELECT "userId" FROM clientes WHERE id = $1`, [expediente.clienteId]
+        );
+        if (cliente?.[0]?.userId) {
+          await this.notificacionesService.sendNotification({
+            destinatarioId: cliente[0].userId,
+            tipo: TipoNotificacion.DOCUMENTO_RECHAZADO,
+            canal: CanalNotificacion.PUSH,
+            titulo: '❌ Documento rechazado',
+            contenido: `Tu documento "${documento.nombre}" fue rechazado. Motivo: ${razon}. Por favor súbelo de nuevo.`,
+            metadata: { documentoId: id, razon },
+          }).catch(() => {});
+        }
+      }
+    } catch {}
+
     return saved;
   }
 
