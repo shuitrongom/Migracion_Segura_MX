@@ -2,12 +2,14 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvo
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { storage } from '@/lib/storage';
+import { signInWithGoogle } from '@/lib/google-auth';
 import PasswordInput from '@/components/PasswordInput';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -47,47 +49,73 @@ export default function LoginScreen() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    await signInWithGoogle();
+    setIsGoogleLoading(false);
+  };
+
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={styles.header}>
-          <Text style={styles.logo}>🇲🇽</Text>
-          <Text style={styles.title}>Migración Segura MX</Text>
-          <Text style={styles.subtitle}>Gestión migratoria inteligente</Text>
-        </View>
-
-        <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Correo electrónico</Text>
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="tu@email.com"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
+          <View style={styles.header}>
+            <Text style={styles.logo}>🇲🇽</Text>
+            <Text style={styles.title}>Migración Segura MX</Text>
+            <Text style={styles.subtitle}>Gestión migratoria inteligente</Text>
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Contraseña</Text>
-            <PasswordInput value={password} onChangeText={setPassword} placeholder="••••••••" />
-          </View>
-
+          {/* Botón de Google — prominente arriba */}
           <TouchableOpacity
-            style={[styles.button, isLoading && { opacity: 0.6 }]}
-            onPress={handleLogin}
-            disabled={isLoading}
+            style={[styles.googleButton, isGoogleLoading && { opacity: 0.6 }]}
+            onPress={handleGoogleSignIn}
+            disabled={isGoogleLoading}
           >
-            <Text style={styles.buttonText}>{isLoading ? 'Iniciando...' : 'Iniciar sesión'}</Text>
+            <Text style={styles.googleIcon}>G</Text>
+            <Text style={styles.googleText}>
+              {isGoogleLoading ? 'Conectando...' : 'Continuar con Google'}
+            </Text>
           </TouchableOpacity>
+
+          {/* Divider */}
+          <View style={styles.divider}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>o con tu correo</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          {/* Form */}
+          <View style={styles.form}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Correo electrónico</Text>
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="tu@email.com"
+                placeholderTextColor="#9CA3AF"
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Contraseña</Text>
+              <PasswordInput value={password} onChangeText={setPassword} placeholder="••••••••" />
+            </View>
+
+            <TouchableOpacity
+              style={[styles.button, isLoading && { opacity: 0.6 }]}
+              onPress={handleLogin}
+              disabled={isLoading}
+            >
+              <Text style={styles.buttonText}>{isLoading ? 'Iniciando...' : 'Iniciar sesión'}</Text>
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
             <Text style={styles.linkText}>¿No tienes cuenta? Regístrate</Text>
           </TouchableOpacity>
-        </View>
         </ScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -97,11 +125,25 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F0E8' },
   content: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 40 },
-  header: { alignItems: 'center', marginBottom: 36 },
+  header: { alignItems: 'center', marginBottom: 32 },
   logo: { fontSize: 48, marginBottom: 12 },
   title: { fontSize: 24, fontWeight: '700', color: '#2C1810' },
   subtitle: { fontSize: 14, color: '#6B5B4F', marginTop: 4 },
-  form: { gap: 16 },
+
+  googleButton: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8DFD3',
+    borderRadius: 12, paddingVertical: 15, gap: 10,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2,
+  },
+  googleIcon: { fontSize: 20, fontWeight: '700', color: '#4285F4' },
+  googleText: { fontSize: 16, fontWeight: '500', color: '#2C1810' },
+
+  divider: { flexDirection: 'row', alignItems: 'center', marginVertical: 20 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: '#E8DFD3' },
+  dividerText: { marginHorizontal: 12, color: '#8B7B6F', fontSize: 13 },
+
+  form: { gap: 14 },
   inputGroup: { gap: 6 },
   label: { fontSize: 14, fontWeight: '600', color: '#2C1810' },
   input: {
@@ -110,5 +152,5 @@ const styles = StyleSheet.create({
   },
   button: { backgroundColor: '#3D2B1F', borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginTop: 8 },
   buttonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
-  linkText: { color: '#C4A265', fontSize: 14, fontWeight: '600', textAlign: 'center', marginTop: 16 },
+  linkText: { color: '#C4A265', fontSize: 14, fontWeight: '600', textAlign: 'center', marginTop: 20 },
 });
