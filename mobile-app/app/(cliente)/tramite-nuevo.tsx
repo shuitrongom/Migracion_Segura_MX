@@ -5,6 +5,7 @@ import { storage } from '@/lib/storage';
 import { OPCIONES_POR_TIPO, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO, SITUACIONES_TRABAJO, OCUPACIONES_TRABAJO, ESTADOS_MEXICO, SECTORES_ACTIVIDAD, TIPOS_PERSONA } from '@/lib/catalogos';
 import FormSelect from '@/components/FormSelect';
 import FormDatePicker from '@/components/FormDatePicker';
+import VisaForm from '@/components/forms/VisaForm';
 
 const TRAMITES_INM = [
   { key: 'visa', nombre: 'Visas solicitadas ante el INM', descripcion: 'Solicitud de visa por unidad familiar, razones humanitarias u oferta de empleo', icon: '✈️' },
@@ -37,6 +38,19 @@ export default function TramiteNuevoScreen() {
   });
   const u = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
 
+  // Estado del solicitante (solo para Visa)
+  const [solicitante, setSolicitante] = useState<Record<string, string>>({
+    tipoPersona: '', curp: '', rfc: '', nombre: '', apellidos: '', nacionalidad: '',
+    tipoDocumento: '', numeroDocumento: '', vinculoParentesco: '',
+    codigoPostal: '', estado: '', municipio: '', colonia: '', calle: '',
+    numeroExterior: '', numeroInterior: '', lada: '', telefonoFijo: '',
+    moralRfc: '', moralRazonSocial: '', moralSector: '', moralGiroComercial: '',
+    moralCodigoPostal: '', moralEstado: '', moralMunicipio: '', moralColonia: '',
+    moralCalle: '', moralNumeroExterior: '', moralNumeroInterior: '', moralLada: '', moralTelefonoFijo: '',
+    moralNumeroActa: '', moralFechaActa: '',
+  });
+  const uSol = (field: string, value: string) => setSolicitante(prev => ({ ...prev, [field]: value }));
+
   const handleSubmit = async () => {
     if (!form.nombre.trim() || !form.apellidos.trim()) { Alert.alert('Error', 'Nombre y apellidos son obligatorios'); return; }
     if (!form.propositoViaje) { Alert.alert('Error', 'Selecciona qué deseas hacer'); return; }
@@ -50,7 +64,7 @@ export default function TramiteNuevoScreen() {
       const user = userData ? JSON.parse(userData) : null;
       const res = await apiFetch('/tramites', {
         method: 'POST',
-        body: JSON.stringify({ tipo: selectedTipo, clienteId: user?.id, datosFormulario: form, esBorrador: false }),
+        body: JSON.stringify({ tipo: selectedTipo, clienteId: user?.id, datosFormulario: { ...form, solicitante }, esBorrador: false }),
       });
       const data = await res.json();
       setSubmitting(false);
@@ -89,6 +103,11 @@ export default function TramiteNuevoScreen() {
             <Text style={styles.formTitle}>{tipoInfo?.nombre}</Text>
             <Text style={styles.formDesc}>Completa tus datos conforme a tu pasaporte o documento de identidad.</Text>
 
+            {/* Formulario específico por tipo */}
+            {selectedTipo === 'visa' ? (
+              <VisaForm form={form} solicitante={solicitante} updateForm={u} updateSolicitante={uSol} />
+            ) : (
+            <>
             {/* ¿Qué deseas hacer? */}
             <Text style={styles.sectionTitle}>¿Qué deseas hacer?</Text>
             <FormSelect label="Propósito" value={form.propositoViaje} options={opciones.proposito} onChange={(v) => { u('propositoViaje', v); u('especificaTramite', ''); }} required />
@@ -163,6 +182,8 @@ export default function TramiteNuevoScreen() {
             <Text style={styles.sectionTitle}>Comentarios</Text>
             <TextInput style={[styles.input, { height: 80, textAlignVertical: 'top' }]} value={form.comentarios} onChangeText={(v) => u('comentarios', v)} placeholder="Información adicional (opcional)" placeholderTextColor="#9CA3AF" multiline />
             <Text style={styles.requiredNote}>* Campos obligatorios</Text>
+            </>
+            )}
 
             <TouchableOpacity style={[styles.submitBtn, submitting && { opacity: 0.6 }]} onPress={handleSubmit} disabled={submitting}>
               <Text style={styles.submitText}>{submitting ? 'Enviando...' : 'Enviar solicitud'}</Text>
