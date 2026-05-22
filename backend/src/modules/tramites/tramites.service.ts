@@ -18,6 +18,8 @@ import { EstatusTramite, TipoTramite, UserRole } from '../../common/enums';
 import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination.dto';
 import { UsersService } from '../users/users.service';
 import { ActivityLogService } from '../users/activity-log.service';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
+import { TipoNotificacion, CanalNotificacion } from '../../common/enums';
 
 @Injectable()
 export class TramitesService {
@@ -32,6 +34,7 @@ export class TramitesService {
     private readonly plantillaRepository: Repository<PlantillaProceso>,
     private readonly usersService: UsersService,
     private readonly activityLogService: ActivityLogService,
+    private readonly notificacionesService: NotificacionesService,
   ) {}
 
   /**
@@ -74,6 +77,21 @@ export class TramitesService {
       resourceId: saved.id,
       details: { tipo: saved.tipo, estatus: saved.estatus, clienteId: saved.clienteId, numeroPieza: saved.numeroPieza },
     });
+
+    // Notificar al admin/gestor asignado que hay un nuevo trámite
+    if (saved.asesorId && !esBorrador) {
+      const nombreExtranjero = datosFormulario?.nombre
+        ? `${datosFormulario.nombre} ${datosFormulario.apellidos || ''}`.trim()
+        : 'Nuevo extranjero';
+      await this.notificacionesService.sendNotification({
+        destinatarioId: saved.asesorId,
+        tipo: TipoNotificacion.CAMBIO_ESTATUS,
+        canal: CanalNotificacion.PUSH,
+        titulo: '📄 Nuevo trámite recibido',
+        contenido: `${nombreExtranjero} ha enviado una solicitud de ${(saved.tipo || '').replace(/_/g, ' ')}. Número: ${saved.numeroPieza || 'pendiente'}`,
+        metadata: { tramiteId: saved.id, tipo: saved.tipo },
+      }).catch(() => {}); // No bloquear si falla la notificación
+    }
 
     return this.findOneOrFail(saved.id);
   }
@@ -466,11 +484,16 @@ export class TramitesService {
    * Si no hay gestores, asigna al primer admin.
    */
   private async autoAssignGestor(): Promise<string | null> {
-    // Buscar gestores disponibles
-    const gestores = await this.usersService.findByRole(UserRole.ASESOR);
+    // Por ahora, asignar siempre al administrador principal
+    // Cuando se necesiten gestores, el admin los reasigna manualmente
+    const admins = await this.usersService.findByRole(UserRole.ADMINISTRADOR);
+    if (admins.length > 0) {
+      return admins[0].id;
+    }
 
+    // Fallback: si no hay admin, buscar gestores
+    const gestores = await this.usersService.findByRole(UserRole.ASESOR);
     if (gestores.length > 0) {
-      // Asignar al gestor con menos trámites activos
       const counts = await Promise.all(
         gestores.map(async (g) => {
           const count = await this.tramiteRepository.count({
@@ -481,12 +504,6 @@ export class TramitesService {
       );
       counts.sort((a, b) => a.count - b.count);
       return counts[0].id;
-    }
-
-    // Si no hay gestores, asignar al primer admin
-    const admins = await this.usersService.findByRole(UserRole.ADMINISTRADOR);
-    if (admins.length > 0) {
-      return admins[0].id;
     }
 
     return null;

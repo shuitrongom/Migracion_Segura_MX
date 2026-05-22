@@ -7,9 +7,13 @@ import { TareaInterna } from './entities/tarea-interna.entity';
 import { PlantillaProceso } from './entities/plantilla-proceso.entity';
 import { TramitesService } from './tramites.service';
 import { TramitesController } from './tramites.controller';
+import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Tramite, EtapaTramite, TareaInterna, PlantillaProceso])],
+  imports: [
+    TypeOrmModule.forFeature([Tramite, EtapaTramite, TareaInterna, PlantillaProceso]),
+    NotificacionesModule,
+  ],
   controllers: [TramitesController],
   providers: [TramitesService],
   exports: [TramitesService],
