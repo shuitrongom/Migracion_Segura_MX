@@ -6,6 +6,7 @@ import { OPCIONES_POR_TIPO, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, N
 import FormSelect from '@/components/FormSelect';
 import FormDatePicker from '@/components/FormDatePicker';
 import VisaForm from '@/components/forms/VisaForm';
+import GenericTramiteForm from '@/components/forms/GenericTramiteForm';
 
 const TRAMITES_INM = [
   { key: 'visa', nombre: 'Visas solicitadas ante el INM', descripcion: 'Solicitud de visa por unidad familiar, razones humanitarias u oferta de empleo', icon: '✈️' },
@@ -107,82 +108,7 @@ export default function TramiteNuevoScreen() {
             {selectedTipo === 'visa' ? (
               <VisaForm form={form} solicitante={solicitante} updateForm={u} updateSolicitante={uSol} />
             ) : (
-            <>
-            {/* ¿Qué deseas hacer? */}
-            <Text style={styles.sectionTitle}>¿Qué deseas hacer?</Text>
-            <FormSelect label="Propósito" value={form.propositoViaje} options={opciones.proposito} onChange={(v) => { u('propositoViaje', v); u('especificaTramite', ''); }} required />
-            {especificaOpciones.length > 0 && (
-              <FormSelect label="Especifica" value={form.especificaTramite} options={especificaOpciones} onChange={(v) => u('especificaTramite', v)} required />
-            )}
-
-            {/* Datos del extranjero */}
-            <Text style={styles.sectionTitle}>Datos del extranjero</Text>
-            {showCurp && (<View style={styles.fieldContainer}><Text style={styles.fieldLabel}>CURP</Text><TextInput style={styles.input} value={form.curpExtranjero} onChangeText={(v) => u('curpExtranjero', v.toUpperCase())} placeholder="18 caracteres" placeholderTextColor="#9CA3AF" maxLength={18} autoCapitalize="characters" /></View>)}
-            <View style={styles.fieldContainer}><Text style={styles.fieldLabel}>Nombre(s) *</Text><TextInput style={styles.input} value={form.nombre} onChangeText={(v) => u('nombre', v)} placeholder="Nombre(s)" placeholderTextColor="#9CA3AF" /></View>
-            <View style={styles.fieldContainer}><Text style={styles.fieldLabel}>Apellido(s) *</Text><TextInput style={styles.input} value={form.apellidos} onChangeText={(v) => u('apellidos', v)} placeholder="Apellido(s)" placeholderTextColor="#9CA3AF" /></View>
-            <FormSelect label="Sexo" value={form.sexo ? SEXOS.find(s=>s.value===form.sexo)?.label||'' : ''} options={SEXOS.map(s=>s.label)} onChange={(v) => u('sexo', SEXOS.find(s=>s.label===v)?.value||'')} required />
-            <FormDatePicker label="Fecha de nacimiento" value={form.fechaNacimiento} onChange={(v) => u('fechaNacimiento', v)} required minYear={1940} maxYear={2010} />
-            <FormSelect label="Nacionalidad actual" value={form.nacionalidad} options={NACIONALIDADES} onChange={(v) => u('nacionalidad', v)} required searchable />
-            <FormSelect label="Estado civil" value={form.estadoCivil} options={ESTADOS_CIVILES.map(e=>e.label)} onChange={(v) => u('estadoCivil', v)} />
-
-            {/* Lugar de nacimiento */}
-            <Text style={styles.sectionTitle}>Lugar de nacimiento</Text>
-            <FormSelect label="País de nacimiento" value={form.paisNacimiento} options={PAISES} onChange={(v) => u('paisNacimiento', v)} required searchable />
-            <View style={styles.fieldContainer}><Text style={styles.fieldLabel}>Estado/Provincia *</Text><TextInput style={styles.input} value={form.estadoProvinciaNacimiento} onChangeText={(v) => u('estadoProvinciaNacimiento', v)} placeholder="Estado o provincia" placeholderTextColor="#9CA3AF" /></View>
-
-            {/* Pasaporte */}
-            <Text style={styles.sectionTitle}>Pasaporte o documento de identidad</Text>
-            <FormSelect label="Documento de identificación" value={form.documentoIdentificacion} options={DOCUMENTOS_IDENTIFICACION} onChange={(v) => u('documentoIdentificacion', v)} required />
-            <View style={styles.fieldContainer}><Text style={styles.fieldLabel}>Número de documento *</Text><TextInput style={styles.input} value={form.numeroDocumento} onChangeText={(v) => u('numeroDocumento', v)} placeholder="Número" placeholderTextColor="#9CA3AF" /></View>
-            <FormSelect label="País de expedición" value={form.paisExpedicion} options={PAISES} onChange={(v) => u('paisExpedicion', v)} required searchable />
-            <FormDatePicker label="Fecha de expedición" value={form.fechaExpedicion} onChange={(v) => u('fechaExpedicion', v)} minYear={2000} maxYear={2026} />
-            <FormDatePicker label="Fecha de vencimiento" value={form.fechaVencimiento} onChange={(v) => u('fechaVencimiento', v)} minYear={2024} maxYear={2040} />
-
-            {/* Domicilio en México */}
-            {showDomicilio && (<>
-              <Text style={styles.sectionTitle}>Domicilio en México</Text>
-              <View style={styles.fieldContainer}><Text style={styles.fieldLabel}>Código postal *</Text><TextInput style={styles.input} value={form.domCodigoPostal} onChangeText={(v) => u('domCodigoPostal', v)} placeholder="CP" placeholderTextColor="#9CA3AF" keyboardType="number-pad" /></View>
-              <FormSelect label="Estado" value={form.domEstado} options={ESTADOS_MEXICO} onChange={(v) => { u('domEstado', v); u('domMunicipio', ''); }} required />
-              <View style={styles.fieldContainer}><Text style={styles.fieldLabel}>Municipio/Alcaldía *</Text><TextInput style={styles.input} value={form.domMunicipio} onChangeText={(v) => u('domMunicipio', v)} placeholder="Municipio" placeholderTextColor="#9CA3AF" /></View>
-              <View style={styles.fieldContainer}><Text style={styles.fieldLabel}>Colonia *</Text><TextInput style={styles.input} value={form.domColonia} onChangeText={(v) => u('domColonia', v)} placeholder="Colonia" placeholderTextColor="#9CA3AF" /></View>
-              <View style={styles.fieldContainer}><Text style={styles.fieldLabel}>Calle *</Text><TextInput style={styles.input} value={form.domCalle} onChangeText={(v) => u('domCalle', v)} placeholder="Calle" placeholderTextColor="#9CA3AF" /></View>
-              <View style={styles.fieldContainer}><Text style={styles.fieldLabel}>Número exterior *</Text><TextInput style={styles.input} value={form.domNumeroExterior} onChangeText={(v) => u('domNumeroExterior', v)} placeholder="Núm. ext." placeholderTextColor="#9CA3AF" /></View>
-              <View style={styles.fieldContainer}><Text style={styles.fieldLabel}>Número interior</Text><TextInput style={styles.input} value={form.domNumeroInterior} onChangeText={(v) => u('domNumeroInterior', v)} placeholder="Opcional" placeholderTextColor="#9CA3AF" /></View>
-            </>)}
-
-            {/* Empleador */}
-            {showEmpleador && (<>
-              <Text style={styles.sectionTitle}>Datos del empleador</Text>
-              <FormSelect label="Tipo de persona" value={form.empleadorTipoPersona} options={TIPOS_PERSONA} onChange={(v) => u('empleadorTipoPersona', v)} required />
-              {form.empleadorTipoPersona !== '' && (<>
-                <View style={styles.fieldContainer}><Text style={styles.fieldLabel}>RFC *</Text><TextInput style={styles.input} value={form.empleadorRfc} onChangeText={(v) => u('empleadorRfc', v.toUpperCase())} placeholder="RFC" placeholderTextColor="#9CA3AF" autoCapitalize="characters" maxLength={form.empleadorTipoPersona === 'Moral' ? 12 : 13} /></View>
-                <View style={styles.fieldContainer}><Text style={styles.fieldLabel}>Número de expediente *</Text><TextInput style={styles.input} value={form.empleadorNumeroExpediente} onChangeText={(v) => u('empleadorNumeroExpediente', v)} placeholder="Expediente" placeholderTextColor="#9CA3AF" /></View>
-              </>)}
-            </>)}
-
-            {/* Info adicional (visa) */}
-            {showInfoAdicional && (<>
-              <Text style={styles.sectionTitle}>Información adicional</Text>
-              <FormSelect label="Actividad principal en tu país" value={form.actividadPrincipal} options={ACTIVIDADES_PRINCIPALES} onChange={(v) => u('actividadPrincipal', v)} required />
-              {form.actividadPrincipal === 'Trabajar' && (<>
-                <FormSelect label="Sector de actividad" value={form.sectorTrabajo} options={SECTORES_ACTIVIDAD} onChange={(v) => u('sectorTrabajo', v)} required searchable />
-                <FormSelect label="Situación en el trabajo" value={form.situacionTrabajo} options={SITUACIONES_TRABAJO} onChange={(v) => u('situacionTrabajo', v)} required />
-                <FormSelect label="Ocupación" value={form.ocupacionTrabajo} options={OCUPACIONES_TRABAJO} onChange={(v) => u('ocupacionTrabajo', v)} required />
-              </>)}
-              <FormSelect label="¿Has sido expulsado de México?" value={form.expulsadoMexico} options={SI_NO} onChange={(v) => u('expulsadoMexico', v)} required />
-              <FormSelect label="¿Tienes antecedentes penales?" value={form.antecedentesPenales} options={SI_NO} onChange={(v) => u('antecedentesPenales', v)} required />
-            </>)}
-
-            {/* Correo */}
-            <Text style={styles.sectionTitle}>Correo electrónico para notificaciones</Text>
-            <View style={styles.fieldContainer}><Text style={styles.fieldLabel}>Correo electrónico *</Text><TextInput style={styles.input} value={form.solicitanteEmail} onChangeText={(v) => u('solicitanteEmail', v)} placeholder="nombre@correo.com" placeholderTextColor="#9CA3AF" keyboardType="email-address" autoCapitalize="none" /></View>
-            <View style={styles.fieldContainer}><Text style={styles.fieldLabel}>Confirmar correo *</Text><TextInput style={styles.input} value={form.solicitanteEmailConfirmacion} onChangeText={(v) => u('solicitanteEmailConfirmacion', v)} placeholder="Confirma tu correo" placeholderTextColor="#9CA3AF" keyboardType="email-address" autoCapitalize="none" /></View>
-
-            {/* Comentarios */}
-            <Text style={styles.sectionTitle}>Comentarios</Text>
-            <TextInput style={[styles.input, { height: 80, textAlignVertical: 'top' }]} value={form.comentarios} onChangeText={(v) => u('comentarios', v)} placeholder="Información adicional (opcional)" placeholderTextColor="#9CA3AF" multiline />
-            <Text style={styles.requiredNote}>* Campos obligatorios</Text>
-            </>
+              <GenericTramiteForm tipo={selectedTipo} form={form} updateForm={u} />
             )}
 
             <TouchableOpacity style={[styles.submitBtn, submitting && { opacity: 0.6 }]} onPress={handleSubmit} disabled={submitting}>

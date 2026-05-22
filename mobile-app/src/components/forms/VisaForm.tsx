@@ -17,6 +17,19 @@ export default function VisaForm({ form, solicitante, updateForm, updateSolicita
     ? ['Física']
     : TIPOS_PERSONA;
 
+  // Visas del extranjero
+  const [visas, setVisas] = useState<{ pais: string; numero: string; fechaVencimiento: string }[]>([]);
+  const [visaTemp, setVisaTemp] = useState({ pais: '', numero: '', fechaVencimiento: '' });
+
+  const handleAddVisa = () => {
+    if (!visaTemp.pais.trim() || !visaTemp.numero.trim()) {
+      Alert.alert('Error', 'País y número de visa son obligatorios');
+      return;
+    }
+    setVisas([...visas, { ...visaTemp }]);
+    setVisaTemp({ pais: '', numero: '', fechaVencimiento: '' });
+  };
+
   // Personas autorizadas
   const [personasAutorizadas, setPersonasAutorizadas] = useState<{ curp: string; nombre: string; apellidos: string; nacionalidad: string; tipoDocumento: string; numeroDocumento: string }[]>([]);
   const [personaTemp, setPersonaTemp] = useState({ curp: '', nombre: '', apellidos: '', nacionalidad: '', tipoDocumento: '', numeroDocumento: '' });
@@ -70,6 +83,32 @@ export default function VisaForm({ form, solicitante, updateForm, updateSolicita
       )}
       <FormSelect label="¿Has sido expulsado de México?" value={form.expulsadoMexico} options={SI_NO} onChange={(v) => updateForm('expulsadoMexico', v)} required />
       <FormSelect label="¿Tienes antecedentes penales?" value={form.antecedentesPenales} options={SI_NO} onChange={(v) => updateForm('antecedentesPenales', v)} required />
+
+      {/* Señala las visas con las que cuenta el extranjero */}
+      <Text style={styles.sectionTitle}>Señala las visas con las que cuenta el extranjero</Text>
+      <Text style={styles.infoText}>Si deseas agregar visas será necesario que lo efectúes con el botón &apos;Agregar visa&apos;, de lo contrario los datos de esta sección no serán guardados.</Text>
+      <FormSelect label="País" value={visaTemp.pais} options={PAISES} onChange={(v) => setVisaTemp(prev => ({ ...prev, pais: v }))} searchable />
+      <Field label="Número"><TextInput style={styles.input} value={visaTemp.numero} onChangeText={(v) => setVisaTemp(prev => ({ ...prev, numero: v }))} placeholder="Número de visa" placeholderTextColor="#9CA3AF" /></Field>
+      <FormDatePicker label="Fecha de vencimiento" value={visaTemp.fechaVencimiento} onChange={(v) => setVisaTemp(prev => ({ ...prev, fechaVencimiento: v }))} minYear={2020} maxYear={2040} />
+      <TouchableOpacity style={styles.addButton} onPress={handleAddVisa}>
+        <Text style={styles.addButtonText}>+ Agregar visa</Text>
+      </TouchableOpacity>
+
+      {visas.length > 0 && (
+        <View style={styles.listContainer}>
+          {visas.map((visa, i) => (
+            <View key={i} style={styles.listItem}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.listItemName}>{visa.pais}</Text>
+                <Text style={styles.listItemDetail}>Núm: {visa.numero} · Vence: {visa.fechaVencimiento || 'N/A'}</Text>
+              </View>
+              <TouchableOpacity onPress={() => setVisas(visas.filter((_, idx) => idx !== i))}>
+                <Text style={styles.removeText}>Eliminar</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      )}
 
       {/* Datos de la institución/persona que solicita la visa */}
       <Text style={styles.sectionTitle}>Datos de la institución, organismo o persona que solicita la autorización de la visa</Text>
