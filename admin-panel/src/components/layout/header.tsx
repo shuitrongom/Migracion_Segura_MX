@@ -4,11 +4,25 @@ import { Bell, User, LogOut, Menu } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth.store';
 import { useRouter } from 'next/navigation';
 import { useSidebarStore } from '@/stores/sidebar.store';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '@/lib/api';
+import Link from 'next/link';
 
 export function Header() {
   const { user, logout } = useAuthStore();
   const router = useRouter();
   const toggleSidebar = useSidebarStore((s) => s.toggle);
+
+  // Consultar notificaciones no leídas
+  const { data: unreadCount } = useQuery({
+    queryKey: ['notifications', 'unread-count'],
+    queryFn: async () => {
+      const res = await api.get('/notificaciones/unread-count');
+      return res.data?.count ?? 0;
+    },
+    refetchInterval: 30000, // Refrescar cada 30 segundos
+    staleTime: 10000,
+  });
 
   const handleLogout = () => {
     logout();
@@ -18,7 +32,6 @@ export function Header() {
   return (
     <header className="h-16 bg-white border-b border-brand-100 flex items-center justify-between px-4 md:px-6">
       <div className="flex items-center gap-3">
-        {/* Hamburger - solo móvil */}
         <button
           onClick={toggleSidebar}
           className="lg:hidden p-2 text-brand-500 hover:bg-brand-50 rounded-lg transition"
@@ -30,13 +43,16 @@ export function Header() {
 
       <div className="flex items-center gap-2 md:gap-4">
         {/* Notificaciones */}
-        <button
+        <Link
+          href="/notificaciones"
           className="relative p-2 text-brand-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition"
           aria-label="Notificaciones"
         >
           <Bell className="h-5 w-5" />
-          <span className="absolute top-1 right-1 h-2 w-2 bg-danger-500 rounded-full" />
-        </button>
+          {unreadCount > 0 && (
+            <span className="absolute top-1 right-1 h-2 w-2 bg-danger-500 rounded-full animate-pulse" />
+          )}
+        </Link>
 
         {/* Perfil */}
         <div className="flex items-center gap-2 p-2">

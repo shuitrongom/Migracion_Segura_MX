@@ -197,6 +197,27 @@ export class TramitesService {
       }
     }
 
+    // Notificar al extranjero del cambio de estatus
+    if (tramite.clienteId) {
+      const estatusLabel = (dto.estatus || '').replace(/_/g, ' ');
+      // Buscar el userId del cliente para enviarle la notificación
+      try {
+        const cliente = await this.tramiteRepository.manager.query(
+          `SELECT "userId" FROM clientes WHERE id = $1`, [tramite.clienteId]
+        );
+        if (cliente?.[0]?.userId) {
+          await this.notificacionesService.sendNotification({
+            destinatarioId: cliente[0].userId,
+            tipo: TipoNotificacion.CAMBIO_ESTATUS,
+            canal: CanalNotificacion.PUSH,
+            titulo: '📋 Tu trámite cambió de estatus',
+            contenido: `Tu trámite ${tramite.numeroPieza || ''} ahora está: ${estatusLabel}${dto.observaciones ? '. Observaciones: ' + dto.observaciones : ''}`,
+            metadata: { tramiteId, estatus: dto.estatus },
+          }).catch(() => {});
+        }
+      } catch {}
+    }
+
     return saved;
   }
 
