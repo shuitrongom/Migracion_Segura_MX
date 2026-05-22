@@ -35,6 +35,8 @@ export async function signInWithGoogle(): Promise<boolean> {
     }
 
     await GoogleSignin.hasPlayServices();
+    // Siempre cerrar sesión previa para mostrar selector de cuentas
+    try { await GoogleSignin.signOut(); } catch {}
     const userInfo = await GoogleSignin.signIn();
 
     if (!userInfo?.data?.user) {
