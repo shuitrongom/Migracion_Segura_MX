@@ -26,7 +26,7 @@ function CopyField({ label, value }: { label: string; value?: string }) {
 
 interface Requisito { nombre: string; obligatorio: boolean; descripcion: string; }
 
-const STEPS = ['Solicitud INM', 'Requisitos'];
+const STEPS = ['Solicitud INM', 'Requisitos', 'Pago'];
 
 export default function ContinuarTramitePage() {
   const params = useParams();
@@ -41,6 +41,7 @@ export default function ContinuarTramitePage() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [requisitos, setRequisitos] = useState<Requisito[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [pagoData, setPagoData] = useState({ concepto: '', monto: '', metodoPago: '', referencia: '' });
 
   useEffect(() => {
     async function fetchData() {
@@ -101,6 +102,18 @@ export default function ContinuarTramitePage() {
           email: emailExtranjero,
           nombreExtranjero,
           requisitos: requisitos.map(r => r.nombre),
+        }).catch(() => {});
+      }
+
+      // Registrar pago si se llenó
+      if (pagoData.monto && pagoData.concepto && pagoData.metodoPago) {
+        await api.post('/financiero/pagos', {
+          clienteId: tramite?.clienteId,
+          tramiteId,
+          monto: parseFloat(pagoData.monto),
+          concepto: pagoData.concepto,
+          metodoPago: pagoData.metodoPago,
+          referencia: pagoData.referencia || null,
         }).catch(() => {});
       }
 
@@ -274,6 +287,40 @@ export default function ContinuarTramitePage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Pago */}
+        {step === 2 && (
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <FileText className="h-5 w-5 text-brand-500" />
+              <h2 className="text-lg font-semibold text-gray-900">Registrar Pago de Derechos</h2>
+            </div>
+            <p className="text-sm text-gray-500 mb-4">Registra el pago de derechos del trámite migratorio.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Concepto *</label>
+                <input type="text" value={pagoData.concepto} onChange={e => setPagoData(prev => ({ ...prev, concepto: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Ej: Pago de derechos por visa" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Monto (MXN) *</label>
+                <input type="number" value={pagoData.monto} onChange={e => setPagoData(prev => ({ ...prev, monto: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="0.00" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Método de pago *</label>
+                <select value={pagoData.metodoPago} onChange={e => setPagoData(prev => ({ ...prev, metodoPago: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                  <option value="">Selecciona</option>
+                  <option value="transferencia_bancaria">Transferencia bancaria</option>
+                  <option value="tarjeta_credito_debito">Tarjeta de crédito/débito</option>
+                  <option value="efectivo">Efectivo</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Referencia</label>
+                <input type="text" value={pagoData.referencia} onChange={e => setPagoData(prev => ({ ...prev, referencia: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Número de referencia (opcional)" />
+              </div>
             </div>
           </div>
         )}
