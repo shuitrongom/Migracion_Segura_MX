@@ -18,29 +18,42 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 3000);
   const apiPrefix = configService.get<string>('API_PREFIX', '/api/v1');
+  const isProduction = configService.get<string>('NODE_ENV') === 'production';
 
-  // Seguridad
-  app.use(helmet());
+  // ============================================
+  // SEGURIDAD EMPRESARIAL
+  // ============================================
 
-  // CORS
+  // Helmet - Headers de seguridad HTTP
+  app.use(helmet({
+    contentSecurityPolicy: isProduction ? undefined : false,
+    crossOriginEmbedderPolicy: false,
+    hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    noSniff: true,
+    xssFilter: true,
+    hidePoweredBy: true,
+  }));
+
+  // CORS estricto
   const frontendUrl = configService.get<string>('FRONTEND_URL', 'http://localhost:3001');
+  const allowedOrigins = isProduction
+    ? [frontendUrl, 'https://migracion-segura-mx-admin-panel.vercel.app']
+    : [frontendUrl, 'https://migracion-segura-mx-admin-panel.vercel.app', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:19006'];
+
   app.enableCors({
-    origin: [
-      frontendUrl,
-      'https://migracion-segura-mx-admin-panel.vercel.app',
-      'http://localhost:3001',
-      'http://localhost:8081', // Expo dev
-      'http://localhost:19006', // Expo web
-    ],
+    origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Device-Id'],
+    exposedHeaders: ['X-Token-Expiry'],
+    maxAge: 600, // Preflight cache 10 min
   });
 
   // Prefijo global de API
   app.setGlobalPrefix(apiPrefix);
 
-  // Validación global de DTOs
+  // Validación global de DTOs - estricta
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -49,48 +62,31 @@ async function bootstrap() {
       transformOptions: {
         enableImplicitConversion: true,
       },
+      disableErrorMessages: isProduction, // No exponer detalles de validación en prod
     }),
   );
 
-  // Swagger / OpenAPI (habilitado en todos los entornos)
-  const swaggerConfig = new DocumentBuilder()
+  // Swagger / OpenAPI - SOLO en desarrollo
+  if (!isProduction) {
+    const swaggerConfig = new DocumentBuilder()
       .setTitle('Migración Segura MX API')
       .setDescription('API REST para la plataforma de gestión migratoria')
       .setVersion('1.0')
       .addBearerAuth(
-        {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-          name: 'Authorization',
-          description: 'Ingresa tu token JWT',
-          in: 'header',
-        },
+        { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', name: 'Authorization', in: 'header' },
         'access-token',
       )
-      .addTag('Auth', 'Autenticación y registro')
-      .addTag('Clientes', 'Gestión de clientes')
-      .addTag('Tramites', 'Gestión de trámites migratorios')
-      .addTag('Documentos', 'Gestión documental')
-      .addTag('Citas', 'Agenda y citas')
-      .addTag('Notificaciones', 'Motor de notificaciones')
-      .addTag('Financiero', 'Módulo financiero')
-      .addTag('Reportes', 'Reportes y estadísticas')
-      .addTag('Soporte', 'Tickets de soporte')
       .build();
 
     const document = SwaggerModule.createDocument(app, swaggerConfig);
-    SwaggerModule.setup('docs', app, document, {
-      swaggerOptions: {
-        persistAuthorization: true,
-      },
-    });
+    SwaggerModule.setup('docs', app, document, { swaggerOptions: { persistAuthorization: true } });
+  }
 
   await app.listen(port);
 
   const logger = app.get(WINSTON_MODULE_NEST_PROVIDER);
-  logger.log(`🚀 Servidor corriendo en http://localhost:${port}`);
-  logger.log(`📚 Documentación API en http://localhost:${port}/docs`);
+  logger.log(`🚀 Servidor corriendo en puerto ${port} [${isProduction ? 'PRODUCCIÓN' : 'DESARROLLO'}]`);
+  if (!isProduction) logger.log(`📚 Documentación API en http://localhost:${port}/docs`);
 }
 
 bootstrap();

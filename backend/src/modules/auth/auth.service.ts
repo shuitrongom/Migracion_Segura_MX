@@ -334,7 +334,7 @@ export class AuthService {
   }
 
   /**
-   * Refrescar token de acceso
+   * Refrescar token de acceso (con rotación de refresh token)
    */
   async refreshTokens(refreshToken: string) {
     try {
@@ -347,13 +347,15 @@ export class AuthService {
         throw new UnauthorizedException('Token inválido');
       }
 
+      // Rotación: generar nuevos tokens (el refresh anterior queda invalidado por tiempo)
       const tokens = await this.generateTokens(user.id, user.email, user.role);
       return {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
+        expiresIn: 900, // 15 minutos en segundos
       };
     } catch {
-      throw new UnauthorizedException('Token de refresco inválido o expirado');
+      throw new UnauthorizedException('Token de refresco inválido o expirado. Inicia sesión de nuevo.');
     }
   }
 

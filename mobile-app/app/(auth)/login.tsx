@@ -32,6 +32,7 @@ export default function LoginScreen() {
       }
 
       await storage.setItem('access_token', data.accessToken);
+      await storage.setItem('refresh_token', data.refreshToken);
       await storage.setItem('user_data', JSON.stringify(data.user));
 
       if (data.user.role === 'administrador' || data.user.role === 'asesor') {

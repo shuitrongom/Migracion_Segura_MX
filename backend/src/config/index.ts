@@ -18,9 +18,11 @@ export const databaseConfig = registerAs('database', () => ({
 
 export const authConfig = registerAs('auth', () => ({
   jwtSecret: process.env.JWT_SECRET || 'dev-secret-change-in-production',
-  jwtExpiration: process.env.JWT_EXPIRATION || '24h',
+  jwtExpiration: process.env.JWT_EXPIRATION || '15m', // 15 minutos - seguridad empresarial
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret',
-  jwtRefreshExpiration: process.env.JWT_REFRESH_EXPIRATION || '7d',
+  jwtRefreshExpiration: process.env.JWT_REFRESH_EXPIRATION || '4h', // 4 horas - sesión corta
+  maxFailedAttempts: 5, // Bloqueo después de 5 intentos
+  lockDurationMinutes: 30, // Bloqueo por 30 minutos
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
