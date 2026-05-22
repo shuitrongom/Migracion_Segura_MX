@@ -1,15 +1,36 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Linking, Switch } from 'react-native';
 import { useState, useEffect } from 'react';
 import { router } from 'expo-router';
 import { storage } from '@/lib/storage';
 import { WHATSAPP_URL } from '@/lib/config';
+import { isBiometricAvailable, isBiometricEnabled, setBiometricEnabled, getBiometricType } from '@/lib/biometrics';
 
 export default function ClientePerfilScreen() {
   const [user, setUser] = useState<any>(null);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometricOn, setBiometricOn] = useState(false);
+  const [biometricLabel, setBiometricLabel] = useState('Biometría');
 
   useEffect(() => {
     storage.getItem('user_data').then((d) => { if (d) setUser(JSON.parse(d)); });
+    checkBiometrics();
   }, []);
+
+  const checkBiometrics = async () => {
+    const available = await isBiometricAvailable();
+    setBiometricAvailable(available);
+    if (available) {
+      const enabled = await isBiometricEnabled();
+      setBiometricOn(enabled);
+      const type = await getBiometricType();
+      setBiometricLabel(type);
+    }
+  };
+
+  const toggleBiometric = async (value: boolean) => {
+    await setBiometricEnabled(value);
+    setBiometricOn(value);
+  };
 
   const handleLogout = () => {
     Alert.alert('Cerrar sesión', '¿Estás seguro?', [
@@ -39,6 +60,12 @@ export default function ClientePerfilScreen() {
         <TouchableOpacity style={styles.menuItem} onPress={() => Linking.openURL(WHATSAPP_URL)}>
           <Text style={styles.menuText}>💬 Contactar asesor por WhatsApp</Text>
         </TouchableOpacity>
+        {biometricAvailable && (
+          <View style={[styles.menuItem, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+            <Text style={styles.menuText}>🔒 Bloqueo con {biometricLabel}</Text>
+            <Switch value={biometricOn} onValueChange={toggleBiometric} trackColor={{ true: '#C4A265' }} thumbColor="#FFFFFF" />
+          </View>
+        )}
         <TouchableOpacity style={styles.menuItem}>
           <Text style={styles.menuText}>🔔 Notificaciones</Text>
         </TouchableOpacity>

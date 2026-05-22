@@ -20,7 +20,8 @@
       "bundleIdentifier": "mx.migracion-segura.app",
       "infoPlist": {
         "NSCameraUsageDescription": "Necesitamos acceso a la cámara para escanear documentos.",
-        "NSPhotoLibraryUsageDescription": "Necesitamos acceso a tus fotos para subir documentos."
+        "NSPhotoLibraryUsageDescription": "Necesitamos acceso a tus fotos para subir documentos.",
+        "NSFaceIDUsageDescription": "Usamos Face ID para proteger tu información migratoria."
       }
     },
     "android": {
