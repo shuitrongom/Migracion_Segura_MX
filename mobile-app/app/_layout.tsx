@@ -1,10 +1,13 @@
 import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import BiometricLock from '@/components/BiometricLock';
 
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <Stack screenOptions={{ headerShown: false }} />
+      <BiometricLock>
+        <Stack screenOptions={{ headerShown: false }} />
+      </BiometricLock>
     </SafeAreaProvider>
   );
 }
