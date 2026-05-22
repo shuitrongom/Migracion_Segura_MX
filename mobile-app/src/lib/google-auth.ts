@@ -13,8 +13,8 @@ function ensureConfigured() {
     GoogleSignin = module.GoogleSignin;
     statusCodes = module.statusCodes;
     GoogleSignin.configure({
-      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-      iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+      webClientId: '31322060365-v5fp1nqa7te6d35mri1mgk5c27ct9fca.apps.googleusercontent.com',
+      iosClientId: '31322060365-46s1mlqv0mnfbiadu075m206quafsmna.apps.googleusercontent.com',
       offlineAccess: true,
     });
     configured = true;
