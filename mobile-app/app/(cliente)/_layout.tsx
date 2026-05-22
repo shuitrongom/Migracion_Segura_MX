@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { HomeIcon, FileEditIcon, StatusIcon, SearchIcon, FolderIcon, UserIcon } from '@/components/TabIcons';
 
 export default function ClienteLayout() {
   const insets = useSafeAreaInsets();
@@ -16,18 +17,60 @@ export default function ClienteLayout() {
           backgroundColor: '#FFFFFF',
           borderTopWidth: 1,
           borderTopColor: '#E8DFD3',
-          paddingTop: 6,
+          paddingTop: 8,
           paddingBottom: bottomPadding + 6,
-          height: 60 + bottomPadding,
+          height: 62 + bottomPadding,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 8,
+          elevation: 8,
         },
-        tabBarLabelStyle: { fontSize: 10, fontWeight: '500' },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2 },
       }}
     >
-      <Tabs.Screen name="mis-tramites" options={{ tabBarLabel: 'Inicio' }} />
-      <Tabs.Screen name="tramite-nuevo" options={{ tabBarLabel: 'Trámite' }} />
-      <Tabs.Screen name="consulta" options={{ tabBarLabel: 'Consultar' }} />
-      <Tabs.Screen name="documentos" options={{ tabBarLabel: 'Docs' }} />
-      <Tabs.Screen name="perfil" options={{ tabBarLabel: 'Perfil' }} />
+      <Tabs.Screen
+        name="mis-tramites"
+        options={{
+          tabBarLabel: 'Inicio',
+          tabBarIcon: ({ color }) => <HomeIcon color={color} size={22} />,
+        }}
+      />
+      <Tabs.Screen
+        name="tramite-nuevo"
+        options={{
+          tabBarLabel: 'Trámite',
+          tabBarIcon: ({ color }) => <FileEditIcon color={color} size={22} />,
+        }}
+      />
+      <Tabs.Screen
+        name="estatus"
+        options={{
+          tabBarLabel: 'Estatus',
+          tabBarIcon: ({ color }) => <StatusIcon color={color} size={22} />,
+        }}
+      />
+      <Tabs.Screen
+        name="consulta"
+        options={{
+          tabBarLabel: 'Consultar',
+          tabBarIcon: ({ color }) => <SearchIcon color={color} size={22} />,
+        }}
+      />
+      <Tabs.Screen
+        name="documentos"
+        options={{
+          tabBarLabel: 'Docs',
+          tabBarIcon: ({ color }) => <FolderIcon color={color} size={22} />,
+        }}
+      />
+      <Tabs.Screen
+        name="perfil"
+        options={{
+          tabBarLabel: 'Perfil',
+          tabBarIcon: ({ color }) => <UserIcon color={color} size={22} />,
+        }}
+      />
     </Tabs>
   );
 }
