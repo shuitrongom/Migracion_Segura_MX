@@ -18,8 +18,9 @@ function ensureConfigured() {
       offlineAccess: true,
     });
     configured = true;
-  } catch (e) {
+  } catch (e: any) {
     console.warn('Google Sign-In not available:', e);
+    Alert.alert('Debug', `Google module error: ${e.message || e}`);
   }
 }
 
@@ -88,7 +89,7 @@ export async function signInWithGoogle(): Promise<boolean> {
       return false;
     }
     console.warn('Google Sign-In error:', error);
-    Alert.alert('Error', 'No se pudo conectar con Google');
+    Alert.alert('Error Google', `Código: ${error.code || 'unknown'}\n${error.message || 'Sin detalle'}`);
     return false;
   }
 }
