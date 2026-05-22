@@ -1,7 +1,8 @@
-import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { useState } from 'react';
 import FormSelect from '@/components/FormSelect';
 import FormDatePicker from '@/components/FormDatePicker';
-import { PROPOSITOS_VIAJE, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO, SITUACIONES_TRABAJO, OCUPACIONES_TRABAJO, SECTORES_ACTIVIDAD, VINCULOS_PARENTESCO, TIPOS_PERSONA, ESTADOS_MEXICO } from '@/lib/catalogos';
+import { PROPOSITOS_VIAJE, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO, SITUACIONES_TRABAJO, OCUPACIONES_TRABAJO, SECTORES_ACTIVIDAD, VINCULOS_PARENTESCO, TIPOS_PERSONA, ESTADOS_MEXICO, DOCUMENTOS_IDENTIFICACION_PERSONA } from '@/lib/catalogos';
 
 interface VisaFormProps {
   form: Record<string, string>;
@@ -15,6 +16,19 @@ export default function VisaForm({ form, solicitante, updateForm, updateSolicita
   const tipoPersonaOptions = form.propositoViaje === 'Unidad familiar'
     ? ['Física']
     : TIPOS_PERSONA;
+
+  // Personas autorizadas
+  const [personasAutorizadas, setPersonasAutorizadas] = useState<{ curp: string; nombre: string; apellidos: string; nacionalidad: string; tipoDocumento: string; numeroDocumento: string }[]>([]);
+  const [personaTemp, setPersonaTemp] = useState({ curp: '', nombre: '', apellidos: '', nacionalidad: '', tipoDocumento: '', numeroDocumento: '' });
+
+  const handleAddPersona = () => {
+    if (!personaTemp.nombre.trim() || !personaTemp.apellidos.trim()) {
+      Alert.alert('Error', 'Nombre y apellidos son obligatorios');
+      return;
+    }
+    setPersonasAutorizadas([...personasAutorizadas, { ...personaTemp }]);
+    setPersonaTemp({ curp: '', nombre: '', apellidos: '', nacionalidad: '', tipoDocumento: '', numeroDocumento: '' });
+  };
 
   return (
     <View>
@@ -118,6 +132,35 @@ export default function VisaForm({ form, solicitante, updateForm, updateSolicita
       <Field label="Correo electrónico *"><TextInput style={styles.input} value={form.solicitanteEmail} onChangeText={(v) => updateForm('solicitanteEmail', v)} placeholder="nombre@correo.com" placeholderTextColor="#9CA3AF" keyboardType="email-address" autoCapitalize="none" /></Field>
       <Field label="Correo electrónico (confirmación) *"><TextInput style={styles.input} value={form.solicitanteEmailConfirmacion} onChangeText={(v) => updateForm('solicitanteEmailConfirmacion', v)} placeholder="Confirma tu correo" placeholderTextColor="#9CA3AF" keyboardType="email-address" autoCapitalize="none" /></Field>
 
+      {/* Persona autorizada */}
+      <Text style={styles.sectionTitle}>En su caso, persona autorizada para tramitar, oír o recibir notificaciones</Text>
+      <Text style={styles.infoText}>Si deseas agregar personas autorizadas, llena los datos y presiona "Agregar persona".</Text>
+      <Field label="CURP"><TextInput style={styles.input} value={personaTemp.curp} onChangeText={(v) => setPersonaTemp(prev => ({ ...prev, curp: v.toUpperCase() }))} placeholder="18 caracteres" placeholderTextColor="#9CA3AF" maxLength={18} autoCapitalize="characters" /></Field>
+      <Field label="Nombre(s) *"><TextInput style={styles.input} value={personaTemp.nombre} onChangeText={(v) => setPersonaTemp(prev => ({ ...prev, nombre: v }))} placeholder="Nombre(s)" placeholderTextColor="#9CA3AF" /></Field>
+      <Field label="Apellido(s) *"><TextInput style={styles.input} value={personaTemp.apellidos} onChangeText={(v) => setPersonaTemp(prev => ({ ...prev, apellidos: v }))} placeholder="Apellido(s)" placeholderTextColor="#9CA3AF" /></Field>
+      <FormSelect label="Nacionalidad actual" value={personaTemp.nacionalidad} options={NACIONALIDADES} onChange={(v) => setPersonaTemp(prev => ({ ...prev, nacionalidad: v }))} searchable />
+      <FormSelect label="Tipo de documento de identificación" value={personaTemp.tipoDocumento} options={DOCUMENTOS_IDENTIFICACION_PERSONA} onChange={(v) => setPersonaTemp(prev => ({ ...prev, tipoDocumento: v }))} />
+      <Field label="Número de documento"><TextInput style={styles.input} value={personaTemp.numeroDocumento} onChangeText={(v) => setPersonaTemp(prev => ({ ...prev, numeroDocumento: v }))} placeholder="Número" placeholderTextColor="#9CA3AF" /></Field>
+      <TouchableOpacity style={styles.addButton} onPress={handleAddPersona}>
+        <Text style={styles.addButtonText}>+ Agregar persona</Text>
+      </TouchableOpacity>
+
+      {personasAutorizadas.length > 0 && (
+        <View style={styles.listContainer}>
+          {personasAutorizadas.map((p, i) => (
+            <View key={i} style={styles.listItem}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.listItemName}>{p.nombre} {p.apellidos}</Text>
+                <Text style={styles.listItemDetail}>{p.nacionalidad} · {p.tipoDocumento} {p.numeroDocumento}</Text>
+              </View>
+              <TouchableOpacity onPress={() => setPersonasAutorizadas(personasAutorizadas.filter((_, idx) => idx !== i))}>
+                <Text style={styles.removeText}>Eliminar</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      )}
+
       {/* Comentarios */}
       <Text style={styles.sectionTitle}>Comentarios</Text>
       <TextInput style={[styles.input, { height: 80, textAlignVertical: 'top' }]} value={form.comentarios} onChangeText={(v) => updateForm('comentarios', v)} placeholder="Si lo deseas, puedes agregar algún comentario a la solicitud (opcional)" placeholderTextColor="#9CA3AF" multiline />
@@ -142,4 +185,12 @@ const styles = StyleSheet.create({
   fieldLabel: { fontSize: 12, fontWeight: '600', color: '#4A3F37', marginBottom: 5 },
   input: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8DFD3', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14, color: '#2C1810' },
   requiredNote: { fontSize: 11, color: '#8B7B6F', marginTop: 16 },
+  infoText: { fontSize: 12, color: '#6B5B4F', marginBottom: 12, lineHeight: 18, backgroundColor: '#EDE9E0', padding: 12, borderRadius: 8 },
+  addButton: { backgroundColor: '#F5F0E8', borderWidth: 1, borderColor: '#C4A265', borderRadius: 10, paddingVertical: 12, alignItems: 'center', marginTop: 8, marginBottom: 8 },
+  addButtonText: { color: '#C4A265', fontSize: 14, fontWeight: '600' },
+  listContainer: { marginTop: 8, gap: 8 },
+  listItem: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F5F0E8', borderRadius: 10, padding: 12 },
+  listItemName: { fontSize: 14, fontWeight: '600', color: '#2C1810' },
+  listItemDetail: { fontSize: 12, color: '#6B5B4F', marginTop: 2 },
+  removeText: { fontSize: 12, color: '#E74C3C', fontWeight: '500' },
 });
