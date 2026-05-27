@@ -8,20 +8,27 @@ import {
   ParseUUIDPipe,
   ParseIntPipe,
   Request,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 
 import { FinancieroService } from './financiero.service';
+import { MercadoPagoService } from './mercadopago.service';
 import { CreatePagoDto } from './dto/create-pago.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { Public } from '../../common/decorators/public.decorator';
 import { UserRole } from '../../common/enums';
 
 @ApiTags('Financiero')
 @ApiBearerAuth()
 @Controller('financiero')
 export class FinancieroController {
-  constructor(private readonly financieroService: FinancieroService) {}
+  constructor(
+    private readonly financieroService: FinancieroService,
+    private readonly mercadoPagoService: MercadoPagoService,
+  ) {}
 
   /**
    * Req 13.1 - Register payment
@@ -76,5 +83,44 @@ export class FinancieroController {
     @Query('anio', ParseIntPipe) anio: number,
   ) {
     return this.financieroService.getReporteMensual(mes, anio);
+  }
+
+  /**
+   * Crear preferencia de pago en Mercado Pago
+   */
+  @Post('mercadopago/crear-preferencia')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR, UserRole.CLIENTE)
+  @ApiOperation({ summary: 'Crear link de pago con Mercado Pago' })
+  async crearPreferencia(
+    @Body() body: { tramiteId: string; concepto: string; monto: number; clienteNombre: string; email: string },
+  ) {
+    return this.mercadoPagoService.createPreference({
+      tramiteId: body.tramiteId,
+      concepto: body.concepto,
+      monto: body.monto,
+      clienteNombre: body.clienteNombre,
+      email: body.email,
+    });
+  }
+
+  /**
+   * Webhook de Mercado Pago (notificación de pago)
+   */
+  @Post('webhook/mercadopago')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Webhook de notificación de Mercado Pago' })
+  async webhookMercadoPago(@Body() body: any) {
+    if (body.type === 'payment' && body.data?.id) {
+      try {
+        const payment = await this.mercadoPagoService.getPayment(body.data.id.toString());
+        if (payment.status === 'approved' && payment.externalReference) {
+          // Registrar pago aprobado en el log
+          // El admin puede verificar en el módulo financiero
+          console.log(`[MercadoPago] Pago aprobado: $${payment.amount} para trámite ${payment.externalReference}`);
+        }
+      } catch {}
+    }
+    return { received: true };
   }
 }

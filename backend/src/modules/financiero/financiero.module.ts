@@ -5,11 +5,12 @@ import { Pago } from './entities/pago.entity';
 import { AcuerdoPago } from './entities/acuerdo-pago.entity';
 import { FinancieroService } from './financiero.service';
 import { FinancieroController } from './financiero.controller';
+import { MercadoPagoService } from './mercadopago.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Pago, AcuerdoPago])],
   controllers: [FinancieroController],
-  providers: [FinancieroService],
-  exports: [FinancieroService],
+  providers: [FinancieroService, MercadoPagoService],
+  exports: [FinancieroService, MercadoPagoService],
 })
 export class FinancieroModule {}
