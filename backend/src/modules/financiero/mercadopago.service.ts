@@ -44,6 +44,10 @@ export class MercadoPagoService {
             name: params.clienteNombre,
             email: params.email,
           },
+          payment_methods: {
+            excluded_payment_types: [],
+            installments: 12,
+          },
           back_urls: {
             success: `https://migracion-segura-mx-admin-panel.vercel.app/tramites/${params.tramiteId}?pago=exitoso`,
             failure: `https://migracion-segura-mx-admin-panel.vercel.app/tramites/${params.tramiteId}?pago=fallido`,
