@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, TouchableOpacity, Linking } from 'react-native';
 import { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/api';
 
@@ -16,6 +16,7 @@ const STEPS = ['Recibido', 'En revisión', 'En espera', 'Resuelto'];
 
 export default function EstatusScreen() {
   const [tramites, setTramites] = useState<any[]>([]);
+  const [pagos, setPagos] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -26,7 +27,20 @@ export default function EstatusScreen() {
       const res = await apiFetch('/tramites?page=1&limit=50');
       if (res.ok) {
         const data = await res.json();
-        setTramites(data.data || []);
+        const tramitesList = data.data || [];
+        setTramites(tramitesList);
+
+        // Cargar pagos de cada trámite
+        const pagosMap: Record<string, any[]> = {};
+        for (const t of tramitesList) {
+          try {
+            const pagosRes = await apiFetch(`/financiero/pagos/tramite/${t.id}`);
+            if (pagosRes.ok) {
+              pagosMap[t.id] = await pagosRes.json();
+            }
+          } catch {}
+        }
+        setPagos(pagosMap);
       }
     } catch {}
     setLoading(false);
@@ -80,6 +94,24 @@ export default function EstatusScreen() {
 
         {/* Fecha */}
         <Text style={styles.date}>Iniciado: {item.createdAt?.slice(0, 10)}</Text>
+
+        {/* Pagos pendientes */}
+        {pagos[item.id]?.filter((p: any) => p.estatusPago === 'pendiente' && p.mercadopagoInitPoint).map((pago: any) => (
+          <TouchableOpacity
+            key={pago.id}
+            style={styles.payButton}
+            onPress={() => Linking.openURL(pago.mercadopagoInitPoint)}
+          >
+            <Text style={styles.payButtonText}>💳 Pagar {pago.tipoPago === 'anticipo' ? 'Anticipo' : 'Liquidación'}: ${Number(pago.monto).toLocaleString()} MXN</Text>
+          </TouchableOpacity>
+        ))}
+
+        {/* Pagos aprobados */}
+        {pagos[item.id]?.filter((p: any) => p.estatusPago === 'aprobado').map((pago: any) => (
+          <View key={pago.id} style={styles.paidBadge}>
+            <Text style={styles.paidText}>✅ {pago.tipoPago === 'anticipo' ? 'Anticipo' : 'Liquidación'} pagado: ${Number(pago.monto).toLocaleString()}</Text>
+          </View>
+        ))}
       </View>
     );
   };
@@ -132,6 +164,11 @@ const styles = StyleSheet.create({
   timelineLabel: { fontSize: 10, color: '#8B7B6F', textAlign: 'center' },
 
   date: { fontSize: 11, color: '#8B7B6F' },
+
+  payButton: { backgroundColor: '#C4A265', borderRadius: 10, paddingVertical: 12, paddingHorizontal: 16, marginTop: 10, alignItems: 'center' },
+  payButtonText: { color: '#FFFFFF', fontSize: 14, fontWeight: '600' },
+  paidBadge: { backgroundColor: '#27AE6015', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12, marginTop: 8 },
+  paidText: { color: '#27AE60', fontSize: 12, fontWeight: '500' },
 
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, gap: 12 },
   emptyTitle: { fontSize: 18, fontWeight: '600', color: '#2C1810' },

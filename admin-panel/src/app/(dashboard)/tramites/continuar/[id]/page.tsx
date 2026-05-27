@@ -105,15 +105,17 @@ export default function ContinuarTramitePage() {
         }).catch(() => {});
       }
 
-      // Registrar pago si se llenó
-      if (pagoData.monto && pagoData.concepto && pagoData.metodoPago) {
-        await api.post('/financiero/pagos', {
-          clienteId: tramite?.clienteId,
+      // Registrar pago dividido si se llenó el monto
+      if (pagoData.monto && pagoData.concepto) {
+        const nombreExtranjero = tramite?.cliente?.nombreCompleto || `${tramite?.datosFormulario?.nombre || ''} ${tramite?.datosFormulario?.apellidos || ''}`.trim();
+        const emailExtranjero = tramite?.cliente?.email || tramite?.datosFormulario?.solicitanteEmail || tramite?.datosFormulario?.email || '';
+        await api.post('/financiero/pagos/generar-dividido', {
           tramiteId,
-          monto: parseFloat(pagoData.monto),
+          clienteId: tramite?.clienteId,
+          montoTotal: parseFloat(pagoData.monto),
           concepto: pagoData.concepto,
-          metodoPago: pagoData.metodoPago,
-          referencia: pagoData.referencia || null,
+          clienteNombre: nombreExtranjero,
+          email: emailExtranjero,
         }).catch(() => {});
       }
 
@@ -296,32 +298,27 @@ export default function ContinuarTramitePage() {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <FileText className="h-5 w-5 text-brand-500" />
-              <h2 className="text-lg font-semibold text-gray-900">Registrar Pago de Derechos</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Registrar Costo del Trámite</h2>
             </div>
-            <p className="text-sm text-gray-500 mb-4">Registra el pago de derechos del trámite migratorio.</p>
+            <p className="text-sm text-gray-500 mb-4">El monto se dividirá en 2 pagos: 50% anticipo (se cobra ahora) y 50% liquidación (se cobra al resolver el trámite). Se generará un link de Mercado Pago para el extranjero.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Concepto *</label>
                 <input type="text" value={pagoData.concepto} onChange={e => setPagoData(prev => ({ ...prev, concepto: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Ej: Pago de derechos por visa" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Monto (MXN) *</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Monto TOTAL (MXN) *</label>
                 <input type="number" value={pagoData.monto} onChange={e => setPagoData(prev => ({ ...prev, monto: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="0.00" />
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Método de pago *</label>
-                <select value={pagoData.metodoPago} onChange={e => setPagoData(prev => ({ ...prev, metodoPago: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
-                  <option value="">Selecciona</option>
-                  <option value="transferencia_bancaria">Transferencia bancaria</option>
-                  <option value="tarjeta_credito_debito">Tarjeta de crédito/débito</option>
-                  <option value="efectivo">Efectivo</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Referencia</label>
-                <input type="text" value={pagoData.referencia} onChange={e => setPagoData(prev => ({ ...prev, referencia: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Número de referencia (opcional)" />
-              </div>
             </div>
+            {pagoData.monto && (
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-2xl">
+                <p className="text-sm text-blue-800 font-medium">Desglose de pagos:</p>
+                <p className="text-sm text-blue-700 mt-1">• Anticipo (50%): <strong>${(parseFloat(pagoData.monto) / 2).toLocaleString()} MXN</strong> — se cobra ahora</p>
+                <p className="text-sm text-blue-700">• Liquidación (50%): <strong>${(parseFloat(pagoData.monto) / 2).toLocaleString()} MXN</strong> — se cobra al resolver</p>
+                <p className="text-xs text-blue-600 mt-2">El extranjero tiene 15 días para pagar cada parte. Si no paga el anticipo, el trámite se cancela.</p>
+              </div>
+            )}
           </div>
         )}
       </div>
