@@ -170,7 +170,7 @@ export default function CitasPage() {
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Modalidad</label>
               <select value={form.modalidad} onChange={e => setForm(prev => ({ ...prev, modalidad: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm">
-                <option value="presencial">Presencial</option>
+                <option value="presencial">Presencial (en oficina)</option>
                 <option value="videollamada">Videollamada</option>
               </select>
             </div>
@@ -242,7 +242,7 @@ export default function CitasPage() {
                       </div>
                       <p className="text-sm font-semibold text-gray-900">{formatDate(cita.fecha)} a las {cita.hora?.slice(0, 5)}</p>
                       <p className="text-xs text-gray-500 capitalize">
-                        {cita.cliente?.nombreCompleto || 'Sin asignar'} • {cita.modalidad === 'videollamada' ? '📹 Videollamada' : '📍 Presencial'}
+                        {cita.cliente?.nombreCompleto || 'Sin asignar'} • {cita.modalidad === 'videollamada' ? '📹 Videollamada' : '🏢 En oficina del gestor'}
                         {cita.asesor?.fullName && ` • ${cita.asesor.fullName}`}
                       </p>
                     </div>
