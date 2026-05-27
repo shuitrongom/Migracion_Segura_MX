@@ -35,12 +35,48 @@ export class FinancieroController {
    */
   @Post('pagos')
   @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
-  @ApiOperation({ summary: 'Registrar pago' })
+  @ApiOperation({ summary: 'Registrar pago manual' })
   registrarPago(
     @Body() dto: CreatePagoDto,
     @Request() req: { user: { id: string } },
   ) {
     return this.financieroService.registrarPago(dto, req.user.id);
+  }
+
+  /**
+   * Generar pagos divididos (anticipo 50% + liquidación 50%)
+   */
+  @Post('pagos/generar-dividido')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Generar pagos divididos (anticipo + liquidación) con link de Mercado Pago' })
+  generarPagosDivididos(
+    @Body() body: { tramiteId: string; clienteId: string; montoTotal: number; concepto: string; clienteNombre: string; email: string },
+    @Request() req: { user: { id: string } },
+  ) {
+    return this.financieroService.generarPagosDivididos({ ...body, registradoPor: req.user.id });
+  }
+
+  /**
+   * Generar link de liquidación (cuando el trámite se resuelve)
+   */
+  @Post('pagos/generar-liquidacion')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Generar link de pago para la liquidación' })
+  generarLinkLiquidacion(
+    @Body() body: { tramiteId: string; clienteNombre: string; email: string },
+    @Request() req: { user: { id: string } },
+  ) {
+    return this.financieroService.generarLinkLiquidacion({ ...body, registradoPor: req.user.id });
+  }
+
+  /**
+   * Obtener pagos de un trámite
+   */
+  @Get('pagos/tramite/:tramiteId')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR, UserRole.CLIENTE)
+  @ApiOperation({ summary: 'Obtener pagos de un trámite' })
+  getPagosByTramite(@Param('tramiteId', ParseUUIDPipe) tramiteId: string) {
+    return this.financieroService.getPagosByTramite(tramiteId);
   }
 
   /**
@@ -115,9 +151,12 @@ export class FinancieroController {
       try {
         const payment = await this.mercadoPagoService.getPayment(body.data.id.toString());
         if (payment.status === 'approved' && payment.externalReference) {
-          // Registrar pago aprobado en el log
-          // El admin puede verificar en el módulo financiero
-          console.log(`[MercadoPago] Pago aprobado: $${payment.amount} para trámite ${payment.externalReference}`);
+          await this.financieroService.procesarPagoAprobado(
+            payment.id?.toString() || '',
+            payment.externalReference,
+            payment.amount || 0,
+            payment.paymentMethod || '',
+          );
         }
       } catch {}
     }
