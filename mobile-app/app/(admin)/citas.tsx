@@ -51,7 +51,7 @@ export default function CitasScreen() {
               <Text style={styles.cardCliente}>{item.cliente?.nombreCompleto || item.cliente?.nombre || 'Sin cliente'}</Text>
               <View style={styles.cardMeta}>
                 <Text style={styles.modalidad}>
-                  {item.modalidad === 'presencial' ? '🏢 Presencial' : '📹 Videollamada'}
+                  {item.modalidad === 'presencial' ? '🏢 En oficina' : '📹 Videollamada'}
                 </Text>
                 <View style={[styles.estatusDot, { backgroundColor: item.estatus === 'confirmada' || item.estatus === 'completada' ? '#27AE60' : '#E67E22' }]} />
                 <Text style={styles.estatus}>{item.estatus || 'programada'}</Text>

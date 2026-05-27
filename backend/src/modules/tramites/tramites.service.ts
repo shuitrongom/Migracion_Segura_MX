@@ -50,8 +50,36 @@ export class TramitesService {
     const numeroPiezaINM = datosFormulario?.numeroPiezaINM as string | undefined;
     const contrasenaINM = datosFormulario?.contrasenaINM as string | undefined;
 
+    // Auto-crear cliente si no existe (cuando viene de la app móvil)
+    let clienteId = dto.clienteId;
+    if (clienteId && datosFormulario?.nombre) {
+      const existingCliente = await this.tramiteRepository.manager.query(
+        `SELECT id FROM clientes WHERE id = $1`, [clienteId]
+      );
+      if (!existingCliente || existingCliente.length === 0) {
+        // El clienteId es un userId, crear registro de cliente
+        const nombreCompleto = `${datosFormulario.nombre} ${datosFormulario.apellidos || ''}`.trim();
+        const email = (datosFormulario.solicitanteEmail || datosFormulario.email || 'sin-email@pendiente.com') as string;
+        try {
+          const result = await this.tramiteRepository.manager.query(
+            `INSERT INTO clientes ("nombreCompleto", email, telefono, "userId", "asesorId") VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+            [nombreCompleto, email, 'pendiente', clienteId, await this.autoAssignGestor()]
+          );
+          if (result?.[0]?.id) {
+            clienteId = result[0].id;
+          }
+        } catch {
+          // Si falla (ej: email duplicado), intentar buscar por userId
+          const existing = await this.tramiteRepository.manager.query(
+            `SELECT id FROM clientes WHERE "userId" = $1 LIMIT 1`, [dto.clienteId]
+          );
+          if (existing?.[0]?.id) clienteId = existing[0].id;
+        }
+      }
+    }
+
     const tramite = this.tramiteRepository.create({
-      clienteId: dto.clienteId,
+      clienteId,
       tipo: dto.tipo,
       datosFormulario,
       asesorId: dto.asesorId || await this.autoAssignGestor(),

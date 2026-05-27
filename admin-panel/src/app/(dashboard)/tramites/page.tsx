@@ -215,7 +215,7 @@ export default function TramitesPage() {
                     };
                     const clienteName = tramite.cliente
                       ? (tramite.cliente.nombreCompleto || `${tramite.cliente.nombre || ''} ${tramite.cliente.apellidos || ''}`.trim() || '--')
-                      : '--';
+                      : (tramite.datosFormulario?.nombre ? `${tramite.datosFormulario.nombre} ${tramite.datosFormulario.apellidos || ''}`.trim() : '--');
                     return (
                       <tr key={tramite.id} className="border-b last:border-b-0 hover:bg-gray-50">
                         <td className="px-4 py-3">
@@ -238,7 +238,7 @@ export default function TramitesPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3 text-gray-600 hidden lg:table-cell">
-                          {tramite.responsable?.fullName ?? '--'}
+                          {tramite.asesor?.fullName ?? tramite.responsable?.fullName ?? '--'}
                         </td>
                         <td className="px-4 py-3 text-gray-500 hidden md:table-cell">
                           {tramite.createdAt ? new Date(tramite.createdAt).toLocaleDateString('es-MX') : '--'}
