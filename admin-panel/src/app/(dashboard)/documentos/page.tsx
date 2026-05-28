@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FolderOpen, Search, FileText, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
+import { FolderOpen, Search, FileText, Eye, ChevronLeft, ChevronRight, Filter, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 
@@ -33,9 +33,7 @@ export default function DocumentosPage() {
   const [total, setTotal] = useState(0);
   const limit = 20;
 
-  useEffect(() => {
-    fetchDocumentos();
-  }, [page, filtroEstatus]);
+  useEffect(() => { fetchDocumentos(); }, [page, filtroEstatus]);
 
   const fetchDocumentos = async () => {
     try {
@@ -44,11 +42,8 @@ export default function DocumentosPage() {
       const data = res.data?.data || res.data || [];
       setDocumentos(Array.isArray(data) ? data : []);
       setTotal(res.data?.meta?.total || res.data?.total || data.length);
-    } catch {
-      setDocumentos([]);
-    } finally {
-      setLoading(false);
-    }
+    } catch { setDocumentos([]); }
+    finally { setLoading(false); }
   };
 
   const filteredDocs = search
@@ -69,47 +64,88 @@ export default function DocumentosPage() {
       const blob = new Blob([res.data], { type: contentType });
       const url = URL.createObjectURL(blob);
       window.open(url, '_blank');
-    } catch {
-      toast.error('Error al abrir el documento');
-    }
+    } catch { toast.error('Error al abrir el documento'); }
   };
 
   return (
-    <div>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 bg-gradient-to-br from-brand-500 to-amber-500 rounded-xl flex items-center justify-center shadow-sm">
-            <FolderOpen className="h-5 w-5 text-white" />
-          </div>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Header con gradiente */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 p-8 text-white shadow-xl">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+        <div className="relative z-10 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Documentos</h1>
-            <p className="text-xs text-gray-500">Todos los documentos subidos en el sistema</p>
+            <h1 className="text-3xl font-bold">Documentos</h1>
+            <p className="text-amber-200 mt-1">Todos los documentos subidos en el sistema</p>
+          </div>
+          <div className="text-right">
+            <p className="text-4xl font-bold">{total}</p>
+            <p className="text-amber-200 text-sm">Total documentos</p>
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-2xl font-bold text-brand-600">{total}</p>
-          <p className="text-[10px] text-gray-400 uppercase">Total documentos</p>
+      </div>
+
+      {/* Metric cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-orange-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-medium text-gray-500">Total Documentos</p>
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-200/30">
+                <FolderOpen className="h-5 w-5" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">{total}</p>
+          </div>
+        </div>
+        <div className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-medium text-gray-500">Aprobados</p>
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-200/30">
+                <CheckCircle className="h-5 w-5" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">{documentos.filter(d => d.estatus === 'aprobado').length}</p>
+          </div>
+        </div>
+        <div className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-medium text-gray-500">En esta página</p>
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-200/30">
+                <FileText className="h-5 w-5" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">{filteredDocs.length}</p>
+          </div>
         </div>
       </div>
 
       {/* Filtros */}
-      <div className="bg-white rounded-xl border shadow-sm p-4 mb-6">
+      <div className="bg-white rounded-2xl border shadow-sm p-5 hover:shadow-md transition-shadow duration-300">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="p-2 rounded-lg bg-amber-50"><Filter className="h-4 w-4 text-amber-600" /></div>
+          <h2 className="text-lg font-bold text-gray-900">Filtros</h2>
+        </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
               placeholder="Buscar por nombre o categoría..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm"
+              className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
             />
           </div>
           <select
             value={filtroEstatus}
             onChange={e => { setFiltroEstatus(e.target.value); setPage(1); }}
-            className="px-4 py-2.5 border border-gray-300 bg-gray-50/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm"
+            className="px-4 py-3 border border-gray-200 rounded-xl text-sm text-gray-700 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
           >
             <option value="">Todos los estatus</option>
             <option value="pendiente">Pendiente</option>
@@ -121,23 +157,42 @@ export default function DocumentosPage() {
         </div>
       </div>
 
-      {/* Lista */}
-      <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+      {/* Lista de documentos */}
+      <div className="bg-white rounded-2xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300">
+        <div className="flex items-center gap-2 px-6 py-4 border-b">
+          <div className="p-2 rounded-lg bg-amber-50"><FolderOpen className="h-4 w-4 text-amber-600" /></div>
+          <h2 className="text-lg font-bold text-gray-900">Listado de Documentos</h2>
+        </div>
+
         {loading ? (
-          <div className="p-12 text-center text-gray-400">Cargando documentos...</div>
+          <div className="p-6 space-y-4">
+            {[1,2,3,4,5].map(i => (
+              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-gray-50">
+                <div className="h-10 w-10 rounded-xl bg-gray-200 animate-pulse" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-40 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-3 w-56 bg-gray-200 rounded animate-pulse" />
+                </div>
+                <div className="h-6 w-20 bg-gray-200 rounded-full animate-pulse" />
+              </div>
+            ))}
+          </div>
         ) : filteredDocs.length === 0 ? (
           <div className="p-12 text-center">
-            <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">No se encontraron documentos.</p>
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center mx-auto mb-4">
+              <FileText className="h-8 w-8 text-amber-400" />
+            </div>
+            <p className="text-gray-500 font-medium">No se encontraron documentos</p>
+            <p className="text-sm text-gray-400 mt-1">Intenta con otros términos de búsqueda</p>
           </div>
         ) : (
           <>
             <div className="divide-y">
               {filteredDocs.map(doc => (
-                <div key={doc.id} className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-10 w-10 bg-gradient-to-br from-brand-100 to-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <FileText className="h-5 w-5 text-brand-600" />
+                <div key={doc.id} className="flex items-center justify-between px-6 py-4 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white transition-colors group">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="h-11 w-11 bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                      <FileText className="h-5 w-5 text-amber-600" />
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-gray-900 truncate">{doc.nombre}</p>
@@ -150,7 +205,7 @@ export default function DocumentosPage() {
                     </span>
                     <button
                       onClick={() => handleView(doc)}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-brand-500 to-brand-600 rounded-lg hover:from-brand-600 hover:to-brand-700 shadow-sm transition-all"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-600 rounded-lg hover:from-amber-600 hover:to-orange-700 shadow-sm transition-all"
                     >
                       <Eye className="h-3.5 w-3.5" /> Ver
                     </button>
@@ -161,11 +216,12 @@ export default function DocumentosPage() {
 
             {/* Paginación */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between px-5 py-3 border-t bg-gray-50">
-                <p className="text-xs text-gray-500">Página {page} de {totalPages} ({total} documentos)</p>
+              <div className="flex items-center justify-between px-6 py-4 border-t bg-gradient-to-r from-gray-50 to-white">
+                <p className="text-sm text-gray-500">Página {page} de {totalPages} (<span className="font-semibold text-gray-700">{total}</span> documentos)</p>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-1.5 rounded-lg border hover:bg-white disabled:opacity-50"><ChevronLeft className="h-4 w-4" /></button>
-                  <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-1.5 rounded-lg border hover:bg-white disabled:opacity-50"><ChevronRight className="h-4 w-4" /></button>
+                  <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-xl border hover:bg-white hover:shadow-sm disabled:opacity-50 transition-all"><ChevronLeft className="h-4 w-4" /></button>
+                  <span className="text-sm font-medium text-gray-700 px-3 py-1.5 bg-white rounded-lg border">{page} / {totalPages}</span>
+                  <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 rounded-xl border hover:bg-white hover:shadow-sm disabled:opacity-50 transition-all"><ChevronRight className="h-4 w-4" /></button>
                 </div>
               </div>
             )}
