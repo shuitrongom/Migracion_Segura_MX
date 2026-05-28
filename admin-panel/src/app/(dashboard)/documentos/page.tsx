@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FolderOpen, Search, FileText, Eye, ChevronLeft, ChevronRight, Filter, CheckCircle } from 'lucide-react';
+import { FolderOpen, Search, FileText, Eye, ChevronLeft, ChevronRight, Filter, CheckCircle, X, Download, Printer } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 
@@ -31,6 +31,8 @@ export default function DocumentosPage() {
   const [filtroEstatus, setFiltroEstatus] = useState('');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [viewDoc, setViewDoc] = useState<{ doc: DocItem; url: string; contentType: string } | null>(null);
+  const [loadingDoc, setLoadingDoc] = useState(false);
   const limit = 20;
 
   useEffect(() => { fetchDocumentos(); }, [page, filtroEstatus]);
@@ -59,12 +61,37 @@ export default function DocumentosPage() {
 
   const handleView = async (doc: DocItem) => {
     try {
+      setLoadingDoc(true);
       const res = await api.get(`/documentos/${doc.id}/download`, { responseType: 'blob' });
       const contentType = String(res.headers['content-type'] || 'application/pdf');
       const blob = new Blob([res.data], { type: contentType });
       const url = URL.createObjectURL(blob);
-      window.open(url, '_blank');
+      setViewDoc({ doc, url, contentType });
     } catch { toast.error('Error al abrir el documento'); }
+    finally { setLoadingDoc(false); }
+  };
+
+  const handleCloseModal = () => {
+    if (viewDoc?.url) URL.revokeObjectURL(viewDoc.url);
+    setViewDoc(null);
+  };
+
+  const handleDownload = () => {
+    if (!viewDoc) return;
+    const a = document.createElement('a');
+    a.href = viewDoc.url;
+    a.download = viewDoc.doc.nombre || 'documento';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handlePrint = () => {
+    if (!viewDoc) return;
+    const printWindow = window.open(viewDoc.url, '_blank');
+    if (printWindow) {
+      printWindow.addEventListener('load', () => { printWindow.print(); });
+    }
   };
 
   return (
@@ -228,6 +255,81 @@ export default function DocumentosPage() {
           </>
         )}
       </div>
+
+      {/* Modal de visualización de documento */}
+      {viewDoc && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={handleCloseModal}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 h-[85vh] flex flex-col animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+            {/* Header del modal */}
+            <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600">
+                  <FileText className="h-4 w-4 text-white" />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-lg font-bold text-gray-900 truncate">{viewDoc.doc.nombre}</h2>
+                  <p className="text-xs text-gray-500">{viewDoc.doc.categoria || 'Sin categoría'} • {formatDate(viewDoc.doc.createdAt)}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={handleDownload}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+                  title="Descargar"
+                >
+                  <Download className="h-4 w-4" /> Guardar
+                </button>
+                <button
+                  onClick={handlePrint}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl hover:from-amber-600 hover:to-orange-700 shadow-sm transition-all"
+                  title="Imprimir"
+                >
+                  <Printer className="h-4 w-4" /> Imprimir
+                </button>
+                <button
+                  onClick={handleCloseModal}
+                  className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                  aria-label="Cerrar"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Contenido del documento */}
+            <div className="flex-1 overflow-hidden bg-gray-100 rounded-b-2xl">
+              {viewDoc.contentType.includes('pdf') ? (
+                <iframe src={viewDoc.url} className="w-full h-full border-0" title={viewDoc.doc.nombre} />
+              ) : viewDoc.contentType.includes('image') ? (
+                <div className="w-full h-full flex items-center justify-center p-6 overflow-auto">
+                  <img src={viewDoc.url} alt={viewDoc.doc.nombre} className="max-w-full max-h-full object-contain rounded-lg shadow-lg" />
+                </div>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center p-8">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center mb-4">
+                    <FileText className="h-10 w-10 text-amber-500" />
+                  </div>
+                  <p className="text-gray-600 font-medium mb-2">Vista previa no disponible</p>
+                  <p className="text-sm text-gray-400 mb-4">Tipo: {viewDoc.contentType}</p>
+                  <button onClick={handleDownload} className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl hover:from-amber-600 hover:to-orange-700 shadow-lg transition-all">
+                    <Download className="h-4 w-4" /> Descargar archivo
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading overlay */}
+      {loadingDoc && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center gap-3">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
+            <p className="text-sm text-gray-600 font-medium">Cargando documento...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
