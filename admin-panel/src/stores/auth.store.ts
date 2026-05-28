@@ -44,6 +44,19 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     const token = localStorage.getItem('access_token');
     if (token) {
+      // Verificar si la sesión expiró por inactividad (15 min)
+      const lastActivity = localStorage.getItem('last_activity');
+      if (lastActivity) {
+        const elapsed = Date.now() - parseInt(lastActivity, 10);
+        if (elapsed > 15 * 60 * 1000) {
+          // Sesión expirada por inactividad
+          authService.logout();
+          localStorage.removeItem('last_activity');
+          set({ isLoading: false });
+          return;
+        }
+      }
+
       // Decode JWT payload to get user info (without verification - server validates)
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
