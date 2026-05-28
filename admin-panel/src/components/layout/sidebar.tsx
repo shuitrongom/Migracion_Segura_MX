@@ -57,8 +57,11 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     <>
       {/* Logo */}
       <div className="flex items-center h-16 px-6 border-b border-brand-400/30">
-        <span className="text-lg font-bold text-gold-400">MIGRACIÓN</span>
-        <span className="ml-1 text-sm text-brand-200">SEGURA MX</span>
+        <img src="/logo.png" alt="Logo" className="h-9 w-9 mr-2 rounded" />
+        <div>
+          <span className="text-lg font-bold text-gold-400">MIGRACIÓN</span>
+          <span className="ml-1 text-sm text-brand-200">SEGURA MX</span>
+        </div>
       </div>
 
       {/* Version badge */}
