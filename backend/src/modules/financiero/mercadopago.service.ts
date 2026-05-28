@@ -63,8 +63,8 @@ export class MercadoPagoService {
 
       return {
         preferenceId: response.id,
-        initPoint: response.init_point, // URL para pagar
-        sandboxInitPoint: response.sandbox_init_point, // URL de prueba
+        initPoint: response.init_point,
+        sandboxInitPoint: response.sandbox_init_point,
       };
     } catch (error: any) {
       this.logger.error('Error creando preferencia:', error.message);

@@ -57,7 +57,7 @@ export class FinancieroService {
       estatusPago: EstatusPago.PENDIENTE,
       concepto: `Anticipo (50%) - ${params.concepto}`,
       mercadopagoPreferenceId: mpPreference.preferenceId,
-      mercadopagoInitPoint: mpPreference.sandboxInitPoint || mpPreference.initPoint,
+      mercadopagoInitPoint: mpPreference.initPoint || mpPreference.sandboxInitPoint,
       fechaVencimiento,
       registradoPor: params.registradoPor,
       historial: [{
@@ -122,7 +122,7 @@ export class FinancieroService {
     });
 
     liquidacion.mercadopagoPreferenceId = mpPreference.preferenceId || null;
-    liquidacion.mercadopagoInitPoint = mpPreference.sandboxInitPoint || mpPreference.initPoint || null;
+    liquidacion.mercadopagoInitPoint = mpPreference.initPoint || mpPreference.sandboxInitPoint || null;
     liquidacion.fechaVencimiento = fechaVencimiento;
     liquidacion.historial = [
       ...liquidacion.historial,
