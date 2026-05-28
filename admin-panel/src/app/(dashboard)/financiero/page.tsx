@@ -123,7 +123,7 @@ export default function FinancieroPage() {
           <div className="p-12 text-center">
             <DollarSign className="h-10 w-10 text-gray-300 mx-auto mb-3" />
             <p className="text-sm text-gray-500">No hay pagos registrados</p>
-            <p className="text-xs text-gray-400 mt-1">Los pagos aparecerán aquí cuando se generen desde "Continuar Trámite"</p>
+            <p className="text-xs text-gray-400 mt-1">Los pagos aparecerán aquí cuando se generen desde Continuar Trámite</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
