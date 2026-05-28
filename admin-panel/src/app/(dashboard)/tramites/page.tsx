@@ -238,7 +238,7 @@ export default function TramitesPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3 text-gray-600 hidden lg:table-cell">
-                          {tramite.asesor?.fullName ?? tramite.responsable?.fullName ?? '--'}
+                          {(tramite as any).asesor?.fullName ?? tramite.responsable?.fullName ?? '--'}
                         </td>
                         <td className="px-4 py-3 text-gray-500 hidden md:table-cell">
                           {tramite.createdAt ? new Date(tramite.createdAt).toLocaleDateString('es-MX') : '--'}
