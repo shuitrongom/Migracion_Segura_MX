@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, Linking } from 'react-native';
 import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
+import { ADMIN_PANEL_URL } from '@/lib/config';
 
 export default function CitasScreen() {
   const [citas, setCitas] = useState<any[]>([]);
@@ -23,7 +24,7 @@ export default function CitasScreen() {
   const onRefresh = async () => { setRefreshing(true); await loadCitas(); setRefreshing(false); };
 
   const handleNewCita = () => {
-    Linking.openURL('https://migracion-segura-mx-admin-panel.vercel.app/citas');
+    Linking.openURL(`${ADMIN_PANEL_URL}/citas`);
   };
 
   if (loading) return <View style={styles.loadingContainer}><ActivityIndicator size="large" color="#C4A265" /></View>;
