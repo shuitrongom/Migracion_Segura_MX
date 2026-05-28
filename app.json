@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "429519f6-9f00-4a9a-84b3-67a1d30dbbe8"
+      }
+    },
+    "android": {
+      "package": "com.serch0523.migracionseguramx"
+    }
+  }
+}
