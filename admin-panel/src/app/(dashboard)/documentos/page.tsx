@@ -70,9 +70,9 @@ export default function DocumentosPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header con gradiente */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 p-8 text-white shadow-xl">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-l from-stone-900 via-neutral-800 to-amber-600 p-8 text-white shadow-xl">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-yellow-400/10 rounded-full translate-y-1/2 -translate-x-1/2" />
         <div className="relative z-10 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Documentos</h1>
