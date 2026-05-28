@@ -37,12 +37,13 @@ export default function NotificacionesPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 via-purple-600 to-indigo-700 p-8 text-white shadow-xl">
-        <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-stone-900 via-neutral-800 to-amber-700 p-8 text-white shadow-xl">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-yellow-400/10 rounded-full translate-y-1/2 -translate-x-1/2" />
         <div className="relative z-10 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Notificaciones</h1>
-            <p className="text-purple-200 mt-1">{unread > 0 ? `${unread} sin leer` : 'Todo al día'}</p>
+            <p className="text-amber-200 mt-1">{unread > 0 ? `${unread} sin leer` : 'Todo al día'}</p>
           </div>
           {unread > 0 && (
             <button onClick={() => markAllRead.mutate()} className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
