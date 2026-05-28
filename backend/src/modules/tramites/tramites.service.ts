@@ -53,28 +53,38 @@ export class TramitesService {
     // Auto-crear cliente si no existe (cuando viene de la app móvil)
     let clienteId = dto.clienteId;
     if (clienteId && datosFormulario?.nombre) {
-      const existingCliente = await this.tramiteRepository.manager.query(
-        `SELECT id FROM clientes WHERE id = $1`, [clienteId]
-      );
-      if (!existingCliente || existingCliente.length === 0) {
-        // El clienteId es un userId, crear registro de cliente
-        const nombreCompleto = `${datosFormulario.nombre} ${datosFormulario.apellidos || ''}`.trim();
-        const email = (datosFormulario.solicitanteEmail || datosFormulario.email || 'sin-email@pendiente.com') as string;
-        try {
-          const result = await this.tramiteRepository.manager.query(
-            `INSERT INTO clientes ("nombreCompleto", email, telefono, "userId", "asesorId") VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-            [nombreCompleto, email, 'pendiente', clienteId, await this.autoAssignGestor()]
+      try {
+        const existingCliente = await this.tramiteRepository.manager.query(
+          `SELECT id FROM clientes WHERE id = $1`, [clienteId]
+        );
+        if (!existingCliente || existingCliente.length === 0) {
+          // El clienteId es un userId, buscar si ya tiene un cliente asociado
+          const clienteByUser = await this.tramiteRepository.manager.query(
+            `SELECT id FROM clientes WHERE "userId" = $1 LIMIT 1`, [clienteId]
           );
-          if (result?.[0]?.id) {
-            clienteId = result[0].id;
+          if (clienteByUser && clienteByUser.length > 0) {
+            clienteId = clienteByUser[0].id;
+          } else {
+            // Crear nuevo cliente
+            const nombreCompleto = `${datosFormulario.nombre} ${datosFormulario.apellidos || ''}`.trim();
+            const email = (datosFormulario.solicitanteEmail || datosFormulario.email || 'pendiente@app.com') as string;
+            try {
+              const result = await this.tramiteRepository.manager.query(
+                `INSERT INTO clientes (id, "nombreCompleto", email, telefono, "userId") VALUES (gen_random_uuid(), $1, $2, $3, $4) RETURNING id`,
+                [nombreCompleto, email, 'pendiente', dto.clienteId]
+              );
+              if (result?.[0]?.id) {
+                clienteId = result[0].id;
+              }
+            } catch (insertErr: any) {
+              // Si falla por email duplicado u otro error, usar el clienteId original
+              // El trámite se crea sin cliente válido pero no falla
+              clienteId = null as any;
+            }
           }
-        } catch {
-          // Si falla (ej: email duplicado), intentar buscar por userId
-          const existing = await this.tramiteRepository.manager.query(
-            `SELECT id FROM clientes WHERE "userId" = $1 LIMIT 1`, [dto.clienteId]
-          );
-          if (existing?.[0]?.id) clienteId = existing[0].id;
         }
+      } catch {
+        // Si falla la consulta, continuar sin modificar clienteId
       }
     }
 
