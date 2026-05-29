@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator, Linking, Alert, Modal } from 'react-native';
-import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator, Linking, Alert, Modal, Animated } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
 import { apiFetch } from '@/lib/api';
 import { ADMIN_PANEL_URL } from '@/lib/config';
 
@@ -22,7 +23,19 @@ export default function AdminTramitesScreen() {
   const [showDetail, setShowDetail] = useState(false);
   const [updatingEstatus, setUpdatingEstatus] = useState(false);
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+
   useEffect(() => { loadTramites(); }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      Animated.parallel([
+        Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: 0, duration: 500, useNativeDriver: true }),
+      ]).start();
+    }
+  }, [loading]);
 
   const loadTramites = async () => {
     try {
@@ -59,43 +72,58 @@ export default function AdminTramitesScreen() {
     (t.numeroPieza || '').includes(search),
   );
 
-  if (loading) return <View style={styles.loadingContainer}><ActivityIndicator size="large" color="#C4A265" /></View>;
+  if (loading) return (
+    <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#f59e0b" />
+    </LinearGradient>
+  );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <TextInput style={styles.searchInput} value={search} onChangeText={setSearch}
-          placeholder="Buscar por cliente, tipo o pieza..." placeholderTextColor="#9CA3AF" />
-      </View>
+    <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.container}>
+      <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+        <View style={styles.searchContainer}>
+          <TextInput style={styles.searchInput} value={search} onChangeText={setSearch}
+            placeholder="Buscar por cliente, tipo o pieza..." placeholderTextColor="rgba(255,255,255,0.2)" />
+        </View>
 
-      <FlatList
-        data={filtered}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#C4A265" />}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        ListEmptyComponent={<View style={styles.empty}><Text style={styles.emptyText}>No hay trámites</Text></View>}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card} onPress={() => { setSelectedTramite(item); setShowDetail(true); }}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTipo}>{(item.tipo || '').replace(/_/g, ' ')}</Text>
-              <View style={[styles.badge, { backgroundColor: (estatusColors[item.estatus] || '#9CA3AF') + '20' }]}>
-                <Text style={[styles.badgeText, { color: estatusColors[item.estatus] || '#9CA3AF' }]}>
-                  {estatusLabels[item.estatus] || item.estatus}
-                </Text>
+        <FlatList
+          data={filtered}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#f59e0b" />}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.list}
+          ListEmptyComponent={
+            <View style={styles.empty}>
+              <LinearGradient colors={['rgba(245,158,11,0.15)', 'rgba(245,158,11,0.05)']} style={styles.emptyIconBg}>
+                <Text style={styles.emptyEmoji}>📋</Text>
+              </LinearGradient>
+              <Text style={styles.emptyText}>No hay trámites</Text>
+            </View>
+          }
+          renderItem={({ item }) => (
+            <TouchableOpacity style={styles.card} onPress={() => { setSelectedTramite(item); setShowDetail(true); }}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardTipo}>{(item.tipo || '').replace(/_/g, ' ')}</Text>
+                <View style={[styles.badge, { backgroundColor: (estatusColors[item.estatus] || '#9CA3AF') + '20' }]}>
+                  <Text style={[styles.badgeText, { color: estatusColors[item.estatus] || '#9CA3AF' }]}>
+                    {estatusLabels[item.estatus] || item.estatus}
+                  </Text>
+                </View>
               </View>
-            </View>
-            <Text style={styles.cardCliente}>👤 {item.cliente?.nombreCompleto || item.datosFormulario?.nombre || 'Sin cliente'}</Text>
-            <View style={styles.cardFooter}>
-              <Text style={styles.cardFecha}>📅 {item.createdAt?.slice(0, 10)}</Text>
-              {item.numeroPieza && <Text style={styles.cardPieza}>#{item.numeroPieza}</Text>}
-            </View>
-          </TouchableOpacity>
-        )}
-      />
+              <Text style={styles.cardCliente}>👤 {item.cliente?.nombreCompleto || item.datosFormulario?.nombre || 'Sin cliente'}</Text>
+              <View style={styles.cardFooter}>
+                <Text style={styles.cardFecha}>📅 {item.createdAt?.slice(0, 10)}</Text>
+                {item.numeroPieza && <Text style={styles.cardPieza}>#{item.numeroPieza}</Text>}
+              </View>
+            </TouchableOpacity>
+          )}
+        />
 
-      <TouchableOpacity style={styles.fab} onPress={() => Linking.openURL(`${ADMIN_PANEL_URL}/tramites/nuevo`)}>
-        <Text style={styles.fabText}>+ Nuevo</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.fab} onPress={() => Linking.openURL(`${ADMIN_PANEL_URL}/tramites/nuevo`)}>
+          <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.fabGradient}>
+            <Text style={styles.fabText}>+ Nuevo</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </Animated.View>
 
       {/* Modal de detalle */}
       <Modal visible={showDetail} animationType="slide" presentationStyle="pageSheet">
@@ -157,42 +185,45 @@ export default function AdminTramitesScreen() {
           )}
         </View>
       </Modal>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F0E8' },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0E8' },
+  container: { flex: 1 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   searchContainer: { padding: 16 },
-  searchInput: { backgroundColor: '#FFFFFF', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, borderWidth: 1, borderColor: '#E8DFD3', color: '#2C1810' },
+  searchInput: { backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', color: '#ffffff' },
   list: { paddingHorizontal: 16, paddingBottom: 80, gap: 10 },
-  card: { backgroundColor: '#FFFFFF', borderRadius: 14, padding: 16, gap: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 3, elevation: 1 },
+  card: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: 16, gap: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardTipo: { fontSize: 15, fontWeight: '600', color: '#2C1810', textTransform: 'capitalize', flex: 1 },
+  cardTipo: { fontSize: 15, fontWeight: '600', color: '#ffffff', textTransform: 'capitalize', flex: 1 },
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   badgeText: { fontSize: 11, fontWeight: '600' },
-  cardCliente: { fontSize: 14, color: '#6B5B4F' },
+  cardCliente: { fontSize: 14, color: 'rgba(255,255,255,0.5)' },
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardFecha: { fontSize: 12, color: '#8B7B6F' },
+  cardFecha: { fontSize: 12, color: 'rgba(255,255,255,0.4)' },
   cardPieza: { fontSize: 12, color: '#3498DB', fontWeight: '500', fontFamily: 'monospace' },
-  empty: { alignItems: 'center', paddingVertical: 40 },
-  emptyText: { fontSize: 15, color: '#8B7B6F' },
-  fab: { position: 'absolute', bottom: 20, right: 20, backgroundColor: '#C4A265', borderRadius: 24, paddingHorizontal: 20, paddingVertical: 14, elevation: 4 },
-  fabText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
+  empty: { alignItems: 'center', paddingVertical: 40, gap: 12 },
+  emptyIconBg: { width: 72, height: 72, borderRadius: 36, justifyContent: 'center', alignItems: 'center' },
+  emptyEmoji: { fontSize: 32 },
+  emptyText: { fontSize: 15, color: 'rgba(255,255,255,0.4)' },
+  fab: { position: 'absolute', bottom: 20, right: 20, borderRadius: 24, elevation: 8, shadowColor: '#f59e0b', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
+  fabGradient: { borderRadius: 24, paddingHorizontal: 20, paddingVertical: 14 },
+  fabText: { color: '#ffffff', fontSize: 15, fontWeight: '600' },
 
-  modalContainer: { flex: 1, backgroundColor: '#F5F0E8' },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E8DFD3' },
-  modalTitle: { fontSize: 18, fontWeight: '700', color: '#2C1810' },
-  modalClose: { fontSize: 20, color: '#6B5B4F', padding: 4 },
+  modalContainer: { flex: 1, backgroundColor: '#0f0f0f' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, backgroundColor: '#111111', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
+  modalTitle: { fontSize: 18, fontWeight: '700', color: '#ffffff' },
+  modalClose: { fontSize: 20, color: 'rgba(255,255,255,0.5)', padding: 4 },
   modalContent: { padding: 20 },
   detailSection: { marginBottom: 14 },
-  detailLabel: { fontSize: 11, fontWeight: '600', color: '#8B7B6F', textTransform: 'uppercase', marginBottom: 4 },
-  detailValue: { fontSize: 15, color: '#2C1810', fontWeight: '500' },
-  sectionTitle: { fontSize: 14, fontWeight: '700', color: '#2C1810', marginTop: 20, marginBottom: 10, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#E8DFD3' },
+  detailLabel: { fontSize: 11, fontWeight: '600', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginBottom: 4 },
+  detailValue: { fontSize: 15, color: '#ffffff', fontWeight: '500' },
+  sectionTitle: { fontSize: 14, fontWeight: '700', color: '#ffffff', marginTop: 20, marginBottom: 10, paddingTop: 12, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)' },
   estatusGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   estatusBtn: { borderWidth: 1.5, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 },
   estatusBtnText: { fontSize: 12, fontWeight: '600' },
-  actionButton: { backgroundColor: '#FFFFFF', borderRadius: 10, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: '#E8DFD3' },
-  actionButtonText: { fontSize: 14, color: '#2C1810', fontWeight: '500' },
+  actionButton: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  actionButtonText: { fontSize: 14, color: '#ffffff', fontWeight: '500' },
 });

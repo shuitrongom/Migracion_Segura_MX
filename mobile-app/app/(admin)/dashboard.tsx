@@ -1,76 +1,67 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator, Animated, Linking } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator, Animated, Linking, Dimensions } from 'react-native';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { apiFetch } from '@/lib/api';
 import { storage } from '@/lib/storage';
 import { WHATSAPP_URL } from '@/lib/config';
 
-interface Metrics {
-  totalClientes: number;
-  totalTramites: number;
-  citasHoy: number;
-  pagosPendientes: number;
-  ingresosDelMes: number;
-}
+const { width } = Dimensions.get('window');
 
+interface Metrics { totalClientes: number; totalTramites: number; citasHoy: number; }
 interface EstatusItem { key: string; label: string; color: string; cantidad: number; }
 
 const ESTATUS_CONFIG = [
-  { key: 'borrador', label: 'Borrador', color: '#9CA3AF' },
-  { key: 'recibido', label: 'Recibido', color: '#3498DB' },
-  { key: 'en_revision', label: 'En revisión', color: '#F39C12' },
-  { key: 'en_espera_resolucion', label: 'En espera', color: '#E67E22' },
-  { key: 'aprobado', label: 'Aprobado', color: '#27AE60' },
-  { key: 'rechazado', label: 'Rechazado', color: '#E74C3C' },
-  { key: 'cancelado', label: 'Cancelado', color: '#6B7280' },
+  { key: 'borrador', label: 'Borrador', color: '#6b7280' },
+  { key: 'recibido', label: 'Recibido', color: '#3b82f6' },
+  { key: 'en_revision', label: 'En revisión', color: '#f59e0b' },
+  { key: 'en_espera_resolucion', label: 'En espera', color: '#f97316' },
+  { key: 'aprobado', label: 'Aprobado', color: '#22c55e' },
+  { key: 'rechazado', label: 'Rechazado', color: '#ef4444' },
+  { key: 'cancelado', label: 'Cancelado', color: '#6b7280' },
 ];
 
 export default function AdminDashboardScreen() {
   const [user, setUser] = useState<any>(null);
-  const [metrics, setMetrics] = useState<Metrics>({ totalClientes: 0, totalTramites: 0, citasHoy: 0, pagosPendientes: 0, ingresosDelMes: 0 });
+  const [metrics, setMetrics] = useState<Metrics>({ totalClientes: 0, totalTramites: 0, citasHoy: 0 });
   const [estatusData, setEstatusData] = useState<EstatusItem[]>([]);
   const [recentTramites, setRecentTramites] = useState<any[]>([]);
-  const [notifCount, setNotifCount] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current;
 
   useEffect(() => { loadData(); }, []);
-  useEffect(() => { if (!loading) Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start(); }, [loading]);
+  useEffect(() => {
+    if (!loading) {
+      Animated.parallel([
+        Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
+      ]).start();
+    }
+  }, [loading]);
 
   const loadData = async () => {
     const userData = await storage.getItem('user_data');
     if (userData) setUser(JSON.parse(userData));
-
     try {
-      const [tramitesRes, clientesRes, citasRes, notifRes] = await Promise.all([
+      const [tramitesRes, clientesRes, citasRes] = await Promise.all([
         apiFetch('/tramites?page=1&limit=100'),
         apiFetch('/clientes?page=1&limit=100'),
         apiFetch('/citas?page=1&limit=50'),
-        apiFetch('/notificaciones/unread-count'),
       ]);
-
       const tramitesData = tramitesRes.ok ? await tramitesRes.json() : { data: [], meta: { total: 0 } };
       const clientesData = clientesRes.ok ? await clientesRes.json() : { data: [], meta: { total: 0 } };
       const citasData = citasRes.ok ? await citasRes.json() : { data: [] };
-      const notifData = notifRes.ok ? await notifRes.json() : { count: 0 };
-
       const tramites = tramitesData.data || [];
-      const clientes = clientesData.data || [];
-      const citas = citasData.data || [];
       const today = new Date().toISOString().slice(0, 10);
 
       setMetrics({
-        totalClientes: clientesData.meta?.total || clientes.length,
+        totalClientes: clientesData.meta?.total || (clientesData.data || []).length,
         totalTramites: tramitesData.meta?.total || tramites.length,
-        citasHoy: citas.filter((c: any) => c.fecha?.startsWith(today)).length,
-        pagosPendientes: 0,
-        ingresosDelMes: 0,
+        citasHoy: (citasData.data || []).filter((c: any) => c.fecha?.startsWith(today)).length,
       });
-
-      setNotifCount(notifData.count || 0);
       setRecentTramites(tramites.slice(0, 5));
-
       const counts: Record<string, number> = {};
       tramites.forEach((t: any) => { counts[t.estatus] = (counts[t.estatus] || 0) + 1; });
       setEstatusData(ESTATUS_CONFIG.map(item => ({ ...item, cantidad: counts[item.key] || 0 })));
@@ -81,154 +72,182 @@ export default function AdminDashboardScreen() {
   const onRefresh = useCallback(async () => { setRefreshing(true); await loadData(); setRefreshing(false); }, []);
   const totalEstatus = estatusData.reduce((sum, item) => sum + item.cantidad, 0);
 
-  if (loading) return <View style={styles.loadingContainer}><ActivityIndicator size="large" color="#C4A265" /><Text style={styles.loadingText}>Cargando panel...</Text></View>;
+  if (loading) return (
+    <View style={styles.loadingContainer}>
+      <LinearGradient colors={['#0a0a0a', '#1c1917', '#0a0a0a']} style={StyleSheet.absoluteFill} />
+      <ActivityIndicator size="large" color="#f59e0b" />
+      <Text style={styles.loadingText}>Cargando panel...</Text>
+    </View>
+  );
 
   return (
-    <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#C4A265" />}>
-      <Animated.View style={{ opacity: fadeAnim }}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <Text style={styles.greeting}>Hola, {user?.fullName || user?.email?.split('@')[0] || 'Admin'}</Text>
-            <Text style={styles.roleTag}>Administrador</Text>
+    <View style={styles.container}>
+      <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={StyleSheet.absoluteFill} />
+      <ScrollView showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#f59e0b" />}>
+        <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+
+          {/* Header */}
+          <LinearGradient colors={['rgba(245,158,11,0.08)', 'transparent']} style={styles.headerGradient}>
+            <View style={styles.header}>
+              <View>
+                <Text style={styles.greeting}>Hola, {user?.fullName?.split(' ')[0] || 'Admin'}</Text>
+                <Text style={styles.roleTag}>Panel Administrativo</Text>
+              </View>
+              <View style={styles.avatarSmall}>
+                <Text style={styles.avatarSmallText}>{(user?.fullName || 'A').charAt(0)}</Text>
+              </View>
+            </View>
+          </LinearGradient>
+
+          {/* Metric cards */}
+          <View style={styles.metricsRow}>
+            <TouchableOpacity style={styles.metricCard} onPress={() => router.push('/(admin)/extranjeros')} activeOpacity={0.8}>
+              <LinearGradient colors={['rgba(59,130,246,0.1)', 'rgba(59,130,246,0.02)']} style={styles.metricGradient}>
+                <Text style={[styles.metricValue, { color: '#60a5fa' }]}>{metrics.totalClientes}</Text>
+                <Text style={styles.metricLabel}>Clientes</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.metricCard} onPress={() => router.push('/(admin)/tramites')} activeOpacity={0.8}>
+              <LinearGradient colors={['rgba(245,158,11,0.1)', 'rgba(245,158,11,0.02)']} style={styles.metricGradient}>
+                <Text style={[styles.metricValue, { color: '#f59e0b' }]}>{metrics.totalTramites}</Text>
+                <Text style={styles.metricLabel}>Trámites</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.metricCard} onPress={() => router.push('/(admin)/citas')} activeOpacity={0.8}>
+              <LinearGradient colors={['rgba(34,197,94,0.1)', 'rgba(34,197,94,0.02)']} style={styles.metricGradient}>
+                <Text style={[styles.metricValue, { color: '#22c55e' }]}>{metrics.citasHoy}</Text>
+                <Text style={styles.metricLabel}>Citas hoy</Text>
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
-          <View style={styles.headerRight}>
-            {notifCount > 0 && (
-              <View style={styles.notifBadge}><Text style={styles.notifBadgeText}>{notifCount}</Text></View>
+
+          {/* Distribución por estatus */}
+          {totalEstatus > 0 && (
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Distribución por estatus</Text>
+              {estatusData.filter(item => item.cantidad > 0).map((item) => (
+                <View key={item.key} style={styles.estatusRow}>
+                  <View style={[styles.estatusDot, { backgroundColor: item.color }]} />
+                  <Text style={styles.estatusLabel}>{item.label}</Text>
+                  <View style={styles.estatusBarBg}>
+                    <View style={[styles.estatusBarFill, { width: `${(item.cantidad / totalEstatus) * 100}%`, backgroundColor: item.color }]} />
+                  </View>
+                  <Text style={styles.estatusCount}>{item.cantidad}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Últimos trámites */}
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Últimos trámites</Text>
+              <TouchableOpacity onPress={() => router.push('/(admin)/tramites')}>
+                <Text style={styles.cardLink}>Ver todos →</Text>
+              </TouchableOpacity>
+            </View>
+            {recentTramites.length === 0 ? (
+              <Text style={styles.emptyText}>Sin trámites registrados</Text>
+            ) : (
+              recentTramites.map((t: any) => (
+                <View key={t.id} style={styles.tramiteRow}>
+                  <View style={styles.tramiteIcon}>
+                    <Text style={{ fontSize: 14 }}>📄</Text>
+                  </View>
+                  <View style={styles.tramiteInfo}>
+                    <Text style={styles.tramiteNombre} numberOfLines={1}>{t.cliente?.nombreCompleto || t.datosFormulario?.nombre || 'Sin nombre'}</Text>
+                    <Text style={styles.tramiteTipo}>{(t.tipo || '').replace(/_/g, ' ')}</Text>
+                  </View>
+                  <View style={[styles.tramiteBadge, { backgroundColor: (ESTATUS_CONFIG.find(e => e.key === t.estatus)?.color || '#6b7280') + '20' }]}>
+                    <Text style={[styles.tramiteBadgeText, { color: ESTATUS_CONFIG.find(e => e.key === t.estatus)?.color || '#6b7280' }]}>
+                      {ESTATUS_CONFIG.find(e => e.key === t.estatus)?.label || t.estatus}
+                    </Text>
+                  </View>
+                </View>
+              ))
             )}
           </View>
-        </View>
 
-        {/* Métricas principales */}
-        <View style={styles.metricsRow}>
-          <TouchableOpacity style={[styles.metricCard, { borderLeftColor: '#C4A265' }]} onPress={() => router.push('/(admin)/extranjeros')}>
-            <Text style={[styles.metricValue, { color: '#C4A265' }]}>{metrics.totalClientes}</Text>
-            <Text style={styles.metricLabel}>Clientes</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.metricCard, { borderLeftColor: '#3498DB' }]} onPress={() => router.push('/(admin)/tramites')}>
-            <Text style={[styles.metricValue, { color: '#3498DB' }]}>{metrics.totalTramites}</Text>
-            <Text style={styles.metricLabel}>Trámites</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.metricCard, { borderLeftColor: '#27AE60' }]} onPress={() => router.push('/(admin)/citas')}>
-            <Text style={[styles.metricValue, { color: '#27AE60' }]}>{metrics.citasHoy}</Text>
-            <Text style={styles.metricLabel}>Citas hoy</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Distribución por estatus */}
-        {totalEstatus > 0 && (
+          {/* Acciones rápidas */}
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Distribución por estatus</Text>
-            {estatusData.filter(item => item.cantidad > 0).map((item) => (
-              <View key={item.key} style={styles.estatusRow}>
-                <View style={[styles.estatusDot, { backgroundColor: item.color }]} />
-                <Text style={styles.estatusLabel}>{item.label}</Text>
-                <View style={styles.estatusBarBg}>
-                  <View style={[styles.estatusBarFill, { width: `${(item.cantidad / totalEstatus) * 100}%`, backgroundColor: item.color }]} />
-                </View>
-                <Text style={styles.estatusCount}>{item.cantidad}</Text>
-              </View>
-            ))}
+            <Text style={styles.cardTitle}>Acciones rápidas</Text>
+            <View style={styles.actionsGrid}>
+              <TouchableOpacity style={styles.actionBtn} onPress={() => Linking.openURL('https://migracion-segura-mx-admin-panel.vercel.app/tramites/nuevo')}>
+                <LinearGradient colors={['rgba(245,158,11,0.15)', 'rgba(245,158,11,0.05)']} style={styles.actionIconBg}>
+                  <Text style={{ fontSize: 20 }}>📄</Text>
+                </LinearGradient>
+                <Text style={styles.actionLabel}>Nuevo trámite</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.actionBtn} onPress={() => Linking.openURL('https://migracion-segura-mx-admin-panel.vercel.app/financiero')}>
+                <LinearGradient colors={['rgba(34,197,94,0.15)', 'rgba(34,197,94,0.05)']} style={styles.actionIconBg}>
+                  <Text style={{ fontSize: 20 }}>💰</Text>
+                </LinearGradient>
+                <Text style={styles.actionLabel}>Financiero</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.actionBtn} onPress={() => Linking.openURL(WHATSAPP_URL)}>
+                <LinearGradient colors={['rgba(37,211,102,0.15)', 'rgba(37,211,102,0.05)']} style={styles.actionIconBg}>
+                  <Text style={{ fontSize: 20 }}>💬</Text>
+                </LinearGradient>
+                <Text style={styles.actionLabel}>WhatsApp</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.actionBtn} onPress={() => Linking.openURL('https://migracion-segura-mx-admin-panel.vercel.app')}>
+                <LinearGradient colors={['rgba(59,130,246,0.15)', 'rgba(59,130,246,0.05)']} style={styles.actionIconBg}>
+                  <Text style={{ fontSize: 20 }}>💻</Text>
+                </LinearGradient>
+                <Text style={styles.actionLabel}>Panel web</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        )}
 
-        {/* Últimos trámites */}
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>Últimos trámites</Text>
-            <TouchableOpacity onPress={() => router.push('/(admin)/tramites')}>
-              <Text style={styles.cardLink}>Ver todos →</Text>
-            </TouchableOpacity>
-          </View>
-          {recentTramites.length === 0 ? (
-            <Text style={styles.emptyText}>Sin trámites registrados</Text>
-          ) : (
-            recentTramites.map((t: any) => (
-              <View key={t.id} style={styles.tramiteRow}>
-                <View style={styles.tramiteInfo}>
-                  <Text style={styles.tramiteNombre} numberOfLines={1}>{t.cliente?.nombreCompleto || t.datosFormulario?.nombre || 'Sin nombre'}</Text>
-                  <Text style={styles.tramiteTipo}>{(t.tipo || '').replace(/_/g, ' ')} · {t.numeroPieza || '—'}</Text>
-                </View>
-                <View style={[styles.tramiteBadge, { backgroundColor: (ESTATUS_CONFIG.find(e => e.key === t.estatus)?.color || '#9CA3AF') + '20' }]}>
-                  <Text style={[styles.tramiteBadgeText, { color: ESTATUS_CONFIG.find(e => e.key === t.estatus)?.color || '#9CA3AF' }]}>
-                    {ESTATUS_CONFIG.find(e => e.key === t.estatus)?.label || t.estatus}
-                  </Text>
-                </View>
-              </View>
-            ))
-          )}
-        </View>
-
-        {/* Acciones rápidas */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Acciones rápidas</Text>
-          <View style={styles.actionsGrid}>
-            <TouchableOpacity style={styles.actionBtn} onPress={() => Linking.openURL('https://migracion-segura-mx-admin-panel.vercel.app/tramites/nuevo')}>
-              <Text style={styles.actionIcon}>📄</Text>
-              <Text style={styles.actionLabel}>Nuevo trámite</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionBtn} onPress={() => Linking.openURL('https://migracion-segura-mx-admin-panel.vercel.app/financiero')}>
-              <Text style={styles.actionIcon}>💰</Text>
-              <Text style={styles.actionLabel}>Financiero</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionBtn} onPress={() => Linking.openURL(WHATSAPP_URL)}>
-              <Text style={styles.actionIcon}>💬</Text>
-              <Text style={styles.actionLabel}>WhatsApp</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionBtn} onPress={() => Linking.openURL('https://migracion-segura-mx-admin-panel.vercel.app')}>
-              <Text style={styles.actionIcon}>💻</Text>
-              <Text style={styles.actionLabel}>Panel web</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={{ height: 30 }} />
-      </Animated.View>
-    </ScrollView>
+          <View style={{ height: 30 }} />
+        </Animated.View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F0E8' },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0E8', gap: 12 },
-  loadingText: { fontSize: 14, color: '#6B5B4F' },
+  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0a0a', gap: 12 },
+  loadingText: { fontSize: 14, color: 'rgba(255,255,255,0.4)' },
 
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingBottom: 12 },
-  headerLeft: {},
-  headerRight: {},
-  greeting: { fontSize: 20, fontWeight: '700', color: '#2C1810' },
-  roleTag: { fontSize: 13, color: '#C4A265', fontWeight: '600', marginTop: 2 },
-  notifBadge: { backgroundColor: '#E74C3C', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3 },
-  notifBadgeText: { color: '#FFF', fontSize: 11, fontWeight: '700' },
+  headerGradient: { paddingTop: 56, paddingBottom: 20, paddingHorizontal: 20 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  greeting: { fontSize: 24, fontWeight: '700', color: '#ffffff' },
+  roleTag: { fontSize: 12, color: '#f59e0b', fontWeight: '600', marginTop: 2, letterSpacing: 0.5 },
+  avatarSmall: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(245,158,11,0.15)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)', justifyContent: 'center', alignItems: 'center' },
+  avatarSmallText: { color: '#f59e0b', fontSize: 18, fontWeight: '700' },
 
-  metricsRow: { flexDirection: 'row', paddingHorizontal: 16, gap: 8, marginBottom: 16 },
-  metricCard: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 12, padding: 14, borderLeftWidth: 3, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 3, elevation: 1 },
-  metricValue: { fontSize: 24, fontWeight: '700' },
-  metricLabel: { fontSize: 11, color: '#6B5B4F', marginTop: 2, fontWeight: '500' },
+  metricsRow: { flexDirection: 'row', paddingHorizontal: 16, gap: 10, marginBottom: 16 },
+  metricCard: { flex: 1, borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  metricGradient: { padding: 16, alignItems: 'center' },
+  metricValue: { fontSize: 28, fontWeight: '800' },
+  metricLabel: { fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4, fontWeight: '500' },
 
-  card: { backgroundColor: '#FFFFFF', borderRadius: 14, marginHorizontal: 16, marginBottom: 14, padding: 18, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  cardTitle: { fontSize: 16, fontWeight: '600', color: '#2C1810', marginBottom: 12 },
-  cardLink: { fontSize: 13, color: '#C4A265', fontWeight: '600' },
+  card: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 20, marginHorizontal: 16, marginBottom: 14, padding: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
+  cardTitle: { fontSize: 15, fontWeight: '700', color: '#ffffff', marginBottom: 14 },
+  cardLink: { fontSize: 12, color: '#f59e0b', fontWeight: '600' },
 
-  estatusRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 8 },
+  estatusRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10, gap: 8 },
   estatusDot: { width: 8, height: 8, borderRadius: 4 },
-  estatusLabel: { fontSize: 12, color: '#6B5B4F', width: 72 },
-  estatusBarBg: { flex: 1, height: 6, backgroundColor: '#F0EBE3', borderRadius: 3, overflow: 'hidden' },
+  estatusLabel: { fontSize: 12, color: 'rgba(255,255,255,0.5)', width: 72 },
+  estatusBarBg: { flex: 1, height: 6, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 3, overflow: 'hidden' },
   estatusBarFill: { height: '100%', borderRadius: 3 },
-  estatusCount: { fontSize: 12, fontWeight: '600', color: '#2C1810', width: 24, textAlign: 'right' },
+  estatusCount: { fontSize: 12, fontWeight: '700', color: '#ffffff', width: 24, textAlign: 'right' },
 
-  tramiteRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#F5F0E8' },
-  tramiteInfo: { flex: 1, marginRight: 8 },
-  tramiteNombre: { fontSize: 14, fontWeight: '500', color: '#2C1810' },
-  tramiteTipo: { fontSize: 11, color: '#8B7B6F', marginTop: 2, textTransform: 'capitalize' },
-  tramiteBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
+  tramiteRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)', gap: 12 },
+  tramiteIcon: { width: 36, height: 36, borderRadius: 10, backgroundColor: 'rgba(245,158,11,0.1)', justifyContent: 'center', alignItems: 'center' },
+  tramiteInfo: { flex: 1 },
+  tramiteNombre: { fontSize: 14, fontWeight: '500', color: '#ffffff' },
+  tramiteTipo: { fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2, textTransform: 'capitalize' },
+  tramiteBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
   tramiteBadgeText: { fontSize: 10, fontWeight: '600' },
 
   actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  actionBtn: { width: '47%', backgroundColor: '#F5F0E8', borderRadius: 12, padding: 14, alignItems: 'center', gap: 6 },
-  actionIcon: { fontSize: 24 },
-  actionLabel: { fontSize: 12, fontWeight: '500', color: '#2C1810' },
+  actionBtn: { width: '47%', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 14, padding: 16, alignItems: 'center', gap: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  actionIconBg: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
+  actionLabel: { fontSize: 12, fontWeight: '500', color: 'rgba(255,255,255,0.7)', textAlign: 'center' },
 
-  emptyText: { fontSize: 13, color: '#8B7B6F', textAlign: 'center', paddingVertical: 16 },
+  emptyText: { fontSize: 13, color: 'rgba(255,255,255,0.3)', textAlign: 'center', paddingVertical: 16 },
 });
