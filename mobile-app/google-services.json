@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "727892370313",
+    "project_id": "migracion-segura-mx",
+    "storage_bucket": "migracion-segura-mx.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:727892370313:android:ff4b151882405e423d7758",
+        "android_client_info": {
+          "package_name": "mx.migracion_segura.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDI8E4wy-rjRtAuJCEjbTLsnzVOHyraJso"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

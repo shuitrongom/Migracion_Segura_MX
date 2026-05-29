@@ -27,6 +27,23 @@ export class NotificacionesController {
   ) {}
 
   /**
+   * Registrar dispositivo para push notifications
+   */
+  @Post('register-device')
+  @ApiOperation({ summary: 'Registrar push token del dispositivo' })
+  async registerDevice(@Request() req: any, @Body() dto: { pushToken: string; platform: string }) {
+    const userId = req.user.id;
+    // Upsert en tabla user_devices
+    await this.notificacionesService['notificacionRepository'].manager.query(
+      `INSERT INTO user_devices ("userId", "pushToken", platform, "updatedAt")
+       VALUES ($1, $2, $3, NOW())
+       ON CONFLICT ("userId") DO UPDATE SET "pushToken" = $2, platform = $3, "updatedAt" = NOW()`,
+      [userId, dto.pushToken, dto.platform],
+    );
+    return { message: 'Dispositivo registrado para notificaciones push' };
+  }
+
+  /**
    * Enviar lista de requisitos por correo al extranjero
    */
   @Post('enviar-requisitos')

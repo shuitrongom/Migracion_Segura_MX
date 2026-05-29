@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { Notificacion } from './entities/notificacion.entity';
 import { PaginatedResponseDto } from '../../common/dto/pagination.dto';
 import { CanalNotificacion, TipoNotificacion } from '../../common/enums';
+import { PushService } from './push.service';
 
 export interface SendNotificationInput {
   destinatarioId: string;
@@ -26,11 +27,11 @@ export class NotificacionesService {
   constructor(
     @InjectRepository(Notificacion)
     private readonly notificacionRepository: Repository<Notificacion>,
+    private readonly pushService: PushService,
   ) {}
 
   /**
-   * Create notification record and queue for sending.
-   * TODO: Integrate actual push/email/whatsapp sending.
+   * Create notification record and send push notification.
    */
   async sendNotification(input: SendNotificationInput): Promise<Notificacion> {
     const notificacion = this.notificacionRepository.create({
@@ -46,7 +47,38 @@ export class NotificacionesService {
       errorEnvio: null,
     });
 
-    return this.notificacionRepository.save(notificacion);
+    const saved = await this.notificacionRepository.save(notificacion);
+
+    // Enviar push notification si el canal es push o in_app
+    if (input.canal === CanalNotificacion.PUSH || input.canal === CanalNotificacion.IN_APP) {
+      try {
+        // Buscar el push token del usuario
+        const tokenRecord = await this.notificacionRepository.manager.query(
+          `SELECT "pushToken" FROM user_devices WHERE "userId" = $1 ORDER BY "updatedAt" DESC LIMIT 1`,
+          [input.destinatarioId],
+        );
+
+        if (tokenRecord?.[0]?.pushToken) {
+          const sent = await this.pushService.sendPush({
+            token: tokenRecord[0].pushToken,
+            title: input.titulo,
+            body: input.contenido,
+            data: { notificationId: saved.id, tipo: input.tipo },
+          });
+
+          if (sent) {
+            saved.enviada = true;
+            saved.fechaEnvio = new Date();
+            await this.notificacionRepository.save(saved);
+          }
+        }
+      } catch (error: any) {
+        saved.errorEnvio = error.message || 'Error enviando push';
+        await this.notificacionRepository.save(saved);
+      }
+    }
+
+    return saved;
   }
 
   /**
