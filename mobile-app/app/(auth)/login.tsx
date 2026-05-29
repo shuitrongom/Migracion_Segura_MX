@@ -96,7 +96,7 @@ export default function LoginScreen() {
             <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }, { scale: logoScale }] }]}>
               <View style={styles.logoContainer}>
                 <View style={styles.logoGlow} />
-                <Image source={require('@/assets/logo_splash_1024.png')} style={styles.logoImage} resizeMode="contain" />
+                <Image source={require('../../assets/logo_splash_1024.png')} style={styles.logoImage} resizeMode="contain" />
               </View>
               <Text style={styles.title}>MIGRACIÓN <Text style={styles.titleAccent}>SEGURA</Text></Text>
               <Text style={styles.subtitle}>Gestión migratoria inteligente</Text>
