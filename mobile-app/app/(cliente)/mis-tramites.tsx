@@ -78,11 +78,17 @@ export default function MisTramitesScreen() {
 
           {/* Acciones principales */}
           <View style={styles.actionsGrid}>
-            <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/(cliente)/tramite-nuevo')} activeOpacity={0.8}>
+            <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/(cliente)/solicitud-nueva')} activeOpacity={0.8}>
               <LinearGradient colors={['rgba(245,158,11,0.12)', 'rgba(245,158,11,0.03)']} style={styles.actionIconBg}>
+                <Text style={{ fontSize: 22 }}>📝</Text>
+              </LinearGradient>
+              <Text style={styles.actionLabel}>Generar Solicitud</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/(cliente)/tramite-nuevo')} activeOpacity={0.8}>
+              <LinearGradient colors={['rgba(168,85,247,0.12)', 'rgba(168,85,247,0.03)']} style={styles.actionIconBg}>
                 <Text style={{ fontSize: 22 }}>📄</Text>
               </LinearGradient>
-              <Text style={styles.actionLabel}>Iniciar trámite</Text>
+              <Text style={styles.actionLabel}>Trámite completo</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/(cliente)/consulta')} activeOpacity={0.8}>
               <LinearGradient colors={['rgba(59,130,246,0.12)', 'rgba(59,130,246,0.03)']} style={styles.actionIconBg}>
