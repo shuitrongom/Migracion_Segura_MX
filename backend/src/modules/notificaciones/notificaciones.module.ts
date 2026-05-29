@@ -6,11 +6,12 @@ import { UserDevice } from './entities/user-device.entity';
 import { NotificacionesService } from './notificaciones.service';
 import { NotificacionesController } from './notificaciones.controller';
 import { PushService } from './push.service';
+import { SchedulerService } from './scheduler.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Notificacion, UserDevice])],
   controllers: [NotificacionesController],
-  providers: [NotificacionesService, PushService],
+  providers: [NotificacionesService, PushService, SchedulerService],
   exports: [NotificacionesService, PushService],
 })
 export class NotificacionesModule {}

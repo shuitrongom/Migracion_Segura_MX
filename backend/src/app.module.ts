@@ -5,6 +5,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { BullModule } from '@nestjs/bull';
 import { WinstonModule } from 'nest-winston';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { appConfig, databaseConfig, authConfig, storageConfig } from './config';
 import { winstonConfig } from './config/winston.config';
@@ -83,6 +84,7 @@ import { EmailModule } from './modules/email/email.module';
     }),
 
     // Módulos de negocio
+    ScheduleModule.forRoot(),
     HealthModule,
     EmailModule,
     AuthModule,
