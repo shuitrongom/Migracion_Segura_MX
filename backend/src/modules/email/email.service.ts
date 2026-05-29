@@ -39,6 +39,24 @@ export class EmailService {
   }
 
   /**
+   * Enviar email de recuperación de contraseña
+   */
+  async sendPasswordResetEmail(params: { to: string; resetUrl: string }): Promise<void> {
+    const { to, resetUrl } = params;
+    try {
+      await this.resend.emails.send({
+        from: `${this.fromName} <${this.fromEmail}>`,
+        to: [to],
+        subject: 'Recuperar contraseña — Migración Segura MX',
+        html: `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;font-family:-apple-system,sans-serif;background:#f5f0e8;"><table width="100%" style="max-width:600px;margin:0 auto;padding:40px 20px;"><tr><td><table width="100%" style="background:#2C1810;border-radius:12px 12px 0 0;padding:24px;"><tr><td align="center"><h1 style="color:#C4A265;margin:0;font-size:20px;">MIGRACIÓN SEGURA MX</h1></td></tr></table><table width="100%" style="background:#fff;padding:32px;"><tr><td><h2 style="color:#2C1810;font-size:18px;margin:0 0 16px;">Recuperar contraseña</h2><p style="color:#4a4a4a;font-size:14px;line-height:1.6;">Recibimos una solicitud para restablecer tu contraseña. Haz clic en el botón para crear una nueva:</p><table width="100%" style="margin:24px 0;"><tr><td align="center"><a href="${resetUrl}" style="display:inline-block;background:#2C1810;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:600;">Restablecer contraseña</a></td></tr></table><p style="color:#4a4a4a;font-size:14px;">Este enlace expira en <strong>30 minutos</strong>.</p><p style="color:#888;font-size:12px;margin-top:20px;">Si no solicitaste este cambio, ignora este correo. Tu contraseña no será modificada.</p></td></tr></table><table width="100%" style="background:#f8f5f0;border-radius:0 0 12px 12px;padding:20px;"><tr><td align="center"><p style="color:#6B5B4F;font-size:11px;margin:0;">© ${new Date().getFullYear()} Migración Segura MX</p></td></tr></table></td></tr></table></body></html>`,
+      });
+      this.logger.log(`Email de reset enviado a ${to}`);
+    } catch (error) {
+      this.logger.error(`Error enviando reset a ${to}:`, error);
+    }
+  }
+
+  /**
    * Enviar email de bienvenida al nuevo asesor con sus credenciales
    */
   async sendAsesorWelcomeEmail(params: {

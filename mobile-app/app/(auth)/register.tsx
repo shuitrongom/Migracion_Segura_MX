@@ -100,15 +100,7 @@ export default function RegisterScreen() {
         return;
       }
 
-      // Si el backend devuelve el código (modo dev), auto-verificar
-      if (data.verificationCode) {
-        setUserId(data.userId);
-        setVerifyCode(data.verificationCode);
-        handleVerify(data.userId, data.verificationCode);
-        return;
-      }
-
-      // Si no, mostrar pantalla de verificación manual
+      // Si el backend devuelve userId, mostrar pantalla de verificación
       setUserId(data.userId);
       setShowVerify(true);
     } catch {
@@ -168,7 +160,7 @@ export default function RegisterScreen() {
                 </Svg>
               </View>
               <Text style={styles.title}>VERIFICAR <Text style={styles.titleAccent}>CUENTA</Text></Text>
-              <Text style={styles.subtitle}>Ingresa el código de 6 dígitos{'\n'}(usa 000000 para pruebas)</Text>
+              <Text style={styles.subtitle}>Ingresa el código de 6 dígitos{'\n'}que enviamos a tu correo</Text>
             </Animated.View>
 
             <Animated.View style={[styles.formCard, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>

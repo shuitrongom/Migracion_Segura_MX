@@ -50,16 +50,9 @@ export class AuthService {
       code: verificationCode,
     });
 
-    if (this.configService.get<string>('app.nodeEnv') !== 'production') {
-      // eslint-disable-next-line no-console
-      console.log(`[DEV] Código de verificación para ${email}: ${verificationCode}`);
-    }
-
     return {
       message: 'Registro exitoso. Se ha enviado un código de verificación a tu correo.',
       userId: user.id,
-      // En desarrollo/staging devolvemos el código para facilitar pruebas
-      ...(this.configService.get<string>('app.nodeEnv') !== 'production' && { verificationCode }),
     };
   }
 
@@ -89,11 +82,7 @@ export class AuthService {
 
     // Verificar código
     if (user.verificationCode !== code) {
-      // Código de bypass para pruebas (quitar cuando se tenga dominio de email verificado)
-      const bypassCode = '000000';
-      if (code !== bypassCode) {
-        throw new BadRequestException('El código de verificación es incorrecto.');
-      }
+      throw new BadRequestException('El código de verificación es incorrecto.');
     }
 
     // Activar cuenta
@@ -138,11 +127,6 @@ export class AuthService {
       to: user.email,
       code: verificationCode,
     });
-
-    if (this.configService.get<string>('app.nodeEnv') !== 'production') {
-      // eslint-disable-next-line no-console
-      console.log(`[DEV] Nuevo código para ${user.email}: ${verificationCode}`);
-    }
 
     return { message: 'Se ha enviado un nuevo código de verificación.' };
   }
@@ -305,10 +289,8 @@ export class AuthService {
     // TODO: Enviar email con enlace de reset
     const resetUrl = `${this.configService.get<string>('app.frontendUrl')}/reset-password?token=${resetToken}`;
 
-    if (this.configService.get<string>('app.nodeEnv') !== 'production') {
-      // eslint-disable-next-line no-console
-      console.log(`[DEV] Reset URL para ${email}: ${resetUrl}`);
-    }
+    // Enviar email con enlace de reset
+    await this.emailService.sendPasswordResetEmail({ to: email, resetUrl });
 
     return { message: 'Si el correo está registrado, recibirás un enlace de recuperación.' };
   }
@@ -386,11 +368,8 @@ export class AuthService {
 
     await this.usersService.setPendingEmailChange(userId, newEmail, verificationCode, verificationExpires);
 
-    // TODO: Enviar código al nuevo email
-    if (this.configService.get<string>('app.nodeEnv') !== 'production') {
-      // eslint-disable-next-line no-console
-      console.log(`[DEV] Código para cambio de email a ${newEmail}: ${verificationCode}`);
-    }
+    // Enviar código al nuevo email
+    await this.emailService.sendVerificationCodeEmail({ to: newEmail, code: verificationCode });
 
     return { message: 'Se ha enviado un código de verificación al nuevo correo.' };
   }
