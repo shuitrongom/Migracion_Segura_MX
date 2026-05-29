@@ -164,7 +164,25 @@ export default function NuevoTramitePage() {
 
   // Persistir progreso en localStorage para no perder datos si se va la luz/internet
   const STORAGE_KEY = 'tramite_nuevo_draft';
+  const [showDraftPrompt, setShowDraftPrompt] = useState(false);
+  const [draftLoaded, setDraftLoaded] = useState(false);
+
   useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        // Solo mostrar prompt si hay datos reales guardados
+        if (data.selectedTramite) {
+          setShowDraftPrompt(true);
+        }
+      } catch { /* ignorar */ }
+    } else {
+      setDraftLoaded(true);
+    }
+  }, []);
+
+  const loadDraft = () => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
@@ -181,13 +199,23 @@ export default function NuevoTramitePage() {
         toast.info('Se recuperó el borrador del trámite anterior');
       } catch { /* ignorar */ }
     }
-  }, []);
+    setShowDraftPrompt(false);
+    setDraftLoaded(true);
+  };
+
+  const discardDraft = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setShowDraftPrompt(false);
+    setDraftLoaded(true);
+    toast.success('Borrador descartado. Inicia un trámite nuevo.');
+  };
 
   useEffect(() => {
+    if (!draftLoaded) return; // No guardar hasta que el usuario haya decidido
     if (step === 0 && !selectedTramite) return; // No guardar estado vacío
     const data = { step, selectedTramite, extranjero, numeroPieza, contrasenaINM, visas, personasAutorizadas, solicitante, pagoData: { ...pagoData, comprobante: null } };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [step, selectedTramite, extranjero, numeroPieza, contrasenaINM, visas, personasAutorizadas, solicitante, pagoData]);
+  }, [step, selectedTramite, extranjero, numeroPieza, contrasenaINM, visas, personasAutorizadas, solicitante, pagoData, draftLoaded]);
 
   const updateExtranjero = (field: string, value: string) => {
     // CURP y RFC siempre en mayúsculas
@@ -404,6 +432,35 @@ export default function NuevoTramitePage() {
 
   return (
     <div>
+      {/* Modal de borrador existente */}
+      {showDraftPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8 text-center animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center mx-auto mb-4">
+              <FileText className="h-8 w-8 text-amber-600" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Borrador encontrado</h2>
+            <p className="text-sm text-gray-500 mb-6">
+              Tienes un trámite sin terminar guardado. ¿Deseas continuar donde te quedaste o empezar uno nuevo?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={discardDraft}
+                className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors"
+              >
+                Empezar nuevo
+              </button>
+              <button
+                onClick={loadDraft}
+                className="flex-1 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl text-sm font-semibold hover:from-amber-600 hover:to-orange-700 shadow-lg shadow-amber-200/30 transition-all"
+              >
+                Continuar borrador
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-4 mb-6">
         <Link href="/tramites" className="p-2 rounded-lg hover:bg-gray-100 text-gray-500"><ArrowLeft className="h-5 w-5" /></Link>
         <h1 className="text-2xl font-bold text-gray-900">Iniciar Trámite Migratorio</h1>
