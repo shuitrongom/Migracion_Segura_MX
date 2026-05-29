@@ -79,6 +79,10 @@ export default function ClienteLayout() {
         name="mapa-inm"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="chat"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }
