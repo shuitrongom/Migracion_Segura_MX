@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { Solicitud } from './entities/solicitud.entity';
@@ -12,7 +12,7 @@ import { FinancieroModule } from '../financiero/financiero.module';
   imports: [
     TypeOrmModule.forFeature([Solicitud, AppConfig]),
     NotificacionesModule,
-    FinancieroModule,
+    forwardRef(() => FinancieroModule),
   ],
   controllers: [SolicitudesController],
   providers: [SolicitudesService],

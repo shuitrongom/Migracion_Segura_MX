@@ -49,13 +49,13 @@ export class MercadoPagoService {
             installments: 12,
           },
           back_urls: {
-            success: `https://migracion-segura-mx-admin-panel.vercel.app/tramites/${params.tramiteId}?pago=exitoso`,
-            failure: `https://migracion-segura-mx-admin-panel.vercel.app/tramites/${params.tramiteId}?pago=fallido`,
-            pending: `https://migracion-segura-mx-admin-panel.vercel.app/tramites/${params.tramiteId}?pago=pendiente`,
+            success: `https://admin.migracionseguramx.com/tramites/${params.tramiteId}?pago=exitoso`,
+            failure: `https://admin.migracionseguramx.com/tramites/${params.tramiteId}?pago=fallido`,
+            pending: `https://admin.migracionseguramx.com/tramites/${params.tramiteId}?pago=pendiente`,
           },
           auto_return: 'approved',
           external_reference: params.tramiteId,
-          notification_url: `https://backend-production-79ed.up.railway.app/api/v1/financiero/webhook/mercadopago`,
+          notification_url: `https://api.migracionseguramx.com/api/v1/financiero/webhook/mercadopago`,
         },
       });
 

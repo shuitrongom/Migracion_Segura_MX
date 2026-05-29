@@ -15,6 +15,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam, ApiQuery } from '@nestj
 
 import { FinancieroService } from './financiero.service';
 import { MercadoPagoService } from './mercadopago.service';
+import { SolicitudesService } from '../solicitudes/solicitudes.service';
 import { CreatePagoDto } from './dto/create-pago.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -28,6 +29,7 @@ export class FinancieroController {
   constructor(
     private readonly financieroService: FinancieroService,
     private readonly mercadoPagoService: MercadoPagoService,
+    private readonly solicitudesService: SolicitudesService,
   ) {}
 
   /**
@@ -151,12 +153,20 @@ export class FinancieroController {
       try {
         const payment = await this.mercadoPagoService.getPayment(body.data.id.toString());
         if (payment.status === 'approved' && payment.externalReference) {
+          const refId = payment.externalReference;
+
+          // Intentar confirmar como pago de trámite
           await this.financieroService.procesarPagoAprobado(
             payment.id?.toString() || '',
-            payment.externalReference,
+            refId,
             payment.amount || 0,
             payment.paymentMethod || '',
           );
+
+          // Intentar confirmar como pago de solicitud
+          try {
+            await this.solicitudesService.confirmarPago(refId, payment.id?.toString());
+          } catch {}
         }
       } catch {}
     }

@@ -71,6 +71,10 @@ export default function ClienteLayout() {
           tabBarIcon: ({ color }) => <UserIcon color={color} size={22} />,
         }}
       />
+      <Tabs.Screen
+        name="solicitud-nueva"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }

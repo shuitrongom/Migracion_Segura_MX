@@ -286,7 +286,6 @@ export class AuthService {
 
     await this.usersService.setPasswordResetToken(user.id, resetToken, resetExpires);
 
-    // TODO: Enviar email con enlace de reset
     const resetUrl = `${this.configService.get<string>('app.frontendUrl')}/reset-password?token=${resetToken}`;
 
     // Enviar email con enlace de reset
