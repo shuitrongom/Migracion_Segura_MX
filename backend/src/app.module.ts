@@ -27,6 +27,7 @@ import { ReportesModule } from './modules/reportes/reportes.module';
 import { AutomatizacionesModule } from './modules/automatizaciones/automatizaciones.module';
 import { HealthModule } from './modules/health/health.module';
 import { EmailModule } from './modules/email/email.module';
+import { SolicitudesModule } from './modules/solicitudes/solicitudes.module';
 
 @Module({
   imports: [
@@ -98,6 +99,7 @@ import { EmailModule } from './modules/email/email.module';
     FinancieroModule,
     ReportesModule,
     AutomatizacionesModule,
+    SolicitudesModule,
   ],
   providers: [
     // Guard global: Rate Limiting
