@@ -416,6 +416,29 @@ export class AuthService {
     return { message: 'Correo electrónico actualizado exitosamente.' };
   }
 
+  /**
+   * Cambiar credenciales del admin (email y/o contraseña)
+   * Solo disponible para usuarios con rol administrador
+   */
+  async changeAdminCredentials(userId: string, data: { newEmail?: string; newPassword?: string }) {
+    const user = await this.usersService.findById(userId);
+    if (!user || user.role !== 'administrador') {
+      throw new BadRequestException('Solo administradores pueden usar este endpoint.');
+    }
+
+    if (data.newEmail) {
+      await this.usersService.applyEmailChange(userId, data.newEmail);
+    }
+
+    if (data.newPassword) {
+      const bcrypt = await import('bcrypt');
+      const hashedPassword = await bcrypt.hash(data.newPassword, 10);
+      await this.usersService.updatePassword(userId, hashedPassword);
+    }
+
+    return { message: 'Credenciales actualizadas exitosamente.' };
+  }
+
   // ---- Helpers privados ----
 
   private generateVerificationCode(): string {

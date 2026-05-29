@@ -135,4 +135,12 @@ export class AuthController {
   async confirmEmailChange(@Request() req: any, @Body() dto: ConfirmEmailChangeDto) {
     return this.authService.confirmEmailChange(req.user.id, dto.code);
   }
+
+  @Post('admin/change-credentials')
+  @ApiBearerAuth('access-token')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cambiar credenciales del admin (email y/o contraseña)' })
+  async changeAdminCredentials(@Request() req: any, @Body() dto: { newEmail?: string; newPassword?: string }) {
+    return this.authService.changeAdminCredentials(req.user.id, dto);
+  }
 }
