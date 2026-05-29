@@ -40,6 +40,7 @@ const navigation: NavItem[] = [
   { name: 'Soporte', href: '/soporte', icon: MessageSquare },
   { name: 'Financiero', href: '/financiero', icon: DollarSign },
   { name: 'Reportes', href: '/reportes', icon: BarChart3, adminOnly: true },
+  { name: 'Analytics', href: '/analytics', icon: BarChart3, adminOnly: true },
   { name: 'Notificaciones', href: '/notificaciones', icon: Bell },
   { name: 'Automatizaciones', href: '/automatizaciones', icon: Zap, adminOnly: true },
   { name: 'Configuración', href: '/configuracion', icon: Settings, adminOnly: true },

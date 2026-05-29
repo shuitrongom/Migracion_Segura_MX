@@ -75,6 +75,10 @@ export default function ClienteLayout() {
         name="solicitud-nueva"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="mapa-inm"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }
