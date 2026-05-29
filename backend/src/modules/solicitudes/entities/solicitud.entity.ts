@@ -29,37 +29,37 @@ export class Solicitud {
   estatus: EstatusSolicitud;
 
   @Column({ type: 'varchar', length: 50, nullable: true })
-  numeroPieza: string;
+  numeroPieza: string | null;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
-  contrasenaINM: string;
+  contrasenaINM: string | null;
 
   @Column({ type: 'varchar', length: 500, nullable: true })
-  documentoUrl: string;
+  documentoUrl: string | null;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 100 })
   costo: number;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  mercadopagoPreferenceId: string;
+  mercadopagoPreferenceId: string | null;
 
   @Column({ type: 'varchar', length: 500, nullable: true })
-  mercadopagoInitPoint: string;
+  mercadopagoInitPoint: string | null;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
-  mercadopagoPaymentId: string;
+  mercadopagoPaymentId: string | null;
 
   @Column({ type: 'timestamp', nullable: true })
-  fechaPago: Date;
+  fechaPago: Date | null;
 
   @Column({ type: 'uuid', nullable: true })
-  asesorId: string;
+  asesorId: string | null;
 
   @Column({ type: 'jsonb', nullable: true })
-  requisitos: string[];
+  requisitos: string[] | null;
 
   @Column({ type: 'text', nullable: true })
-  observaciones: string;
+  observaciones: string | null;
 
   @CreateDateColumn()
   createdAt: Date;
