@@ -12,7 +12,7 @@ export class EmailService {
   constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.get<string>('RESEND_API_KEY');
     this.resend = new Resend(apiKey || '');
-    this.fromEmail = this.configService.get<string>('EMAIL_FROM') || 'noreply@migracion-segura.mx';
+    this.fromEmail = this.configService.get<string>('EMAIL_FROM') || 'sistema@migracionseguramx.com';
     this.fromName = this.configService.get<string>('EMAIL_FROM_NAME') || 'Migración Segura MX';
   }
 
