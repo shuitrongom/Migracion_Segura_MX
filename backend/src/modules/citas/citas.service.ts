@@ -6,9 +6,10 @@ import { Cita } from './entities/cita.entity';
 import { CreateCitaDto } from './dto/create-cita.dto';
 import { RescheduleCitaDto } from './dto/reschedule-cita.dto';
 import { PaginatedResponseDto } from '../../common/dto/pagination.dto';
-import { EstatusCita } from '../../common/enums';
+import { EstatusCita, CanalNotificacion, TipoNotificacion } from '../../common/enums';
 import { EmailService } from '../email/email.service';
 import { ActivityLogService } from '../users/activity-log.service';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 
 @Injectable()
 export class CitasService {
@@ -17,6 +18,7 @@ export class CitasService {
     private readonly citaRepository: Repository<Cita>,
     private readonly emailService: EmailService,
     private readonly activityLogService: ActivityLogService,
+    private readonly notificacionesService: NotificacionesService,
   ) {}
 
   /**
@@ -44,6 +46,24 @@ export class CitasService {
       resourceId: saved.id,
       details: { tipo: saved.tipo, fecha: dto.fecha, hora: dto.hora, modalidad: dto.modalidad, clienteId: dto.clienteId },
     });
+
+    // Notificar al extranjero que tiene una cita agendada
+    try {
+      const cliente = await this.citaRepository.manager.query(
+        `SELECT "userId" FROM clientes WHERE id = $1`, [dto.clienteId]
+      );
+      if (cliente?.[0]?.userId) {
+        const tipoLabel = dto.tipo === 'inm' ? 'Cita en el INM' : 'Entrevista con tu Gestor';
+        await this.notificacionesService.sendNotification({
+          destinatarioId: cliente[0].userId,
+          tipo: TipoNotificacion.CITA_PROGRAMADA,
+          canal: CanalNotificacion.PUSH,
+          titulo: '📅 Cita agendada',
+          contenido: `${tipoLabel} programada para el ${dto.fecha} a las ${dto.hora}. Modalidad: ${dto.modalidad}`,
+          metadata: { citaId: saved.id, fecha: dto.fecha, hora: dto.hora },
+        }).catch(() => {});
+      }
+    } catch {}
 
     return saved;
   }

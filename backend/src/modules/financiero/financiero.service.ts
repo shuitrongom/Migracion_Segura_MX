@@ -7,7 +7,8 @@ import { AcuerdoPago } from './entities/acuerdo-pago.entity';
 import { MercadoPagoService } from './mercadopago.service';
 import { CreatePagoDto } from './dto/create-pago.dto';
 import { PaginatedResponseDto } from '../../common/dto/pagination.dto';
-import { MetodoPago } from '../../common/enums';
+import { MetodoPago, CanalNotificacion, TipoNotificacion } from '../../common/enums';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 
 @Injectable()
 export class FinancieroService {
@@ -17,6 +18,7 @@ export class FinancieroService {
     @InjectRepository(AcuerdoPago)
     private readonly acuerdoPagoRepository: Repository<AcuerdoPago>,
     private readonly mercadoPagoService: MercadoPagoService,
+    private readonly notificacionesService: NotificacionesService,
   ) {}
 
   /**
@@ -89,6 +91,25 @@ export class FinancieroService {
       }],
     });
     const savedLiquidacion = await this.pagoRepository.save(liquidacion);
+
+    // Notificar al extranjero que tiene un pago pendiente
+    if (params.clienteId) {
+      try {
+        const cliente = await this.pagoRepository.manager.query(
+          `SELECT "userId" FROM clientes WHERE id = $1`, [params.clienteId]
+        );
+        if (cliente?.[0]?.userId) {
+          await this.notificacionesService.sendNotification({
+            destinatarioId: cliente[0].userId,
+            tipo: TipoNotificacion.PAGO_PENDIENTE,
+            canal: CanalNotificacion.PUSH,
+            titulo: '💰 Pago pendiente generado',
+            contenido: `Se generó un anticipo de $${montoAnticipo} MXN para tu trámite. Tienes 15 días para realizar el pago.`,
+            metadata: { tramiteId: params.tramiteId, monto: montoAnticipo.toString() },
+          }).catch(() => {});
+        }
+      } catch {}
+    }
 
     return { anticipo: savedAnticipo, liquidacion: savedLiquidacion };
   }
@@ -166,6 +187,40 @@ export class FinancieroService {
     ];
 
     await this.pagoRepository.save(pago);
+
+    // Notificar al admin y al extranjero que el pago fue aprobado
+    try {
+      // Notificar al admin
+      const admins = await this.pagoRepository.manager.query(
+        `SELECT id FROM users WHERE role = 'administrador' AND "deletedAt" IS NULL LIMIT 1`
+      );
+      if (admins?.[0]?.id) {
+        await this.notificacionesService.sendNotification({
+          destinatarioId: admins[0].id,
+          tipo: TipoNotificacion.PAGO_CONFIRMADO,
+          canal: CanalNotificacion.PUSH,
+          titulo: '✅ Pago recibido',
+          contenido: `Se confirmó un pago de $${amount} MXN para el trámite. Método: ${paymentMethod}`,
+          metadata: { tramiteId, monto: amount.toString() },
+        }).catch(() => {});
+      }
+      // Notificar al extranjero
+      if (pago.clienteId) {
+        const cliente = await this.pagoRepository.manager.query(
+          `SELECT "userId" FROM clientes WHERE id = $1`, [pago.clienteId]
+        );
+        if (cliente?.[0]?.userId) {
+          await this.notificacionesService.sendNotification({
+            destinatarioId: cliente[0].userId,
+            tipo: TipoNotificacion.PAGO_CONFIRMADO,
+            canal: CanalNotificacion.PUSH,
+            titulo: '✅ Tu pago fue confirmado',
+            contenido: `Tu pago de $${amount} MXN ha sido procesado exitosamente.`,
+            metadata: { tramiteId, monto: amount.toString() },
+          }).catch(() => {});
+        }
+      }
+    } catch {}
   }
 
   /**
