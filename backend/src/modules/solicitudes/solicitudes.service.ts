@@ -84,9 +84,9 @@ export class SolicitudesService {
     }
 
     solicitud.numeroPieza = data.numeroPieza;
-    solicitud.contrasenaINM = data.contrasenaINM || null;
-    solicitud.requisitos = data.requisitos || null;
-    solicitud.observaciones = data.observaciones || null;
+    solicitud.contrasenaINM = data.contrasenaINM || undefined;
+    solicitud.requisitos = data.requisitos || undefined;
+    solicitud.observaciones = data.observaciones || undefined;
     solicitud.asesorId = adminId;
     solicitud.estatus = EstatusSolicitud.PENDIENTE_PAGO;
 
@@ -102,8 +102,8 @@ export class SolicitudesService {
       email: emailExtranjero,
     });
 
-    solicitud.mercadopagoPreferenceId = mpPreference.preferenceId || null;
-    solicitud.mercadopagoInitPoint = mpPreference.initPoint || mpPreference.sandboxInitPoint || null;
+    solicitud.mercadopagoPreferenceId = mpPreference.preferenceId || undefined;
+    solicitud.mercadopagoInitPoint = mpPreference.initPoint || mpPreference.sandboxInitPoint || undefined;
 
     const saved = await this.solicitudRepository.save(solicitud);
 

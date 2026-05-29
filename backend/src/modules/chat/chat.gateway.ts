@@ -47,7 +47,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       senderId: data.senderId,
       receiverId: data.receiverId,
       content: data.content,
-      tramiteId: data.tramiteId || null,
+      tramiteId: data.tramiteId || undefined,
       type: 'text',
       read: false,
     });

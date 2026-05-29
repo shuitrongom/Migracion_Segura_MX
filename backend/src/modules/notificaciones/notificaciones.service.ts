@@ -50,7 +50,7 @@ export class NotificacionesService {
     const saved = await this.notificacionRepository.save(notificacion);
 
     // Enviar push notification si el canal es push o in_app
-    if (input.canal === CanalNotificacion.PUSH || input.canal === CanalNotificacion.IN_APP) {
+    if (input.canal === CanalNotificacion.PUSH) {
       try {
         // Buscar el push token del usuario
         const tokenRecord = await this.notificacionRepository.manager.query(
