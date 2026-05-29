@@ -1,7 +1,7 @@
 import { storage } from './storage';
 import { router } from 'expo-router';
 
-const BASE_URL = 'https://backend-production-79ed.up.railway.app/api/v1';
+const BASE_URL = 'https://api.migracionseguramx.com/api/v1';
 
 let isRefreshing = false;
 let refreshPromise: Promise<boolean> | null = null;

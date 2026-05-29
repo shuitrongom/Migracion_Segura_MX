@@ -13,7 +13,7 @@ export const WHATSAPP_MESSAGE = 'Hola, necesito ayuda con mi trámite migratorio
 export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
 
 /** URL del backend */
-export const API_URL = 'https://backend-production-79ed.up.railway.app/api/v1';
+export const API_URL = 'https://api.migracionseguramx.com/api/v1';
 
 /** URL del panel web admin */
-export const ADMIN_PANEL_URL = 'https://migracion-segura-mx-admin-panel.vercel.app';
+export const ADMIN_PANEL_URL = 'https://admin.migracionseguramx.com';

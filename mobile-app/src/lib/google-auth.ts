@@ -47,7 +47,7 @@ export async function signInWithGoogle(): Promise<boolean> {
     const { id: googleId, email, name: fullName, photo: profilePhotoUrl } = userInfo.data.user;
 
     const res = await fetch(
-      'https://backend-production-79ed.up.railway.app/api/v1/auth/google',
+      'https://api.migracionseguramx.com/api/v1/auth/google',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

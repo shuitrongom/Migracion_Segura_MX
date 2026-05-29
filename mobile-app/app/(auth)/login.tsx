@@ -51,7 +51,7 @@ export default function LoginScreen() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        'https://backend-production-79ed.up.railway.app/api/v1/auth/login',
+        'https://api.migracionseguramx.com/api/v1/auth/login',
         { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email.trim(), password }) },
       );
       const data = await response.json();

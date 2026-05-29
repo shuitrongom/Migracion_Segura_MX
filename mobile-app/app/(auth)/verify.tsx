@@ -16,7 +16,7 @@ export default function VerifyScreen() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        'https://backend-production-79ed.up.railway.app/api/v1/auth/verify',
+        'https://api.migracionseguramx.com/api/v1/auth/verify',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
