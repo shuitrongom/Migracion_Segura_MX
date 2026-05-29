@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { BarChart3, Calendar, TrendingUp, Users, FileText, Activity } from 'lucide-react';
+import { BarChart3, Calendar, TrendingUp, Users, FileText, Activity, Download } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount);
@@ -57,9 +58,32 @@ export default function ReportesPage() {
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-tr from-stone-900 via-neutral-800 to-amber-700 p-8 text-white shadow-xl">
         <div className="absolute top-0 right-0 w-64 h-64 bg-amber-400/10 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-yellow-500/10 rounded-full translate-y-1/2 -translate-x-1/2" />
-        <div className="relative z-10">
-          <h1 className="text-3xl font-bold">Reportes</h1>
-          <p className="text-amber-200 mt-1">Estadísticas y métricas del negocio</p>
+        <div className="relative z-10 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Reportes</h1>
+            <p className="text-amber-200 mt-1">Estadísticas y métricas del negocio</p>
+          </div>
+          <button
+            onClick={async () => {
+              try {
+                toast.info('Generando PDF...');
+                const res = await api.get(`/reportes/pdf/mensual?mes=${mes}&anio=${anio}`, { responseType: 'blob' });
+                const blob = new Blob([res.data], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `reporte-${MESES[mes-1]}-${anio}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                toast.success('PDF descargado');
+              } catch { toast.error('Error al generar PDF'); }
+            }}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white/20 backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-white/30 transition-all border border-white/20"
+          >
+            <Download className="h-4 w-4" /> Descargar PDF
+          </button>
         </div>
       </div>
 

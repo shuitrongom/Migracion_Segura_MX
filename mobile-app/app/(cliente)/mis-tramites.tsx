@@ -102,7 +102,14 @@ export default function MisTramitesScreen() {
               </LinearGradient>
               <Text style={styles.actionLabel}>Mis documentos</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionCard} onPress={() => Linking.openURL(WHATSAPP_URL)} activeOpacity={0.8}>
+            <TouchableOpacity style={styles.actionCard} onPress={() => {
+              const { Alert } = require('react-native');
+              Alert.alert('Contactar asesor', '¿Cómo deseas comunicarte?', [
+                { text: 'Chat en la app', onPress: () => router.push('/(cliente)/chat') },
+                { text: 'WhatsApp', onPress: () => Linking.openURL(WHATSAPP_URL) },
+                { text: 'Cancelar', style: 'cancel' },
+              ]);
+            }} activeOpacity={0.8}>
               <LinearGradient colors={['rgba(37,211,102,0.12)', 'rgba(37,211,102,0.03)']} style={styles.actionIconBg}>
                 <Text style={{ fontSize: 22 }}>💬</Text>
               </LinearGradient>
