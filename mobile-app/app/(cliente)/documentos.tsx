@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ActivityIndicator, RefreshControl } from 'react-native';
-import { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ActivityIndicator, RefreshControl, Animated } from 'react-native';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as DocumentPicker from 'expo-document-picker';
 import { apiFetch } from '@/lib/api';
 
@@ -8,7 +9,17 @@ export default function DocumentosScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+
   useEffect(() => { loadData(); }, []);
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
+    ]).start();
+  }, []);
 
   const loadData = async () => {
     try {
@@ -43,13 +54,19 @@ export default function DocumentosScreen() {
     }
   };
 
-  if (loading) return <View style={styles.loadingContainer}><ActivityIndicator size="large" color="#C4A265" /></View>;
+  if (loading) return (
+    <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#f59e0b" />
+    </LinearGradient>
+  );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Notificaciones y Documentos</Text>
-      </View>
+    <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.container}>
+      <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Notificaciones y Documentos</Text>
+        </View>
+      </Animated.View>
 
       {/* Botón subir documento */}
       <TouchableOpacity style={styles.uploadBtn} onPress={handleUpload}>
@@ -63,7 +80,9 @@ export default function DocumentosScreen() {
       {/* Notificaciones */}
       {notificaciones.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={{ fontSize: 40 }}>🔔</Text>
+          <View style={styles.emptyIconContainer}>
+            <Text style={{ fontSize: 40 }}>🔔</Text>
+          </View>
           <Text style={styles.emptyTitle}>Sin notificaciones</Text>
           <Text style={styles.emptyText}>Aquí recibirás avisos sobre tus trámites, documentos y pagos.</Text>
         </View>
@@ -71,7 +90,7 @@ export default function DocumentosScreen() {
         <FlatList
           data={notificaciones}
           keyExtractor={(item) => item.id}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#C4A265" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#f59e0b" />}
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
             <TouchableOpacity
@@ -88,31 +107,32 @@ export default function DocumentosScreen() {
           )}
         />
       )}
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F0E8', paddingTop: 56 },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0E8' },
+  container: { flex: 1, paddingTop: 56 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   header: { paddingHorizontal: 16, marginBottom: 12 },
-  title: { fontSize: 20, fontWeight: '700', color: '#2C1810' },
+  title: { fontSize: 20, fontWeight: '700', color: '#ffffff' },
 
-  uploadBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', marginHorizontal: 16, borderRadius: 12, padding: 14, gap: 12, borderWidth: 2, borderColor: '#C4A265', borderStyle: 'dashed', marginBottom: 16 },
+  uploadBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)', marginHorizontal: 16, borderRadius: 12, padding: 14, gap: 12, borderWidth: 2, borderColor: '#f59e0b', borderStyle: 'dashed', marginBottom: 16 },
   uploadIcon: { fontSize: 24 },
-  uploadText: { fontSize: 14, fontWeight: '600', color: '#2C1810' },
-  uploadHint: { fontSize: 11, color: '#8B7B6F' },
+  uploadText: { fontSize: 14, fontWeight: '600', color: '#ffffff' },
+  uploadHint: { fontSize: 11, color: 'rgba(255,255,255,0.4)' },
 
   list: { paddingHorizontal: 16, paddingBottom: 20 },
-  notifCard: { backgroundColor: '#FFFFFF', borderRadius: 12, padding: 14, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 3, elevation: 1 },
-  notifUnread: { borderLeftWidth: 3, borderLeftColor: '#C4A265' },
+  notifCard: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  notifUnread: { borderLeftWidth: 3, borderLeftColor: '#f59e0b' },
   notifHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  notifTitle: { fontSize: 14, fontWeight: '600', color: '#2C1810', flex: 1 },
-  unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#C4A265' },
-  notifContent: { fontSize: 13, color: '#6B5B4F', lineHeight: 18 },
-  notifDate: { fontSize: 11, color: '#8B7B6F', marginTop: 6 },
+  notifTitle: { fontSize: 14, fontWeight: '600', color: '#ffffff', flex: 1 },
+  unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#f59e0b' },
+  notifContent: { fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 18 },
+  notifDate: { fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 6 },
 
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, gap: 10 },
-  emptyTitle: { fontSize: 16, fontWeight: '600', color: '#2C1810' },
-  emptyText: { fontSize: 13, color: '#6B5B4F', textAlign: 'center', lineHeight: 20 },
+  emptyIconContainer: { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  emptyTitle: { fontSize: 16, fontWeight: '600', color: '#ffffff' },
+  emptyText: { fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', lineHeight: 20 },
 });

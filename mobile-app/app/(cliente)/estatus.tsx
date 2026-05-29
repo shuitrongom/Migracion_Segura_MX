@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, TouchableOpacity, Linking } from 'react-native';
-import { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, TouchableOpacity, Linking, Animated } from 'react-native';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
 import { apiFetch } from '@/lib/api';
 
 const estatusConfig: Record<string, { color: string; label: string; icon: string; step: number }> = {
@@ -20,7 +21,17 @@ export default function EstatusScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+
   useEffect(() => { loadTramites(); }, []);
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
+    ]).start();
+  }, []);
 
   const loadTramites = async () => {
     try {
@@ -48,7 +59,11 @@ export default function EstatusScreen() {
 
   const onRefresh = useCallback(async () => { setRefreshing(true); await loadTramites(); setRefreshing(false); }, []);
 
-  if (loading) return <View style={styles.loadingContainer}><ActivityIndicator size="large" color="#C4A265" /></View>;
+  if (loading) return (
+    <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#f59e0b" />
+    </LinearGradient>
+  );
 
   const renderTramite = ({ item }: { item: any }) => {
     const config = estatusConfig[item.estatus] || estatusConfig.borrador;
@@ -81,7 +96,7 @@ export default function EstatusScreen() {
                   styles.timelineDot,
                   isCompleted && { backgroundColor: '#27AE60' },
                   isCurrent && { backgroundColor: config.color, transform: [{ scale: 1.3 }] },
-                  !isCompleted && !isCurrent && { backgroundColor: '#E8DFD3' },
+                  !isCompleted && !isCurrent && { backgroundColor: 'rgba(255,255,255,0.1)' },
                 ]} />
                 {index < STEPS.length - 1 && (
                   <View style={[styles.timelineLine, isCompleted && { backgroundColor: '#27AE60' }]} />
@@ -99,10 +114,11 @@ export default function EstatusScreen() {
         {pagos[item.id]?.filter((p: any) => p.estatusPago === 'pendiente' && p.mercadopagoInitPoint).map((pago: any) => (
           <TouchableOpacity
             key={pago.id}
-            style={styles.payButton}
             onPress={() => Linking.openURL(pago.mercadopagoInitPoint)}
           >
-            <Text style={styles.payButtonText}>💳 Pagar {pago.tipoPago === 'anticipo' ? 'Anticipo' : 'Liquidación'}: ${Number(pago.monto).toLocaleString()} MXN</Text>
+            <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.payButton}>
+              <Text style={styles.payButtonText}>💳 Pagar {pago.tipoPago === 'anticipo' ? 'Anticipo' : 'Liquidación'}: ${Number(pago.monto).toLocaleString()} MXN</Text>
+            </LinearGradient>
           </TouchableOpacity>
         ))}
 
@@ -117,15 +133,19 @@ export default function EstatusScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Estatus de trámites</Text>
-        <Text style={styles.subtitle}>Sigue el progreso de tus solicitudes</Text>
-      </View>
+    <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.container}>
+      <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Estatus de trámites</Text>
+          <Text style={styles.subtitle}>Sigue el progreso de tus solicitudes</Text>
+        </View>
+      </Animated.View>
 
       {tramites.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={{ fontSize: 48 }}>📋</Text>
+          <View style={styles.emptyIconContainer}>
+            <Text style={{ fontSize: 48 }}>📋</Text>
+          </View>
           <Text style={styles.emptyTitle}>Sin trámites</Text>
           <Text style={styles.emptyText}>Cuando inicies un trámite, aquí verás su progreso en tiempo real</Text>
         </View>
@@ -135,42 +155,43 @@ export default function EstatusScreen() {
           renderItem={renderTramite}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#C4A265" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#f59e0b" />}
         />
       )}
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F0E8', paddingTop: 56 },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5F0E8' },
+  container: { flex: 1, paddingTop: 56 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   header: { paddingHorizontal: 16, marginBottom: 16 },
-  title: { fontSize: 22, fontWeight: '700', color: '#2C1810' },
-  subtitle: { fontSize: 13, color: '#6B5B4F', marginTop: 4 },
+  title: { fontSize: 22, fontWeight: '700', color: '#ffffff' },
+  subtitle: { fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 4 },
   list: { paddingHorizontal: 16, paddingBottom: 20 },
 
-  card: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 18, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 2 },
+  card: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: 18, marginBottom: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   statusBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
   statusText: { fontSize: 13, fontWeight: '600' },
-  pieceNumber: { fontSize: 12, color: '#8B7B6F', fontFamily: 'monospace' },
-  tramiteType: { fontSize: 16, fontWeight: '600', color: '#2C1810', textTransform: 'capitalize', marginBottom: 16 },
+  pieceNumber: { fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' },
+  tramiteType: { fontSize: 16, fontWeight: '600', color: '#ffffff', textTransform: 'capitalize', marginBottom: 16 },
 
   timeline: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 },
   timelineStep: { alignItems: 'center', flex: 1 },
-  timelineDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: '#E8DFD3', marginBottom: 6 },
-  timelineLine: { position: 'absolute', top: 5, left: '50%', right: '-50%', height: 2, backgroundColor: '#E8DFD3' },
-  timelineLabel: { fontSize: 10, color: '#8B7B6F', textAlign: 'center' },
+  timelineDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.1)', marginBottom: 6 },
+  timelineLine: { position: 'absolute', top: 5, left: '50%', right: '-50%', height: 2, backgroundColor: 'rgba(255,255,255,0.08)' },
+  timelineLabel: { fontSize: 10, color: 'rgba(255,255,255,0.4)', textAlign: 'center' },
 
-  date: { fontSize: 11, color: '#8B7B6F' },
+  date: { fontSize: 11, color: 'rgba(255,255,255,0.4)' },
 
-  payButton: { backgroundColor: '#C4A265', borderRadius: 10, paddingVertical: 12, paddingHorizontal: 16, marginTop: 10, alignItems: 'center' },
-  payButtonText: { color: '#FFFFFF', fontSize: 14, fontWeight: '600' },
+  payButton: { borderRadius: 10, paddingVertical: 12, paddingHorizontal: 16, marginTop: 10, alignItems: 'center', shadowColor: '#f59e0b', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6 },
+  payButtonText: { color: '#ffffff', fontSize: 14, fontWeight: '600' },
   paidBadge: { backgroundColor: '#27AE6015', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12, marginTop: 8 },
   paidText: { color: '#27AE60', fontSize: 12, fontWeight: '500' },
 
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, gap: 12 },
-  emptyTitle: { fontSize: 18, fontWeight: '600', color: '#2C1810' },
-  emptyText: { fontSize: 13, color: '#6B5B4F', textAlign: 'center', lineHeight: 20 },
+  emptyIconContainer: { width: 88, height: 88, borderRadius: 44, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  emptyTitle: { fontSize: 18, fontWeight: '600', color: '#ffffff' },
+  emptyText: { fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', lineHeight: 20 },
 });
