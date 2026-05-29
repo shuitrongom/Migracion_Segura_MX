@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res, StreamableFile, Inject } from '@nestjs/common';
+import { Controller, Get, Query, Res, StreamableFile, Logger } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { Response } from 'express';
 import { DataSource } from 'typeorm';
@@ -11,6 +11,8 @@ import { UserRole } from '../../common/enums';
 @ApiBearerAuth()
 @Controller('reportes')
 export class ReportesController {
+  private readonly logger = new Logger(ReportesController.name);
+
   constructor(
     private readonly reportesService: ReportesService,
     private readonly dataSource: DataSource,
@@ -26,36 +28,49 @@ export class ReportesController {
     @Query('anio') anio: number,
     @Res({ passthrough: true }) res: Response,
   ): Promise<StreamableFile> {
-    // Obtener datos reales de la BD
-    const totalClientes = await this.dataSource.query(`SELECT COUNT(*) as count FROM clientes`).then(r => parseInt(r[0]?.count || '0'));
-    const totalTramites = await this.dataSource.query(`SELECT COUNT(*) as count FROM tramites`).then(r => parseInt(r[0]?.count || '0'));
+    let totalClientes = 0;
+    let totalTramites = 0;
+    let totalIngresos = 0;
+    let totalPagos = 0;
+    let tramitesPorEstatus: { estatus: string; cantidad: number }[] = [];
+    let tramitesPorTipo: { tipo: string; cantidad: number }[] = [];
 
-    // Ingresos del mes
-    const startDate = `${anio}-${String(mes).padStart(2, '0')}-01`;
-    const endDate = mes === 12 ? `${anio + 1}-01-01` : `${anio}-${String(mes + 1).padStart(2, '0')}-01`;
-    const ingresos = await this.dataSource.query(
-      `SELECT COALESCE(SUM(monto), 0) as total, COUNT(*) as count FROM pagos WHERE "estatusPago" = 'aprobado' AND fecha >= $1 AND fecha < $2`,
-      [startDate, endDate]
-    ).then(r => ({ total: parseFloat(r[0]?.total || '0'), count: parseInt(r[0]?.count || '0') }));
+    try {
+      const clientesResult = await this.dataSource.query(`SELECT COUNT(*) as count FROM clientes`);
+      totalClientes = parseInt(clientesResult?.[0]?.count || '0');
+    } catch (e) { this.logger.warn('Error contando clientes: ' + e.message); }
 
-    // Tramites por estatus
-    const estatusData = await this.dataSource.query(
-      `SELECT estatus, COUNT(*) as cantidad FROM tramites GROUP BY estatus ORDER BY cantidad DESC`
-    ).then(rows => rows.map((r: any) => ({ estatus: r.estatus, cantidad: parseInt(r.cantidad) })));
+    try {
+      const tramitesResult = await this.dataSource.query(`SELECT COUNT(*) as count FROM tramites`);
+      totalTramites = parseInt(tramitesResult?.[0]?.count || '0');
+    } catch (e) { this.logger.warn('Error contando tramites: ' + e.message); }
 
-    // Tramites por tipo
-    const tipoData = await this.dataSource.query(
-      `SELECT tipo, COUNT(*) as cantidad FROM tramites GROUP BY tipo ORDER BY cantidad DESC`
-    ).then(rows => rows.map((r: any) => ({ tipo: r.tipo, cantidad: parseInt(r.cantidad) })));
+    try {
+      const startDate = `${anio}-${String(mes).padStart(2, '0')}-01`;
+      const endDate = mes === 12 ? `${anio + 1}-01-01` : `${anio}-${String(mes + 1).padStart(2, '0')}-01`;
+      const ingresosResult = await this.dataSource.query(
+        `SELECT COALESCE(SUM(monto), 0) as total, COUNT(*) as count FROM pagos WHERE "estatusPago" = 'aprobado' AND "createdAt" >= $1 AND "createdAt" < $2`,
+        [startDate, endDate]
+      );
+      totalIngresos = parseFloat(ingresosResult?.[0]?.total || '0');
+      totalPagos = parseInt(ingresosResult?.[0]?.count || '0');
+    } catch (e) { this.logger.warn('Error calculando ingresos: ' + e.message); }
 
-    const data = {
-      totalIngresos: ingresos.total,
-      totalPagos: ingresos.count,
-      totalClientes,
-      totalTramites,
-      tramitesPorEstatus: estatusData,
-      tramitesPorTipo: tipoData,
-    };
+    try {
+      const estatusResult = await this.dataSource.query(
+        `SELECT estatus, COUNT(*)::int as cantidad FROM tramites GROUP BY estatus ORDER BY cantidad DESC`
+      );
+      tramitesPorEstatus = estatusResult || [];
+    } catch (e) { this.logger.warn('Error agrupando por estatus: ' + e.message); }
+
+    try {
+      const tipoResult = await this.dataSource.query(
+        `SELECT tipo, COUNT(*)::int as cantidad FROM tramites GROUP BY tipo ORDER BY cantidad DESC`
+      );
+      tramitesPorTipo = tipoResult || [];
+    } catch (e) { this.logger.warn('Error agrupando por tipo: ' + e.message); }
+
+    const data = { totalIngresos, totalPagos, totalClientes, totalTramites, tramitesPorEstatus, tramitesPorTipo };
 
     const pdfBuffer = await this.reportesService.generateMonthlyPdf(mes, anio, data);
 
