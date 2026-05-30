@@ -14,6 +14,8 @@ interface DocItem {
   createdAt: string;
   tramiteId?: string;
   expedienteId?: string;
+  // Datos enriquecidos (se cargan aparte)
+  tramite?: { numeroPieza?: string; tipo?: string; cliente?: { nombreCompleto?: string }; datosFormulario?: Record<string, any> };
 }
 
 const ESTATUS_BADGE: Record<string, string> = {
@@ -42,8 +44,18 @@ export default function DocumentosPage() {
       setLoading(true);
       const res = await api.get('/documentos', { params: { page, limit, estatus: filtroEstatus || undefined } });
       const data = res.data?.data || res.data || [];
-      setDocumentos(Array.isArray(data) ? data : []);
-      setTotal(res.data?.meta?.total || res.data?.total || data.length);
+      const docs: DocItem[] = Array.isArray(data) ? data : [];
+
+      // Enriquecer documentos con datos del trámite
+      const tramiteIds = [...new Set(docs.filter(d => d.tramiteId).map(d => d.tramiteId))];
+      const tramitesMap: Record<string, any> = {};
+      await Promise.all(tramiteIds.map(async (tid) => {
+        try { const tRes = await api.get(`/tramites/${tid}`); tramitesMap[tid as string] = tRes.data; } catch {}
+      }));
+      const enriched = docs.map(doc => ({ ...doc, tramite: doc.tramiteId ? tramitesMap[doc.tramiteId] : undefined }));
+
+      setDocumentos(enriched);
+      setTotal(res.data?.meta?.total || res.data?.total || enriched.length);
     } catch { setDocumentos([]); }
     finally { setLoading(false); }
   };
@@ -223,7 +235,13 @@ export default function DocumentosPage() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-white truncate">{doc.nombre}</p>
-                      <p className="text-xs text-white/70">{doc.categoria || 'Sin categoría'} • {formatDate(doc.createdAt)}</p>
+                      <p className="text-xs text-white/70">
+                        {doc.tramite?.cliente?.nombreCompleto || doc.tramite?.datosFormulario?.nombre ? `${doc.tramite?.cliente?.nombreCompleto || `${(doc.tramite?.datosFormulario as any)?.nombre || ''} ${(doc.tramite?.datosFormulario as any)?.apellidos || ''}`.trim()}` : ''}
+                        {doc.tramite?.numeroPieza ? ` • Pieza: ${doc.tramite.numeroPieza}` : ''}
+                        {doc.tramite?.tipo ? ` • ${(doc.tramite.tipo || '').replace(/_/g, ' ')}` : ''}
+                        {!doc.tramite && <>{doc.categoria || 'Sin categoría'}</>}
+                        {' • '}{formatDate(doc.createdAt)}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
