@@ -49,7 +49,7 @@ export class ReportesController {
       const startDate = `${anio}-${String(mes).padStart(2, '0')}-01`;
       const endDate = mes === 12 ? `${anio + 1}-01-01` : `${anio}-${String(mes + 1).padStart(2, '0')}-01`;
       const ingresosResult = await this.dataSource.query(
-        `SELECT COALESCE(SUM(monto), 0) as total, COUNT(*) as count FROM pagos WHERE "estatusPago" = 'aprobado' AND "createdAt" >= $1 AND "createdAt" < $2`,
+        `SELECT COALESCE(SUM(monto), 0) as total, COUNT(*) as count FROM pagos WHERE estatus_pago = 'aprobado' AND created_at >= $1 AND created_at < $2`,
         [startDate, endDate]
       );
       totalIngresos = parseFloat(ingresosResult?.[0]?.total || '0');
