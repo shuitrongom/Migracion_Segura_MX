@@ -189,6 +189,26 @@ export class TramitesService {
   }
 
   /**
+   * Continuar trámite - Permite al gestor actualizar pieza, contraseña y datos
+   * sin importar el estatus actual (para trámites creados por el extranjero)
+   */
+  async continuarTramite(tramiteId: string, dto: { numeroPieza?: string; contrasenaTramite?: string; datosFormulario?: Record<string, unknown> }): Promise<Tramite> {
+    const tramite = await this.findOneOrFail(tramiteId);
+
+    if (dto.numeroPieza) {
+      tramite.numeroPieza = dto.numeroPieza;
+    }
+    if (dto.contrasenaTramite) {
+      tramite.contrasenaTramite = dto.contrasenaTramite;
+    }
+    if (dto.datosFormulario) {
+      tramite.datosFormulario = { ...tramite.datosFormulario, ...dto.datosFormulario };
+    }
+
+    return this.tramiteRepository.save(tramite);
+  }
+
+  /**
    * Req 10.1 - Cambiar estatus del trámite
    */
   async updateEstatus(tramiteId: string, dto: UpdateEstatusDto): Promise<Tramite> {

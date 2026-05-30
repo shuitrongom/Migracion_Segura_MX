@@ -84,8 +84,10 @@ export default function ContinuarTramitePage() {
   const handleFinish = async () => {
     setSubmitting(true);
     try {
-      // Actualizar el trámite con la pieza y contraseña
-      await api.put(`/tramites/${tramiteId}/borrador`, {
+      // Actualizar el trámite con la pieza y contraseña usando el endpoint de continuar
+      await api.patch(`/tramites/${tramiteId}/continuar`, {
+        numeroPieza: numeroPieza,
+        contrasenaTramite: contrasenaINM,
         datosFormulario: {
           ...tramite?.datosFormulario,
           numeroPiezaINM: numeroPieza,
@@ -93,8 +95,11 @@ export default function ContinuarTramitePage() {
         },
       });
 
-      // Actualizar estatus a en_revision
-      await api.patch(`/tramites/${tramiteId}/estatus`, { estatus: 'en_revision' });
+      // Cambiar estatus a en_revision
+      await api.patch(`/tramites/${tramiteId}/estatus`, {
+        estatus: 'en_revision',
+        observaciones: `Solicitud INM completada. Pieza: ${numeroPieza}`,
+      });
 
       // Subir PDF
       if (pdfFile) {

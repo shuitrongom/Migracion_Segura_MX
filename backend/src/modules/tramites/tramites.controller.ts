@@ -185,6 +185,21 @@ export class TramitesController {
   }
 
   /**
+   * Continuar trámite - Actualizar pieza, contraseña y datos cuando el gestor completa la solicitud INM
+   */
+  @Patch(':id/continuar')
+  @ApiBearerAuth()
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Continuar trámite: actualizar pieza, clave y datos del formulario' })
+  @ApiParam({ name: 'id', description: 'UUID del trámite' })
+  continuarTramite(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: { numeroPieza?: string; contrasenaTramite?: string; datosFormulario?: Record<string, unknown> },
+  ) {
+    return this.tramitesService.continuarTramite(id, dto);
+  }
+
+  /**
    * Req 10.1 - Cambiar estatus
    */
   @Patch(':id/estatus')
