@@ -63,16 +63,11 @@ export default function ContinuarTramitePage() {
         // Cargar requisitos del tipo de trámite
         const reqRes = await api.get(`/tramites/requisitos/${res.data.tipo}`);
         setRequisitos(reqRes.data || []);
-        // Si el trámite ya tiene pieza, saltar al paso de requisitos o pago
-        if (res.data.numeroPieza) {
+        // Si el trámite ya tiene pieza REAL del INM (no la auto-generada MSX-), saltar al paso de requisitos
+        if (res.data.numeroPieza && !res.data.numeroPieza.startsWith('MSX-')) {
           setNumeroPieza(res.data.numeroPieza);
           setContrasenaINM(res.data.contrasenaTramite || '');
-          // Si ya está en_revision o más avanzado, ir a requisitos
-          if (res.data.estatus === 'en_revision' || res.data.estatus === 'en_espera_resolucion') {
-            setStep(1); // Requisitos
-          } else {
-            setStep(1); // Requisitos por default si ya tiene pieza
-          }
+          setStep(1); // Ir a Requisitos
         }
       } catch {
         toast.error('Error al cargar el trámite');
