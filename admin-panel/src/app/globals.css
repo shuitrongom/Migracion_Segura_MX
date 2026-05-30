@@ -4,34 +4,29 @@
 
 @layer base {
   :root {
-    --background: 35 30% 96%;
-    --foreground: 20 50% 10%;
-    --muted: 35 20% 92%;
-    --muted-foreground: 20 10% 40%;
-    --border: 35 20% 88%;
-    --ring: 30 40% 35%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 95%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 60%;
+    --border: 0 0% 12%;
+    --ring: 38 92% 50%;
     --radius: 0.5rem;
   }
 }
 
 @layer base {
   * {
-    @apply border-brand-100;
+    @apply border-white/[0.08];
   }
   body {
-    @apply bg-[#F5F0E8] text-brand-800 antialiased;
+    @apply bg-[#0a0a0a] text-white antialiased;
   }
 }
 
-/* ===== FUTURISTIC ANIMATIONS ===== */
+/* ===== FUTURISTIC DARK THEME - AMBER/GOLD ===== */
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 5px rgba(0, 212, 255, 0.3), 0 0 10px rgba(0, 212, 255, 0.1); }
-  50% { box-shadow: 0 0 15px rgba(0, 212, 255, 0.5), 0 0 30px rgba(0, 212, 255, 0.2); }
-}
-
-@keyframes border-glow {
-  0%, 100% { border-color: rgba(0, 212, 255, 0.3); }
-  50% { border-color: rgba(0, 212, 255, 0.8); }
+  0%, 100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.2), 0 0 10px rgba(245, 158, 11, 0.05); }
+  50% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.4), 0 0 30px rgba(245, 158, 11, 0.1); }
 }
 
 @keyframes shimmer {
@@ -40,13 +35,8 @@
 }
 
 @keyframes float-up {
-  0% { opacity: 0; transform: translateY(20px); }
+  0% { opacity: 0; transform: translateY(16px); }
   100% { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes scan-line {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
 }
 
 @keyframes pulse-ring {
@@ -66,105 +56,79 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Futuristic utility classes */
-.futuristic-card {
-  background: linear-gradient(135deg, #0a1628 0%, #0f2027 50%, #1a1a2e 100%);
-  border: 1px solid rgba(0, 212, 255, 0.2);
+@keyframes border-glow {
+  0%, 100% { border-color: rgba(245, 158, 11, 0.1); }
+  50% { border-color: rgba(245, 158, 11, 0.3); }
+}
+
+/* Utility classes */
+.dark-card {
+  background: rgba(23, 23, 23, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 16px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.futuristic-card:hover {
-  border-color: rgba(0, 212, 255, 0.6);
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.15), 0 8px 32px rgba(0, 0, 0, 0.3);
-  transform: translateY(-2px);
+.dark-card:hover {
+  border-color: rgba(245, 158, 11, 0.25);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.05), 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-.futuristic-glow {
+.dark-card-static {
+  background: rgba(23, 23, 23, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+}
+
+.dark-input {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.dark-input:focus {
+  border-color: rgba(245, 158, 11, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.08);
+  outline: none;
+}
+
+.dark-input::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.dark-select {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.dark-select:focus {
+  border-color: rgba(245, 158, 11, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.08);
+  outline: none;
+}
+
+.dark-select option {
+  background: #171717;
+  color: #ffffff;
+}
+
+.amber-glow {
   animation: glow-pulse 3s ease-in-out infinite;
 }
 
-.futuristic-border {
-  animation: border-glow 3s ease-in-out infinite;
-}
-
-.futuristic-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+.shimmer-bg {
+  background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.04), transparent);
   background-size: 200% 100%;
-  animation: shimmer 3s linear infinite;
-}
-
-.futuristic-float {
-  animation: float-up 0.6s ease-out forwards;
-}
-
-.futuristic-gradient-text {
-  background: linear-gradient(135deg, #00d4ff, #7c3aed, #00d4ff);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradient-shift 4s ease infinite;
-}
-
-.futuristic-input {
-  background: rgba(13, 27, 42, 0.8);
-  border: 1.5px solid rgba(26, 58, 74, 0.8);
-  border-radius: 10px;
-  color: #e0f7fa;
-  transition: all 0.3s ease;
-}
-
-.futuristic-input:focus {
-  border-color: #00d4ff;
-  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15), 0 0 15px rgba(0, 212, 255, 0.1);
-  outline: none;
-}
-
-.futuristic-input::placeholder {
-  color: #4a6fa5;
-}
-
-.futuristic-select {
-  background: rgba(13, 27, 42, 0.8);
-  border: 1.5px solid rgba(26, 58, 74, 0.8);
-  border-radius: 10px;
-  color: #e0f7fa;
-  transition: all 0.3s ease;
-}
-
-.futuristic-select:focus {
-  border-color: #00d4ff;
-  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
-  outline: none;
-}
-
-.futuristic-section-title {
-  color: #00d4ff;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid rgba(0, 212, 255, 0.3);
-  position: relative;
-}
-
-.futuristic-section-title::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 60px;
-  height: 2px;
-  background: #00d4ff;
-  box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
-}
-
-.futuristic-label {
-  color: #8ec8f8;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+  animation: shimmer 4s linear infinite;
 }
 
 .animate-fade-in-up {

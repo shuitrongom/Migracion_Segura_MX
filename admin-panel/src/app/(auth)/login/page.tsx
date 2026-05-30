@@ -83,14 +83,14 @@ function LoginForm() {
           
           {/* Features */}
           <div className="space-y-4 max-w-sm mx-auto">
-            <div className="flex items-center gap-3 text-left p-3 rounded-xl bg-white/5 border border-white/5 backdrop-blur-sm">
+            <div className="flex items-center gap-3 text-left p-3 rounded-xl bg-[#171717]/5 border border-white/5 backdrop-blur-sm">
               <div className="p-2 rounded-lg bg-amber-500/20"><Shield className="h-4 w-4 text-amber-400" /></div>
               <div>
                 <p className="text-sm font-medium text-white/90">Seguridad avanzada</p>
                 <p className="text-xs text-white/40">Cifrado AES-256 + JWT rotativo</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 text-left p-3 rounded-xl bg-white/5 border border-white/5 backdrop-blur-sm">
+            <div className="flex items-center gap-3 text-left p-3 rounded-xl bg-[#171717]/5 border border-white/5 backdrop-blur-sm">
               <div className="p-2 rounded-lg bg-amber-500/20"><Lock className="h-4 w-4 text-amber-400" /></div>
               <div>
                 <p className="text-sm font-medium text-white/90">Auto-cierre de sesión</p>
@@ -140,7 +140,7 @@ function LoginForm() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="w-full pl-11 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 text-sm focus:outline-none focus:border-amber-500/50 focus:bg-white/10 transition-all duration-300"
+                        className="w-full pl-11 pr-4 py-3.5 bg-[#171717]/5 border border-white/10 rounded-xl text-white placeholder-white/20 text-sm focus:outline-none focus:border-amber-500/50 focus:bg-[#171717]/10 transition-all duration-300"
                         placeholder="admin@migracion-segura.mx"
                       />
                     </div>
@@ -162,7 +162,7 @@ function LoginForm() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="w-full pl-11 pr-12 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 text-sm focus:outline-none focus:border-amber-500/50 focus:bg-white/10 transition-all duration-300"
+                        className="w-full pl-11 pr-12 py-3.5 bg-[#171717]/5 border border-white/10 rounded-xl text-white placeholder-white/20 text-sm focus:outline-none focus:border-amber-500/50 focus:bg-[#171717]/10 transition-all duration-300"
                         placeholder="••••••••"
                       />
                       <button

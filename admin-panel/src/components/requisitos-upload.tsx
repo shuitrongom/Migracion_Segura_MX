@@ -77,7 +77,7 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-6 w-6 text-brand-500 animate-spin" />
+        <Loader2 className="h-6 w-6 text-amber-500 animate-spin" />
       </div>
     );
   }
@@ -85,8 +85,8 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
   if (requisitos.length === 0) {
     return (
       <div className="text-center py-12">
-        <FileText className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-        <p className="text-sm text-gray-400">No hay requisitos configurados para este trámite.</p>
+        <FileText className="h-10 w-10 text-white/20 mx-auto mb-3" />
+        <p className="text-sm text-white/30">No hay requisitos configurados para este trámite.</p>
       </div>
     );
   }
@@ -100,10 +100,10 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
       {/* Barra de progreso */}
       <div className="bg-gradient-to-r from-brand-50 to-green-50 border border-brand-200 rounded-xl p-4">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-sm font-semibold text-gray-900">Progreso de documentos</p>
-          <p className="text-sm font-bold text-brand-600">{subidosObligatorios}/{totalObligatorios} obligatorios</p>
+          <p className="text-sm font-semibold text-white">Progreso de documentos</p>
+          <p className="text-sm font-bold text-amber-500">{subidosObligatorios}/{totalObligatorios} obligatorios</p>
         </div>
-        <div className="w-full h-3 bg-white rounded-full overflow-hidden shadow-inner">
+        <div className="w-full h-3 bg-[#171717] rounded-full overflow-hidden shadow-inner">
           <div 
             className="h-full bg-gradient-to-r from-brand-500 to-green-500 rounded-full transition-all duration-700 ease-out"
             style={{ width: `${progreso}%` }}
@@ -130,7 +130,7 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
                   ? 'border-green-300 bg-green-50/50' 
                   : req.obligatorio 
                     ? 'border-amber-200 bg-amber-50/30' 
-                    : 'border-gray-200 bg-white'
+                    : 'border-white/[0.08] bg-[#171717]'
               }`}
             >
               <div className="flex items-start gap-4">
@@ -140,19 +140,19 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
                     ? 'bg-green-500 shadow-md shadow-green-200 scale-110' 
                     : req.obligatorio 
                       ? 'bg-amber-100 border-2 border-amber-300' 
-                      : 'bg-gray-100 border-2 border-gray-200'
+                      : 'bg-white/[0.04] border-2 border-white/[0.08]'
                 }`}>
                   {docSubido ? (
                     <CheckCircle className="h-5 w-5 text-white animate-in zoom-in duration-300" />
                   ) : (
-                    <span className={`text-xs font-bold ${req.obligatorio ? 'text-amber-600' : 'text-gray-400'}`}>{i + 1}</span>
+                    <span className={`text-xs font-bold ${req.obligatorio ? 'text-amber-600' : 'text-white/30'}`}>{i + 1}</span>
                   )}
                 </div>
 
                 {/* Info del requisito */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-gray-900">{req.nombre}</p>
+                    <p className="text-sm font-semibold text-white">{req.nombre}</p>
                     {req.obligatorio && !docSubido && (
                       <span className="inline-flex px-1.5 py-0.5 text-[10px] font-bold text-amber-700 bg-amber-100 rounded">OBLIGATORIO</span>
                     )}
@@ -160,7 +160,7 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
                       <span className="inline-flex px-1.5 py-0.5 text-[10px] font-bold text-green-700 bg-green-100 rounded">SUBIDO</span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500 mt-0.5">{req.descripcion}</p>
+                  <p className="text-xs text-white/40 mt-0.5">{req.descripcion}</p>
 
                   {/* Documento subido info */}
                   {docSubido && (
@@ -175,13 +175,13 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
                 <div className="flex-shrink-0">
                   {isUploading ? (
                     <div className="h-9 w-9 flex items-center justify-center">
-                      <Loader2 className="h-5 w-5 text-brand-500 animate-spin" />
+                      <Loader2 className="h-5 w-5 text-amber-500 animate-spin" />
                     </div>
                   ) : (
                     <label className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-all ${
                       docSubido 
                         ? 'text-green-700 bg-green-100 hover:bg-green-200' 
-                        : 'text-brand-700 bg-brand-50 hover:bg-brand-100 shadow-sm'
+                        : 'text-amber-400 bg-amber-500/10 hover:bg-amber-500/10 shadow-sm'
                     }`}>
                       <Upload className="h-3.5 w-3.5" />
                       {docSubido ? 'Resubir' : 'Subir'}

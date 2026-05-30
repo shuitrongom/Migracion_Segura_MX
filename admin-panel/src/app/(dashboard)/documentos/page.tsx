@@ -114,65 +114,65 @@ export default function DocumentosPage() {
 
       {/* Metric cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-orange-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-gray-500">Total Documentos</p>
+              <p className="text-sm font-medium text-white/40">Total Documentos</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-200/30">
                 <FolderOpen className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">{total}</p>
+            <p className="text-3xl font-bold text-white">{total}</p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-gray-500">Aprobados</p>
+              <p className="text-sm font-medium text-white/40">Aprobados</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-200/30">
                 <CheckCircle className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">{documentos.filter(d => d.estatus === 'aprobado').length}</p>
+            <p className="text-3xl font-bold text-white">{documentos.filter(d => d.estatus === 'aprobado').length}</p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-gray-500">En esta página</p>
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-200/30">
+              <p className="text-sm font-medium text-white/40">En esta página</p>
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-amber-600 text-white shadow-lg shadow-blue-200/30">
                 <FileText className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">{filteredDocs.length}</p>
+            <p className="text-3xl font-bold text-white">{filteredDocs.length}</p>
           </div>
         </div>
       </div>
 
       {/* Filtros */}
-      <div className="bg-white rounded-2xl border shadow-sm p-5 hover:shadow-md transition-shadow duration-300">
+      <div className="bg-[#171717] rounded-2xl border shadow-sm p-5 hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 mb-4">
           <div className="p-2 rounded-lg bg-amber-50"><Filter className="h-4 w-4 text-amber-600" /></div>
-          <h2 className="text-lg font-bold text-gray-900">Filtros</h2>
+          <h2 className="text-lg font-bold text-white">Filtros</h2>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
             <input
               type="text"
               placeholder="Buscar por nombre o categoría..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+              className="w-full pl-11 pr-4 py-3 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
             />
           </div>
           <select
             value={filtroEstatus}
             onChange={e => { setFiltroEstatus(e.target.value); setPage(1); }}
-            className="px-4 py-3 border border-gray-200 rounded-xl text-sm text-gray-700 bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+            className="px-4 py-3 border border-white/[0.08] rounded-xl text-sm text-white/70 bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
           >
             <option value="">Todos los estatus</option>
             <option value="pendiente">Pendiente</option>
@@ -185,22 +185,22 @@ export default function DocumentosPage() {
       </div>
 
       {/* Lista de documentos */}
-      <div className="bg-white rounded-2xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300">
+      <div className="bg-[#171717] rounded-2xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 px-6 py-4 border-b">
           <div className="p-2 rounded-lg bg-amber-50"><FolderOpen className="h-4 w-4 text-amber-600" /></div>
-          <h2 className="text-lg font-bold text-gray-900">Listado de Documentos</h2>
+          <h2 className="text-lg font-bold text-white">Listado de Documentos</h2>
         </div>
 
         {loading ? (
           <div className="p-6 space-y-4">
             {[1,2,3,4,5].map(i => (
-              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-gray-50">
-                <div className="h-10 w-10 rounded-xl bg-gray-200 animate-pulse" />
+              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02]">
+                <div className="h-10 w-10 rounded-xl bg-white/[0.06] animate-pulse" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 w-40 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-3 w-56 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-4 w-40 bg-white/[0.06] rounded animate-pulse" />
+                  <div className="h-3 w-56 bg-white/[0.06] rounded animate-pulse" />
                 </div>
-                <div className="h-6 w-20 bg-gray-200 rounded-full animate-pulse" />
+                <div className="h-6 w-20 bg-white/[0.06] rounded-full animate-pulse" />
               </div>
             ))}
           </div>
@@ -209,8 +209,8 @@ export default function DocumentosPage() {
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center mx-auto mb-4">
               <FileText className="h-8 w-8 text-amber-400" />
             </div>
-            <p className="text-gray-500 font-medium">No se encontraron documentos</p>
-            <p className="text-sm text-gray-400 mt-1">Intenta con otros términos de búsqueda</p>
+            <p className="text-white/40 font-medium">No se encontraron documentos</p>
+            <p className="text-sm text-white/30 mt-1">Intenta con otros términos de búsqueda</p>
           </div>
         ) : (
           <>
@@ -222,12 +222,12 @@ export default function DocumentosPage() {
                       <FileText className="h-5 w-5 text-amber-600" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{doc.nombre}</p>
-                      <p className="text-xs text-gray-500">{doc.categoria || 'Sin categoría'} • {formatDate(doc.createdAt)}</p>
+                      <p className="text-sm font-semibold text-white truncate">{doc.nombre}</p>
+                      <p className="text-xs text-white/40">{doc.categoria || 'Sin categoría'} • {formatDate(doc.createdAt)}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
-                    <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border ${ESTATUS_BADGE[doc.estatus] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
+                    <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border ${ESTATUS_BADGE[doc.estatus] || 'bg-white/[0.02] text-white/60 border-white/[0.08]'}`}>
                       {doc.estatus.replace(/_/g, ' ')}
                     </span>
                     <button
@@ -244,11 +244,11 @@ export default function DocumentosPage() {
             {/* Paginación */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between px-6 py-4 border-t bg-gradient-to-r from-gray-50 to-white">
-                <p className="text-sm text-gray-500">Página {page} de {totalPages} (<span className="font-semibold text-gray-700">{total}</span> documentos)</p>
+                <p className="text-sm text-white/40">Página {page} de {totalPages} (<span className="font-semibold text-white/70">{total}</span> documentos)</p>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-xl border hover:bg-white hover:shadow-sm disabled:opacity-50 transition-all"><ChevronLeft className="h-4 w-4" /></button>
-                  <span className="text-sm font-medium text-gray-700 px-3 py-1.5 bg-white rounded-lg border">{page} / {totalPages}</span>
-                  <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 rounded-xl border hover:bg-white hover:shadow-sm disabled:opacity-50 transition-all"><ChevronRight className="h-4 w-4" /></button>
+                  <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-xl border hover:bg-[#171717] hover:shadow-sm disabled:opacity-50 transition-all"><ChevronLeft className="h-4 w-4" /></button>
+                  <span className="text-sm font-medium text-white/70 px-3 py-1.5 bg-[#171717] rounded-lg border">{page} / {totalPages}</span>
+                  <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 rounded-xl border hover:bg-[#171717] hover:shadow-sm disabled:opacity-50 transition-all"><ChevronRight className="h-4 w-4" /></button>
                 </div>
               </div>
             )}
@@ -259,7 +259,7 @@ export default function DocumentosPage() {
       {/* Modal de visualización de documento */}
       {viewDoc && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={handleCloseModal}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 h-[85vh] flex flex-col animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+          <div className="bg-[#171717] rounded-2xl shadow-2xl w-full max-w-4xl mx-4 h-[85vh] flex flex-col animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
             {/* Header del modal */}
             <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
               <div className="flex items-center gap-3 min-w-0">
@@ -267,14 +267,14 @@ export default function DocumentosPage() {
                   <FileText className="h-4 w-4 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <h2 className="text-lg font-bold text-gray-900 truncate">{viewDoc.doc.nombre}</h2>
-                  <p className="text-xs text-gray-500">{viewDoc.doc.categoria || 'Sin categoría'} • {formatDate(viewDoc.doc.createdAt)}</p>
+                  <h2 className="text-lg font-bold text-white truncate">{viewDoc.doc.nombre}</h2>
+                  <p className="text-xs text-white/40">{viewDoc.doc.categoria || 'Sin categoría'} • {formatDate(viewDoc.doc.createdAt)}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={handleDownload}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white/70 bg-white/[0.04] rounded-xl hover:bg-white/[0.06] transition-colors"
                   title="Descargar"
                 >
                   <Download className="h-4 w-4" /> Guardar
@@ -288,7 +288,7 @@ export default function DocumentosPage() {
                 </button>
                 <button
                   onClick={handleCloseModal}
-                  className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="p-2 rounded-xl hover:bg-white/[0.04] text-white/30 hover:text-white/60 transition-colors"
                   aria-label="Cerrar"
                 >
                   <X className="h-5 w-5" />
@@ -297,7 +297,7 @@ export default function DocumentosPage() {
             </div>
 
             {/* Contenido del documento */}
-            <div className="flex-1 overflow-hidden bg-gray-100 rounded-b-2xl">
+            <div className="flex-1 overflow-hidden bg-white/[0.04] rounded-b-2xl">
               {viewDoc.contentType.includes('pdf') ? (
                 <iframe src={viewDoc.url} className="w-full h-full border-0" title={viewDoc.doc.nombre} />
               ) : viewDoc.contentType.includes('image') ? (
@@ -309,8 +309,8 @@ export default function DocumentosPage() {
                   <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center mb-4">
                     <FileText className="h-10 w-10 text-amber-500" />
                   </div>
-                  <p className="text-gray-600 font-medium mb-2">Vista previa no disponible</p>
-                  <p className="text-sm text-gray-400 mb-4">Tipo: {viewDoc.contentType}</p>
+                  <p className="text-white/60 font-medium mb-2">Vista previa no disponible</p>
+                  <p className="text-sm text-white/30 mb-4">Tipo: {viewDoc.contentType}</p>
                   <button onClick={handleDownload} className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl hover:from-amber-600 hover:to-orange-700 shadow-lg transition-all">
                     <Download className="h-4 w-4" /> Descargar archivo
                   </button>
@@ -324,9 +324,9 @@ export default function DocumentosPage() {
       {/* Loading overlay */}
       {loadingDoc && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center gap-3">
+          <div className="bg-[#171717] rounded-2xl p-8 shadow-2xl flex flex-col items-center gap-3">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
-            <p className="text-sm text-gray-600 font-medium">Cargando documento...</p>
+            <p className="text-sm text-white/60 font-medium">Cargando documento...</p>
           </div>
         </div>
       )}

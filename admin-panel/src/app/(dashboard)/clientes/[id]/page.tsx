@@ -76,7 +76,7 @@ const ESTATUS_BADGE: Record<string, string> = {
   recibido: 'bg-blue-50 text-blue-700',
   aprobado: 'bg-green-50 text-green-700',
   rechazado: 'bg-red-50 text-red-700',
-  borrador: 'bg-gray-50 text-gray-700',
+  borrador: 'bg-white/[0.02] text-white/70',
   en_espera_resolucion: 'bg-orange-50 text-orange-700',
   cancelado: 'bg-red-50 text-red-600',
   pendiente: 'bg-yellow-50 text-yellow-700',
@@ -272,7 +272,7 @@ export default function ClienteDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 text-brand-500 animate-spin" />
+        <Loader2 className="h-8 w-8 text-amber-500 animate-spin" />
       </div>
     );
   }
@@ -283,16 +283,16 @@ export default function ClienteDetailPage() {
         <div className="flex items-center gap-4 mb-6">
           <Link
             href="/clientes"
-            className="p-2 rounded-lg hover:bg-gray-100 text-gray-500"
+            className="p-2 rounded-lg hover:bg-white/[0.04] text-white/40"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-white">
             Detalle del Extranjero
           </h1>
         </div>
-        <div className="bg-white rounded-xl border shadow-sm p-12 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="bg-[#171717] rounded-xl border shadow-sm p-12 text-center">
+          <p className="text-sm text-white/40">
             {error || 'No se encontró el extranjero'}
           </p>
         </div>
@@ -306,11 +306,11 @@ export default function ClienteDetailPage() {
       <div className="flex items-center gap-4 mb-6">
         <Link
           href="/clientes"
-          className="p-2 rounded-xl hover:bg-brand-50 text-gray-500 hover:text-brand-600 transition-colors"
+          className="p-2 rounded-xl hover:bg-amber-500/10 text-white/40 hover:text-amber-500 transition-colors"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-white">
           Detalle del Extranjero
         </h1>
       </div>
@@ -318,7 +318,7 @@ export default function ClienteDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Card - Left Side */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
+          <div className="bg-[#171717] rounded-2xl border shadow-sm overflow-hidden">
             {/* Avatar + Name */}
             <div className="p-6 pb-4 bg-gradient-to-br from-gray-50 to-brand-50/30 border-b">
               <div className="flex items-center gap-4">
@@ -334,10 +334,10 @@ export default function ClienteDetailPage() {
                   )}
                   <label
                     htmlFor="foto-extranjero"
-                    className="absolute -bottom-1 -right-1 h-7 w-7 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:bg-brand-50 cursor-pointer transition-colors"
+                    className="absolute -bottom-1 -right-1 h-7 w-7 bg-[#171717] border-2 border-white/[0.08] rounded-full flex items-center justify-center shadow-sm hover:bg-amber-500/10 cursor-pointer transition-colors"
                     title="Subir foto"
                   >
-                    <Camera className="h-3.5 w-3.5 text-brand-600" />
+                    <Camera className="h-3.5 w-3.5 text-amber-500" />
                   </label>
                   {fotoUrl && (
                     <button
@@ -383,10 +383,10 @@ export default function ClienteDetailPage() {
                   />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-gray-900">
+                  <h2 className="text-lg font-bold text-white">
                     {cliente.nombreCompleto}
                   </h2>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-white/40">
                     Extranjero desde {formatDate(cliente.createdAt)}
                   </p>
                 </div>
@@ -397,15 +397,15 @@ export default function ClienteDetailPage() {
             {/* Info Fields */}
             <div className="space-y-1">
               {/* Email */}
-              <div className="p-3 rounded-xl hover:bg-gray-50 transition-colors">
+              <div className="p-3 rounded-xl hover:bg-white/[0.02] transition-colors">
                 <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                  <p className="text-[10px] font-bold text-white/30 uppercase tracking-wider">
                     Email
                   </p>
                   {canEditEmail && !editingEmail && (
                     <button
                       onClick={() => setEditingEmail(true)}
-                      className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                      className="p-1 rounded hover:bg-white/[0.04] text-white/30 hover:text-white/60"
                       title="Editar email"
                     >
                       <Pencil className="h-3.5 w-3.5" />
@@ -418,13 +418,13 @@ export default function ClienteDetailPage() {
                       type="email"
                       value={emailValue}
                       onChange={(e) => setEmailValue(e.target.value)}
-                      className="flex-1 px-2.5 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="flex-1 px-2.5 py-1.5 border border-white/[0.1] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                       autoFocus
                     />
                     <button
                       onClick={handleSaveEmail}
                       disabled={savingField === 'email'}
-                      className="p-1.5 rounded-md bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-50"
+                      className="p-1.5 rounded-md bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-50"
                       title="Guardar"
                     >
                       {savingField === 'email' ? (
@@ -438,29 +438,29 @@ export default function ClienteDetailPage() {
                         setEditingEmail(false);
                         setEmailValue(cliente.email);
                       }}
-                      className="p-1.5 rounded-md border border-gray-200 text-gray-500 hover:bg-gray-50"
+                      className="p-1.5 rounded-md border border-white/[0.08] text-white/40 hover:bg-white/[0.02]"
                       title="Cancelar"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-900 mt-0.5">
+                  <p className="text-sm text-white mt-0.5">
                     {cliente.email}
                   </p>
                 )}
               </div>
 
               {/* Teléfono */}
-              <div className="p-3 rounded-xl hover:bg-gray-50 transition-colors">
+              <div className="p-3 rounded-xl hover:bg-white/[0.02] transition-colors">
                 <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                  <p className="text-[10px] font-bold text-white/30 uppercase tracking-wider">
                     Teléfono
                   </p>
                   {canEditTelefono && !editingTelefono && (
                     <button
                       onClick={() => setEditingTelefono(true)}
-                      className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                      className="p-1 rounded hover:bg-white/[0.04] text-white/30 hover:text-white/60"
                       title="Editar teléfono"
                     >
                       <Pencil className="h-3.5 w-3.5" />
@@ -473,13 +473,13 @@ export default function ClienteDetailPage() {
                       type="tel"
                       value={telefonoValue}
                       onChange={(e) => setTelefonoValue(e.target.value)}
-                      className="flex-1 px-2.5 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="flex-1 px-2.5 py-1.5 border border-white/[0.1] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                       autoFocus
                     />
                     <button
                       onClick={handleSaveTelefono}
                       disabled={savingField === 'telefono'}
-                      className="p-1.5 rounded-md bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-50"
+                      className="p-1.5 rounded-md bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-50"
                       title="Guardar"
                     >
                       {savingField === 'telefono' ? (
@@ -493,23 +493,23 @@ export default function ClienteDetailPage() {
                         setEditingTelefono(false);
                         setTelefonoValue(cliente.telefono);
                       }}
-                      className="p-1.5 rounded-md border border-gray-200 text-gray-500 hover:bg-gray-50"
+                      className="p-1.5 rounded-md border border-white/[0.08] text-white/40 hover:bg-white/[0.02]"
                       title="Cancelar"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-900 mt-0.5">
+                  <p className="text-sm text-white mt-0.5">
                     {cliente.telefono}
                   </p>
                 )}
               </div>
 
               {/* Gestor */}
-              <div className="p-3 rounded-xl hover:bg-gray-50 transition-colors">
+              <div className="p-3 rounded-xl hover:bg-white/[0.02] transition-colors">
                 <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                  <p className="text-[10px] font-bold text-white/30 uppercase tracking-wider">
                     Gestor asignado
                   </p>
                   {isAdmin && (
@@ -525,24 +525,24 @@ export default function ClienteDetailPage() {
                         finally { setReassigning(false); }
                       }}
                       disabled={reassigning}
-                      className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-brand-500 transition-colors disabled:opacity-50"
+                      className="p-1 rounded hover:bg-white/[0.04] text-white/30 hover:text-amber-500 transition-colors disabled:opacity-50"
                       title="Reasignar gestor automáticamente"
                     >
                       <RefreshCw className={`h-3.5 w-3.5 ${reassigning ? 'animate-spin' : ''}`} />
                     </button>
                   )}
                 </div>
-                <p className="text-sm text-gray-900 mt-0.5">
+                <p className="text-sm text-white mt-0.5">
                   {cliente.asesor?.fullName || 'Sin asignar'}
                 </p>
               </div>
 
               {/* Fecha de registro */}
               <div className="p-3 rounded-xl">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                <p className="text-[10px] font-bold text-white/30 uppercase tracking-wider">
                   Fecha de registro
                 </p>
-                <p className="text-sm font-medium text-gray-900 mt-0.5">
+                <p className="text-sm font-medium text-white mt-0.5">
                   {formatDate(cliente.createdAt)}
                 </p>
               </div>
@@ -557,7 +557,7 @@ export default function ClienteDetailPage() {
                 {numeroPiezaINM && (
                   <div>
                     <p className="text-[10px] text-amber-600">Pieza</p>
-                    <p className="text-sm font-mono font-bold text-gray-900">
+                    <p className="text-sm font-mono font-bold text-white">
                       {numeroPiezaINM}
                     </p>
                   </div>
@@ -565,7 +565,7 @@ export default function ClienteDetailPage() {
                 {contrasenaINM && (
                   <div>
                     <p className="text-[10px] text-amber-600">Clave</p>
-                    <p className="text-sm font-mono font-bold text-gray-900">
+                    <p className="text-sm font-mono font-bold text-white">
                       {contrasenaINM}
                     </p>
                   </div>
@@ -578,7 +578,7 @@ export default function ClienteDetailPage() {
 
         {/* Tabs - Right Side */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl border shadow-sm">
+          <div className="bg-[#171717] rounded-xl border shadow-sm">
             {/* Tab Navigation */}
             <div className="border-b">
               <nav className="flex gap-1 px-2 pt-2">
@@ -588,8 +588,8 @@ export default function ClienteDetailPage() {
                     onClick={() => setActiveTab(tab.key)}
                     className={`px-5 py-2.5 text-sm font-semibold rounded-t-lg transition-all duration-200 ${
                       activeTab === tab.key
-                        ? 'bg-white text-brand-600 border-2 border-b-0 border-brand-200 shadow-sm -mb-[2px]'
-                        : 'text-gray-500 hover:text-brand-600 hover:bg-brand-50/50'
+                        ? 'bg-[#171717] text-amber-500 border-2 border-b-0 border-brand-200 shadow-sm -mb-[2px]'
+                        : 'text-white/40 hover:text-amber-500 hover:bg-amber-500/10/50'
                     }`}
                     role="tab"
                   >
@@ -607,7 +607,7 @@ export default function ClienteDetailPage() {
                   {tramites.length === 0 ? (
                     <div className="text-center py-12">
                       <FileText className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-white/30">
                         Este extranjero no tiene trámites registrados.
                       </p>
                     </div>
@@ -616,27 +616,27 @@ export default function ClienteDetailPage() {
                       <Link
                         key={tramite.id}
                         href={`/tramites/${tramite.id}`}
-                        className="block p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                        className="block p-4 border rounded-lg hover:bg-white/[0.02] transition-colors"
                       >
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-sm font-medium text-white">
                               {TIPO_LABELS[tramite.tipo] ?? tramite.tipo}
                             </p>
-                            <p className="text-xs text-gray-500 mt-0.5">
+                            <p className="text-xs text-white/40 mt-0.5">
                               {tramite.numeroPieza ||
                                 (tramite.datosFormulario
                                   ?.numeroPiezaINM as string) ||
                                 'Sin número de pieza'}
                             </p>
-                            <p className="text-xs text-gray-400 mt-0.5">
+                            <p className="text-xs text-white/30 mt-0.5">
                               {formatDate(tramite.createdAt)}
                             </p>
                           </div>
                           <span
                             className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
                               ESTATUS_BADGE[tramite.estatus] ??
-                              'bg-gray-50 text-gray-700'
+                              'bg-white/[0.02] text-white/70'
                             }`}
                           >
                             {tramite.estatus.replace(/_/g, ' ')}
@@ -654,7 +654,7 @@ export default function ClienteDetailPage() {
                   {documentos.length === 0 ? (
                     <div className="text-center py-12">
                       <FileText className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-white/30">
                         No hay documentos registrados para este extranjero.
                       </p>
                     </div>
@@ -662,17 +662,17 @@ export default function ClienteDetailPage() {
                     documentos.map((doc) => (
                       <div
                         key={doc.id}
-                        className="flex items-center justify-between p-4 border-2 border-gray-100 rounded-xl hover:border-brand-200 hover:shadow-md bg-gradient-to-r from-white to-gray-50/50 transition-all duration-200"
+                        className="flex items-center justify-between p-4 border-2 border-white/[0.06] rounded-xl hover:border-brand-200 hover:shadow-md bg-gradient-to-r from-white to-gray-50/50 transition-all duration-200"
                       >
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 bg-gradient-to-br from-brand-100 to-amber-100 rounded-xl flex items-center justify-center shadow-sm">
-                            <FileText className="h-5 w-5 text-brand-600" />
+                            <FileText className="h-5 w-5 text-amber-500" />
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-gray-900">
+                            <p className="text-sm font-semibold text-white">
                               {doc.nombre}
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-white/40">
                               {doc.categoria || 'Sin categoría'} •{' '}
                               {formatDate(doc.createdAt)}
                             </p>
@@ -699,7 +699,7 @@ export default function ClienteDetailPage() {
                           <span
                             className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
                               ESTATUS_BADGE[doc.estatus] ??
-                              'bg-gray-50 text-gray-700'
+                              'bg-white/[0.02] text-white/70'
                             }`}
                           >
                             {doc.estatus.replace(/_/g, ' ')}
@@ -722,13 +722,13 @@ export default function ClienteDetailPage() {
                   {timeline.length === 0 ? (
                     <div className="text-center py-12">
                       <Clock className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-white/30">
                         No hay actividad registrada.
                       </p>
                     </div>
                   ) : (
                     <div className="relative">
-                      <div className="absolute left-4 top-0 bottom-0 w-px bg-gray-200" />
+                      <div className="absolute left-4 top-0 bottom-0 w-px bg-white/[0.06]" />
                       <div className="space-y-6">
                         {timeline.map((event) => (
                           <div
@@ -739,19 +739,19 @@ export default function ClienteDetailPage() {
                               className={`absolute left-2.5 top-1.5 h-3 w-3 rounded-full border-2 ${
                                 event.completada
                                   ? 'bg-green-500 border-green-500'
-                                  : 'bg-white border-gray-300'
+                                  : 'bg-[#171717] border-white/[0.1]'
                               }`}
                             />
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900">
+                              <p className="text-sm font-medium text-white">
                                 {event.nombre}
                               </p>
                               {event.observaciones && (
-                                <p className="text-xs text-gray-500 mt-0.5">
+                                <p className="text-xs text-white/40 mt-0.5">
                                   {event.observaciones}
                                 </p>
                               )}
-                              <p className="text-xs text-gray-400 mt-1">
+                              <p className="text-xs text-white/30 mt-1">
                                 {event.fechaCompletada
                                   ? formatDate(event.fechaCompletada)
                                   : formatDate(event.createdAt)}
@@ -777,16 +777,16 @@ export default function ClienteDetailPage() {
       {/* Modal de visualización de documento */}
       {docPreview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl w-[95vw] h-[90vh] max-w-5xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+          <div className="bg-[#171717] rounded-2xl shadow-2xl w-[95vw] h-[90vh] max-w-5xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
             {/* Header del modal */}
             <div className="flex items-center justify-between px-6 py-4 border-b bg-gradient-to-r from-gray-50 to-white">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 bg-brand-100 rounded-xl flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-brand-600" />
+                <div className="h-10 w-10 bg-amber-500/10 rounded-xl flex items-center justify-center">
+                  <FileText className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-gray-900">{docPreview.nombre}</h3>
-                  <p className="text-xs text-gray-500">Vista previa del documento</p>
+                  <h3 className="text-base font-bold text-white">{docPreview.nombre}</h3>
+                  <p className="text-xs text-white/40">Vista previa del documento</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -797,7 +797,7 @@ export default function ClienteDetailPage() {
                     a.download = docPreview.nombre;
                     a.click();
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-white/70 bg-white/[0.04] rounded-lg hover:bg-white/[0.06] transition-colors"
                 >
                   <ArrowLeft className="h-3.5 w-3.5 rotate-[270deg]" /> Descargar
                 </button>
@@ -812,26 +812,26 @@ export default function ClienteDetailPage() {
                       }
                     }
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-brand-700 bg-brand-50 rounded-lg hover:bg-brand-100 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-amber-400 bg-amber-500/10 rounded-lg hover:bg-amber-500/10 transition-colors"
                 >
                   <FileText className="h-3.5 w-3.5" /> Imprimir
                 </button>
                 <button
                   onClick={() => { URL.revokeObjectURL(docPreview.url); setDocPreview(null); }}
-                  className="inline-flex items-center justify-center h-9 w-9 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                  className="inline-flex items-center justify-center h-9 w-9 rounded-lg hover:bg-red-50 text-white/30 hover:text-red-500 transition-colors"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
             </div>
             {/* Contenido del documento */}
-            <div className="flex-1 bg-gray-100 p-4 overflow-auto">
+            <div className="flex-1 bg-white/[0.04] p-4 overflow-auto">
               {docPreview.tipo.startsWith('image/') ? (
                 <div className="flex items-center justify-center h-full">
                   <img src={docPreview.url} alt={docPreview.nombre} className="max-w-full max-h-full object-contain rounded-lg shadow-lg" />
                 </div>
               ) : (
-                <iframe src={docPreview.url} className="w-full h-full rounded-lg shadow-lg border-0 bg-white" title={docPreview.nombre} />
+                <iframe src={docPreview.url} className="w-full h-full rounded-lg shadow-lg border-0 bg-[#171717]" title={docPreview.nombre} />
               )}
             </div>
           </div>

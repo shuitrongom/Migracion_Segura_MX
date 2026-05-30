@@ -58,24 +58,24 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <>
       {/* Logo */}
-      <div className="flex items-center h-16 px-6 border-b border-cyan-900/30">
+      <div className="flex items-center h-16 px-6 border-b border-white/[0.06]">
         <img src="/logo.png" alt="Logo" className="h-9 w-9 mr-2 rounded" />
         <div>
-          <span className="text-lg font-bold futuristic-gradient-text">MIGRACIÓN</span>
-          <span className="ml-1 text-sm text-cyan-300/70">SEGURA MX</span>
+          <span className="text-lg font-bold text-white">MIGRACIÓN</span>
+          <span className="ml-1 text-sm text-amber-500 font-bold">SEGURA MX</span>
         </div>
       </div>
 
       {/* Version badge */}
       <div className="px-6 py-3">
-        <span className="inline-block px-3 py-1 bg-cyan-500/10 text-cyan-300 text-xs font-medium rounded-full border border-cyan-500/30">
+        <span className="inline-block px-3 py-1 bg-amber-500/10 text-amber-400 text-xs font-semibold rounded-full border border-amber-500/20">
           {isAdmin ? 'ADMINISTRADOR' : 'GESTOR'}
         </span>
       </div>
 
       {/* Navegación */}
       <nav className="flex-1 overflow-y-auto py-2 px-3">
-        <ul className="space-y-1">
+        <ul className="space-y-0.5">
           {filteredNavigation.map((item) => {
             const isActive = pathname.startsWith(item.href);
             return (
@@ -84,10 +84,10 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                   href={item.href}
                   onClick={onNavigate}
                   className={clsx(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-300',
+                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
                     isActive
-                      ? 'bg-cyan-500/15 text-cyan-300 border-l-2 border-cyan-400 shadow-sm shadow-cyan-500/10'
-                      : 'text-slate-400 hover:bg-slate-800/50 hover:text-cyan-200',
+                      ? 'bg-amber-500/10 text-amber-400 border-l-2 border-amber-500'
+                      : 'text-white/50 hover:bg-[#171717]/[0.04] hover:text-white/80',
                   )}
                 >
                   <item.icon className="h-5 w-5 flex-shrink-0" />
@@ -100,8 +100,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-cyan-900/30">
-        <p className="text-xs text-slate-500 text-center">
+      <div className="p-4 border-t border-white/[0.06]">
+        <p className="text-xs text-white/20 text-center">
           Panel de gestión y control de trámites y clientes.
         </p>
       </div>
@@ -115,22 +115,18 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex lg:flex-col w-64 bg-[#0a1628] text-white border-r border-cyan-900/30">
+      <aside className="hidden lg:flex lg:flex-col w-64 bg-[#0a0a0a] text-white border-r border-white/[0.06]">
         <SidebarContent />
       </aside>
 
       {/* Mobile sidebar overlay */}
       {isOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          {/* Backdrop */}
-          <div className="fixed inset-0 bg-black/50" onClick={close} />
-          
-          {/* Sidebar panel */}
-          <aside className="fixed inset-y-0 left-0 w-72 bg-[#0a1628] text-white flex flex-col shadow-xl border-r border-cyan-900/30">
-            {/* Close button */}
+          <div className="fixed inset-0 bg-black/60" onClick={close} />
+          <aside className="fixed inset-y-0 left-0 w-72 bg-[#0a0a0a] text-white flex flex-col shadow-2xl border-r border-white/[0.06]">
             <button
               onClick={close}
-              className="absolute top-4 right-4 p-2 text-brand-200 hover:text-white rounded-lg"
+              className="absolute top-4 right-4 p-2 text-white/40 hover:text-white rounded-lg"
               aria-label="Cerrar menú"
             >
               <X className="h-5 w-5" />

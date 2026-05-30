@@ -93,7 +93,7 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
     return (
       <div className="grid grid-cols-7 gap-1">
         {DIAS_SEMANA.map(d => (
-          <div key={d} className="text-center text-[10px] font-medium text-gray-400 py-1">{d}</div>
+          <div key={d} className="text-center text-[10px] font-medium text-white/30 py-1">{d}</div>
         ))}
         {days.map((day, i) => {
           if (day === null) return <div key={`empty-${i}`} />;
@@ -112,12 +112,12 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
               disabled={isDisabled}
               className={`h-8 w-8 rounded-full text-xs font-medium transition-all ${
                 isDisabled
-                  ? 'text-gray-300 cursor-not-allowed'
+                  ? 'text-white/20 cursor-not-allowed'
                   : isSelected
-                    ? 'bg-brand-500 text-white shadow-sm'
+                    ? 'bg-amber-500 text-white shadow-sm'
                     : isToday
-                      ? 'bg-brand-50 text-brand-700 ring-1 ring-brand-300'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-amber-500/10 text-amber-400 ring-1 ring-brand-300'
+                      : 'text-white/70 hover:bg-white/[0.04]'
               }`}
             >
               {day}
@@ -138,7 +138,7 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
             type="button"
             onClick={() => handleSelectMonth(i)}
             className={`px-2 py-2.5 rounded-lg text-xs font-medium transition-all ${
-              isSelected ? 'bg-brand-500 text-white' : 'text-gray-700 hover:bg-gray-100'
+              isSelected ? 'bg-amber-500 text-white' : 'text-white/70 hover:bg-white/[0.04]'
             }`}
           >
             {mes.slice(0, 3)}
@@ -156,9 +156,9 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
     return (
       <div>
         <div className="flex items-center justify-between px-2 mb-2">
-          <button type="button" onClick={() => setYearPageStart(Math.max(minYear, yearPageStart - 20))} disabled={yearPageStart <= minYear} className="p-1 rounded hover:bg-gray-100 disabled:opacity-30"><ChevronLeft className="h-4 w-4" /></button>
-          <span className="text-xs font-medium text-gray-500">{yearPageStart} — {Math.min(yearPageStart + 19, maxYear)}</span>
-          <button type="button" onClick={() => setYearPageStart(Math.min(maxYear - 19, yearPageStart + 20))} disabled={yearPageStart + 20 > maxYear} className="p-1 rounded hover:bg-gray-100 disabled:opacity-30"><ChevronRight className="h-4 w-4" /></button>
+          <button type="button" onClick={() => setYearPageStart(Math.max(minYear, yearPageStart - 20))} disabled={yearPageStart <= minYear} className="p-1 rounded hover:bg-white/[0.04] disabled:opacity-30"><ChevronLeft className="h-4 w-4" /></button>
+          <span className="text-xs font-medium text-white/40">{yearPageStart} — {Math.min(yearPageStart + 19, maxYear)}</span>
+          <button type="button" onClick={() => setYearPageStart(Math.min(maxYear - 19, yearPageStart + 20))} disabled={yearPageStart + 20 > maxYear} className="p-1 rounded hover:bg-white/[0.04] disabled:opacity-30"><ChevronRight className="h-4 w-4" /></button>
         </div>
         <div className="grid grid-cols-4 gap-2 p-2">
           {years.map(y => {
@@ -169,7 +169,7 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
                 type="button"
                 onClick={() => handleSelectYear(y)}
                 className={`px-2 py-2 rounded-lg text-xs font-medium transition-all ${
-                  isSelected ? 'bg-brand-500 text-white' : 'text-gray-700 hover:bg-gray-100'
+                  isSelected ? 'bg-amber-500 text-white' : 'text-white/70 hover:bg-white/[0.04]'
                 }`}
               >
                 {y}
@@ -185,36 +185,36 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
     <div ref={containerRef} className="relative">
       <div
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center justify-between px-3 py-2 border border-gray-200 rounded-lg text-sm cursor-pointer hover:border-gray-300 transition-colors ${className} ${isOpen ? 'ring-2 ring-brand-500 border-transparent' : ''}`}
+        className={`flex items-center justify-between px-3 py-2 border border-white/[0.08] rounded-lg text-sm cursor-pointer hover:border-white/[0.1] transition-colors ${className} ${isOpen ? 'ring-2 ring-amber-500 border-transparent' : ''}`}
       >
-        <span className={value ? 'text-gray-900' : 'text-gray-400'}>{value ? formatDisplay(value) : placeholder}</span>
-        <Calendar className="h-4 w-4 text-gray-400" />
+        <span className={value ? 'text-white' : 'text-white/30'}>{value ? formatDisplay(value) : placeholder}</span>
+        <Calendar className="h-4 w-4 text-white/30" />
       </div>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg p-3 w-[280px] animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute z-50 mt-1 bg-[#171717] border border-white/[0.08] rounded-xl shadow-lg p-3 w-[280px] animate-in fade-in slide-in-from-top-2 duration-200">
           {/* Header */}
           {view === 'days' && (
             <div className="flex items-center justify-between mb-3">
-              <button type="button" onClick={() => { if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); } else setCurrentMonth(m => m - 1); }} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"><ChevronLeft className="h-4 w-4 text-gray-600" /></button>
-              <button type="button" onClick={() => setView('months')} className="text-sm font-semibold text-gray-900 hover:text-brand-600 transition-colors px-2 py-1 rounded-lg hover:bg-gray-50">
-                {MESES[currentMonth]} <span className="text-brand-500 cursor-pointer" onClick={(e) => { e.stopPropagation(); setView('years'); setYearPageStart(Math.floor(currentYear / 20) * 20); }}>{currentYear}</span>
+              <button type="button" onClick={() => { if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); } else setCurrentMonth(m => m - 1); }} className="p-1.5 rounded-lg hover:bg-white/[0.04] transition-colors"><ChevronLeft className="h-4 w-4 text-white/60" /></button>
+              <button type="button" onClick={() => setView('months')} className="text-sm font-semibold text-white hover:text-amber-500 transition-colors px-2 py-1 rounded-lg hover:bg-white/[0.02]">
+                {MESES[currentMonth]} <span className="text-amber-500 cursor-pointer" onClick={(e) => { e.stopPropagation(); setView('years'); setYearPageStart(Math.floor(currentYear / 20) * 20); }}>{currentYear}</span>
               </button>
-              <button type="button" onClick={() => { if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1); } else setCurrentMonth(m => m + 1); }} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"><ChevronRight className="h-4 w-4 text-gray-600" /></button>
+              <button type="button" onClick={() => { if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1); } else setCurrentMonth(m => m + 1); }} className="p-1.5 rounded-lg hover:bg-white/[0.04] transition-colors"><ChevronRight className="h-4 w-4 text-white/60" /></button>
             </div>
           )}
 
           {view === 'months' && (
             <div className="flex items-center justify-between mb-3 px-2">
-              <button type="button" onClick={() => setCurrentYear(y => y - 1)} className="p-1.5 rounded-lg hover:bg-gray-100"><ChevronLeft className="h-4 w-4 text-gray-600" /></button>
-              <button type="button" onClick={() => { setView('years'); setYearPageStart(Math.floor(currentYear / 20) * 20); }} className="text-sm font-semibold text-gray-900 hover:text-brand-600 px-2 py-1 rounded-lg hover:bg-gray-50">{currentYear}</button>
-              <button type="button" onClick={() => setCurrentYear(y => y + 1)} className="p-1.5 rounded-lg hover:bg-gray-100"><ChevronRight className="h-4 w-4 text-gray-600" /></button>
+              <button type="button" onClick={() => setCurrentYear(y => y - 1)} className="p-1.5 rounded-lg hover:bg-white/[0.04]"><ChevronLeft className="h-4 w-4 text-white/60" /></button>
+              <button type="button" onClick={() => { setView('years'); setYearPageStart(Math.floor(currentYear / 20) * 20); }} className="text-sm font-semibold text-white hover:text-amber-500 px-2 py-1 rounded-lg hover:bg-white/[0.02]">{currentYear}</button>
+              <button type="button" onClick={() => setCurrentYear(y => y + 1)} className="p-1.5 rounded-lg hover:bg-white/[0.04]"><ChevronRight className="h-4 w-4 text-white/60" /></button>
             </div>
           )}
 
           {view === 'years' && (
             <div className="mb-2">
-              <p className="text-xs font-medium text-gray-500 text-center mb-1">Selecciona el año</p>
+              <p className="text-xs font-medium text-white/40 text-center mb-1">Selecciona el año</p>
             </div>
           )}
 
@@ -226,8 +226,8 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
           {/* Footer */}
           {view === 'days' && (
             <div className="mt-3 pt-2 border-t flex justify-between">
-              <button type="button" onClick={() => { const today = new Date(); onChange(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`); setIsOpen(false); }} className="text-xs text-brand-600 font-medium hover:text-brand-700">Hoy</button>
-              <button type="button" onClick={() => { onChange(''); setIsOpen(false); }} className="text-xs text-gray-400 hover:text-gray-600">Limpiar</button>
+              <button type="button" onClick={() => { const today = new Date(); onChange(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`); setIsOpen(false); }} className="text-xs text-amber-500 font-medium hover:text-amber-400">Hoy</button>
+              <button type="button" onClick={() => { onChange(''); setIsOpen(false); }} className="text-xs text-white/30 hover:text-white/60">Limpiar</button>
             </div>
           )}
         </div>

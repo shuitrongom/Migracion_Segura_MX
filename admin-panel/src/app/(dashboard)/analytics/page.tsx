@@ -163,15 +163,15 @@ export default function AnalyticsPage() {
         <div className="h-40 rounded-2xl bg-gradient-to-br from-gray-900 via-stone-800 to-amber-700 animate-pulse" />
         <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-24 mb-4" />
-              <div className="h-8 bg-gray-200 rounded w-16" />
+            <div key={i} className="bg-[#171717] rounded-2xl p-6 shadow-sm border animate-pulse">
+              <div className="h-4 bg-white/[0.06] rounded w-24 mb-4" />
+              <div className="h-8 bg-white/[0.06] rounded w-16" />
             </div>
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-2xl p-6 shadow-sm border h-80 animate-pulse" />
-          <div className="bg-white rounded-2xl p-6 shadow-sm border h-80 animate-pulse" />
+          <div className="bg-[#171717] rounded-2xl p-6 shadow-sm border h-80 animate-pulse" />
+          <div className="bg-[#171717] rounded-2xl p-6 shadow-sm border h-80 animate-pulse" />
         </div>
       </div>
     );
@@ -203,7 +203,7 @@ export default function AnalyticsPage() {
           title="Tiempo Promedio Resolución"
           value={`${metrics.avgResolutionDays} días`}
           icon={<Clock className="h-5 w-5" />}
-          color="from-blue-500 to-blue-600"
+          color="from-blue-500 to-amber-600"
           trend="-2 días"
           trendUp
         />
@@ -228,12 +228,12 @@ export default function AnalyticsPage() {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue Line Chart */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
+        <div className="bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 mb-6">
             <div className="p-2 rounded-lg bg-green-50">
               <DollarSign className="h-4 w-4 text-green-600" />
             </div>
-            <h2 className="text-lg font-bold text-gray-900">Ingresos Mensuales</h2>
+            <h2 className="text-lg font-bold text-white">Ingresos Mensuales</h2>
           </div>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -259,12 +259,12 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Tramites by Type Bar Chart */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
+        <div className="bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 mb-6">
             <div className="p-2 rounded-lg bg-amber-50">
               <BarChart3 className="h-4 w-4 text-amber-600" />
             </div>
-            <h2 className="text-lg font-bold text-gray-900">Trámites por Tipo</h2>
+            <h2 className="text-lg font-bold text-white">Trámites por Tipo</h2>
           </div>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -288,18 +288,18 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Conversion Funnel */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
+      <div className="bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 mb-6">
           <div className="p-2 rounded-lg bg-purple-50">
             <Filter className="h-4 w-4 text-purple-600" />
           </div>
-          <h2 className="text-lg font-bold text-gray-900">Embudo de Conversión</h2>
-          <span className="text-xs text-gray-400 ml-2">Borrador → Recibido → En Revisión → Aprobado</span>
+          <h2 className="text-lg font-bold text-white">Embudo de Conversión</h2>
+          <span className="text-xs text-white/30 ml-2">Borrador → Recibido → En Revisión → Aprobado</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {funnelData.map((stage, index) => {
             const colors = [
-              { bg: 'bg-gray-100', text: 'text-gray-700', bar: 'bg-gray-400' },
+              { bg: 'bg-white/[0.04]', text: 'text-white/70', bar: 'bg-gray-400' },
               { bg: 'bg-blue-50', text: 'text-blue-700', bar: 'bg-blue-500' },
               { bg: 'bg-amber-50', text: 'text-amber-700', bar: 'bg-amber-500' },
               { bg: 'bg-green-50', text: 'text-green-700', bar: 'bg-green-500' },
@@ -309,9 +309,9 @@ export default function AnalyticsPage() {
               <div key={stage.etapa} className="relative">
                 <div className={`${color.bg} rounded-xl p-5 text-center`}>
                   <p className={`text-sm font-medium ${color.text} mb-1`}>{stage.etapa}</p>
-                  <p className="text-3xl font-bold text-gray-900">{stage.cantidad}</p>
-                  <p className="text-xs text-gray-500 mt-1">{stage.porcentaje}% del total</p>
-                  <div className="mt-3 h-2 bg-white/60 rounded-full overflow-hidden">
+                  <p className="text-3xl font-bold text-white">{stage.cantidad}</p>
+                  <p className="text-xs text-white/40 mt-1">{stage.porcentaje}% del total</p>
+                  <div className="mt-3 h-2 bg-[#171717]/60 rounded-full overflow-hidden">
                     <div
                       className={`h-full ${color.bar} rounded-full transition-all duration-700`}
                       style={{ width: `${stage.porcentaje}%` }}
@@ -320,7 +320,7 @@ export default function AnalyticsPage() {
                 </div>
                 {index < funnelData.length - 1 && (
                   <div className="hidden md:flex absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
-                    <div className="w-4 h-4 text-gray-300">→</div>
+                    <div className="w-4 h-4 text-white/20">→</div>
                   </div>
                 )}
               </div>
@@ -332,12 +332,12 @@ export default function AnalyticsPage() {
       {/* Pie Chart + Additional Metrics */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Pie Chart - Status Distribution */}
-        <div className="lg:col-span-1 bg-white rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
+        <div className="lg:col-span-1 bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 mb-6">
             <div className="p-2 rounded-lg bg-blue-50">
               <TrendingUp className="h-4 w-4 text-blue-600" />
             </div>
-            <h2 className="text-lg font-bold text-gray-900">Distribución</h2>
+            <h2 className="text-lg font-bold text-white">Distribución</h2>
           </div>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
@@ -368,28 +368,28 @@ export default function AnalyticsPage() {
               <div key={item.etapa} className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: Object.values(CHART_COLORS)[index % 5] }} />
-                  <span className="text-gray-600">{item.etapa}</span>
+                  <span className="text-white/60">{item.etapa}</span>
                 </div>
-                <span className="font-semibold text-gray-900">{item.cantidad}</span>
+                <span className="font-semibold text-white">{item.cantidad}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Resolution Time Breakdown */}
-        <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
+        <div className="lg:col-span-2 bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 mb-6">
             <div className="p-2 rounded-lg bg-orange-50">
               <Clock className="h-4 w-4 text-orange-600" />
             </div>
-            <h2 className="text-lg font-bold text-gray-900">Métricas de Resolución</h2>
+            <h2 className="text-lg font-bold text-white">Métricas de Resolución</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <ResolutionCard
               label="Tiempo Promedio"
               value={`${metrics.avgResolutionDays} días`}
               description="Desde borrador hasta aprobado"
-              color="from-blue-500 to-blue-600"
+              color="from-blue-500 to-amber-600"
             />
             <ResolutionCard
               label="Tasa de Aprobación"
@@ -432,18 +432,18 @@ function MetricCard({
   trendUp: boolean;
 }) {
   return (
-    <div className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+    <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
       <div
         className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${color} opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500`}
       />
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm font-medium text-gray-500">{title}</p>
+          <p className="text-sm font-medium text-white/40">{title}</p>
           <div className={`p-2.5 rounded-xl bg-gradient-to-br ${color} text-white shadow-lg`}>
             {icon}
           </div>
         </div>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
+        <p className="text-2xl font-bold text-white">{value}</p>
         {trend && (
           <div className="flex items-center gap-1 mt-2">
             {trendUp ? (
@@ -478,9 +478,9 @@ function ResolutionCard({
         className={`absolute top-0 left-0 w-1 h-full bg-gradient-to-b ${color}`}
       />
       <div className="pl-3">
-        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</p>
-        <p className="text-xl font-bold text-gray-900 mt-1">{value}</p>
-        <p className="text-xs text-gray-400 mt-1">{description}</p>
+        <p className="text-xs font-medium text-white/40 uppercase tracking-wide">{label}</p>
+        <p className="text-xl font-bold text-white mt-1">{value}</p>
+        <p className="text-xs text-white/30 mt-1">{description}</p>
       </div>
     </div>
   );

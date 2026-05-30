@@ -60,52 +60,52 @@ export default function ClientesPage() {
 
       {/* Metric cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-gray-500">Total Extranjeros</p>
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-200/30">
+              <p className="text-sm font-medium text-white/40">Total Extranjeros</p>
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-amber-600 text-white shadow-lg shadow-blue-200/30">
                 <Users className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">{total}</p>
+            <p className="text-3xl font-bold text-white">{total}</p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-gray-500">Página Actual</p>
+              <p className="text-sm font-medium text-white/40">Página Actual</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-200/30">
                 <Globe className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">{currentPage} <span className="text-lg text-gray-400">/ {totalPages}</span></p>
+            <p className="text-3xl font-bold text-white">{currentPage} <span className="text-lg text-white/30">/ {totalPages}</span></p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-brand-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-gray-500">Mostrando</p>
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-brand-500 to-amber-600 text-white shadow-lg shadow-brand-200/30">
+              <p className="text-sm font-medium text-white/40">Mostrando</p>
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-brand-500 to-amber-600 text-white shadow-lg shadow-amber-500/20/30">
                 <ArrowUpRight className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">{clientes.length} <span className="text-lg text-gray-400">registros</span></p>
+            <p className="text-3xl font-bold text-white">{clientes.length} <span className="text-lg text-white/30">registros</span></p>
           </div>
         </div>
       </div>
 
       {/* Filtros */}
-      <div className="bg-white rounded-2xl border shadow-sm p-5 hover:shadow-md transition-shadow duration-300">
+      <div className="bg-[#171717] rounded-2xl border shadow-sm p-5 hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 mb-4">
           <div className="p-2 rounded-lg bg-blue-50"><Search className="h-4 w-4 text-blue-600" /></div>
-          <h2 className="text-lg font-bold text-gray-900">Buscar Extranjeros</h2>
+          <h2 className="text-lg font-bold text-white">Buscar Extranjeros</h2>
         </div>
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
           <input
             type="text"
             placeholder="Buscar por nombre, email o teléfono..."
@@ -114,7 +114,7 @@ export default function ClientesPage() {
               setSearch(e.target.value);
               setCurrentPage(1);
             }}
-            className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className="w-full pl-11 pr-4 py-3 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             aria-label="Buscar clientes"
           />
         </div>
@@ -122,17 +122,17 @@ export default function ClientesPage() {
 
       {/* Error state */}
       {isError && (
-        <div className="bg-white rounded-2xl border shadow-sm p-8 text-center">
+        <div className="bg-[#171717] rounded-2xl border shadow-sm p-8 text-center">
           <p className="text-red-500 text-sm">Error al cargar clientes. Verifica tu conexión e intenta de nuevo.</p>
         </div>
       )}
 
       {/* Loading state */}
       {isLoading && (
-        <div className="bg-white rounded-2xl border shadow-sm overflow-hidden p-6">
+        <div className="bg-[#171717] rounded-2xl border shadow-sm overflow-hidden p-6">
           <div className="space-y-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-gray-50">
+              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02]">
                 <Skeleton className="h-10 w-10 rounded-xl" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-40" />
@@ -147,10 +147,10 @@ export default function ClientesPage() {
 
       {/* Lista de extranjeros */}
       {!isLoading && !isError && (
-        <div className="bg-white rounded-2xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300">
+        <div className="bg-[#171717] rounded-2xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 px-6 py-4 border-b">
             <div className="p-2 rounded-lg bg-blue-50"><Users className="h-4 w-4 text-blue-600" /></div>
-            <h2 className="text-lg font-bold text-gray-900">Listado de Extranjeros</h2>
+            <h2 className="text-lg font-bold text-white">Listado de Extranjeros</h2>
           </div>
 
           {clientes.length === 0 ? (
@@ -158,8 +158,8 @@ export default function ClientesPage() {
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center mx-auto mb-4">
                 <Users className="h-8 w-8 text-blue-400" />
               </div>
-              <p className="text-gray-500 font-medium">No se encontraron extranjeros</p>
-              <p className="text-sm text-gray-400 mt-1">Intenta con otros términos de búsqueda</p>
+              <p className="text-white/40 font-medium">No se encontraron extranjeros</p>
+              <p className="text-sm text-white/30 mt-1">Intenta con otros términos de búsqueda</p>
             </div>
           ) : (
             <>
@@ -175,32 +175,32 @@ export default function ClientesPage() {
                         <div className="min-w-0">
                           <Link
                             href={`/clientes/${cliente.id}`}
-                            className="text-sm font-semibold text-gray-900 hover:text-blue-600 capitalize truncate block transition-colors"
+                            className="text-sm font-semibold text-white hover:text-blue-600 capitalize truncate block transition-colors"
                           >
                             {nombreCompleto}
                           </Link>
-                          <p className="text-xs text-gray-500 truncate">
+                          <p className="text-xs text-white/40 truncate">
                             {cliente.email} {cliente.telefono && `• ${cliente.telefono}`}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
                         {cliente.asesor?.fullName && (
-                          <span className="hidden lg:inline-flex px-2.5 py-1 rounded-full text-[10px] font-medium bg-brand-50 text-brand-700 border border-brand-100">
+                          <span className="hidden lg:inline-flex px-2.5 py-1 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-brand-100">
                             {cliente.asesor.fullName}
                           </span>
                         )}
                         {cliente.etiquetas?.length > 0 && (
                           <div className="hidden xl:flex gap-1">
                             {cliente.etiquetas.slice(0, 2).map((tag) => (
-                              <span key={tag} className="inline-flex px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-[10px] font-medium">{tag}</span>
+                              <span key={tag} className="inline-flex px-2 py-0.5 bg-white/[0.04] text-white/60 rounded-full text-[10px] font-medium">{tag}</span>
                             ))}
                           </div>
                         )}
                         <div className="flex items-center gap-1">
                           <Link
                             href={`/clientes/${cliente.id}`}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-sm transition-all"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-500 to-amber-600 rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-sm transition-all"
                             aria-label={`Ver detalle de ${nombreCompleto}`}
                           >
                             <Eye className="h-3.5 w-3.5" /> Ver
@@ -208,7 +208,7 @@ export default function ClientesPage() {
                           {isAdmin && (
                             <button
                               onClick={() => handleDelete(cliente.id, nombreCompleto)}
-                              className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                              className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-red-50 text-white/30 hover:text-red-500 transition-colors"
                               aria-label={`Eliminar ${nombreCompleto}`}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -224,24 +224,24 @@ export default function ClientesPage() {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-between px-6 py-4 border-t bg-gradient-to-r from-gray-50 to-white">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-white/40">
                     Mostrando {(currentPage - 1) * pageSize + 1} a{' '}
-                    {Math.min(currentPage * pageSize, total)} de <span className="font-semibold text-gray-700">{total}</span> extranjeros
+                    {Math.min(currentPage * pageSize, total)} de <span className="font-semibold text-white/70">{total}</span> extranjeros
                   </p>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
-                      className="p-2 rounded-xl border hover:bg-white hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="p-2 rounded-xl border hover:bg-[#171717] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       aria-label="Página anterior"
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </button>
-                    <span className="text-sm font-medium text-gray-700 px-3 py-1.5 bg-white rounded-lg border">{currentPage} / {totalPages}</span>
+                    <span className="text-sm font-medium text-white/70 px-3 py-1.5 bg-[#171717] rounded-lg border">{currentPage} / {totalPages}</span>
                     <button
                       onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
-                      className="p-2 rounded-xl border hover:bg-white hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="p-2 rounded-xl border hover:bg-[#171717] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       aria-label="Página siguiente"
                     >
                       <ChevronRight className="h-4 w-4" />

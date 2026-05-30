@@ -132,7 +132,7 @@ export default function SolicitudesPage() {
             <h1 className="text-3xl font-bold">Solicitudes</h1>
             <p className="text-amber-200 mt-1">Generación de solicitudes INM — Costo: ${costoActual} MXN</p>
           </div>
-          <button onClick={handleActualizarCosto} className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-white/30 transition-all border border-white/20">
+          <button onClick={handleActualizarCosto} className="px-4 py-2 bg-[#171717]/20 backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20">
             ⚙️ Cambiar costo
           </button>
         </div>
@@ -140,60 +140,60 @@ export default function SolicitudesPage() {
 
       {/* Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-        <div className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-orange-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-medium text-gray-500">Total</p>
+              <p className="text-sm font-medium text-white/40">Total</p>
               <div className="p-2 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg"><FileText className="h-4 w-4" /></div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{solicitudes.length}</p>
+            <p className="text-2xl font-bold text-white">{solicitudes.length}</p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-yellow-500 to-yellow-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-medium text-gray-500">Pendientes</p>
+              <p className="text-sm font-medium text-white/40">Pendientes</p>
               <div className="p-2 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 text-white shadow-lg"><Clock className="h-4 w-4" /></div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{solicitudes.filter(s => s.estatus === 'pendiente_revision').length}</p>
+            <p className="text-2xl font-bold text-white">{solicitudes.filter(s => s.estatus === 'pendiente_revision').length}</p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-orange-500 to-orange-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-medium text-gray-500">Por cobrar</p>
+              <p className="text-sm font-medium text-white/40">Por cobrar</p>
               <div className="p-2 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg"><DollarSign className="h-4 w-4" /></div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{solicitudes.filter(s => s.estatus === 'pendiente_pago').length}</p>
+            <p className="text-2xl font-bold text-white">{solicitudes.filter(s => s.estatus === 'pendiente_pago').length}</p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-medium text-gray-500">Pagadas</p>
+              <p className="text-sm font-medium text-white/40">Pagadas</p>
               <div className="p-2 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg"><CheckCircle className="h-4 w-4" /></div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">${solicitudes.filter(s => s.estatus === 'pagada').reduce((sum, s) => sum + Number(s.costo), 0).toLocaleString()}</p>
+            <p className="text-2xl font-bold text-white">${solicitudes.filter(s => s.estatus === 'pagada').reduce((sum, s) => sum + Number(s.costo), 0).toLocaleString()}</p>
           </div>
         </div>
       </div>
 
       {/* Filtros */}
-      <div className="bg-white rounded-2xl border shadow-sm p-5 hover:shadow-md transition-shadow duration-300">
+      <div className="bg-[#171717] rounded-2xl border shadow-sm p-5 hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 mb-4">
           <div className="p-2 rounded-lg bg-amber-50"><Filter className="h-4 w-4 text-amber-600" /></div>
-          <h2 className="text-lg font-bold text-gray-900">Filtros</h2>
+          <h2 className="text-lg font-bold text-white">Filtros</h2>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input type="text" placeholder="Buscar por nombre o pieza..." value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+            <input type="text" placeholder="Buscar por nombre o pieza..." value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-11 pr-4 py-3 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" />
           </div>
-          <select value={filtroEstatus} onChange={e => setFiltroEstatus(e.target.value)} className="px-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
+          <select value={filtroEstatus} onChange={e => setFiltroEstatus(e.target.value)} className="px-4 py-3 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
             <option value="">Todos los estatus</option>
             <option value="pendiente_revision">Pendiente revisión</option>
             <option value="pendiente_pago">Pendiente pago</option>
@@ -204,21 +204,21 @@ export default function SolicitudesPage() {
       </div>
 
       {/* Lista */}
-      <div className="bg-white rounded-2xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300">
+      <div className="bg-[#171717] rounded-2xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 px-6 py-4 border-b">
           <div className="p-2 rounded-lg bg-amber-50"><FileText className="h-4 w-4 text-amber-600" /></div>
-          <h2 className="text-lg font-bold text-gray-900">Solicitudes de Generación</h2>
+          <h2 className="text-lg font-bold text-white">Solicitudes de Generación</h2>
         </div>
 
         {loading ? (
-          <div className="p-12 text-center text-gray-400">Cargando...</div>
+          <div className="p-12 text-center text-white/30">Cargando...</div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center mx-auto mb-4">
               <FileText className="h-8 w-8 text-amber-400" />
             </div>
-            <p className="text-gray-500 font-medium">No hay solicitudes</p>
-            <p className="text-sm text-gray-400 mt-1">Las solicitudes de los extranjeros aparecerán aquí</p>
+            <p className="text-white/40 font-medium">No hay solicitudes</p>
+            <p className="text-sm text-white/30 mt-1">Las solicitudes de los extranjeros aparecerán aquí</p>
           </div>
         ) : (
           <div className="divide-y">
@@ -231,12 +231,12 @@ export default function SolicitudesPage() {
                       <FileText className="h-5 w-5 text-amber-600" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 capitalize">{getNombre(sol)}</p>
-                      <p className="text-xs text-gray-500">{TIPO_LABELS[sol.tipoTramite] || sol.tipoTramite} • {formatDate(sol.createdAt)}</p>
+                      <p className="text-sm font-semibold text-white capitalize">{getNombre(sol)}</p>
+                      <p className="text-xs text-white/40">{TIPO_LABELS[sol.tipoTramite] || sol.tipoTramite} • {formatDate(sol.createdAt)}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    {sol.numeroPieza && <span className="text-xs font-mono text-brand-600">#{sol.numeroPieza}</span>}
+                    {sol.numeroPieza && <span className="text-xs font-mono text-amber-500">#{sol.numeroPieza}</span>}
                     <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border ${badge.className}`}>{badge.label}</span>
                   </div>
                 </div>
@@ -249,24 +249,24 @@ export default function SolicitudesPage() {
       {/* Modal de detalle/procesar */}
       {showModal && selectedSolicitud && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowModal(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-4 border-b sticky top-0 bg-white z-10">
+          <div className="bg-[#171717] rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b sticky top-0 bg-[#171717] z-10">
               <div>
-                <h2 className="text-lg font-bold text-gray-900">Solicitud de {getNombre(selectedSolicitud)}</h2>
-                <p className="text-xs text-gray-500">{TIPO_LABELS[selectedSolicitud.tipoTramite] || selectedSolicitud.tipoTramite} • {formatDate(selectedSolicitud.createdAt)}</p>
+                <h2 className="text-lg font-bold text-white">Solicitud de {getNombre(selectedSolicitud)}</h2>
+                <p className="text-xs text-white/40">{TIPO_LABELS[selectedSolicitud.tipoTramite] || selectedSolicitud.tipoTramite} • {formatDate(selectedSolicitud.createdAt)}</p>
               </div>
-              <button onClick={() => setShowModal(false)} className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 text-xl">✕</button>
+              <button onClick={() => setShowModal(false)} className="p-2 rounded-xl hover:bg-white/[0.04] text-white/30 text-xl">✕</button>
             </div>
 
             <div className="p-6 space-y-6">
               {/* Datos del extranjero */}
               <div>
-                <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2"><Eye className="h-4 w-4 text-brand-500" /> Datos del extranjero</h3>
-                <div className="grid grid-cols-2 gap-3 bg-gray-50 rounded-xl p-4">
+                <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2"><Eye className="h-4 w-4 text-amber-500" /> Datos del extranjero</h3>
+                <div className="grid grid-cols-2 gap-3 bg-white/[0.02] rounded-xl p-4">
                   {Object.entries(selectedSolicitud.datosFormulario || {}).map(([key, val]) => (
                     <div key={key}>
-                      <p className="text-[10px] text-gray-400 uppercase">{key.replace(/([A-Z])/g, ' $1')}</p>
-                      <p className="text-sm text-gray-900 capitalize">{String(val) || '—'}</p>
+                      <p className="text-[10px] text-white/30 uppercase">{key.replace(/([A-Z])/g, ' $1')}</p>
+                      <p className="text-sm text-white capitalize">{String(val) || '—'}</p>
                     </div>
                   ))}
                 </div>
@@ -277,33 +277,33 @@ export default function SolicitudesPage() {
                 <span className={`inline-flex px-3 py-1.5 rounded-full text-xs font-bold border ${ESTATUS_BADGE[selectedSolicitud.estatus]?.className}`}>
                   {ESTATUS_BADGE[selectedSolicitud.estatus]?.label}
                 </span>
-                {selectedSolicitud.numeroPieza && <span className="text-sm font-mono text-brand-600">Pieza: {selectedSolicitud.numeroPieza}</span>}
-                <span className="text-sm text-gray-500 ml-auto">${selectedSolicitud.costo} MXN</span>
+                {selectedSolicitud.numeroPieza && <span className="text-sm font-mono text-amber-500">Pieza: {selectedSolicitud.numeroPieza}</span>}
+                <span className="text-sm text-white/40 ml-auto">${selectedSolicitud.costo} MXN</span>
               </div>
 
               {/* Acciones según estatus */}
               {selectedSolicitud.estatus === 'pendiente_revision' && (
                 <div className="space-y-4 border-t pt-4">
-                  <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2"><Send className="h-4 w-4 text-brand-500" /> Procesar solicitud</h3>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2"><Send className="h-4 w-4 text-amber-500" /> Procesar solicitud</h3>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Número de pieza *</label>
-                      <input type="text" value={formProcesar.numeroPieza} onChange={e => setFormProcesar(p => ({ ...p, numeroPieza: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Pieza del INM" />
+                      <label className="block text-xs font-medium text-white/60 mb-1">Número de pieza *</label>
+                      <input type="text" value={formProcesar.numeroPieza} onChange={e => setFormProcesar(p => ({ ...p, numeroPieza: e.target.value }))} className="w-full px-3 py-2.5 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Pieza del INM" />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Contraseña INM</label>
-                      <input type="text" value={formProcesar.contrasenaINM} onChange={e => setFormProcesar(p => ({ ...p, contrasenaINM: e.target.value }))} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Clave" />
+                      <label className="block text-xs font-medium text-white/60 mb-1">Contraseña INM</label>
+                      <input type="text" value={formProcesar.contrasenaINM} onChange={e => setFormProcesar(p => ({ ...p, contrasenaINM: e.target.value }))} className="w-full px-3 py-2.5 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Clave" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Requisitos (uno por línea)</label>
-                    <textarea value={formProcesar.requisitos} onChange={e => setFormProcesar(p => ({ ...p, requisitos: e.target.value }))} rows={4} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none" placeholder="Pasaporte vigente&#10;Formato de solicitud&#10;Comprobante de domicilio" />
+                    <label className="block text-xs font-medium text-white/60 mb-1">Requisitos (uno por línea)</label>
+                    <textarea value={formProcesar.requisitos} onChange={e => setFormProcesar(p => ({ ...p, requisitos: e.target.value }))} rows={4} className="w-full px-3 py-2.5 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none" placeholder="Pasaporte vigente&#10;Formato de solicitud&#10;Comprobante de domicilio" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">PDF de la solicitud</label>
-                    <input type="file" accept=".pdf" onChange={e => setPdfFile(e.target.files?.[0] || null)} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100" />
+                    <label className="block text-xs font-medium text-white/60 mb-1">PDF de la solicitud</label>
+                    <input type="file" accept=".pdf" onChange={e => setPdfFile(e.target.files?.[0] || null)} className="w-full text-sm text-white/40 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-500/10 file:text-amber-400 hover:file:bg-amber-500/10" />
                   </div>
-                  <button onClick={handleProcesar} disabled={procesando} className="w-full px-4 py-3 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-xl text-sm font-semibold hover:from-brand-600 hover:to-brand-700 disabled:opacity-50 shadow-lg shadow-brand-200/30 transition-all">
+                  <button onClick={handleProcesar} disabled={procesando} className="w-full px-4 py-3 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-xl text-sm font-semibold hover:from-brand-600 hover:to-brand-700 disabled:opacity-50 shadow-lg shadow-amber-500/20/30 transition-all">
                     {procesando ? 'Procesando...' : 'Procesar y generar pago ($' + selectedSolicitud.costo + ' MXN)'}
                   </button>
                 </div>
@@ -311,7 +311,7 @@ export default function SolicitudesPage() {
 
               {selectedSolicitud.estatus === 'pendiente_pago' && (
                 <div className="space-y-3 border-t pt-4">
-                  <p className="text-sm text-gray-500">Esperando pago del extranjero...</p>
+                  <p className="text-sm text-white/40">Esperando pago del extranjero...</p>
                   {selectedSolicitud.mercadopagoInitPoint && (
                     <a href={selectedSolicitud.mercadopagoInitPoint} target="_blank" className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
                       🔗 Ver link de pago
