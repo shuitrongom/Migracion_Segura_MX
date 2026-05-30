@@ -486,17 +486,17 @@ export default function NuevoTramitePage() {
         {step === 0 && (
           <div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Selecciona el trámite</h3>
-            <p className="text-sm text-gray-500 mb-6">Elige el tipo de trámite migratorio que deseas iniciar</p>
+            <p className="text-sm text-gray-500 mb-6">Haz clic en el tipo de trámite para comenzar</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {TRAMITES_INM.map((t, idx) => (
-                <button key={t.tipo} type="button" onClick={() => setSelectedTramite(t)} className={`group relative text-left p-6 rounded-2xl border-2 transition-all duration-300 overflow-hidden ${selectedTramite?.tipo === t.tipo ? 'border-brand-500 bg-gradient-to-br from-brand-50 via-white to-amber-50 shadow-xl shadow-brand-100/50 scale-[1.02]' : 'border-gray-200 hover:border-brand-400 hover:shadow-xl hover:shadow-gray-200/50 hover:scale-[1.02] bg-white'}`}>
+                <button key={t.tipo} type="button" onClick={() => { setSelectedTramite(t); setStep(1); }} className={`group relative text-left p-6 rounded-2xl border-2 transition-all duration-300 overflow-hidden border-gray-200 hover:border-brand-400 hover:shadow-xl hover:shadow-gray-200/50 hover:scale-[1.02] bg-white`}>
                   {/* Número decorativo */}
-                  <div className={`absolute top-3 right-3 flex items-center justify-center h-8 w-8 rounded-full text-xs font-bold transition-all ${selectedTramite?.tipo === t.tipo ? 'bg-brand-500 text-white shadow-md' : 'bg-gray-100 text-gray-400 group-hover:bg-brand-100 group-hover:text-brand-600'}`}>{idx + 1}</div>
+                  <div className="absolute top-3 right-3 flex items-center justify-center h-8 w-8 rounded-full text-xs font-bold transition-all bg-gray-100 text-gray-400 group-hover:bg-brand-100 group-hover:text-brand-600">{idx + 1}</div>
                   {/* Barra lateral decorativa */}
-                  <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl transition-all ${selectedTramite?.tipo === t.tipo ? 'bg-gradient-to-b from-brand-500 to-amber-500' : 'bg-transparent group-hover:bg-gradient-to-b group-hover:from-brand-300 group-hover:to-amber-300'}`} />
-                  <p className={`text-base font-bold leading-tight pr-10 ${selectedTramite?.tipo === t.tipo ? 'text-brand-700' : 'text-gray-900'}`}>{t.nombre}</p>
+                  <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl transition-all bg-transparent group-hover:bg-gradient-to-b group-hover:from-brand-300 group-hover:to-amber-300" />
+                  <p className="text-base font-bold leading-tight pr-10 text-gray-900">{t.nombre}</p>
                   <p className="text-xs text-gray-500 mt-2 leading-relaxed">{t.descripcion}</p>
-                  {selectedTramite?.tipo === t.tipo && <div className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-brand-500 to-brand-600 px-3 py-1 rounded-full shadow-sm"><Check className="h-3.5 w-3.5" /> Seleccionado</div>}
+                  <div className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-brand-600 opacity-0 group-hover:opacity-100 transition-opacity">Comenzar →</div>
                 </button>
               ))}
             </div>
@@ -1220,7 +1220,8 @@ export default function NuevoTramitePage() {
         )}
       </div>
 
-      {/* Navigation */}
+      {/* Navigation - ocultar en paso 0 */}
+      {step > 0 && (
       <div className="flex items-center justify-between mt-6">
         <button type="button" onClick={handleBack} disabled={step === 0} className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"><ArrowLeft className="h-4 w-4" /> Anterior</button>
         {step < STEPS.length - 1 ? (
@@ -1229,6 +1230,7 @@ export default function NuevoTramitePage() {
           <button type="button" onClick={handleSubmit} disabled={submitting} className="flex items-center gap-2 px-6 py-2.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50"><Check className="h-4 w-4" /> {submitting ? 'Creando...' : 'Iniciar Trámite'}</button>
         )}
       </div>
+      )}
 
       {/* Modal Agendar Cita */}
       {showCitaModal && (
