@@ -63,6 +63,17 @@ export default function ContinuarTramitePage() {
         // Cargar requisitos del tipo de trámite
         const reqRes = await api.get(`/tramites/requisitos/${res.data.tipo}`);
         setRequisitos(reqRes.data || []);
+        // Si el trámite ya tiene pieza, saltar al paso de requisitos o pago
+        if (res.data.numeroPieza) {
+          setNumeroPieza(res.data.numeroPieza);
+          setContrasenaINM(res.data.contrasenaTramite || '');
+          // Si ya está en_revision o más avanzado, ir a requisitos
+          if (res.data.estatus === 'en_revision' || res.data.estatus === 'en_espera_resolucion') {
+            setStep(1); // Requisitos
+          } else {
+            setStep(1); // Requisitos por default si ya tiene pieza
+          }
+        }
       } catch {
         toast.error('Error al cargar el trámite');
       } finally {
@@ -72,11 +83,39 @@ export default function ContinuarTramitePage() {
     if (tramiteId) fetchData();
   }, [tramiteId]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step === 0) {
       if (!numeroPieza.trim()) { toast.error('Ingresa el número de pieza'); return; }
       if (!contrasenaINM.trim()) { toast.error('Ingresa la clave del INM'); return; }
       if (!pdfFile) { toast.error('Sube el PDF de la solicitud'); return; }
+
+      // Guardar pieza y clave INMEDIATAMENTE al avanzar
+      try {
+        await api.patch(`/tramites/${tramiteId}/continuar`, {
+          numeroPieza: numeroPieza,
+          contrasenaTramite: contrasenaINM,
+          datosFormulario: {
+            ...tramite?.datosFormulario,
+            numeroPiezaINM: numeroPieza,
+            contrasenaINM: contrasenaINM,
+          },
+        });
+
+        // Subir PDF
+        if (pdfFile) {
+          const formData = new FormData();
+          formData.append('file', pdfFile);
+          formData.append('nombre', 'Solicitud generada por el INM');
+          formData.append('categoria', 'solicitud');
+          formData.append('tramiteId', tramiteId);
+          await api.post('/documentos/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(() => {});
+        }
+
+        toast.success('Pieza y solicitud guardadas correctamente');
+      } catch {
+        toast.error('Error al guardar la pieza. Intenta de nuevo.');
+        return;
+      }
     }
     setStep(s => Math.min(s + 1, STEPS.length - 1));
   };
@@ -84,18 +123,7 @@ export default function ContinuarTramitePage() {
   const handleFinish = async () => {
     setSubmitting(true);
     try {
-      // Actualizar el trámite con la pieza y contraseña usando el endpoint de continuar
-      await api.patch(`/tramites/${tramiteId}/continuar`, {
-        numeroPieza: numeroPieza,
-        contrasenaTramite: contrasenaINM,
-        datosFormulario: {
-          ...tramite?.datosFormulario,
-          numeroPiezaINM: numeroPieza,
-          contrasenaINM: contrasenaINM,
-        },
-      });
-
-      // Cambiar estatus a en_revision
+      // Cambiar estatus a en_revision (la pieza ya se guardó en el paso 1)
       await api.patch(`/tramites/${tramiteId}/estatus`, {
         estatus: 'en_revision',
         observaciones: `Solicitud INM completada. Pieza: ${numeroPieza}`,
@@ -187,7 +215,29 @@ export default function ContinuarTramitePage() {
 
       <div className="dark-card-static p-6">
         {/* Step 0: Solicitud INM */}
-        {step === 0 && (
+        {step === 0 && tramite?.numeroPieza && (
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Check className="h-5 w-5 text-green-500" />
+              <h2 className="text-lg font-semibold text-white">Solicitud INM Completada</h2>
+            </div>
+            <div className="bg-emerald-500/[0.06] border border-emerald-500/20 rounded-lg p-4 mb-4">
+              <p className="text-sm text-emerald-400 font-medium">La solicitud ya fue generada en el INM.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-lg">
+              <div>
+                <p className="text-xs text-white/70 mb-1">Número de Pieza</p>
+                <p className="text-lg font-mono font-bold text-amber-400">{tramite.numeroPieza}</p>
+              </div>
+              <div>
+                <p className="text-xs text-white/70 mb-1">Clave INM</p>
+                <p className="text-lg font-mono font-bold text-amber-400">{tramite.contrasenaTramite || contrasenaINM || '—'}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 0 && !tramite?.numeroPieza && (
           <div>
             <div className="flex items-center gap-2 mb-4">
               <FileText className="h-5 w-5 text-amber-500" />
