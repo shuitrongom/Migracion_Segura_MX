@@ -18,9 +18,18 @@ function formatDateDisplay(value: string): string {
 }
 
 function CopyField({ label, value, isDate }: { label: string; value?: string; isDate?: boolean }) {
-  if (!value) return null;
-  const displayValue = isDate ? formatDateDisplay(value) : value;
-  const copyValue = isDate ? formatDateDisplay(value) : value;
+  const displayValue = value ? (isDate ? formatDateDisplay(value) : value) : '';
+  const copyValue = value ? (isDate ? formatDateDisplay(value) : value) : '';
+  
+  if (!value) {
+    return (
+      <div className="w-full text-left p-1.5">
+        {label && <p className="text-[10px] text-white/70">{label}</p>}
+        <p className="text-sm text-white/40 italic">—</p>
+      </div>
+    );
+  }
+
   const handleCopy = () => {
     navigator.clipboard.writeText(copyValue);
     toast.success(`"${copyValue}" copiado`);
