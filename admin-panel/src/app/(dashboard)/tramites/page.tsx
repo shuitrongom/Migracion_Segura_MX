@@ -260,7 +260,7 @@ export default function TramitesPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        {(!tramite.numeroPieza || tramite.numeroPieza.startsWith('MSX-')) && (
+                        {(!tramite.numeroPieza || (tramite.numeroPieza.startsWith('MSX-') && (tramite.estatus === 'recibido' || tramite.estatus === 'borrador'))) && (
                           <Link href={`/tramites/continuar/${tramite.id}`} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-amber-500 to-brand-600 text-white hover:from-brand-600 hover:to-brand-700 shadow-sm transition-all">
                             Continuar
                           </Link>
