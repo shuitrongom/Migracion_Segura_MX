@@ -113,11 +113,11 @@ export default function FinancieroPage() {
           </div>
         </div>
         <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-brand-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-amber-600 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-white/40">Total Generado</p>
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-brand-500 to-amber-600 text-white shadow-lg shadow-amber-500/20/30">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/20/30">
                 <Wallet className="h-5 w-5" />
               </div>
             </div>
@@ -149,7 +149,7 @@ export default function FinancieroPage() {
           ))}</div>
         ) : pagos.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-100 to-amber-100 flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500/15 to-amber-600/15 flex items-center justify-center mx-auto mb-4">
               <DollarSign className="h-8 w-8 text-amber-400/70" />
             </div>
             <p className="text-white/40 font-medium">No hay pagos registrados</p>
@@ -161,9 +161,9 @@ export default function FinancieroPage() {
               const config = ESTATUS_CONFIG[pago.estatusPago] || ESTATUS_CONFIG.pendiente;
               const Icon = config.icon;
               return (
-                <div key={pago.id} className="flex items-center justify-between px-6 py-4 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white transition-colors group">
+                <div key={pago.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#1f1f1f] transition-colors group">
                   <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-100 to-amber-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500/15 to-amber-600/15 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
                       <DollarSign className="h-5 w-5 text-amber-500" />
                     </div>
                     <div className="min-w-0">

@@ -98,7 +98,7 @@ export default function GestoresPage() {
           </div>
           <button
             onClick={() => { setShowModal(true); setFormData(prev => ({ ...prev, password: generatePassword() })); }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#171717]/20 backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#1f1f1f] backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20"
           >
             <Plus className="h-4 w-4" /> Nuevo Gestor
           </button>
@@ -108,11 +108,11 @@ export default function GestoresPage() {
       {/* Metric cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-brand-500 to-purple-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-purple-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-white/40">Total Gestores</p>
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 text-white shadow-lg shadow-amber-500/20/30">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-purple-600 text-white shadow-lg shadow-amber-500/20/30">
                 <UserCog className="h-5 w-5" />
               </div>
             </div>
@@ -166,7 +166,7 @@ export default function GestoresPage() {
           </div>
         ) : Gestores.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-100 to-purple-100 flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500/20 to-purple-100 flex items-center justify-center mx-auto mb-4">
               <UserCog className="h-8 w-8 text-amber-400/70" />
             </div>
             <p className="text-white/40 font-medium">No hay Gestores registrados</p>
@@ -177,7 +177,7 @@ export default function GestoresPage() {
             {Gestores.map((Gestor) => {
               const canChangePhoto = isAdmin || user?.id === Gestor.id;
               return (
-                <div key={Gestor.id} className="flex items-center justify-between px-6 py-4 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white transition-colors group">
+                <div key={Gestor.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#1f1f1f] transition-colors group">
                   <div className="flex items-center gap-4">
                     <div className="relative group/photo">
                       {Gestor.profilePhotoUrl ? (
@@ -236,7 +236,7 @@ export default function GestoresPage() {
           <div className="bg-[#171717] rounded-2xl shadow-2xl w-full max-w-lg mx-4 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between px-6 py-4 border-b">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-gradient-to-br from-brand-500 to-purple-600">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-amber-500 to-purple-600">
                   <Plus className="h-4 w-4 text-white" />
                 </div>
                 <h2 className="text-lg font-bold text-white">Nuevo Gestor</h2>
@@ -298,7 +298,7 @@ export default function GestoresPage() {
               </div>
 
               <div className="flex items-center gap-3 pt-2">
-                <button type="submit" disabled={submitting} className="flex-1 px-4 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-xl text-sm font-semibold hover:from-brand-600 hover:to-brand-700 transition-all disabled:opacity-50 shadow-lg shadow-amber-500/20/30">
+                <button type="submit" disabled={submitting} className="flex-1 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-brand-600 text-white rounded-xl text-sm font-semibold hover:from-brand-600 hover:to-brand-700 transition-all disabled:opacity-50 shadow-lg shadow-amber-500/20/30">
                   {submitting ? 'Creando...' : 'Crear Gestor'}
                 </button>
                 <button type="button" onClick={handleCloseModal} className="px-4 py-2.5 border border-[#2a2a2a] text-white/70 rounded-xl text-sm font-medium hover:bg-[#141414] transition-colors">
@@ -353,7 +353,7 @@ export default function GestoresPage() {
                     fetchGestores();
                   } catch { toast.error('Error al actualizar'); }
                 }}
-                className="px-4 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-xl text-sm font-semibold hover:from-brand-600 hover:to-brand-700 shadow-lg shadow-amber-500/20/30 transition-all"
+                className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-brand-600 text-white rounded-xl text-sm font-semibold hover:from-brand-600 hover:to-brand-700 shadow-lg shadow-amber-500/20/30 transition-all"
               >
                 Guardar cambios
               </button>

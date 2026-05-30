@@ -83,15 +83,15 @@ export default function ConfiguracionPage() {
             <h2 className="text-lg font-bold text-white">Notificaciones</h2>
           </div>
           <div className="space-y-2">
-            <label className="flex items-center justify-between p-4 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-white border border-transparent hover:border-[#2a2a2a] cursor-pointer transition-all">
+            <label className="flex items-center justify-between p-4 rounded-xl hover:bg-[#1f1f1f] border border-transparent hover:border-[#2a2a2a] cursor-pointer transition-all">
               <span className="text-sm font-medium text-white/70">Notificaciones push (app móvil)</span>
               <input type="checkbox" checked={config.notificacionesPush} onChange={e => setConfig(prev => ({ ...prev, notificacionesPush: e.target.checked }))} className="h-4 w-4 rounded border-[#333333] text-amber-500 focus:ring-amber-500" />
             </label>
-            <label className="flex items-center justify-between p-4 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-white border border-transparent hover:border-[#2a2a2a] cursor-pointer transition-all">
+            <label className="flex items-center justify-between p-4 rounded-xl hover:bg-[#1f1f1f] border border-transparent hover:border-[#2a2a2a] cursor-pointer transition-all">
               <span className="text-sm font-medium text-white/70">Notificaciones por email</span>
               <input type="checkbox" checked={config.notificacionesEmail} onChange={e => setConfig(prev => ({ ...prev, notificacionesEmail: e.target.checked }))} className="h-4 w-4 rounded border-[#333333] text-amber-500 focus:ring-amber-500" />
             </label>
-            <label className="flex items-center justify-between p-4 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-white border border-transparent hover:border-[#2a2a2a] cursor-pointer transition-all">
+            <label className="flex items-center justify-between p-4 rounded-xl hover:bg-[#1f1f1f] border border-transparent hover:border-[#2a2a2a] cursor-pointer transition-all">
               <span className="text-sm font-medium text-white/70">Notificaciones por WhatsApp</span>
               <input type="checkbox" checked={config.notificacionesWhatsapp} onChange={e => setConfig(prev => ({ ...prev, notificacionesWhatsapp: e.target.checked }))} className="h-4 w-4 rounded border-[#333333] text-amber-500 focus:ring-amber-500" />
             </label>
@@ -101,7 +101,7 @@ export default function ConfiguracionPage() {
         {/* Seguridad */}
         <div className="dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 mb-5">
-            <div className="p-2 rounded-lg bg-purple-500/10"><Shield className="h-4 w-4 text-purple-600" /></div>
+            <div className="p-2 rounded-lg bg-purple-500/10"><Shield className="h-4 w-4 text-purple-400" /></div>
             <h2 className="text-lg font-bold text-white">Seguridad</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -114,8 +114,8 @@ export default function ConfiguracionPage() {
               'Biometría (FaceID/Huella) en app móvil',
               'Historial de pagos inmutable',
             ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 border border-green-100">
-                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shrink-0">
+              <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-emerald-500/[0.06] to-emerald-500/[0.03] border border-emerald-500/20">
+                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shrink-0">
                   <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                 </div>
                 <span className="text-sm text-white/70 font-medium">{item}</span>
@@ -125,7 +125,7 @@ export default function ConfiguracionPage() {
         </div>
 
         {/* Botón guardar */}
-        <button onClick={handleSave} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-2xl font-semibold hover:from-brand-600 hover:to-brand-700 transition-all shadow-lg shadow-amber-500/20/30 hover:shadow-xl hover:-translate-y-0.5">
+        <button onClick={handleSave} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-amber-500 to-brand-600 text-white rounded-2xl font-semibold hover:from-brand-600 hover:to-brand-700 transition-all shadow-lg shadow-amber-500/20/30 hover:shadow-xl hover:-translate-y-0.5">
           <Save className="h-5 w-5" /> Guardar configuración
         </button>
       </div>

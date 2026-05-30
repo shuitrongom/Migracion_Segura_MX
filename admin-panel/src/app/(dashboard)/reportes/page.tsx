@@ -80,7 +80,7 @@ export default function ReportesPage() {
                 toast.success('PDF descargado');
               } catch { toast.error('Error al generar PDF'); }
             }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#171717]/20 backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#1f1f1f] backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20"
           >
             <Download className="h-4 w-4" /> Descargar PDF
           </button>
@@ -90,11 +90,11 @@ export default function ReportesPage() {
       {/* Metric cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
         <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-brand-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-amber-600 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-white/40">Total Trámites</p>
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-brand-500 to-amber-600 text-white shadow-lg shadow-amber-500/20/30">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/20/30">
                 <FileText className="h-5 w-5" />
               </div>
             </div>
@@ -204,7 +204,7 @@ export default function ReportesPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           {Object.entries(estatusCounts).map(([estatus, count]) => (
             <div key={estatus} className="relative overflow-hidden text-center p-4 rounded-2xl bg-gradient-to-br from-white/[0.02] to-white/[0.04] border hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 group">
-              <div className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-br from-brand-500 to-amber-500 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+              <div className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-500 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
               <p className="text-3xl font-bold text-white">{count}</p>
               <p className="text-xs text-white/40 capitalize mt-1 font-medium">{estatus.replace(/_/g, ' ')}</p>
             </div>

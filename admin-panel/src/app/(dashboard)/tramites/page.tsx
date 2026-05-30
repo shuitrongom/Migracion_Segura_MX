@@ -97,7 +97,7 @@ export default function TramitesPage() {
           </div>
           <Link
             href="/tramites/nuevo"
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#171717]/20 backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#1f1f1f] backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20"
           >
             <Plus className="h-4 w-4" /> Iniciar Trámite
           </Link>
@@ -107,11 +107,11 @@ export default function TramitesPage() {
       {/* Metric cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-brand-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-amber-600 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-white/40">Total Trámites</p>
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-brand-500 to-amber-600 text-white shadow-lg shadow-amber-500/20/30">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/20/30">
                 <FileText className="h-5 w-5" />
               </div>
             </div>
@@ -216,7 +216,7 @@ export default function TramitesPage() {
 
           {tramites.length === 0 ? (
             <div className="p-12 text-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-100 to-amber-100 flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500/15 to-amber-600/15 flex items-center justify-center mx-auto mb-4">
                 <FileText className="h-8 w-8 text-amber-400/70" />
               </div>
               <p className="text-white/40 font-medium">No se encontraron trámites</p>
@@ -231,9 +231,9 @@ export default function TramitesPage() {
                     ? (tramite.cliente.nombreCompleto || `${tramite.cliente.nombre || ''} ${tramite.cliente.apellidos || ''}`.trim() || '--')
                     : (tramite.datosFormulario?.nombre ? `${tramite.datosFormulario.nombre} ${tramite.datosFormulario.apellidos || ''}`.trim() : '--');
                   return (
-                    <div key={tramite.id} className="flex items-center justify-between px-6 py-4 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white transition-colors group">
+                    <div key={tramite.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#1f1f1f] transition-colors group">
                       <div className="flex items-center gap-4">
-                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-100 to-amber-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500/15 to-amber-600/15 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
                           <FileText className="h-5 w-5 text-amber-500" />
                         </div>
                         <div className="min-w-0">
@@ -255,7 +255,7 @@ export default function TramitesPage() {
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         {(!tramite.numeroPieza || tramite.numeroPieza.startsWith('MSX-')) && (
-                          <Link href={`/tramites/continuar/${tramite.id}`} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-brand-500 to-brand-600 text-white hover:from-brand-600 hover:to-brand-700 shadow-sm transition-all">
+                          <Link href={`/tramites/continuar/${tramite.id}`} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-amber-500 to-brand-600 text-white hover:from-brand-600 hover:to-brand-700 shadow-sm transition-all">
                             Continuar
                           </Link>
                         )}
@@ -275,11 +275,11 @@ export default function TramitesPage() {
                     Mostrando {(currentPage - 1) * pageSize + 1} a {Math.min(currentPage * pageSize, total)} de <span className="font-semibold text-white/70">{total}</span> trámites
                   </p>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-xl border hover:bg-[#171717] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all" aria-label="Página anterior">
+                    <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-xl border hover:bg-[#1f1f1f] disabled:opacity-50 disabled:cursor-not-allowed transition-all" aria-label="Página anterior">
                       <ChevronLeft className="h-4 w-4" />
                     </button>
                     <span className="text-sm font-medium text-white/70 px-3 py-1.5 bg-[#171717] rounded-lg border">{currentPage} / {totalPages}</span>
-                    <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="p-2 rounded-xl border hover:bg-[#171717] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all" aria-label="Página siguiente">
+                    <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="p-2 rounded-xl border hover:bg-[#1f1f1f] disabled:opacity-50 disabled:cursor-not-allowed transition-all" aria-label="Página siguiente">
                       <ChevronRight className="h-4 w-4" />
                     </button>
                   </div>

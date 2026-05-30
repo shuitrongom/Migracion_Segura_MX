@@ -110,7 +110,7 @@ export default function GestorDetailPage() {
                   {gestor.profilePhotoUrl ? (
                     <img src={gestor.profilePhotoUrl} alt={gestor.fullName || ''} className="h-16 w-16 rounded-2xl object-cover border-2 border-white shadow-md" />
                   ) : (
-                    <div className="h-16 w-16 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center shadow-md">
+                    <div className="h-16 w-16 bg-gradient-to-br from-amber-500 to-brand-700 rounded-2xl flex items-center justify-center shadow-md">
                       <span className="text-2xl font-bold text-white">{(gestor.fullName || '?').charAt(0).toUpperCase()}</span>
                     </div>
                   )}

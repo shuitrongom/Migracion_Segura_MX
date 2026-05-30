@@ -46,7 +46,7 @@ export default function NotificacionesPage() {
             <p className="text-amber-200 mt-1">{unread > 0 ? `${unread} sin leer` : 'Todo al día'}</p>
           </div>
           {unread > 0 && (
-            <button onClick={() => markAllRead.mutate()} className="px-4 py-2 bg-[#171717]/20 hover:bg-[#171717]/30 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+            <button onClick={() => markAllRead.mutate()} className="px-4 py-2 bg-[#1f1f1f] hover:bg-[#171717]/30 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
               <CheckCheck className="h-4 w-4" /> Marcar todas como leídas
             </button>
           )}

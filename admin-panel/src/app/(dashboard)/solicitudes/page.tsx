@@ -132,7 +132,7 @@ export default function SolicitudesPage() {
             <h1 className="text-3xl font-bold">Solicitudes</h1>
             <p className="text-amber-200 mt-1">Generación de solicitudes INM — Costo: ${costoActual} MXN</p>
           </div>
-          <button onClick={handleActualizarCosto} className="px-4 py-2 bg-[#171717]/20 backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20">
+          <button onClick={handleActualizarCosto} className="px-4 py-2 bg-[#1f1f1f] backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20">
             ⚙️ Cambiar costo
           </button>
         </div>
@@ -225,7 +225,7 @@ export default function SolicitudesPage() {
             {filtered.map(sol => {
               const badge = ESTATUS_BADGE[sol.estatus] || ESTATUS_BADGE.pendiente_revision;
               return (
-                <div key={sol.id} className="flex items-center justify-between px-6 py-4 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white transition-colors group cursor-pointer" onClick={() => { setSelectedSolicitud(sol); setShowModal(true); }}>
+                <div key={sol.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#1f1f1f] transition-colors group cursor-pointer" onClick={() => { setSelectedSolicitud(sol); setShowModal(true); }}>
                   <div className="flex items-center gap-4">
                     <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
                       <FileText className="h-5 w-5 text-amber-600" />
@@ -303,7 +303,7 @@ export default function SolicitudesPage() {
                     <label className="block text-xs font-medium text-white/60 mb-1">PDF de la solicitud</label>
                     <input type="file" accept=".pdf" onChange={e => setPdfFile(e.target.files?.[0] || null)} className="w-full text-sm text-white/40 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-500/10 file:text-amber-400 hover:file:bg-amber-500/10" />
                   </div>
-                  <button onClick={handleProcesar} disabled={procesando} className="w-full px-4 py-3 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-xl text-sm font-semibold hover:from-brand-600 hover:to-brand-700 disabled:opacity-50 shadow-lg shadow-amber-500/20/30 transition-all">
+                  <button onClick={handleProcesar} disabled={procesando} className="w-full px-4 py-3 bg-gradient-to-r from-amber-500 to-brand-600 text-white rounded-xl text-sm font-semibold hover:from-brand-600 hover:to-brand-700 disabled:opacity-50 shadow-lg shadow-amber-500/20/30 transition-all">
                     {procesando ? 'Procesando...' : 'Procesar y generar pago ($' + selectedSolicitud.costo + ' MXN)'}
                   </button>
                 </div>
@@ -313,7 +313,7 @@ export default function SolicitudesPage() {
                 <div className="space-y-3 border-t pt-4">
                   <p className="text-sm text-white/40">Esperando pago del extranjero...</p>
                   {selectedSolicitud.mercadopagoInitPoint && (
-                    <a href={selectedSolicitud.mercadopagoInitPoint} target="_blank" className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-400 bg-blue-500/10 rounded-xl hover:bg-blue-100 transition-colors">
+                    <a href={selectedSolicitud.mercadopagoInitPoint} target="_blank" className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-400 bg-blue-500/10 rounded-xl hover:bg-blue-500/10 transition-colors">
                       🔗 Ver link de pago
                     </a>
                   )}

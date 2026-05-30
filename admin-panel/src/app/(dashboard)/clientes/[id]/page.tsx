@@ -326,7 +326,7 @@ export default function ClienteDetailPage() {
                   {fotoUrl ? (
                     <img src={fotoUrl} alt={cliente.nombreCompleto} className="h-16 w-16 rounded-2xl object-cover border-2 border-white shadow-md" />
                   ) : (
-                    <div className="h-16 w-16 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center shadow-md">
+                    <div className="h-16 w-16 bg-gradient-to-br from-amber-500 to-brand-700 rounded-2xl flex items-center justify-center shadow-md">
                       <span className="text-2xl font-bold text-white">
                         {cliente.nombreCompleto.charAt(0).toUpperCase()}
                       </span>
@@ -665,7 +665,7 @@ export default function ClienteDetailPage() {
                         className="flex items-center justify-between p-4 border-2 border-[#262626] rounded-xl hover:border-amber-500/30 hover:shadow-md bg-gradient-to-r from-white to-gray-50/50 transition-all duration-200"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 bg-gradient-to-br from-brand-100 to-amber-100 rounded-xl flex items-center justify-center shadow-sm">
+                          <div className="h-10 w-10 bg-gradient-to-br from-amber-500/15 to-amber-600/15 rounded-xl flex items-center justify-center shadow-sm">
                             <FileText className="h-5 w-5 text-amber-500" />
                           </div>
                           <div>
@@ -691,7 +691,7 @@ export default function ClienteDetailPage() {
                                 toast.error('Error al cargar el documento');
                               }
                             }}
-                            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-gradient-to-r from-brand-500 to-brand-600 rounded-lg hover:from-brand-600 hover:to-brand-700 shadow-sm transition-all"
+                            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-gradient-to-r from-amber-500 to-brand-600 rounded-lg hover:from-brand-600 hover:to-brand-700 shadow-sm transition-all"
                             title="Ver documento"
                           >
                             <Eye className="h-3.5 w-3.5" /> Ver

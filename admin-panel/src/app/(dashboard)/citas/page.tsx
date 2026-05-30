@@ -122,7 +122,7 @@ export default function CitasPage() {
           </div>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#171717]/20 backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#1f1f1f] backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20"
           >
             <Plus className="h-4 w-4" /> Nueva Cita
           </button>
@@ -231,7 +231,7 @@ export default function CitasPage() {
                     const totalSlots = getHorarios().length;
                     const ocupados = citasDelDia.length;
                     const porcentaje = totalSlots > 0 ? ocupados / totalSlots : 0;
-                    const colorIndicator = ocupado ? 'bg-red-100 border-red-300 text-red-400 cursor-not-allowed' : porcentaje > 0.6 ? 'bg-amber-500/10 border-yellow-300 text-yellow-800 hover:bg-yellow-100' : 'bg-emerald-500/10 border-green-300 text-green-800 hover:bg-green-100';
+                    const colorIndicator = ocupado ? 'bg-red-500/10 border-red-500/30 text-red-400/70 cursor-not-allowed' : porcentaje > 0.6 ? 'bg-amber-500/10 border-yellow-300 text-yellow-800 hover:bg-amber-500/10' : 'bg-emerald-500/10 border-emerald-500/30 text-green-800 hover:bg-emerald-500/10';
                     const isSelected = form.hora === h;
                     return (
                       <button key={h} type="button" disabled={ocupado} onClick={() => !ocupado && setForm(prev => ({ ...prev, hora: h }))} className={`px-2 py-2 rounded-xl text-xs font-medium border transition-all ${isSelected ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-green-500 shadow-md' : colorIndicator}`}>
@@ -287,7 +287,7 @@ export default function CitasPage() {
             {citas.map(cita => {
               const tipoInfo = TIPO_CITA_LABELS[cita.tipo] || TIPO_CITA_LABELS.entrevista;
               return (
-                <div key={cita.id} className="flex items-center justify-between px-6 py-4 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white transition-colors group">
+                <div key={cita.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#1f1f1f] transition-colors group">
                   <div className="flex items-center gap-4">
                     <div className="h-11 w-11 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
                       <Clock className="h-5 w-5 text-emerald-400" />

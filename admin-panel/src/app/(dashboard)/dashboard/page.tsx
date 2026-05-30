@@ -56,7 +56,7 @@ export default function DashboardPage() {
         ) : (
           <>
             <MetricCard title="Total Clientes" value={metricsQuery.data?.totalClientes?.toString() ?? '0'} icon={<Users className="h-5 w-5" />} color="from-blue-500 to-amber-600" trend="+12%" />
-            <MetricCard title="Total Trámites" value={metricsQuery.data?.totalTramites?.toString() ?? '0'} icon={<FileText className="h-5 w-5" />} color="from-brand-500 to-amber-600" trend="+8%" />
+            <MetricCard title="Total Trámites" value={metricsQuery.data?.totalTramites?.toString() ?? '0'} icon={<FileText className="h-5 w-5" />} color="from-amber-500 to-amber-600" trend="+8%" />
             <MetricCard title="Citas Hoy" value={citasHoyQuery.data?.length?.toString() ?? '0'} icon={<Calendar className="h-5 w-5" />} color="from-green-500 to-emerald-600" trend="" />
           </>
         )}
@@ -137,7 +137,7 @@ export default function DashboardPage() {
           <div className="space-y-2">
             {recentActivityQuery.data.map((tramite: Tramite) => (
               <div key={tramite.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-[#141414] transition-colors group">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-100 to-amber-100 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500/15 to-amber-600/15 flex items-center justify-center shrink-0">
                   <FileText className="h-4 w-4 text-amber-400" />
                 </div>
                 <div className="flex-1 min-w-0">

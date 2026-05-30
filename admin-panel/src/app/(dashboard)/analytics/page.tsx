@@ -242,7 +242,7 @@ export default function AnalyticsPage() {
                 <XAxis dataKey="month" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
                 <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
                 <Tooltip
-                  contentStyle={{ borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid #333', background: '#1a1a1a', color: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
                   formatter={(value: number) => [formatCurrency(value), 'Ingresos']}
                 />
                 <Line
@@ -273,7 +273,7 @@ export default function AnalyticsPage() {
                 <XAxis dataKey="tipo" stroke="#9ca3af" fontSize={11} tickLine={false} axisLine={false} angle={-15} textAnchor="end" height={60} />
                 <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
                 <Tooltip
-                  contentStyle={{ borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid #333', background: '#1a1a1a', color: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
                   formatter={(value: number) => [value, 'Trámites']}
                 />
                 <Bar dataKey="cantidad" radius={[8, 8, 0, 0]}>
@@ -311,7 +311,7 @@ export default function AnalyticsPage() {
                   <p className={`text-sm font-medium ${color.text} mb-1`}>{stage.etapa}</p>
                   <p className="text-3xl font-bold text-white">{stage.cantidad}</p>
                   <p className="text-xs text-white/40 mt-1">{stage.porcentaje}% del total</p>
-                  <div className="mt-3 h-2 bg-[#171717]/60 rounded-full overflow-hidden">
+                  <div className="mt-3 h-2 bg-[#1f1f1f] rounded-full overflow-hidden">
                     <div
                       className={`h-full ${color.bar} rounded-full transition-all duration-700`}
                       style={{ width: `${stage.porcentaje}%` }}
@@ -357,7 +357,7 @@ export default function AnalyticsPage() {
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{ borderRadius: '12px', border: '1px solid #e5e7eb' }}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid #333', background: '#1a1a1a', color: '#fff' }}
                   formatter={(value: number, name: string) => [value, name]}
                 />
               </PieChart>

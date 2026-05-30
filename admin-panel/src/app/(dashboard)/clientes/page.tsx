@@ -85,11 +85,11 @@ export default function ClientesPage() {
           </div>
         </div>
         <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-brand-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-amber-600 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-white/40">Mostrando</p>
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-brand-500 to-amber-600 text-white shadow-lg shadow-amber-500/20/30">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/20/30">
                 <ArrowUpRight className="h-5 w-5" />
               </div>
             </div>
@@ -155,7 +155,7 @@ export default function ClientesPage() {
 
           {clientes.length === 0 ? (
             <div className="p-12 text-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center mx-auto mb-4">
                 <Users className="h-8 w-8 text-blue-400" />
               </div>
               <p className="text-white/40 font-medium">No se encontraron extranjeros</p>
@@ -167,9 +167,9 @@ export default function ClientesPage() {
                 {clientes.map((cliente: Cliente) => {
                   const nombreCompleto = capitalizeName(cliente.nombreCompleto) || '—';
                   return (
-                    <div key={cliente.id} className="flex items-center justify-between px-6 py-4 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white transition-colors group">
+                    <div key={cliente.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#1f1f1f] transition-colors group">
                       <div className="flex items-center gap-4">
-                        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+                        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
                           <span className="text-sm font-bold text-blue-400">{nombreCompleto.charAt(0).toUpperCase()}</span>
                         </div>
                         <div className="min-w-0">
@@ -232,7 +232,7 @@ export default function ClientesPage() {
                     <button
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
-                      className="p-2 rounded-xl border hover:bg-[#171717] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="p-2 rounded-xl border hover:bg-[#1f1f1f] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       aria-label="Página anterior"
                     >
                       <ChevronLeft className="h-4 w-4" />
@@ -241,7 +241,7 @@ export default function ClientesPage() {
                     <button
                       onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
-                      className="p-2 rounded-xl border hover:bg-[#171717] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="p-2 rounded-xl border hover:bg-[#1f1f1f] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       aria-label="Página siguiente"
                     >
                       <ChevronRight className="h-4 w-4" />

@@ -170,7 +170,7 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
 
       {/* Formulario nueva cita */}
       {showForm && (
-        <form onSubmit={handleCreate} className="p-5 border-2 border-brand-200 rounded-xl bg-gradient-to-br from-amber-500/10/50 to-white space-y-4">
+        <form onSubmit={handleCreate} className="p-5 border-2 border-amber-500/20 rounded-xl bg-gradient-to-br from-amber-500/[0.06] to-white space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-base font-bold text-white">Agendar cita</p>
             <button type="button" onClick={() => setShowForm(false)} className="p-1.5 rounded-lg hover:bg-[#262626] transition-colors"><X className="h-4 w-4 text-white/40" /></button>
@@ -212,7 +212,7 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
                   const totalSlots = getHorarios().length;
                   const ocupados = citasDelDia.length;
                   const porcentaje = totalSlots > 0 ? ocupados / totalSlots : 0;
-                  const colorIndicator = ocupado ? 'bg-red-100 border-red-300 text-red-400 cursor-not-allowed' : porcentaje > 0.6 ? 'bg-amber-500/10 border-yellow-300 text-yellow-800 hover:bg-yellow-100' : 'bg-emerald-500/10 border-green-300 text-green-800 hover:bg-green-100';
+                  const colorIndicator = ocupado ? 'bg-red-500/10 border-red-500/30 text-red-400/70 cursor-not-allowed' : porcentaje > 0.6 ? 'bg-amber-500/10 border-yellow-300 text-yellow-800 hover:bg-amber-500/10' : 'bg-emerald-500/10 border-emerald-500/30 text-green-800 hover:bg-emerald-500/10';
                   const isSelected = form.hora === h;
                   return (
                     <button

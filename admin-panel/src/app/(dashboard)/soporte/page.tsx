@@ -70,11 +70,11 @@ export default function SoportePage() {
       {/* Metric cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-brand-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-amber-600 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-white/40">Total Tickets</p>
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-brand-500 to-amber-600 text-white shadow-lg shadow-amber-500/20/30">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/20/30">
                 <MessageSquare className="h-5 w-5" />
               </div>
             </div>
@@ -119,7 +119,7 @@ export default function SoportePage() {
             <div className="p-4 space-y-3">{[1,2,3].map(i => <Skeleton key={i} className="h-16 w-full" />)}</div>
           ) : tickets.length === 0 ? (
             <div className="p-12 text-center">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-100 to-amber-100 flex items-center justify-center mx-auto mb-3">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-500/15 to-amber-600/15 flex items-center justify-center mx-auto mb-3">
                 <MessageSquare className="h-6 w-6 text-amber-400/70" />
               </div>
               <p className="text-white/40 font-medium">Sin tickets</p>
@@ -129,7 +129,7 @@ export default function SoportePage() {
               {tickets.map((ticket: any) => {
                 const config = ESTATUS_CONFIG[ticket.estatus] || ESTATUS_CONFIG.abierto;
                 return (
-                  <button key={ticket.id} onClick={() => setSelectedTicket(ticket)} className={`w-full text-left px-5 py-4 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white transition-colors ${selectedTicket?.id === ticket.id ? 'bg-amber-500/10/50 border-l-4 border-l-brand-500' : ''}`}>
+                  <button key={ticket.id} onClick={() => setSelectedTicket(ticket)} className={`w-full text-left px-5 py-4 hover:bg-[#1f1f1f] transition-colors ${selectedTicket?.id === ticket.id ? 'bg-amber-500/10/50 border-l-4 border-l-brand-500' : ''}`}>
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-sm font-semibold text-white line-clamp-1">{ticket.asunto}</p>
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${config.color}`}>{config.label}</span>
@@ -182,7 +182,7 @@ export default function SoportePage() {
                 <div className="p-4 border-t bg-gradient-to-r from-white/[0.02] to-white/[0.04]">
                   <div className="flex gap-2">
                     <input type="text" value={respuesta} onChange={e => setRespuesta(e.target.value)} placeholder="Escribe tu respuesta..." className="flex-1 px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#171717] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" onKeyDown={e => { if (e.key === 'Enter' && respuesta.trim()) enviarRespuesta.mutate(); }} />
-                    <button onClick={() => { if (respuesta.trim()) enviarRespuesta.mutate(); }} disabled={!respuesta.trim()} className="px-5 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-xl text-sm font-semibold hover:from-brand-600 hover:to-brand-700 disabled:opacity-50 shadow-lg shadow-amber-500/20/30 transition-all">
+                    <button onClick={() => { if (respuesta.trim()) enviarRespuesta.mutate(); }} disabled={!respuesta.trim()} className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-brand-600 text-white rounded-xl text-sm font-semibold hover:from-brand-600 hover:to-brand-700 disabled:opacity-50 shadow-lg shadow-amber-500/20/30 transition-all">
                       <Send className="h-4 w-4" />
                     </button>
                   </div>

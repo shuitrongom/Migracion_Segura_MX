@@ -216,7 +216,7 @@ export default function DocumentosPage() {
           <>
             <div className="divide-y divide-[#262626]">
               {filteredDocs.map(doc => (
-                <div key={doc.id} className="flex items-center justify-between px-6 py-4 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white transition-colors group">
+                <div key={doc.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#1f1f1f] transition-colors group">
                   <div className="flex items-center gap-4 min-w-0">
                     <div className="h-11 w-11 bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
                       <FileText className="h-5 w-5 text-amber-600" />
@@ -246,9 +246,9 @@ export default function DocumentosPage() {
               <div className="flex items-center justify-between px-6 py-4 border-t bg-gradient-to-r from-white/[0.02] to-white/[0.04]">
                 <p className="text-sm text-white/40">Página {page} de {totalPages} (<span className="font-semibold text-white/70">{total}</span> documentos)</p>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-xl border hover:bg-[#171717] hover:shadow-sm disabled:opacity-50 transition-all"><ChevronLeft className="h-4 w-4" /></button>
+                  <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-xl border hover:bg-[#1f1f1f] disabled:opacity-50 transition-all"><ChevronLeft className="h-4 w-4" /></button>
                   <span className="text-sm font-medium text-white/70 px-3 py-1.5 bg-[#171717] rounded-lg border">{page} / {totalPages}</span>
-                  <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 rounded-xl border hover:bg-[#171717] hover:shadow-sm disabled:opacity-50 transition-all"><ChevronRight className="h-4 w-4" /></button>
+                  <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 rounded-xl border hover:bg-[#1f1f1f] disabled:opacity-50 transition-all"><ChevronRight className="h-4 w-4" /></button>
                 </div>
               </div>
             )}
