@@ -243,66 +243,86 @@ export default function TramiteDetailPage() {
             </div>
           </div>
 
-          {/* Tareas */}
-          <div className="dark-card-static p-6">
-            <h3 className="text-sm font-semibold text-white mb-4">Tareas internas</h3>
-            {tareas.length === 0 ? (
-              <p className="text-sm text-white/70 text-center py-4">No hay tareas registradas</p>
-            ) : (
-              <div className="space-y-2 mb-4">
-                {tareas.map(tarea => (
-                  <div key={tarea.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-[#222222]">
-                    <button onClick={() => handleToggleTarea(tarea.id)} className={`flex-shrink-0 mt-0.5 h-5 w-5 rounded border-2 flex items-center justify-center ${tarea.completada ? 'bg-green-500 border-green-500' : 'border-[#333333] hover:border-amber-500'}`} aria-label={`${tarea.completada ? 'Desmarcar' : 'Marcar'} tarea`}>
-                      {tarea.completada && <Check className="h-3 w-3 text-white" />}
-                    </button>
-                    <p className={`text-sm ${tarea.completada ? 'text-white/70 line-through' : 'text-white/90'}`}>{tarea.titulo}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className="flex gap-2">
-              <input type="text" value={newTarea} onChange={(e) => setNewTarea(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAddTarea()} className="flex-1 px-3 py-2 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="Nueva tarea..." />
-              <button onClick={handleAddTarea} disabled={!newTarea.trim()} className="p-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50" aria-label="Agregar tarea"><Plus className="h-4 w-4" /></button>
-            </div>
-          </div>
-
-          {/* Captura de pago (solo admin) */}
-          <div className="dark-card-static p-6">
-            <h3 className="text-sm font-semibold text-white mb-4">Pago de Derechos</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-medium text-white/70 mb-1">Monto total (MXN)</label>
-                <input type="number" id="monto-pago" min="0" step="0.01" className="w-full px-3 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="0.00" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-white/70 mb-1">Concepto</label>
-                <input type="text" id="concepto-pago" className="w-full px-3 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="Pago de derechos migratorios" />
-              </div>
-              <button
-                onClick={async () => {
-                  const monto = (document.getElementById('monto-pago') as HTMLInputElement)?.value;
-                  const concepto = (document.getElementById('concepto-pago') as HTMLInputElement)?.value;
-                  if (!monto || parseFloat(monto) <= 0) return;
-                  try {
-                    // Registrar pago y notificar al extranjero
-                    await api.post('/financiero/pagos', {
-                      clienteId: tramite?.clienteId || '',
-                      tramiteId: tramiteId,
-                      monto: parseFloat(monto),
-                      metodoPago: 'transferencia_bancaria',
-                      concepto: concepto || 'Pago de derechos migratorios',
-                    });
-                    toast.success('Pago registrado y notificación enviada al extranjero');
-                  } catch { toast.error('Error al registrar pago'); }
-                }}
-                className="w-full px-4 py-2.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700"
-              >
-                Registrar Pago
-              </button>
-            </div>
-          </div>
+          {/* Pagos del trámite */}
+          <PagosDelTramite tramiteId={tramiteId} clienteId={tramite?.clienteId} />
         </div>
       </div>
+    </div>
+  );
+}
+
+function PagosDelTramite({ tramiteId, clienteId }: { tramiteId: string; clienteId?: string }) {
+  const [pagos, setPagos] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPagos() {
+      try {
+        const res = await api.get(`/financiero/pagos?tramiteId=${tramiteId}`);
+        setPagos(res.data?.data || res.data || []);
+      } catch {
+        setPagos([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPagos();
+  }, [tramiteId]);
+
+  const formatCurrency = (n: number) => `$${Number(n).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN`;
+  const formatDate = (d: string) => d ? new Date(d).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+
+  const ESTATUS_PAGO: Record<string, { label: string; color: string }> = {
+    pendiente: { label: 'Pendiente', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
+    aprobado: { label: 'Pagado', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+    rechazado: { label: 'Rechazado', color: 'bg-red-500/10 text-red-400 border-red-500/20' },
+    cancelado: { label: 'Cancelado', color: 'bg-[#222222] text-white/70 border-[#3a3a3a]' },
+    reembolsado: { label: 'Reembolsado', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
+  };
+
+  const TIPO_PAGO: Record<string, string> = {
+    anticipo: 'Anticipo (50%)',
+    liquidacion: 'Liquidación (50%)',
+    pago_unico: 'Pago único',
+  };
+
+  return (
+    <div className="dark-card-static p-6">
+      <h3 className="text-sm font-semibold text-white mb-4">💳 Pagos del trámite</h3>
+      {loading ? (
+        <p className="text-sm text-white/70 text-center py-4">Cargando pagos...</p>
+      ) : pagos.length === 0 ? (
+        <p className="text-sm text-white/70 text-center py-4">No hay pagos registrados para este trámite.</p>
+      ) : (
+        <div className="space-y-3">
+          {pagos.map((pago: any) => {
+            const estatus = ESTATUS_PAGO[pago.estatusPago || pago.estatus_pago] || ESTATUS_PAGO.pendiente;
+            const tipo = TIPO_PAGO[pago.tipoPago || pago.tipo_pago] || 'Pago';
+            return (
+              <div key={pago.id} className="p-3 rounded-lg border border-[#3a3a3a] bg-[#1a1a1a]">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-white/70">{tipo}</span>
+                  <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border ${estatus.color}`}>{estatus.label}</span>
+                </div>
+                <p className="text-lg font-bold text-white">{formatCurrency(pago.monto)}</p>
+                <p className="text-xs text-white/70 mt-1">{pago.concepto}</p>
+                <div className="flex items-center gap-3 mt-2 text-[10px] text-white/70">
+                  {pago.fechaPago && <span>Pagado: {formatDate(pago.fechaPago)}</span>}
+                  {pago.fechaVencimiento && <span>Vence: {formatDate(pago.fechaVencimiento)}</span>}
+                  {pago.mercadopagoInitPoint && (
+                    <a href={pago.mercadopagoInitPoint} target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300">Ver link MP</a>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          {/* Total */}
+          <div className="pt-2 border-t border-[#3a3a3a] flex items-center justify-between">
+            <span className="text-xs font-semibold text-white/70">Monto total del trámite</span>
+            <span className="text-sm font-bold text-amber-400">{formatCurrency(pagos[0]?.montoTotalTramite || pagos.reduce((sum: number, p: any) => sum + Number(p.monto), 0))}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
