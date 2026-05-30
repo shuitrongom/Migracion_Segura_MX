@@ -245,7 +245,7 @@ export default function TramitesPage() {
                               {badge.label}
                             </span>
                             {/* Indicador de origen */}
-                            {tramite.numeroPieza?.startsWith('MSX-') ? (
+                            {((tramite.datosFormulario as any)?.origenApp || (tramite.numeroPieza?.startsWith('MSX-') && !(tramite.datosFormulario as any)?.etapaGestion)) ? (
                               <span className="inline-flex px-1.5 py-0.5 rounded text-[9px] font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">📱 App</span>
                             ) : (
                               <span className="inline-flex px-1.5 py-0.5 rounded text-[9px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">🖥 Admin</span>
@@ -260,7 +260,7 @@ export default function TramitesPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        {(!tramite.numeroPieza || (tramite.numeroPieza.startsWith('MSX-') && (tramite.estatus === 'recibido' || tramite.estatus === 'borrador'))) && (
+                        {(tramite.datosFormulario as any)?.etapaGestion !== 'finalizado' && (tramite.estatus === 'recibido' || tramite.estatus === 'borrador' || (tramite.estatus === 'en_revision' && (tramite.datosFormulario as any)?.etapaGestion && (tramite.datosFormulario as any).etapaGestion !== 'finalizado')) && (
                           <Link href={`/tramites/continuar/${tramite.id}`} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-amber-500 to-brand-600 text-white hover:from-brand-600 hover:to-brand-700 shadow-sm transition-all">
                             Continuar
                           </Link>

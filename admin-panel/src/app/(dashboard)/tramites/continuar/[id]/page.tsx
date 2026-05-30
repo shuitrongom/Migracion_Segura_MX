@@ -69,15 +69,30 @@ export default function ContinuarTramitePage() {
       try {
         const res = await api.get(`/tramites/${tramiteId}`);
         setTramite(res.data);
-        // Cargar requisitos del tipo de trámite
         const reqRes = await api.get(`/tramites/requisitos/${res.data.tipo}`);
         setRequisitos(reqRes.data || []);
-        // Si el trámite ya tiene pieza REAL del INM (no la auto-generada MSX-), saltar al paso de requisitos
-        if (res.data.numeroPieza && !res.data.numeroPieza.startsWith('MSX-')) {
+
+        // Determinar en qué paso retomar según etapaGestion guardada
+        const etapa = res.data.datosFormulario?.etapaGestion;
+        if (etapa === 'finalizado') {
+          // Ya se finalizó, redirigir al detalle
+          router.push(`/tramites/${tramiteId}`);
+          return;
+        } else if (etapa === 'pago') {
+          setNumeroPieza(res.data.numeroPieza || res.data.datosFormulario?.numeroPiezaINM || '');
+          setContrasenaINM(res.data.contrasenaTramite || res.data.datosFormulario?.contrasenaINM || '');
+          setStep(2); // Ir a Pago
+        } else if (etapa === 'requisitos') {
+          setNumeroPieza(res.data.numeroPieza || res.data.datosFormulario?.numeroPiezaINM || '');
+          setContrasenaINM(res.data.contrasenaTramite || res.data.datosFormulario?.contrasenaINM || '');
+          setStep(1); // Ir a Requisitos
+        } else if (res.data.numeroPieza && !res.data.numeroPieza.startsWith('MSX-')) {
+          // Tiene pieza real pero no tiene etapaGestion (caso legacy)
           setNumeroPieza(res.data.numeroPieza);
           setContrasenaINM(res.data.contrasenaTramite || '');
           setStep(1); // Ir a Requisitos
         }
+        // Si no tiene pieza real ni etapaGestion, queda en paso 0 (Solicitud INM)
       } catch {
         toast.error('Error al cargar el trámite');
       } finally {
@@ -87,13 +102,22 @@ export default function ContinuarTramitePage() {
     if (tramiteId) fetchData();
   }, [tramiteId]);
 
+  // Guardar etapa de gestión en la BD
+  const saveEtapa = async (etapa: string) => {
+    try {
+      await api.patch(`/tramites/${tramiteId}/continuar`, {
+        datosFormulario: { ...tramite?.datosFormulario, etapaGestion: etapa },
+      });
+    } catch {} // No bloquear si falla
+  };
+
   const handleNext = async () => {
     if (step === 0) {
       if (!numeroPieza.trim()) { toast.error('Ingresa el número de pieza'); return; }
       if (!contrasenaINM.trim()) { toast.error('Ingresa la clave del INM'); return; }
       if (!pdfFile) { toast.error('Sube el PDF de la solicitud'); return; }
 
-      // Guardar pieza y clave INMEDIATAMENTE al avanzar
+      // Guardar pieza, clave y etapa INMEDIATAMENTE
       try {
         await api.patch(`/tramites/${tramiteId}/continuar`, {
           numeroPieza: numeroPieza,
@@ -102,6 +126,8 @@ export default function ContinuarTramitePage() {
             ...tramite?.datosFormulario,
             numeroPiezaINM: numeroPieza,
             contrasenaINM: contrasenaINM,
+            etapaGestion: 'requisitos',
+            origenApp: tramite?.numeroPieza?.startsWith('MSX-') || tramite?.datosFormulario?.origenApp || false,
           },
         });
 
@@ -121,13 +147,24 @@ export default function ContinuarTramitePage() {
         return;
       }
     }
+
+    if (step === 1) {
+      // Guardar que pasó a etapa de pago
+      await saveEtapa('pago');
+    }
+
     setStep(s => Math.min(s + 1, STEPS.length - 1));
   };
 
   const handleFinish = async () => {
     setSubmitting(true);
     try {
-      // Cambiar estatus a en_revision (la pieza ya se guardó en el paso 1)
+      // Marcar etapa como finalizada
+      await api.patch(`/tramites/${tramiteId}/continuar`, {
+        datosFormulario: { ...tramite?.datosFormulario, etapaGestion: 'finalizado' },
+      });
+
+      // Cambiar estatus a en_revision
       await api.patch(`/tramites/${tramiteId}/estatus`, {
         estatus: 'en_revision',
         observaciones: `Solicitud INM completada. Pieza: ${numeroPieza}`,
