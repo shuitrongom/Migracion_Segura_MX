@@ -310,6 +310,25 @@ export default function ContinuarTramitePage() {
                         <CopyField label="¿Antecedentes?" value={tramite.datosFormulario.antecedentesPenales} />
                       </div>
                     )}
+                    {/* Visas del extranjero (solo para trámites de visa) */}
+                    {tramite.tipo === 'visa' && (
+                      <div>
+                        <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-amber-500/30 pb-1 mb-2">Visas del extranjero</p>
+                        {tramite.datosFormulario.visas && tramite.datosFormulario.visas.length > 0 ? (
+                          <div className="space-y-2">
+                            {tramite.datosFormulario.visas.map((visa: any, i: number) => (
+                              <div key={i} className="p-2 rounded-lg border border-[#3a3a3a] bg-[#1a1a1a]">
+                                <CopyField label={`Visa ${i + 1} - País`} value={visa.pais} />
+                                <CopyField label="Número" value={visa.numero} />
+                                {visa.fechaVencimiento && <CopyField label="Vencimiento" value={visa.fechaVencimiento} isDate />}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-[10px] text-white/70 italic">No capturado por el extranjero</p>
+                        )}
+                      </div>
+                    )}
                     {/* Empleador */}
                     {tramite.datosFormulario.empleadorTipoPersona && (
                       <div>
