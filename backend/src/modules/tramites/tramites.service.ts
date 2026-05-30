@@ -278,9 +278,9 @@ export class TramitesService {
       // Buscar el userId del cliente para enviarle la notificación
       try {
         const cliente = await this.tramiteRepository.manager.query(
-          `SELECT "userId" FROM clientes WHERE id = $1`, [tramite.clienteId]
+          `SELECT user_id FROM clientes WHERE id = $1`, [tramite.clienteId]
         );
-        if (cliente?.[0]?.userId) {
+        if (cliente?.[0]?.user_id) {
           await this.notificacionesService.sendNotification({
             destinatarioId: cliente[0].userId,
             tipo: TipoNotificacion.CAMBIO_ESTATUS,

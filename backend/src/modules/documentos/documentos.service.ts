@@ -303,9 +303,9 @@ export class DocumentosService {
       const expediente = await this.expedienteRepository.findOne({ where: { id: documento.expedienteId } });
       if (expediente?.clienteId) {
         const cliente = await this.documentoRepository.manager.query(
-          `SELECT "userId" FROM clientes WHERE id = $1`, [expediente.clienteId]
+          `SELECT user_id FROM clientes WHERE id = $1`, [expediente.clienteId]
         );
-        if (cliente?.[0]?.userId) {
+        if (cliente?.[0]?.user_id) {
           await this.notificacionesService.sendNotification({
             destinatarioId: cliente[0].userId,
             tipo: TipoNotificacion.DOCUMENTO_RECHAZADO,

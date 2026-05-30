@@ -96,9 +96,9 @@ export class FinancieroService {
     if (params.clienteId) {
       try {
         const cliente = await this.pagoRepository.manager.query(
-          `SELECT "userId" FROM clientes WHERE id = $1`, [params.clienteId]
+          `SELECT user_id FROM clientes WHERE id = $1`, [params.clienteId]
         );
-        if (cliente?.[0]?.userId) {
+        if (cliente?.[0]?.user_id) {
           await this.notificacionesService.sendNotification({
             destinatarioId: cliente[0].userId,
             tipo: TipoNotificacion.PAGO_PENDIENTE,
@@ -207,9 +207,9 @@ export class FinancieroService {
       // Notificar al extranjero
       if (pago.clienteId) {
         const cliente = await this.pagoRepository.manager.query(
-          `SELECT "userId" FROM clientes WHERE id = $1`, [pago.clienteId]
+          `SELECT user_id FROM clientes WHERE id = $1`, [pago.clienteId]
         );
-        if (cliente?.[0]?.userId) {
+        if (cliente?.[0]?.user_id) {
           await this.notificacionesService.sendNotification({
             destinatarioId: cliente[0].userId,
             tipo: TipoNotificacion.PAGO_CONFIRMADO,

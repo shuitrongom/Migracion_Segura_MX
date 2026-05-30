@@ -74,9 +74,10 @@ export default function TramiteNuevoScreen() {
     try {
       const userData = await storage.getItem('user_data');
       const user = userData ? JSON.parse(userData) : null;
+      if (!user?.id) { Alert.alert('Error', 'No se encontró tu sesión. Cierra sesión e inicia de nuevo.'); setSubmitting(false); return; }
       const res = await apiFetch('/tramites', {
         method: 'POST',
-        body: JSON.stringify({ tipo: selectedTipo, clienteId: user?.id, datosFormulario: { ...form, solicitante }, esBorrador: false }),
+        body: JSON.stringify({ tipo: selectedTipo, clienteId: user.id, datosFormulario: { ...form, solicitante }, esBorrador: false }),
       });
       const data = await res.json();
       setSubmitting(false);

@@ -50,9 +50,9 @@ export class CitasService {
     // Notificar al extranjero que tiene una cita agendada
     try {
       const cliente = await this.citaRepository.manager.query(
-        `SELECT "userId" FROM clientes WHERE id = $1`, [dto.clienteId]
+        `SELECT user_id FROM clientes WHERE id = $1`, [dto.clienteId]
       );
-      if (cliente?.[0]?.userId) {
+      if (cliente?.[0]?.user_id) {
         const tipoLabel = dto.tipo === 'inm' ? 'Cita en el INM' : 'Entrevista con tu Gestor';
         await this.notificacionesService.sendNotification({
           destinatarioId: cliente[0].userId,
