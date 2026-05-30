@@ -63,7 +63,25 @@ export default function ExpedienteDigitalPage() {
       setLoading(true);
       const res = await api.get('/clientes');
       const data = res.data?.data || res.data || [];
-      setClientes(Array.isArray(data) ? data : []);
+      const allClientes: Cliente[] = Array.isArray(data) ? data : [];
+      
+      // Pre-cargar documentos de cada cliente para saber cuáles tienen
+      const clientesConDocs: Cliente[] = [];
+      const docsMap: Record<string, DocItem[]> = {};
+      
+      await Promise.all(allClientes.map(async (cliente) => {
+        try {
+          const docsRes = await api.get(`/documentos?clienteId=${cliente.id}`);
+          const docs = docsRes.data?.data || docsRes.data || [];
+          if (Array.isArray(docs) && docs.length > 0) {
+            clientesConDocs.push(cliente);
+            docsMap[cliente.id] = docs;
+          }
+        } catch {}
+      }));
+      
+      setClientes(clientesConDocs);
+      setClienteDocs(docsMap);
     } catch {
       setClientes([]);
     } finally {
