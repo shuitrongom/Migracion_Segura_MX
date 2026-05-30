@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Check, Circle, Clock, Plus, Loader2 } from 'lucide-react';
@@ -261,50 +261,176 @@ export default function TramiteDetailPage() {
           <PagosDelTramite tramiteId={tramiteId} clienteId={tramite?.clienteId} />
 
           {/* Pieza INM + NUT */}
-          <div className="dark-card-static p-6">
-            <h3 className="text-sm font-semibold text-white mb-4">📋 Datos INM</h3>
-            <div className="space-y-3">
-              <div className="p-3 rounded-lg border border-[#3a3a3a] bg-[#1a1a1a]">
-                <p className="text-[10px] text-white/70 uppercase font-semibold">Número de Pieza</p>
-                <p className="text-lg font-mono font-bold text-amber-400">{tramite?.numeroPieza || '—'}</p>
+          <DatosINMSection tramiteId={tramiteId} tramite={tramite} estatus={estatus} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DatosINMSection({ tramiteId, tramite, estatus }: { tramiteId: string; tramite: TramiteDetail; estatus: EstatusTramite }) {
+  const [pdfSolicitudOpen, setPdfSolicitudOpen] = useState(false);
+  const [pdfNutOpen, setPdfNutOpen] = useState(false);
+  const [nutPdfFile, setNutPdfFile] = useState<File | null>(null);
+  const nutFileRef = useRef<HTMLInputElement>(null);
+
+  const handleRegistrarNut = async () => {
+    const nutValue = (document.getElementById('nut-input') as HTMLInputElement)?.value;
+    if (!nutValue?.trim()) { toast.error('Ingresa el NUT'); return; }
+    try {
+      // Upload NUT PDF if provided
+      if (nutPdfFile) {
+        const formData = new FormData();
+        formData.append('file', nutPdfFile);
+        formData.append('tramiteId', tramiteId);
+        formData.append('categoria', 'nut');
+        formData.append('nombre', `NUT_${nutValue.trim()}.pdf`);
+        await api.post('/documentos/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      }
+      await api.patch(`/tramites/${tramiteId}/continuar`, { datosFormulario: { ...tramite?.datosFormulario, nut: nutValue.trim() } });
+      await api.patch(`/tramites/${tramiteId}/estatus`, { estatus: 'en_espera_resolucion', observaciones: `NUT registrado: ${nutValue.trim()}. Trámite presentado ante INM.` });
+      toast.success('NUT registrado. Se notificó al extranjero.');
+      window.location.reload();
+    } catch { toast.error('Error al registrar NUT'); }
+  };
+
+  return (
+    <>
+      <div className="dark-card-static p-6">
+        <h3 className="text-sm font-semibold text-white mb-4">📋 Datos INM</h3>
+        <div className="space-y-3">
+          {/* Pieza */}
+          <div className="p-3 rounded-lg border border-[#3a3a3a] bg-[#1a1a1a]">
+            <p className="text-[10px] text-white/70 uppercase font-semibold">Número de Pieza</p>
+            <div className="flex items-center justify-between">
+              <p className="text-lg font-mono font-bold text-amber-400">{tramite?.numeroPieza || '—'}</p>
+              {tramite?.numeroPieza && (
+                <button
+                  onClick={() => setPdfSolicitudOpen(true)}
+                  className="px-2.5 py-1 text-[11px] font-medium text-amber-400 border border-amber-500/30 rounded-lg hover:bg-amber-500/10 transition-colors"
+                >
+                  📄 Ver PDF Solicitud
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Clave INM */}
+          <div className="p-3 rounded-lg border border-[#3a3a3a] bg-[#1a1a1a]">
+            <p className="text-[10px] text-white/70 uppercase font-semibold">Clave INM</p>
+            <p className="text-lg font-mono font-bold text-amber-400">{tramite?.contrasenaTramite || '—'}</p>
+          </div>
+
+          {/* NUT */}
+          <div className="p-3 rounded-lg border border-[#3a3a3a] bg-[#1a1a1a]">
+            <p className="text-[10px] text-white/70 uppercase font-semibold">NUT (Número Único de Trámite)</p>
+            {tramite?.nut ? (
+              <div className="flex items-center justify-between mt-1">
+                <p className="text-lg font-mono font-bold text-emerald-400">{tramite.nut}</p>
+                <button
+                  onClick={() => setPdfNutOpen(true)}
+                  className="px-2.5 py-1 text-[11px] font-medium text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/10 transition-colors"
+                >
+                  📄 Ver PDF NUT
+                </button>
               </div>
-              <div className="p-3 rounded-lg border border-[#3a3a3a] bg-[#1a1a1a]">
-                <p className="text-[10px] text-white/70 uppercase font-semibold">Clave INM</p>
-                <p className="text-lg font-mono font-bold text-amber-400">{tramite?.contrasenaTramite || '—'}</p>
-              </div>
-              <div className="p-3 rounded-lg border border-[#3a3a3a] bg-[#1a1a1a]">
-                <p className="text-[10px] text-white/70 uppercase font-semibold">NUT (Número Único de Trámite)</p>
-                {tramite?.nut ? (
-                  <p className="text-lg font-mono font-bold text-emerald-400">{tramite.nut}</p>
-                ) : (
-                  <div className="mt-2">
-                    <p className="text-xs text-white/70 italic mb-2">No registrado aún</p>
-                    {(estatus === 'presentado_inm' || estatus === 'en_revision') && (
-                      <div className="space-y-2">
-                        <input type="text" id="nut-input" className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="Ingresa el NUT..." />
-                        <button
-                          onClick={async () => {
-                            const nutValue = (document.getElementById('nut-input') as HTMLInputElement)?.value;
-                            if (!nutValue?.trim()) { toast.error('Ingresa el NUT'); return; }
-                            try {
-                              await api.patch(`/tramites/${tramiteId}/continuar`, { datosFormulario: { ...tramite?.datosFormulario, nut: nutValue.trim() } });
-                              // Cambiar estatus a en_espera_resolucion
-                              await api.patch(`/tramites/${tramiteId}/estatus`, { estatus: 'en_espera_resolucion', observaciones: `NUT registrado: ${nutValue.trim()}. Trámite presentado ante INM.` });
-                              toast.success('NUT registrado. Se notificó al extranjero.');
-                              window.location.reload();
-                            } catch { toast.error('Error al registrar NUT'); }
-                          }}
-                          className="w-full px-3 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700"
-                        >
-                          Registrar NUT y notificar
-                        </button>
-                      </div>
-                    )}
+            ) : (
+              <div className="mt-2">
+                <p className="text-xs text-white/70 italic mb-2">No registrado aún</p>
+                {(estatus === 'presentado_inm' || estatus === 'en_revision') && (
+                  <div className="space-y-2">
+                    <input type="text" id="nut-input" className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="Ingresa el NUT..." />
+                    <div>
+                      <label className="text-[10px] text-white/70 uppercase font-semibold block mb-1">PDF del NUT (opcional)</label>
+                      <input
+                        ref={nutFileRef}
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(e) => setNutPdfFile(e.target.files?.[0] || null)}
+                        className="w-full text-xs text-white/70 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#252525] file:text-white/70 hover:file:bg-[#333333] file:cursor-pointer border border-[#3a3a3a] rounded-lg bg-[#1a1a1a] py-1.5 px-2"
+                      />
+                      {nutPdfFile && <p className="text-[10px] text-emerald-400 mt-1">✓ {nutPdfFile.name}</p>}
+                    </div>
+                    <button
+                      onClick={handleRegistrarNut}
+                      className="w-full px-3 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700"
+                    >
+                      Registrar NUT y notificar
+                    </button>
                   </div>
                 )}
               </div>
-            </div>
+            )}
           </div>
+        </div>
+      </div>
+
+      {/* PDF Modals */}
+      <PdfViewerModal
+        isOpen={pdfSolicitudOpen}
+        onClose={() => setPdfSolicitudOpen(false)}
+        title="PDF Solicitud - Pieza"
+        tramiteId={tramiteId}
+        categoria="solicitud"
+      />
+      <PdfViewerModal
+        isOpen={pdfNutOpen}
+        onClose={() => setPdfNutOpen(false)}
+        title="PDF NUT"
+        tramiteId={tramiteId}
+        categoria="nut"
+      />
+    </>
+  );
+}
+
+function PdfViewerModal({ isOpen, onClose, title, tramiteId, categoria }: { isOpen: boolean; onClose: () => void; title: string; tramiteId: string; categoria: string }) {
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setLoading(true);
+    api.get(`/documentos?tramiteId=${tramiteId}&categoria=${categoria}`)
+      .then(res => {
+        const docs = res.data?.data || res.data || [];
+        if (docs.length > 0) {
+          return api.get(`/documentos/${docs[0].id}/download`, { responseType: 'blob' });
+        }
+        return null;
+      })
+      .then(res => {
+        if (res) {
+          const blob = new Blob([res.data], { type: 'application/pdf' });
+          setPdfUrl(URL.createObjectURL(blob));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+    return () => { if (pdfUrl) URL.revokeObjectURL(pdfUrl); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, tramiteId, categoria]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+      <div className="bg-[#171717] rounded-2xl shadow-2xl w-full max-w-4xl mx-4 h-[85vh] flex flex-col border border-[#3a3a3a]">
+        <div className="flex items-center justify-between p-4 border-b border-[#3a3a3a]">
+          <h3 className="text-lg font-bold text-white">{title}</h3>
+          <div className="flex items-center gap-2">
+            {pdfUrl && <button onClick={() => window.open(pdfUrl, '_blank')} className="px-3 py-1.5 text-xs font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600">Imprimir</button>}
+            <button onClick={onClose} className="px-3 py-1.5 text-xs font-medium text-white/70 border border-[#3a3a3a] rounded-lg hover:bg-[#222222]">Cerrar</button>
+          </div>
+        </div>
+        <div className="flex-1 overflow-hidden rounded-b-2xl bg-[#222222]">
+          {loading ? (
+            <div className="flex items-center justify-center h-full"><p className="text-white/70">Cargando PDF...</p></div>
+          ) : pdfUrl ? (
+            <iframe src={pdfUrl} className="w-full h-full border-0" title={title} />
+          ) : (
+            <div className="flex items-center justify-center h-full"><p className="text-white/70">No se encontró el PDF</p></div>
+          )}
         </div>
       </div>
     </div>

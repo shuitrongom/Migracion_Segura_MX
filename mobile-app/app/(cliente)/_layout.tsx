@@ -87,6 +87,10 @@ export default function ClienteLayout() {
         name="evaluar-tramite"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="subir-documento"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }
