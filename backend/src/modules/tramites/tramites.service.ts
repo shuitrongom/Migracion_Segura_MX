@@ -195,17 +195,24 @@ export class TramitesService {
   async continuarTramite(tramiteId: string, dto: { numeroPieza?: string; contrasenaTramite?: string; datosFormulario?: Record<string, unknown> }): Promise<Tramite> {
     const tramite = await this.findOneOrFail(tramiteId);
 
+    // Usar update directo para evitar que TypeORM sobreescriba campos con null
+    const updateData: Record<string, unknown> = {};
+
     if (dto.numeroPieza) {
-      tramite.numeroPieza = dto.numeroPieza;
+      updateData.numeroPieza = dto.numeroPieza;
     }
     if (dto.contrasenaTramite) {
-      tramite.contrasenaTramite = dto.contrasenaTramite;
+      updateData.contrasenaTramite = dto.contrasenaTramite;
     }
     if (dto.datosFormulario) {
-      tramite.datosFormulario = { ...tramite.datosFormulario, ...dto.datosFormulario };
+      updateData.datosFormulario = { ...tramite.datosFormulario, ...dto.datosFormulario };
     }
 
-    return this.tramiteRepository.save(tramite);
+    if (Object.keys(updateData).length > 0) {
+      await this.tramiteRepository.update(tramiteId, updateData);
+    }
+
+    return this.findOneOrFail(tramiteId);
   }
 
   /**
@@ -214,10 +221,11 @@ export class TramitesService {
   async updateEstatus(tramiteId: string, dto: UpdateEstatusDto): Promise<Tramite> {
     const tramite = await this.findOneOrFail(tramiteId);
 
-    tramite.estatus = dto.estatus;
+    // Usar update directo para evitar que TypeORM sobreescriba campos con null
+    const updateData: Record<string, unknown> = { estatus: dto.estatus };
 
     if (dto.resolucion) {
-      tramite.resolucion = dto.resolucion;
+      updateData.resolucion = dto.resolucion;
     }
 
     if (
@@ -225,10 +233,10 @@ export class TramitesService {
       dto.estatus === EstatusTramite.RECHAZADO ||
       dto.estatus === EstatusTramite.CANCELADO
     ) {
-      tramite.fechaCierre = new Date();
+      updateData.fechaCierre = new Date();
     }
 
-    const saved = await this.tramiteRepository.save(tramite);
+    await this.tramiteRepository.update(tramiteId, updateData);
 
     // Registrar cambio de estatus en actividad
     await this.activityLogService.log({
@@ -236,7 +244,7 @@ export class TramitesService {
       resource: 'tramite',
       resourceId: tramiteId,
       details: {
-        estatusAnterior: tramite.estatus !== dto.estatus ? 'anterior' : null,
+        estatusAnterior: tramite.estatus,
         estatusNuevo: dto.estatus,
         observaciones: dto.observaciones || null,
         clienteId: tramite.clienteId,
@@ -276,7 +284,7 @@ export class TramitesService {
       } catch {}
     }
 
-    return saved;
+    return this.findOneOrFail(tramiteId);
   }
 
   /**
