@@ -58,17 +58,17 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <>
       {/* Logo */}
-      <div className="flex items-center h-16 px-6 border-b border-brand-400/30">
+      <div className="flex items-center h-16 px-6 border-b border-cyan-900/30">
         <img src="/logo.png" alt="Logo" className="h-9 w-9 mr-2 rounded" />
         <div>
-          <span className="text-lg font-bold text-gold-400">MIGRACIÓN</span>
-          <span className="ml-1 text-sm text-brand-200">SEGURA MX</span>
+          <span className="text-lg font-bold futuristic-gradient-text">MIGRACIÓN</span>
+          <span className="ml-1 text-sm text-cyan-300/70">SEGURA MX</span>
         </div>
       </div>
 
       {/* Version badge */}
       <div className="px-6 py-3">
-        <span className="inline-block px-3 py-1 bg-gold-500/20 text-gold-300 text-xs font-medium rounded-full border border-gold-500/30">
+        <span className="inline-block px-3 py-1 bg-cyan-500/10 text-cyan-300 text-xs font-medium rounded-full border border-cyan-500/30">
           {isAdmin ? 'ADMINISTRADOR' : 'GESTOR'}
         </span>
       </div>
@@ -84,10 +84,10 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                   href={item.href}
                   onClick={onNavigate}
                   className={clsx(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-300',
                     isActive
-                      ? 'bg-gold-500/20 text-gold-300'
-                      : 'text-brand-200 hover:bg-brand-400/20 hover:text-white',
+                      ? 'bg-cyan-500/15 text-cyan-300 border-l-2 border-cyan-400 shadow-sm shadow-cyan-500/10'
+                      : 'text-slate-400 hover:bg-slate-800/50 hover:text-cyan-200',
                   )}
                 >
                   <item.icon className="h-5 w-5 flex-shrink-0" />
@@ -100,8 +100,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-brand-400/30">
-        <p className="text-xs text-brand-300 text-center">
+      <div className="p-4 border-t border-cyan-900/30">
+        <p className="text-xs text-slate-500 text-center">
           Panel de gestión y control de trámites y clientes.
         </p>
       </div>
@@ -115,7 +115,7 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex lg:flex-col w-64 bg-brand-500 text-white">
+      <aside className="hidden lg:flex lg:flex-col w-64 bg-[#0a1628] text-white border-r border-cyan-900/30">
         <SidebarContent />
       </aside>
 
@@ -126,7 +126,7 @@ export function Sidebar() {
           <div className="fixed inset-0 bg-black/50" onClick={close} />
           
           {/* Sidebar panel */}
-          <aside className="fixed inset-y-0 left-0 w-72 bg-brand-500 text-white flex flex-col shadow-xl">
+          <aside className="fixed inset-y-0 left-0 w-72 bg-[#0a1628] text-white flex flex-col shadow-xl border-r border-cyan-900/30">
             {/* Close button */}
             <button
               onClick={close}

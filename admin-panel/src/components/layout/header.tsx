@@ -30,11 +30,11 @@ export function Header() {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-brand-100 flex items-center justify-between px-4 md:px-6">
+    <header className="h-16 bg-[#0a1628] border-b border-cyan-900/30 flex items-center justify-between px-4 md:px-6">
       <div className="flex items-center gap-3">
         <button
           onClick={toggleSidebar}
-          className="lg:hidden p-2 text-brand-500 hover:bg-brand-50 rounded-lg transition"
+          className="lg:hidden p-2 text-cyan-400 hover:bg-slate-800 rounded-lg transition"
           aria-label="Abrir menú"
         >
           <Menu className="h-6 w-6" />
@@ -45,21 +45,21 @@ export function Header() {
         {/* Notificaciones */}
         <Link
           href="/notificaciones"
-          className="relative p-2 text-brand-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition"
+          className="relative p-2 text-slate-400 hover:text-cyan-300 hover:bg-slate-800 rounded-lg transition-all duration-300"
           aria-label="Notificaciones"
         >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 h-2 w-2 bg-danger-500 rounded-full animate-pulse" />
+            <span className="absolute top-1 right-1 h-2 w-2 bg-cyan-400 rounded-full animate-pulse shadow-lg shadow-cyan-400/50" />
           )}
         </Link>
 
         {/* Perfil */}
         <div className="flex items-center gap-2 p-2">
-          <div className="h-8 w-8 bg-brand-100 rounded-full flex items-center justify-center">
-            <User className="h-4 w-4 text-brand-500" />
+          <div className="h-8 w-8 bg-cyan-500/10 border border-cyan-500/30 rounded-full flex items-center justify-center">
+            <User className="h-4 w-4 text-cyan-400" />
           </div>
-          <span className="text-sm font-medium text-brand-700 hidden md:block">
+          <span className="text-sm font-medium text-slate-300 hidden md:block">
             {user?.fullName || user?.email || 'Admin'}
           </span>
         </div>
@@ -67,7 +67,7 @@ export function Header() {
         {/* Cerrar sesión */}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-3 py-2 text-sm text-danger-500 hover:bg-danger-50 rounded-lg transition"
+          className="flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-900/20 rounded-lg transition-all duration-300"
           aria-label="Cerrar sesión"
         >
           <LogOut className="h-4 w-4" />

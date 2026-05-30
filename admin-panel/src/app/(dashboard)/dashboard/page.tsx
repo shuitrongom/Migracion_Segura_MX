@@ -40,12 +40,12 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header con gradiente */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-gray-900 via-stone-800 to-amber-700 p-8 text-white shadow-xl">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-400/10 rounded-full translate-y-1/2 -translate-x-1/2" />
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0a1628] via-[#0f2027] to-[#1a1a2e] p-8 text-white shadow-xl border border-cyan-900/30">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/5 rounded-full translate-y-1/2 -translate-x-1/2" />
         <div className="relative z-10">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-amber-200 mt-1">Panel de control — Migración Segura MX</p>
+          <h1 className="text-3xl font-bold futuristic-gradient-text">Dashboard</h1>
+          <p className="text-cyan-300/70 mt-1">Panel de control — Migración Segura MX</p>
         </div>
       </div>
 
@@ -65,10 +65,10 @@ export default function DashboardPage() {
       {/* Grid principal */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Distribución por estatus */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
+        <div className="futuristic-card p-6 hover:shadow-lg hover:shadow-cyan-900/10 transition-all duration-300">
           <div className="flex items-center gap-2 mb-5">
-            <div className="p-2 rounded-lg bg-brand-50"><Activity className="h-4 w-4 text-brand-600" /></div>
-            <h2 className="text-lg font-bold text-gray-900">Distribución por Estatus</h2>
+            <div className="p-2 rounded-lg bg-cyan-500/10"><Activity className="h-4 w-4 text-cyan-400" /></div>
+            <h2 className="text-lg font-bold text-cyan-200">Distribución por Estatus</h2>
           </div>
           {estatusQuery.isLoading ? (
             <div className="space-y-3">{[1,2,3,4,5].map(i => <Skeleton key={i} className="h-7 w-full" />)}</div>
@@ -90,10 +90,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Citas de hoy */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
+        <div className="futuristic-card p-6 hover:shadow-lg hover:shadow-cyan-900/10 transition-all duration-300">
           <div className="flex items-center gap-2 mb-5">
-            <div className="p-2 rounded-lg bg-green-50"><Calendar className="h-4 w-4 text-green-600" /></div>
-            <h2 className="text-lg font-bold text-gray-900">Citas de Hoy</h2>
+            <div className="p-2 rounded-lg bg-emerald-500/10"><Calendar className="h-4 w-4 text-emerald-400" /></div>
+            <h2 className="text-lg font-bold text-cyan-200">Citas de Hoy</h2>
           </div>
           {citasHoyQuery.isLoading ? (
             <div className="space-y-3"><Skeleton className="h-16 w-full" /><Skeleton className="h-16 w-full" /></div>
@@ -113,7 +113,7 @@ export default function DashboardPage() {
                       <p className="text-xs text-gray-500">{cita.asesor?.fullName ?? 'Gestor'}</p>
                     </div>
                   </div>
-                  <span className={`text-xs font-semibold px-3 py-1 rounded-full ${cita.modalidad === 'videollamada' ? 'bg-blue-50 text-blue-700' : 'bg-green-50 text-green-700'}`}>
+                  <span className={`text-xs font-semibold px-3 py-1 rounded-full ${cita.modalidad === 'videollamada' ? 'bg-blue-50 text-blue-700' : 'bg-emerald-500/10 text-green-700'}`}>
                     {cita.modalidad === 'videollamada' ? '📹 Video' : '🏢 Oficina'}
                   </span>
                 </div>
@@ -124,10 +124,10 @@ export default function DashboardPage() {
       </div>
 
       {/* Actividad reciente */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
+      <div className="futuristic-card p-6 hover:shadow-lg hover:shadow-cyan-900/10 transition-all duration-300">
         <div className="flex items-center gap-2 mb-5">
           <div className="p-2 rounded-lg bg-purple-50"><TrendingUp className="h-4 w-4 text-purple-600" /></div>
-          <h2 className="text-lg font-bold text-gray-900">Actividad Reciente</h2>
+          <h2 className="text-lg font-bold text-cyan-200">Actividad Reciente</h2>
         </div>
         {recentActivityQuery.isLoading ? (
           <div className="space-y-3">{[1,2,3,4,5].map(i => <Skeleton key={i} className="h-12 w-full" />)}</div>
@@ -138,7 +138,7 @@ export default function DashboardPage() {
             {recentActivityQuery.data.map((tramite: Tramite) => (
               <div key={tramite.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors group">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-100 to-amber-100 flex items-center justify-center shrink-0">
-                  <FileText className="h-4 w-4 text-brand-600" />
+                  <FileText className="h-4 w-4 text-cyan-400" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 capitalize truncate">
@@ -160,18 +160,18 @@ export default function DashboardPage() {
 
 function MetricCard({ title, value, icon, color, trend }: { title: string; value: string; icon: React.ReactNode; color: string; trend: string }) {
   return (
-    <div className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+    <div className="relative overflow-hidden futuristic-card p-6 hover:shadow-lg hover:shadow-cyan-900/20 transition-all duration-300 hover:-translate-y-0.5 group">
       <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${color} opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500`} />
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm font-medium text-gray-500">{title}</p>
-          <div className={`p-2.5 rounded-xl bg-gradient-to-br ${color} text-white shadow-lg shadow-brand-200/30`}>{icon}</div>
+          <p className="text-sm font-medium text-slate-400">{title}</p>
+          <div className={`p-2.5 rounded-xl bg-gradient-to-br ${color} text-white shadow-lg shadow-cyan-500/10`}>{icon}</div>
         </div>
-        <p className="text-3xl font-bold text-gray-900">{value}</p>
+        <p className="text-3xl font-bold text-cyan-100">{value}</p>
         {trend && (
           <div className="flex items-center gap-1 mt-2">
-            <ArrowUpRight className="h-3 w-3 text-green-500" />
-            <span className="text-xs font-medium text-green-600">{trend} este mes</span>
+            <ArrowUpRight className="h-3 w-3 text-emerald-400" />
+            <span className="text-xs font-medium text-emerald-400">{trend} este mes</span>
           </div>
         )}
       </div>
@@ -181,7 +181,7 @@ function MetricCard({ title, value, icon, color, trend }: { title: string; value
 
 function MetricCardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border">
+    <div className="futuristic-card p-6">
       <div className="flex items-center justify-between mb-4"><Skeleton className="h-4 w-24" /><Skeleton className="h-10 w-10 rounded-xl" /></div>
       <Skeleton className="h-9 w-16" />
     </div>

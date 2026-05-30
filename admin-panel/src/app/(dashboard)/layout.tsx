@@ -56,10 +56,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
+      <div className="flex h-screen items-center justify-center bg-[#070d1a]">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-500 border-t-transparent" />
-          <p className="text-sm text-gray-500">Cargando...</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-cyan-400 border-t-transparent shadow-lg shadow-cyan-400/20" />
+          <p className="text-sm text-slate-400">Cargando...</p>
         </div>
       </div>
     );
@@ -74,7 +74,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto p-6 bg-gray-50">{children}</main>
+        <main className="flex-1 overflow-y-auto p-6 bg-[#070d1a]">{children}</main>
       </div>
 
       {/* Modal de aviso de inactividad */}
