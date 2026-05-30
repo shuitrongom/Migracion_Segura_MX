@@ -89,9 +89,9 @@ export default function CieForm({ propositoViaje, onChangePropositoViaje, solici
     return null;
   };
 
-  const inputClass = 'w-full px-3 py-2.5 border border-white/[0.1] bg-white/[0.02]/50 rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-sm hover:shadow transition-shadow';
-  const inputClassUpper = 'w-full px-3 py-2.5 border border-white/[0.1] bg-white/[0.02]/50 rounded-lg text-sm uppercase focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-sm hover:shadow transition-shadow';
-  const inputClassEmail = 'w-full px-3 py-2.5 border border-white/[0.1] bg-white/[0.02]/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-sm hover:shadow transition-shadow';
+  const inputClass = 'w-full px-3 py-2.5 border border-[#333333] bg-[#1a1a1a] rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-sm hover:shadow transition-shadow';
+  const inputClassUpper = 'w-full px-3 py-2.5 border border-[#333333] bg-[#1a1a1a] rounded-lg text-sm uppercase focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-sm hover:shadow transition-shadow';
+  const inputClassEmail = 'w-full px-3 py-2.5 border border-[#333333] bg-[#1a1a1a] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-sm hover:shadow transition-shadow';
   const sectionTitle = 'text-xl font-bold text-white mb-4 pb-3 border-b-[3px] border-amber-700';
 
   return (
@@ -148,7 +148,7 @@ export default function CieForm({ propositoViaje, onChangePropositoViaje, solici
             <div><label className="block text-xs font-medium text-white/60 mb-1">RFC *</label><input type="text" value={moral.rfc} onChange={e => updateMoral('rfc', e.target.value)} className={inputClassUpper} maxLength={12} />{validateRfc(moral.rfc, true) && <p className="text-[11px] text-red-500 mt-1">{validateRfc(moral.rfc, true)}</p>}</div>
             <div><label className="block text-xs font-medium text-white/60 mb-1">Nombre o razón social *</label><input type="text" value={moral.razonSocial} onChange={e => updateMoral('razonSocial', e.target.value)} className={inputClass} /></div>
             <div><label className="block text-xs font-medium text-white/60 mb-1">Sector o rama de actividad</label><select value={moral.sector} onChange={e => updateMoral('sector', e.target.value)} className={inputClass}><option value="">Selecciona</option>{SECTORES_ACTIVIDAD.map(s => <option key={s} value={s}>{s}</option>)}</select></div>
-            <div className="md:col-span-3"><label className="block text-xs font-medium text-white/60 mb-1">Objeto de la empresa o giro comercial *</label><textarea value={moral.giroComercial} onChange={e => updateMoral('giroComercial', e.target.value)} rows={3} className="w-full px-3 py-2.5 border border-white/[0.1] bg-white/[0.02]/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-sm hover:shadow transition-shadow resize-none" /></div>
+            <div className="md:col-span-3"><label className="block text-xs font-medium text-white/60 mb-1">Objeto de la empresa o giro comercial *</label><textarea value={moral.giroComercial} onChange={e => updateMoral('giroComercial', e.target.value)} rows={3} className="w-full px-3 py-2.5 border border-[#333333] bg-[#1a1a1a] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-sm hover:shadow transition-shadow resize-none" /></div>
           </div>
 
           <h4 className="text-lg font-semibold text-white/90 border-b pb-2 pt-2">Domicilio de la persona moral</h4>
@@ -177,7 +177,7 @@ export default function CieForm({ propositoViaje, onChangePropositoViaje, solici
       {tipoPersona === 'Moral' && (
       <div>
         <h3 className={sectionTitle}>Datos del representante legal de la persona moral</h3>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mb-4">
           <p className="text-xs text-blue-800 text-center">Se debe capturar el nombre del representante legal que tiene facultades para promover actos legales ante autoridades administrativas. Si usted quiere agregar representantes legales es necesario que lo efectúe con el botón &apos;Agregar representante&apos;, de lo contrario los datos capturados en esta sección no serán guardados.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
@@ -196,8 +196,8 @@ export default function CieForm({ propositoViaje, onChangePropositoViaje, solici
         {representantes.length > 0 && (
           <div className="mt-4 max-w-4xl">
             <table className="w-full text-sm border rounded-lg overflow-hidden">
-              <thead><tr className="bg-white/[0.02] border-b"><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Nombre</th><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Nacionalidad</th><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Documento</th><th className="px-3 py-2"></th></tr></thead>
-              <tbody>{representantes.map((r, i) => (<tr key={i} className="border-b last:border-0"><td className="px-3 py-2">{r.nombre} {r.apellidos}</td><td className="px-3 py-2">{r.nacionalidad}</td><td className="px-3 py-2">{r.tipoDocumento} {r.numeroDocumento}</td><td className="px-3 py-2 text-right"><button type="button" onClick={() => setRepresentantes(representantes.filter((_, idx) => idx !== i))} className="text-xs text-red-500 hover:text-red-700">Eliminar</button></td></tr>))}</tbody>
+              <thead><tr className="bg-[#141414] border-b"><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Nombre</th><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Nacionalidad</th><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Documento</th><th className="px-3 py-2"></th></tr></thead>
+              <tbody>{representantes.map((r, i) => (<tr key={i} className="border-b last:border-0"><td className="px-3 py-2">{r.nombre} {r.apellidos}</td><td className="px-3 py-2">{r.nacionalidad}</td><td className="px-3 py-2">{r.tipoDocumento} {r.numeroDocumento}</td><td className="px-3 py-2 text-right"><button type="button" onClick={() => setRepresentantes(representantes.filter((_, idx) => idx !== i))} className="text-xs text-red-500 hover:text-red-400">Eliminar</button></td></tr>))}</tbody>
             </table>
           </div>
         )}
@@ -207,7 +207,7 @@ export default function CieForm({ propositoViaje, onChangePropositoViaje, solici
       {/* Sección 4: Correo electrónico */}
       <div>
         <h3 className={sectionTitle}>Correo electrónico para notificar al promovente</h3>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mb-4">
           <p className="text-xs text-blue-800 text-center">Agrega la dirección de correo electrónico en donde se recibirán las notificaciones asociadas a tu trámite.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
@@ -219,7 +219,7 @@ export default function CieForm({ propositoViaje, onChangePropositoViaje, solici
       {/* Sección 5: Persona autorizada */}
       <div>
         <h3 className={sectionTitle}>En su caso, persona autorizada para tramitar, oír o recibir notificaciones</h3>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mb-4">
           <p className="text-xs text-blue-800 text-center">Si deseas agregar personas autorizadas es necesario que lo efectúes con el botón &apos;Agregar persona&apos;, de lo contrario los datos capturados en esta sección no serán guardados.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
@@ -236,8 +236,8 @@ export default function CieForm({ propositoViaje, onChangePropositoViaje, solici
         {personasAutorizadas.length > 0 && (
           <div className="mt-4 max-w-4xl">
             <table className="w-full text-sm border rounded-lg overflow-hidden">
-              <thead><tr className="bg-white/[0.02] border-b"><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Nombre</th><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Nacionalidad</th><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Documento</th><th className="px-3 py-2"></th></tr></thead>
-              <tbody>{personasAutorizadas.map((p, i) => (<tr key={i} className="border-b last:border-0"><td className="px-3 py-2">{p.nombre} {p.apellidos}</td><td className="px-3 py-2">{p.nacionalidad}</td><td className="px-3 py-2">{p.tipoDocumento} {p.numeroDocumento}</td><td className="px-3 py-2 text-right"><button type="button" onClick={() => setPersonasAutorizadas(personasAutorizadas.filter((_, idx) => idx !== i))} className="text-xs text-red-500 hover:text-red-700">Eliminar</button></td></tr>))}</tbody>
+              <thead><tr className="bg-[#141414] border-b"><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Nombre</th><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Nacionalidad</th><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Documento</th><th className="px-3 py-2"></th></tr></thead>
+              <tbody>{personasAutorizadas.map((p, i) => (<tr key={i} className="border-b last:border-0"><td className="px-3 py-2">{p.nombre} {p.apellidos}</td><td className="px-3 py-2">{p.nacionalidad}</td><td className="px-3 py-2">{p.tipoDocumento} {p.numeroDocumento}</td><td className="px-3 py-2 text-right"><button type="button" onClick={() => setPersonasAutorizadas(personasAutorizadas.filter((_, idx) => idx !== i))} className="text-xs text-red-500 hover:text-red-400">Eliminar</button></td></tr>))}</tbody>
             </table>
           </div>
         )}
@@ -247,7 +247,7 @@ export default function CieForm({ propositoViaje, onChangePropositoViaje, solici
       <div>
         <h3 className={sectionTitle}>Comentarios</h3>
         <p className="text-sm text-white/40 mb-3">Si lo deseas, puedes agregar algún comentario a la solicitud.</p>
-        <textarea value={comentarios} onChange={e => onChangeComentarios(e.target.value)} rows={4} className="w-full max-w-4xl px-3 py-2 border border-white/[0.08] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none" />
+        <textarea value={comentarios} onChange={e => onChangeComentarios(e.target.value)} rows={4} className="w-full max-w-4xl px-3 py-2 border border-[#2a2a2a] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none" />
         <p className="text-xs text-white/30 mt-2">* Campos obligatorios</p>
       </div>
     </div>

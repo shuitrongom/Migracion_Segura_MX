@@ -117,7 +117,7 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
                     ? 'bg-amber-500 text-white shadow-sm'
                     : isToday
                       ? 'bg-amber-500/10 text-amber-400 ring-1 ring-brand-300'
-                      : 'text-white/70 hover:bg-white/[0.04]'
+                      : 'text-white/70 hover:bg-[#1f1f1f]'
               }`}
             >
               {day}
@@ -138,7 +138,7 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
             type="button"
             onClick={() => handleSelectMonth(i)}
             className={`px-2 py-2.5 rounded-lg text-xs font-medium transition-all ${
-              isSelected ? 'bg-amber-500 text-white' : 'text-white/70 hover:bg-white/[0.04]'
+              isSelected ? 'bg-amber-500 text-white' : 'text-white/70 hover:bg-[#1f1f1f]'
             }`}
           >
             {mes.slice(0, 3)}
@@ -156,9 +156,9 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
     return (
       <div>
         <div className="flex items-center justify-between px-2 mb-2">
-          <button type="button" onClick={() => setYearPageStart(Math.max(minYear, yearPageStart - 20))} disabled={yearPageStart <= minYear} className="p-1 rounded hover:bg-white/[0.04] disabled:opacity-30"><ChevronLeft className="h-4 w-4" /></button>
+          <button type="button" onClick={() => setYearPageStart(Math.max(minYear, yearPageStart - 20))} disabled={yearPageStart <= minYear} className="p-1 rounded hover:bg-[#1f1f1f] disabled:opacity-30"><ChevronLeft className="h-4 w-4" /></button>
           <span className="text-xs font-medium text-white/40">{yearPageStart} — {Math.min(yearPageStart + 19, maxYear)}</span>
-          <button type="button" onClick={() => setYearPageStart(Math.min(maxYear - 19, yearPageStart + 20))} disabled={yearPageStart + 20 > maxYear} className="p-1 rounded hover:bg-white/[0.04] disabled:opacity-30"><ChevronRight className="h-4 w-4" /></button>
+          <button type="button" onClick={() => setYearPageStart(Math.min(maxYear - 19, yearPageStart + 20))} disabled={yearPageStart + 20 > maxYear} className="p-1 rounded hover:bg-[#1f1f1f] disabled:opacity-30"><ChevronRight className="h-4 w-4" /></button>
         </div>
         <div className="grid grid-cols-4 gap-2 p-2">
           {years.map(y => {
@@ -169,7 +169,7 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
                 type="button"
                 onClick={() => handleSelectYear(y)}
                 className={`px-2 py-2 rounded-lg text-xs font-medium transition-all ${
-                  isSelected ? 'bg-amber-500 text-white' : 'text-white/70 hover:bg-white/[0.04]'
+                  isSelected ? 'bg-amber-500 text-white' : 'text-white/70 hover:bg-[#1f1f1f]'
                 }`}
               >
                 {y}
@@ -185,30 +185,30 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
     <div ref={containerRef} className="relative">
       <div
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center justify-between px-3 py-2 border border-white/[0.08] rounded-lg text-sm cursor-pointer hover:border-white/[0.1] transition-colors ${className} ${isOpen ? 'ring-2 ring-amber-500 border-transparent' : ''}`}
+        className={`flex items-center justify-between px-3 py-2 border border-[#2a2a2a] rounded-lg text-sm cursor-pointer hover:border-[#333333] transition-colors ${className} ${isOpen ? 'ring-2 ring-amber-500 border-transparent' : ''}`}
       >
         <span className={value ? 'text-white' : 'text-white/30'}>{value ? formatDisplay(value) : placeholder}</span>
         <Calendar className="h-4 w-4 text-white/30" />
       </div>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 bg-[#171717] border border-white/[0.08] rounded-xl shadow-lg p-3 w-[280px] animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute z-50 mt-1 bg-[#171717] border border-[#2a2a2a] rounded-xl shadow-lg p-3 w-[280px] animate-in fade-in slide-in-from-top-2 duration-200">
           {/* Header */}
           {view === 'days' && (
             <div className="flex items-center justify-between mb-3">
-              <button type="button" onClick={() => { if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); } else setCurrentMonth(m => m - 1); }} className="p-1.5 rounded-lg hover:bg-white/[0.04] transition-colors"><ChevronLeft className="h-4 w-4 text-white/60" /></button>
-              <button type="button" onClick={() => setView('months')} className="text-sm font-semibold text-white hover:text-amber-500 transition-colors px-2 py-1 rounded-lg hover:bg-white/[0.02]">
+              <button type="button" onClick={() => { if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); } else setCurrentMonth(m => m - 1); }} className="p-1.5 rounded-lg hover:bg-[#1f1f1f] transition-colors"><ChevronLeft className="h-4 w-4 text-white/60" /></button>
+              <button type="button" onClick={() => setView('months')} className="text-sm font-semibold text-white hover:text-amber-500 transition-colors px-2 py-1 rounded-lg hover:bg-[#141414]">
                 {MESES[currentMonth]} <span className="text-amber-500 cursor-pointer" onClick={(e) => { e.stopPropagation(); setView('years'); setYearPageStart(Math.floor(currentYear / 20) * 20); }}>{currentYear}</span>
               </button>
-              <button type="button" onClick={() => { if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1); } else setCurrentMonth(m => m + 1); }} className="p-1.5 rounded-lg hover:bg-white/[0.04] transition-colors"><ChevronRight className="h-4 w-4 text-white/60" /></button>
+              <button type="button" onClick={() => { if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1); } else setCurrentMonth(m => m + 1); }} className="p-1.5 rounded-lg hover:bg-[#1f1f1f] transition-colors"><ChevronRight className="h-4 w-4 text-white/60" /></button>
             </div>
           )}
 
           {view === 'months' && (
             <div className="flex items-center justify-between mb-3 px-2">
-              <button type="button" onClick={() => setCurrentYear(y => y - 1)} className="p-1.5 rounded-lg hover:bg-white/[0.04]"><ChevronLeft className="h-4 w-4 text-white/60" /></button>
-              <button type="button" onClick={() => { setView('years'); setYearPageStart(Math.floor(currentYear / 20) * 20); }} className="text-sm font-semibold text-white hover:text-amber-500 px-2 py-1 rounded-lg hover:bg-white/[0.02]">{currentYear}</button>
-              <button type="button" onClick={() => setCurrentYear(y => y + 1)} className="p-1.5 rounded-lg hover:bg-white/[0.04]"><ChevronRight className="h-4 w-4 text-white/60" /></button>
+              <button type="button" onClick={() => setCurrentYear(y => y - 1)} className="p-1.5 rounded-lg hover:bg-[#1f1f1f]"><ChevronLeft className="h-4 w-4 text-white/60" /></button>
+              <button type="button" onClick={() => { setView('years'); setYearPageStart(Math.floor(currentYear / 20) * 20); }} className="text-sm font-semibold text-white hover:text-amber-500 px-2 py-1 rounded-lg hover:bg-[#141414]">{currentYear}</button>
+              <button type="button" onClick={() => setCurrentYear(y => y + 1)} className="p-1.5 rounded-lg hover:bg-[#1f1f1f]"><ChevronRight className="h-4 w-4 text-white/60" /></button>
             </div>
           )}
 

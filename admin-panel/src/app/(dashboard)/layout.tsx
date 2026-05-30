@@ -94,7 +94,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex gap-3">
               <button
                 onClick={() => { useAuthStore.getState().logout(); window.location.href = '/login'; }}
-                className="flex-1 px-4 py-2.5 border border-white/[0.08] text-white/70 rounded-xl text-sm font-medium hover:bg-white/[0.02] transition-colors"
+                className="flex-1 px-4 py-2.5 border border-[#2a2a2a] text-white/70 rounded-xl text-sm font-medium hover:bg-[#141414] transition-colors"
               >
                 Cerrar sesión
               </button>

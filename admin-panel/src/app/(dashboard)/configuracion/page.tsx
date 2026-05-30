@@ -38,70 +38,70 @@ export default function ConfiguracionPage() {
 
       <div className="space-y-6 max-w-3xl">
         {/* Datos de la empresa */}
-        <div className="bg-[#171717] rounded-2xl border shadow-sm p-6 hover:shadow-md transition-shadow duration-300">
+        <div className="dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 mb-5">
             <div className="p-2 rounded-lg bg-amber-500/10"><Building className="h-4 w-4 text-amber-500" /></div>
             <h2 className="text-lg font-bold text-white">Datos de la Empresa</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div><label className="block text-xs font-medium text-white/60 mb-1.5">Nombre de la empresa</label><input type="text" value={config.empresaNombre} onChange={e => setConfig(prev => ({ ...prev, empresaNombre: e.target.value }))} className="w-full px-4 py-2.5 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
-            <div><label className="block text-xs font-medium text-white/60 mb-1.5">Email de contacto</label><input type="email" value={config.empresaEmail} onChange={e => setConfig(prev => ({ ...prev, empresaEmail: e.target.value }))} className="w-full px-4 py-2.5 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
-            <div><label className="block text-xs font-medium text-white/60 mb-1.5">Teléfono</label><input type="text" value={config.empresaTelefono} onChange={e => setConfig(prev => ({ ...prev, empresaTelefono: e.target.value }))} className="w-full px-4 py-2.5 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
-            <div><label className="block text-xs font-medium text-white/60 mb-1.5">Dirección</label><input type="text" value={config.empresaDireccion} onChange={e => setConfig(prev => ({ ...prev, empresaDireccion: e.target.value }))} className="w-full px-4 py-2.5 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
+            <div><label className="block text-xs font-medium text-white/60 mb-1.5">Nombre de la empresa</label><input type="text" value={config.empresaNombre} onChange={e => setConfig(prev => ({ ...prev, empresaNombre: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
+            <div><label className="block text-xs font-medium text-white/60 mb-1.5">Email de contacto</label><input type="email" value={config.empresaEmail} onChange={e => setConfig(prev => ({ ...prev, empresaEmail: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
+            <div><label className="block text-xs font-medium text-white/60 mb-1.5">Teléfono</label><input type="text" value={config.empresaTelefono} onChange={e => setConfig(prev => ({ ...prev, empresaTelefono: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
+            <div><label className="block text-xs font-medium text-white/60 mb-1.5">Dirección</label><input type="text" value={config.empresaDireccion} onChange={e => setConfig(prev => ({ ...prev, empresaDireccion: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
           </div>
         </div>
 
         {/* WhatsApp */}
-        <div className="bg-[#171717] rounded-2xl border shadow-sm p-6 hover:shadow-md transition-shadow duration-300">
+        <div className="dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 mb-5">
-            <div className="p-2 rounded-lg bg-green-50"><Phone className="h-4 w-4 text-green-600" /></div>
+            <div className="p-2 rounded-lg bg-emerald-500/10"><Phone className="h-4 w-4 text-emerald-400" /></div>
             <h2 className="text-lg font-bold text-white">WhatsApp</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div><label className="block text-xs font-medium text-white/60 mb-1.5">Número de WhatsApp (con código de país)</label><input type="text" value={config.whatsappNumero} onChange={e => setConfig(prev => ({ ...prev, whatsappNumero: e.target.value }))} className="w-full px-4 py-2.5 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
-            <div><label className="block text-xs font-medium text-white/60 mb-1.5">Mensaje predeterminado</label><input type="text" value={config.whatsappMensaje} onChange={e => setConfig(prev => ({ ...prev, whatsappMensaje: e.target.value }))} className="w-full px-4 py-2.5 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
+            <div><label className="block text-xs font-medium text-white/60 mb-1.5">Número de WhatsApp (con código de país)</label><input type="text" value={config.whatsappNumero} onChange={e => setConfig(prev => ({ ...prev, whatsappNumero: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
+            <div><label className="block text-xs font-medium text-white/60 mb-1.5">Mensaje predeterminado</label><input type="text" value={config.whatsappMensaje} onChange={e => setConfig(prev => ({ ...prev, whatsappMensaje: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
           </div>
         </div>
 
         {/* Pagos */}
-        <div className="bg-[#171717] rounded-2xl border shadow-sm p-6 hover:shadow-md transition-shadow duration-300">
+        <div className="dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 mb-5">
-            <div className="p-2 rounded-lg bg-amber-50"><CreditCard className="h-4 w-4 text-amber-600" /></div>
+            <div className="p-2 rounded-lg bg-amber-500/10"><CreditCard className="h-4 w-4 text-amber-600" /></div>
             <h2 className="text-lg font-bold text-white">Configuración de Pagos</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div><label className="block text-xs font-medium text-white/60 mb-1.5">Plazo anticipo (días)</label><input type="number" value={config.plazoAnticipo} onChange={e => setConfig(prev => ({ ...prev, plazoAnticipo: e.target.value }))} className="w-full px-4 py-2.5 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
-            <div><label className="block text-xs font-medium text-white/60 mb-1.5">Plazo liquidación (días)</label><input type="number" value={config.plazoLiquidacion} onChange={e => setConfig(prev => ({ ...prev, plazoLiquidacion: e.target.value }))} className="w-full px-4 py-2.5 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
-            <div><label className="block text-xs font-medium text-white/60 mb-1.5">% Anticipo</label><input type="number" value={config.porcentajeAnticipo} onChange={e => setConfig(prev => ({ ...prev, porcentajeAnticipo: e.target.value }))} className="w-full px-4 py-2.5 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
+            <div><label className="block text-xs font-medium text-white/60 mb-1.5">Plazo anticipo (días)</label><input type="number" value={config.plazoAnticipo} onChange={e => setConfig(prev => ({ ...prev, plazoAnticipo: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
+            <div><label className="block text-xs font-medium text-white/60 mb-1.5">Plazo liquidación (días)</label><input type="number" value={config.plazoLiquidacion} onChange={e => setConfig(prev => ({ ...prev, plazoLiquidacion: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
+            <div><label className="block text-xs font-medium text-white/60 mb-1.5">% Anticipo</label><input type="number" value={config.porcentajeAnticipo} onChange={e => setConfig(prev => ({ ...prev, porcentajeAnticipo: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" /></div>
           </div>
         </div>
 
         {/* Notificaciones */}
-        <div className="bg-[#171717] rounded-2xl border shadow-sm p-6 hover:shadow-md transition-shadow duration-300">
+        <div className="dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 mb-5">
-            <div className="p-2 rounded-lg bg-blue-50"><Bell className="h-4 w-4 text-blue-600" /></div>
+            <div className="p-2 rounded-lg bg-blue-500/10"><Bell className="h-4 w-4 text-blue-400" /></div>
             <h2 className="text-lg font-bold text-white">Notificaciones</h2>
           </div>
           <div className="space-y-2">
-            <label className="flex items-center justify-between p-4 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-white border border-transparent hover:border-white/[0.08] cursor-pointer transition-all">
+            <label className="flex items-center justify-between p-4 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-white border border-transparent hover:border-[#2a2a2a] cursor-pointer transition-all">
               <span className="text-sm font-medium text-white/70">Notificaciones push (app móvil)</span>
-              <input type="checkbox" checked={config.notificacionesPush} onChange={e => setConfig(prev => ({ ...prev, notificacionesPush: e.target.checked }))} className="h-4 w-4 rounded border-white/[0.1] text-amber-500 focus:ring-amber-500" />
+              <input type="checkbox" checked={config.notificacionesPush} onChange={e => setConfig(prev => ({ ...prev, notificacionesPush: e.target.checked }))} className="h-4 w-4 rounded border-[#333333] text-amber-500 focus:ring-amber-500" />
             </label>
-            <label className="flex items-center justify-between p-4 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-white border border-transparent hover:border-white/[0.08] cursor-pointer transition-all">
+            <label className="flex items-center justify-between p-4 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-white border border-transparent hover:border-[#2a2a2a] cursor-pointer transition-all">
               <span className="text-sm font-medium text-white/70">Notificaciones por email</span>
-              <input type="checkbox" checked={config.notificacionesEmail} onChange={e => setConfig(prev => ({ ...prev, notificacionesEmail: e.target.checked }))} className="h-4 w-4 rounded border-white/[0.1] text-amber-500 focus:ring-amber-500" />
+              <input type="checkbox" checked={config.notificacionesEmail} onChange={e => setConfig(prev => ({ ...prev, notificacionesEmail: e.target.checked }))} className="h-4 w-4 rounded border-[#333333] text-amber-500 focus:ring-amber-500" />
             </label>
-            <label className="flex items-center justify-between p-4 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-white border border-transparent hover:border-white/[0.08] cursor-pointer transition-all">
+            <label className="flex items-center justify-between p-4 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-white border border-transparent hover:border-[#2a2a2a] cursor-pointer transition-all">
               <span className="text-sm font-medium text-white/70">Notificaciones por WhatsApp</span>
-              <input type="checkbox" checked={config.notificacionesWhatsapp} onChange={e => setConfig(prev => ({ ...prev, notificacionesWhatsapp: e.target.checked }))} className="h-4 w-4 rounded border-white/[0.1] text-amber-500 focus:ring-amber-500" />
+              <input type="checkbox" checked={config.notificacionesWhatsapp} onChange={e => setConfig(prev => ({ ...prev, notificacionesWhatsapp: e.target.checked }))} className="h-4 w-4 rounded border-[#333333] text-amber-500 focus:ring-amber-500" />
             </label>
           </div>
         </div>
 
         {/* Seguridad */}
-        <div className="bg-[#171717] rounded-2xl border shadow-sm p-6 hover:shadow-md transition-shadow duration-300">
+        <div className="dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 mb-5">
-            <div className="p-2 rounded-lg bg-purple-50"><Shield className="h-4 w-4 text-purple-600" /></div>
+            <div className="p-2 rounded-lg bg-purple-500/10"><Shield className="h-4 w-4 text-purple-600" /></div>
             <h2 className="text-lg font-bold text-white">Seguridad</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

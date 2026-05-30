@@ -48,13 +48,13 @@ const ESTATUS_OPTIONS: { value: EstatusTramite; label: string }[] = [
 ];
 
 const ESTATUS_BADGE: Record<EstatusTramite, string> = {
-  borrador: 'bg-white/[0.02] text-white/70 border-white/[0.08]',
-  recibido: 'bg-blue-50 text-blue-700 border-blue-200',
-  en_revision: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-  en_espera_resolucion: 'bg-orange-50 text-orange-700 border-orange-200',
-  aprobado: 'bg-green-50 text-green-700 border-green-200',
-  rechazado: 'bg-red-50 text-red-700 border-red-200',
-  cancelado: 'bg-white/[0.02] text-white/60 border-white/[0.08]',
+  borrador: 'bg-[#141414] text-white/70 border-[#2a2a2a]',
+  recibido: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  en_revision: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  en_espera_resolucion: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+  aprobado: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  rechazado: 'bg-red-500/10 text-red-400 border-red-500/20',
+  cancelado: 'bg-[#141414] text-white/60 border-[#2a2a2a]',
 };
 
 const ESTATUS_LABELS: Record<EstatusTramite, string> = {
@@ -148,10 +148,10 @@ export default function TramiteDetailPage() {
     return (
       <div>
         <div className="flex items-center gap-4 mb-6">
-          <Link href="/tramites" className="p-2 rounded-lg hover:bg-white/[0.04] text-white/40"><ArrowLeft className="h-5 w-5" /></Link>
+          <Link href="/tramites" className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/40"><ArrowLeft className="h-5 w-5" /></Link>
           <h1 className="text-2xl font-bold text-white">Detalle del Trámite</h1>
         </div>
-        <div className="bg-[#171717] rounded-xl border shadow-sm p-12 text-center">
+        <div className="dark-card-static p-12 text-center">
           <p className="text-sm text-white/40">{error || 'No se encontró el trámite'}</p>
         </div>
       </div>
@@ -164,7 +164,7 @@ export default function TramiteDetailPage() {
   return (
     <div>
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/tramites" className="p-2 rounded-lg hover:bg-white/[0.04] text-white/40"><ArrowLeft className="h-5 w-5" /></Link>
+        <Link href="/tramites" className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/40"><ArrowLeft className="h-5 w-5" /></Link>
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-white">{tramite.numeroPieza || tramite.id}</h1>
@@ -177,7 +177,7 @@ export default function TramiteDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           {/* Etapas */}
-          <div className="bg-[#171717] rounded-xl border shadow-sm p-6">
+          <div className="dark-card-static p-6">
             <h2 className="text-lg font-semibold text-white mb-6">Etapas del trámite</h2>
             {etapas.length === 0 ? (
               <p className="text-sm text-white/30 text-center py-8">No hay etapas registradas para este trámite.</p>
@@ -187,14 +187,14 @@ export default function TramiteDetailPage() {
                   const isCurrent = index === currentEtapaIndex;
                   return (
                     <div key={etapa.id} className="relative flex gap-4">
-                      {index < etapas.length - 1 && <div className={`absolute left-[15px] top-8 bottom-0 w-0.5 ${etapa.completada ? 'bg-green-300' : 'bg-white/[0.06]'}`} />}
+                      {index < etapas.length - 1 && <div className={`absolute left-[15px] top-8 bottom-0 w-0.5 ${etapa.completada ? 'bg-green-300' : 'bg-[#262626]'}`} />}
                       <div className="relative z-10 flex-shrink-0">
                         {etapa.completada ? (
                           <div className="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center"><Check className="h-4 w-4 text-white" /></div>
                         ) : isCurrent ? (
                           <div className="h-8 w-8 rounded-full bg-amber-500/10 border-2 border-amber-500 flex items-center justify-center"><Clock className="h-4 w-4 text-amber-500" /></div>
                         ) : (
-                          <div className="h-8 w-8 rounded-full bg-white/[0.04] border-2 border-white/[0.08] flex items-center justify-center"><Circle className="h-3 w-3 text-white/30" /></div>
+                          <div className="h-8 w-8 rounded-full bg-[#1f1f1f] border-2 border-[#2a2a2a] flex items-center justify-center"><Circle className="h-3 w-3 text-white/30" /></div>
                         )}
                       </div>
                       <div className="flex-1 pb-8">
@@ -203,7 +203,7 @@ export default function TramiteDetailPage() {
                           {isCurrent && <span className="text-xs bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full font-medium">Actual</span>}
                         </div>
                         {etapa.fechaCompletada && <p className="text-xs text-white/40 mt-0.5">{formatDateTime(etapa.fechaCompletada)}</p>}
-                        {etapa.observaciones && <p className="text-sm text-white/60 mt-2 bg-white/[0.02] rounded-lg p-3">{etapa.observaciones}</p>}
+                        {etapa.observaciones && <p className="text-sm text-white/60 mt-2 bg-[#141414] rounded-lg p-3">{etapa.observaciones}</p>}
                       </div>
                     </div>
                   );
@@ -213,7 +213,7 @@ export default function TramiteDetailPage() {
           </div>
 
           {/* Requisitos documentales - Upload */}
-          <div className="bg-[#171717] rounded-xl border shadow-sm p-6">
+          <div className="dark-card-static p-6">
             <h2 className="text-lg font-semibold text-white mb-4">Requisitos documentales</h2>
             <RequisitosUpload tramiteId={tramiteId} tipoTramite={tramite.tipo} />
           </div>
@@ -223,7 +223,7 @@ export default function TramiteDetailPage() {
         <div className="space-y-6">
           {/* Botón continuar trámite (Caso B: extranjero ya lo creó, gestor continúa) */}
           {tramite && !tramite.numeroPieza && (estatus === 'recibido' || estatus === 'borrador') && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
+            <div className="bg-amber-500/10 border border-amber-200 rounded-xl p-6">
               <h3 className="text-sm font-semibold text-amber-900 mb-2">Trámite pendiente de gestión</h3>
               <p className="text-xs text-amber-700 mb-4">Este trámite fue iniciado por el extranjero. Continúa con la solicitud ante el INM.</p>
               <Link href={`/tramites/continuar/${tramiteId}`} className="block w-full px-4 py-2.5 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600 text-center transition-colors">
@@ -232,27 +232,27 @@ export default function TramiteDetailPage() {
             </div>
           )}
           {/* Cambiar estatus */}
-          <div className="bg-[#171717] rounded-xl border shadow-sm p-6">
+          <div className="dark-card-static p-6">
             <h3 className="text-sm font-semibold text-white mb-4">Cambiar estatus</h3>
             <div className="space-y-3">
-              <select value={estatus} onChange={(e) => setEstatus(e.target.value as EstatusTramite)} className="w-full px-3 py-2.5 border border-white/[0.08] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" aria-label="Nuevo estatus">
+              <select value={estatus} onChange={(e) => setEstatus(e.target.value as EstatusTramite)} className="w-full px-3 py-2.5 border border-[#2a2a2a] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" aria-label="Nuevo estatus">
                 {ESTATUS_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
               </select>
-              <textarea value={observaciones} onChange={(e) => setObservaciones(e.target.value)} className="w-full px-3 py-2.5 border border-white/[0.08] rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Observaciones (opcional)" rows={3} />
+              <textarea value={observaciones} onChange={(e) => setObservaciones(e.target.value)} className="w-full px-3 py-2.5 border border-[#2a2a2a] rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Observaciones (opcional)" rows={3} />
               <button onClick={handleChangeEstatus} className="w-full px-4 py-2.5 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600">Actualizar estatus</button>
             </div>
           </div>
 
           {/* Tareas */}
-          <div className="bg-[#171717] rounded-xl border shadow-sm p-6">
+          <div className="dark-card-static p-6">
             <h3 className="text-sm font-semibold text-white mb-4">Tareas internas</h3>
             {tareas.length === 0 ? (
               <p className="text-sm text-white/30 text-center py-4">No hay tareas registradas</p>
             ) : (
               <div className="space-y-2 mb-4">
                 {tareas.map(tarea => (
-                  <div key={tarea.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-white/[0.02]">
-                    <button onClick={() => handleToggleTarea(tarea.id)} className={`flex-shrink-0 mt-0.5 h-5 w-5 rounded border-2 flex items-center justify-center ${tarea.completada ? 'bg-green-500 border-green-500' : 'border-white/[0.1] hover:border-amber-500'}`} aria-label={`${tarea.completada ? 'Desmarcar' : 'Marcar'} tarea`}>
+                  <div key={tarea.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-[#141414]">
+                    <button onClick={() => handleToggleTarea(tarea.id)} className={`flex-shrink-0 mt-0.5 h-5 w-5 rounded border-2 flex items-center justify-center ${tarea.completada ? 'bg-green-500 border-green-500' : 'border-[#333333] hover:border-amber-500'}`} aria-label={`${tarea.completada ? 'Desmarcar' : 'Marcar'} tarea`}>
                       {tarea.completada && <Check className="h-3 w-3 text-white" />}
                     </button>
                     <p className={`text-sm ${tarea.completada ? 'text-white/30 line-through' : 'text-white/90'}`}>{tarea.titulo}</p>
@@ -261,22 +261,22 @@ export default function TramiteDetailPage() {
               </div>
             )}
             <div className="flex gap-2">
-              <input type="text" value={newTarea} onChange={(e) => setNewTarea(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAddTarea()} className="flex-1 px-3 py-2 border border-white/[0.08] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Nueva tarea..." />
+              <input type="text" value={newTarea} onChange={(e) => setNewTarea(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAddTarea()} className="flex-1 px-3 py-2 border border-[#2a2a2a] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Nueva tarea..." />
               <button onClick={handleAddTarea} disabled={!newTarea.trim()} className="p-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50" aria-label="Agregar tarea"><Plus className="h-4 w-4" /></button>
             </div>
           </div>
 
           {/* Captura de pago (solo admin) */}
-          <div className="bg-[#171717] rounded-xl border shadow-sm p-6">
+          <div className="dark-card-static p-6">
             <h3 className="text-sm font-semibold text-white mb-4">Pago de Derechos</h3>
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-medium text-white/60 mb-1">Monto total (MXN)</label>
-                <input type="number" id="monto-pago" min="0" step="0.01" className="w-full px-3 py-2.5 border border-white/[0.08] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="0.00" />
+                <input type="number" id="monto-pago" min="0" step="0.01" className="w-full px-3 py-2.5 border border-[#2a2a2a] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="0.00" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-white/60 mb-1">Concepto</label>
-                <input type="text" id="concepto-pago" className="w-full px-3 py-2.5 border border-white/[0.08] rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Pago de derechos migratorios" />
+                <input type="text" id="concepto-pago" className="w-full px-3 py-2.5 border border-[#2a2a2a] rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Pago de derechos migratorios" />
               </div>
               <button
                 onClick={async () => {

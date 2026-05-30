@@ -14,7 +14,7 @@ function CopyField({ label, value }: { label: string; value?: string }) {
     toast.success(`"${value}" copiado`);
   };
   return (
-    <button type="button" onClick={handleCopy} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-white/[0.08] transition-all group">
+    <button type="button" onClick={handleCopy} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#2a2a2a] transition-all group">
       {label && <p className="text-[10px] text-white/30">{label}</p>}
       <div className="flex items-center justify-between">
         <p className="text-sm text-white">{value}</p>
@@ -146,7 +146,7 @@ export default function ContinuarTramitePage() {
   return (
     <div>
       <div className="flex items-center gap-4 mb-6">
-        <Link href={`/tramites/${tramiteId}`} className="p-2 rounded-lg hover:bg-white/[0.04] text-white/40"><ArrowLeft className="h-5 w-5" /></Link>
+        <Link href={`/tramites/${tramiteId}`} className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/40"><ArrowLeft className="h-5 w-5" /></Link>
         <div>
           <h1 className="text-2xl font-bold text-white">Continuar Trámite</h1>
           <p className="text-sm text-white/40">Extranjero: {tramite?.cliente?.nombreCompleto || tramite?.datosFormulario?.nombre || '—'}</p>
@@ -154,21 +154,21 @@ export default function ContinuarTramitePage() {
       </div>
 
       {/* Stepper */}
-      <div className="bg-[#171717] rounded-xl border shadow-sm p-4 mb-6">
+      <div className="dark-card-static p-4 mb-6">
         <div className="flex items-center justify-center gap-4">
           {STEPS.map((label, i) => (
             <div key={label} className="flex items-center gap-2">
-              <div className={`flex items-center justify-center h-8 w-8 rounded-full text-sm font-medium ${i < step ? 'bg-green-500 text-white' : i === step ? 'bg-amber-500 text-white' : 'bg-white/[0.06] text-white/40'}`}>
+              <div className={`flex items-center justify-center h-8 w-8 rounded-full text-sm font-medium ${i < step ? 'bg-green-500 text-white' : i === step ? 'bg-amber-500 text-white' : 'bg-[#262626] text-white/40'}`}>
                 {i < step ? <Check className="h-4 w-4" /> : i + 1}
               </div>
               <span className={`text-sm ${i === step ? 'font-medium text-white' : 'text-white/40'}`}>{label}</span>
-              {i < STEPS.length - 1 && <div className="w-12 h-px bg-white/[0.06] mx-2" />}
+              {i < STEPS.length - 1 && <div className="w-12 h-px bg-[#262626] mx-2" />}
             </div>
           ))}
         </div>
       </div>
 
-      <div className="bg-[#171717] rounded-xl border shadow-sm p-6">
+      <div className="dark-card-static p-6">
         {/* Step 0: Solicitud INM */}
         {step === 0 && (
           <div>
@@ -176,14 +176,14 @@ export default function ContinuarTramitePage() {
               <FileText className="h-5 w-5 text-amber-500" />
               <h2 className="text-lg font-semibold text-white">Llenar Solicitud en el INM</h2>
             </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mb-4">
               <p className="text-sm text-blue-800">Usa la ficha de la izquierda como referencia para llenar el formulario del INM a la derecha. Haz clic en cualquier dato para copiarlo.</p>
             </div>
 
             {/* Layout lado a lado: Ficha + Iframe */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ height: '620px' }}>
               {/* Ficha de datos (izquierda) */}
-              <div className="lg:col-span-1 overflow-y-auto border rounded-lg p-4 bg-white/[0.02]">
+              <div className="lg:col-span-1 overflow-y-auto border rounded-lg p-4 bg-[#141414]">
                 <h4 className="text-xs font-semibold text-white/40 uppercase mb-3">Ficha del Extranjero</h4>
                 {tramite?.datosFormulario && (
                   <div className="space-y-4">
@@ -254,21 +254,21 @@ export default function ContinuarTramitePage() {
 
             {/* Campos pieza y clave */}
             <div className="border-t pt-4">
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+              <div className="bg-amber-500/10 border border-amber-200 rounded-lg p-3 mb-4">
                 <p className="text-sm text-amber-800"><strong>Al finalizar:</strong> Copia aquí el número de pieza y la clave que te dio el INM. Luego sube el PDF.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-white/60 mb-1">Número de Pieza *</label>
-                  <input type="text" value={numeroPieza} onChange={e => setNumeroPieza(e.target.value)} className="w-full px-3 py-2 border border-white/[0.08] rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="0000011969016" />
+                  <input type="text" value={numeroPieza} onChange={e => setNumeroPieza(e.target.value)} className="w-full px-3 py-2 border border-[#2a2a2a] rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="0000011969016" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-white/60 mb-1">Clave *</label>
-                  <input type="text" value={contrasenaINM} onChange={e => setContrasenaINM(e.target.value.toUpperCase())} className="w-full px-3 py-2 border border-white/[0.08] rounded-lg text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="QFCSA" />
+                  <input type="text" value={contrasenaINM} onChange={e => setContrasenaINM(e.target.value.toUpperCase())} className="w-full px-3 py-2 border border-[#2a2a2a] rounded-lg text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="QFCSA" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-white/60 mb-1">PDF Solicitud *</label>
-                  <label className="flex items-center gap-2 px-3 py-2 border border-white/[0.08] rounded-lg text-sm text-white/70 hover:bg-white/[0.02] cursor-pointer">
+                  <label className="flex items-center gap-2 px-3 py-2 border border-[#2a2a2a] rounded-lg text-sm text-white/70 hover:bg-[#141414] cursor-pointer">
                     <Upload className="h-4 w-4" />{pdfFile ? pdfFile.name : 'Seleccionar PDF...'}
                     <input type="file" accept=".pdf" onChange={e => setPdfFile(e.target.files?.[0] || null)} className="hidden" />
                   </label>
@@ -288,7 +288,7 @@ export default function ContinuarTramitePage() {
             <p className="text-sm text-white/40 mb-4">Al finalizar se enviarán los requisitos por correo al extranjero.</p>
             <div className="space-y-3 max-w-2xl">
               {requisitos.map((req, i) => (
-                <div key={i} className={`p-4 rounded-lg border ${req.obligatorio ? 'border-brand-200 bg-amber-500/10/50' : 'border-white/[0.08] bg-white/[0.02]'}`}>
+                <div key={i} className={`p-4 rounded-lg border ${req.obligatorio ? 'border-brand-200 bg-amber-500/10/50' : 'border-[#2a2a2a] bg-[#141414]'}`}>
                   <div className="flex items-start gap-3">
                     <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center text-xs font-medium ${req.obligatorio ? 'bg-amber-500 text-white' : 'bg-gray-300 text-white'}`}>{i + 1}</div>
                     <div>
@@ -313,19 +313,19 @@ export default function ContinuarTramitePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
               <div>
                 <label className="block text-xs font-medium text-white/60 mb-1">Concepto *</label>
-                <input type="text" value={pagoData.concepto} onChange={e => setPagoData(prev => ({ ...prev, concepto: e.target.value }))} className="w-full px-3 py-2.5 border border-white/[0.1] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Ej: Pago de derechos por visa" />
+                <input type="text" value={pagoData.concepto} onChange={e => setPagoData(prev => ({ ...prev, concepto: e.target.value }))} className="w-full px-3 py-2.5 border border-[#333333] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Ej: Pago de derechos por visa" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-white/60 mb-1">Monto TOTAL (MXN) *</label>
-                <input type="number" value={pagoData.monto} onChange={e => setPagoData(prev => ({ ...prev, monto: e.target.value }))} className="w-full px-3 py-2.5 border border-white/[0.1] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="0.00" />
+                <input type="number" value={pagoData.monto} onChange={e => setPagoData(prev => ({ ...prev, monto: e.target.value }))} className="w-full px-3 py-2.5 border border-[#333333] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="0.00" />
               </div>
             </div>
             {pagoData.monto && (
-              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-2xl">
+              <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg max-w-2xl">
                 <p className="text-sm text-blue-800 font-medium">Desglose de pagos:</p>
-                <p className="text-sm text-blue-700 mt-1">• Anticipo (50%): <strong>${(parseFloat(pagoData.monto) / 2).toLocaleString()} MXN</strong> — se cobra ahora</p>
-                <p className="text-sm text-blue-700">• Liquidación (50%): <strong>${(parseFloat(pagoData.monto) / 2).toLocaleString()} MXN</strong> — se cobra al resolver</p>
-                <p className="text-xs text-blue-600 mt-2">El extranjero tiene 15 días para pagar cada parte. Si no paga el anticipo, el trámite se cancela.</p>
+                <p className="text-sm text-blue-400 mt-1">• Anticipo (50%): <strong>${(parseFloat(pagoData.monto) / 2).toLocaleString()} MXN</strong> — se cobra ahora</p>
+                <p className="text-sm text-blue-400">• Liquidación (50%): <strong>${(parseFloat(pagoData.monto) / 2).toLocaleString()} MXN</strong> — se cobra al resolver</p>
+                <p className="text-xs text-blue-400 mt-2">El extranjero tiene 15 días para pagar cada parte. Si no paga el anticipo, el trámite se cancela.</p>
               </div>
             )}
           </div>
@@ -334,7 +334,7 @@ export default function ContinuarTramitePage() {
 
       {/* Navigation */}
       <div className="flex items-center justify-between mt-6">
-        <button type="button" onClick={() => step > 0 ? setStep(s => s - 1) : router.push(`/tramites/${tramiteId}`)} className="flex items-center gap-2 px-4 py-2.5 border border-white/[0.08] text-white/70 rounded-lg text-sm font-medium hover:bg-white/[0.02]">
+        <button type="button" onClick={() => step > 0 ? setStep(s => s - 1) : router.push(`/tramites/${tramiteId}`)} className="flex items-center gap-2 px-4 py-2.5 border border-[#2a2a2a] text-white/70 rounded-lg text-sm font-medium hover:bg-[#141414]">
           <ArrowLeft className="h-4 w-4" /> {step === 0 ? 'Cancelar' : 'Anterior'}
         </button>
         {step < STEPS.length - 1 ? (

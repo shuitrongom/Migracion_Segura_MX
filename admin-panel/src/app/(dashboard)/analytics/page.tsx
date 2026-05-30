@@ -163,15 +163,15 @@ export default function AnalyticsPage() {
         <div className="h-40 rounded-2xl bg-gradient-to-br from-gray-900 via-stone-800 to-amber-700 animate-pulse" />
         <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-[#171717] rounded-2xl p-6 shadow-sm border animate-pulse">
-              <div className="h-4 bg-white/[0.06] rounded w-24 mb-4" />
-              <div className="h-8 bg-white/[0.06] rounded w-16" />
+            <div key={i} className="dark-card-static p-6 animate-pulse">
+              <div className="h-4 bg-[#262626] rounded w-24 mb-4" />
+              <div className="h-8 bg-[#262626] rounded w-16" />
             </div>
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-[#171717] rounded-2xl p-6 shadow-sm border h-80 animate-pulse" />
-          <div className="bg-[#171717] rounded-2xl p-6 shadow-sm border h-80 animate-pulse" />
+          <div className="dark-card-static p-6 h-80 animate-pulse" />
+          <div className="dark-card-static p-6 h-80 animate-pulse" />
         </div>
       </div>
     );
@@ -228,10 +228,10 @@ export default function AnalyticsPage() {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue Line Chart */}
-        <div className="bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
+        <div className="dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 mb-6">
-            <div className="p-2 rounded-lg bg-green-50">
-              <DollarSign className="h-4 w-4 text-green-600" />
+            <div className="p-2 rounded-lg bg-emerald-500/10">
+              <DollarSign className="h-4 w-4 text-emerald-400" />
             </div>
             <h2 className="text-lg font-bold text-white">Ingresos Mensuales</h2>
           </div>
@@ -259,9 +259,9 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Tramites by Type Bar Chart */}
-        <div className="bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
+        <div className="dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 mb-6">
-            <div className="p-2 rounded-lg bg-amber-50">
+            <div className="p-2 rounded-lg bg-amber-500/10">
               <BarChart3 className="h-4 w-4 text-amber-600" />
             </div>
             <h2 className="text-lg font-bold text-white">Trámites por Tipo</h2>
@@ -288,9 +288,9 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Conversion Funnel */}
-      <div className="bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
+      <div className="dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 mb-6">
-          <div className="p-2 rounded-lg bg-purple-50">
+          <div className="p-2 rounded-lg bg-purple-500/10">
             <Filter className="h-4 w-4 text-purple-600" />
           </div>
           <h2 className="text-lg font-bold text-white">Embudo de Conversión</h2>
@@ -299,10 +299,10 @@ export default function AnalyticsPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {funnelData.map((stage, index) => {
             const colors = [
-              { bg: 'bg-white/[0.04]', text: 'text-white/70', bar: 'bg-gray-400' },
-              { bg: 'bg-blue-50', text: 'text-blue-700', bar: 'bg-blue-500' },
-              { bg: 'bg-amber-50', text: 'text-amber-700', bar: 'bg-amber-500' },
-              { bg: 'bg-green-50', text: 'text-green-700', bar: 'bg-green-500' },
+              { bg: 'bg-[#1f1f1f]', text: 'text-white/70', bar: 'bg-gray-400' },
+              { bg: 'bg-blue-500/10', text: 'text-blue-400', bar: 'bg-blue-500' },
+              { bg: 'bg-amber-500/10', text: 'text-amber-700', bar: 'bg-amber-500' },
+              { bg: 'bg-emerald-500/10', text: 'text-emerald-400', bar: 'bg-green-500' },
             ];
             const color = colors[index];
             return (
@@ -332,10 +332,10 @@ export default function AnalyticsPage() {
       {/* Pie Chart + Additional Metrics */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Pie Chart - Status Distribution */}
-        <div className="lg:col-span-1 bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
+        <div className="lg:col-span-1 dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 mb-6">
-            <div className="p-2 rounded-lg bg-blue-50">
-              <TrendingUp className="h-4 w-4 text-blue-600" />
+            <div className="p-2 rounded-lg bg-blue-500/10">
+              <TrendingUp className="h-4 w-4 text-blue-400" />
             </div>
             <h2 className="text-lg font-bold text-white">Distribución</h2>
           </div>
@@ -377,9 +377,9 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Resolution Time Breakdown */}
-        <div className="lg:col-span-2 bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
+        <div className="lg:col-span-2 dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 mb-6">
-            <div className="p-2 rounded-lg bg-orange-50">
+            <div className="p-2 rounded-lg bg-orange-500/10">
               <Clock className="h-4 w-4 text-orange-600" />
             </div>
             <h2 className="text-lg font-bold text-white">Métricas de Resolución</h2>
@@ -432,7 +432,7 @@ function MetricCard({
   trendUp: boolean;
 }) {
   return (
-    <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+    <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
       <div
         className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${color} opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500`}
       />
@@ -451,7 +451,7 @@ function MetricCard({
             ) : (
               <ArrowDownRight className="h-3 w-3 text-red-500" />
             )}
-            <span className={`text-xs font-medium ${trendUp ? 'text-green-600' : 'text-red-600'}`}>
+            <span className={`text-xs font-medium ${trendUp ? 'text-emerald-400' : 'text-red-400'}`}>
               {trend} este mes
             </span>
           </div>

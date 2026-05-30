@@ -40,7 +40,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header con gradiente */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0a1628] via-[#0f2027] to-[#1a1a2e] p-8 text-white shadow-xl border border-white/[0.06]">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0a1628] via-[#0f2027] to-[#1a1a2e] p-8 text-white shadow-xl border border-[#262626]">
         <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/5 rounded-full translate-y-1/2 -translate-x-1/2" />
         <div className="relative z-10">
@@ -77,9 +77,9 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-3">
               {estatusData.filter(item => item.cantidad > 0).map((item) => (
-                <div key={item.key} className="group flex items-center gap-3 p-2 rounded-lg hover:bg-white/[0.02] transition-colors">
+                <div key={item.key} className="group flex items-center gap-3 p-2 rounded-lg hover:bg-[#141414] transition-colors">
                   <span className="text-sm text-white/60 w-24 shrink-0 font-medium">{item.label}</span>
-                  <div className="flex-1 h-7 bg-white/[0.04] rounded-full overflow-hidden">
+                  <div className="flex-1 h-7 bg-[#1f1f1f] rounded-full overflow-hidden">
                     <div className={`h-full bg-gradient-to-r ${item.gradient} rounded-full transition-all duration-700 ease-out group-hover:opacity-90`} style={{ width: `${(item.cantidad / totalTramitesEstatus) * 100}%` }} />
                   </div>
                   <span className="text-sm font-bold text-white/90 w-8 text-right">{item.cantidad}</span>
@@ -105,7 +105,7 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-3">
               {citasHoyQuery.data.map((cita: Cita) => (
-                <div key={cita.id} className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-gray-50 to-white border hover:border-brand-200 transition-colors">
+                <div key={cita.id} className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-white/[0.02] to-white/[0.04] border hover:border-amber-500/30 transition-colors">
                   <div className="flex items-center gap-3">
                     <div className="bg-amber-500/10 text-amber-400 font-mono font-bold text-sm px-3 py-1.5 rounded-lg">{cita.horaInicio}</div>
                     <div>
@@ -113,7 +113,7 @@ export default function DashboardPage() {
                       <p className="text-xs text-white/40">{cita.asesor?.fullName ?? 'Gestor'}</p>
                     </div>
                   </div>
-                  <span className={`text-xs font-semibold px-3 py-1 rounded-full ${cita.modalidad === 'videollamada' ? 'bg-blue-50 text-blue-700' : 'bg-emerald-500/10 text-green-700'}`}>
+                  <span className={`text-xs font-semibold px-3 py-1 rounded-full ${cita.modalidad === 'videollamada' ? 'bg-blue-500/10 text-blue-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
                     {cita.modalidad === 'videollamada' ? '📹 Video' : '🏢 Oficina'}
                   </span>
                 </div>
@@ -126,7 +126,7 @@ export default function DashboardPage() {
       {/* Actividad reciente */}
       <div className="dark-card p-6 hover:shadow-lg hover:shadow-cyan-900/10 transition-all duration-300">
         <div className="flex items-center gap-2 mb-5">
-          <div className="p-2 rounded-lg bg-purple-50"><TrendingUp className="h-4 w-4 text-purple-600" /></div>
+          <div className="p-2 rounded-lg bg-purple-500/10"><TrendingUp className="h-4 w-4 text-purple-600" /></div>
           <h2 className="text-lg font-bold text-amber-300">Actividad Reciente</h2>
         </div>
         {recentActivityQuery.isLoading ? (
@@ -136,7 +136,7 @@ export default function DashboardPage() {
         ) : (
           <div className="space-y-2">
             {recentActivityQuery.data.map((tramite: Tramite) => (
-              <div key={tramite.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/[0.02] transition-colors group">
+              <div key={tramite.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-[#141414] transition-colors group">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-100 to-amber-100 flex items-center justify-center shrink-0">
                   <FileText className="h-4 w-4 text-amber-400" />
                 </div>

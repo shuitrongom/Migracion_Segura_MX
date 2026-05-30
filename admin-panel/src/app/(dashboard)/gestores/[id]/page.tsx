@@ -51,9 +51,9 @@ const TIPO_LABELS: Record<string, string> = {
 };
 
 const ESTATUS_BADGE: Record<string, string> = {
-  recibido: 'bg-blue-50 text-blue-700', en_revision: 'bg-yellow-50 text-yellow-700',
-  aprobado: 'bg-green-50 text-green-700', rechazado: 'bg-red-50 text-red-700',
-  borrador: 'bg-white/[0.02] text-white/60', en_espera_resolucion: 'bg-orange-50 text-orange-700',
+  recibido: 'bg-blue-500/10 text-blue-400', en_revision: 'bg-amber-500/10 text-amber-400',
+  aprobado: 'bg-emerald-500/10 text-emerald-400', rechazado: 'bg-red-500/10 text-red-400',
+  borrador: 'bg-[#141414] text-white/60', en_espera_resolucion: 'bg-orange-500/10 text-orange-400',
 };
 
 export default function GestorDetailPage() {
@@ -103,7 +103,7 @@ export default function GestorDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Perfil */}
         <div className="lg:col-span-1">
-          <div className="bg-[#171717] rounded-2xl border shadow-sm overflow-hidden">
+          <div className="dark-card-static overflow-hidden">
             <div className="p-6 bg-gradient-to-br from-gray-50 to-brand-50/30 border-b">
               <div className="flex items-center gap-4">
                 <div className="relative group">
@@ -138,11 +138,11 @@ export default function GestorDetailPage() {
               </div>
             </div>
             <div className="p-6 space-y-4">
-              <div className="p-3 rounded-xl hover:bg-white/[0.02]">
+              <div className="p-3 rounded-xl hover:bg-[#141414]">
                 <p className="text-[10px] font-bold text-white/30 uppercase tracking-wider">Email</p>
                 <p className="text-sm font-medium text-white mt-0.5">{gestor.email}</p>
               </div>
-              <div className="p-3 rounded-xl hover:bg-white/[0.02]">
+              <div className="p-3 rounded-xl hover:bg-[#141414]">
                 <p className="text-[10px] font-bold text-white/30 uppercase tracking-wider">Teléfono</p>
                 <p className="text-sm font-medium text-white mt-0.5">{gestor.phone || 'Sin registrar'}</p>
               </div>
@@ -152,11 +152,11 @@ export default function GestorDetailPage() {
                   <p className="text-lg font-bold text-amber-500">{tramites.length}</p>
                   <p className="text-[10px] text-white/40">Trámites</p>
                 </div>
-                <div className="text-center p-3 bg-green-50 rounded-xl">
-                  <p className="text-lg font-bold text-green-600">{clientes.length}</p>
+                <div className="text-center p-3 bg-emerald-500/10 rounded-xl">
+                  <p className="text-lg font-bold text-emerald-400">{clientes.length}</p>
                   <p className="text-[10px] text-white/40">Extranjeros</p>
                 </div>
-                <div className="text-center p-3 bg-purple-50 rounded-xl">
+                <div className="text-center p-3 bg-purple-500/10 rounded-xl">
                   <p className="text-lg font-bold text-purple-600">{citas.length}</p>
                   <p className="text-[10px] text-white/40">Citas</p>
                 </div>
@@ -167,7 +167,7 @@ export default function GestorDetailPage() {
 
         {/* Tabs */}
         <div className="lg:col-span-2">
-          <div className="bg-[#171717] rounded-2xl border shadow-sm overflow-hidden">
+          <div className="dark-card-static overflow-hidden">
             <div className="border-b px-2 pt-2">
               <nav className="flex gap-1">
                 {[
@@ -188,13 +188,13 @@ export default function GestorDetailPage() {
                   {tramites.length === 0 ? (
                     <div className="text-center py-12"><FileText className="h-10 w-10 text-gray-300 mx-auto mb-3" /><p className="text-sm text-white/30">No tiene trámites asignados</p></div>
                   ) : tramites.map(t => (
-                    <Link key={t.id} href={`/tramites/${t.id}`} className="block p-4 border-2 border-white/[0.06] rounded-xl hover:border-brand-200 hover:shadow-md transition-all">
+                    <Link key={t.id} href={`/tramites/${t.id}`} className="block p-4 border-2 border-[#262626] rounded-xl hover:border-amber-500/30 hover:shadow-md transition-all">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-semibold text-white">{TIPO_LABELS[t.tipo] || t.tipo}</p>
                           <p className="text-xs text-white/40 mt-0.5">{t.numeroPieza || 'Sin pieza'} • {capitalizeName(t.cliente?.nombreCompleto)} • {formatDate(t.createdAt)}</p>
                         </div>
-                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${ESTATUS_BADGE[t.estatus] || 'bg-white/[0.02] text-white/60'}`}>{t.estatus.replace(/_/g, ' ')}</span>
+                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${ESTATUS_BADGE[t.estatus] || 'bg-[#141414] text-white/60'}`}>{t.estatus.replace(/_/g, ' ')}</span>
                       </div>
                     </Link>
                   ))}
@@ -207,7 +207,7 @@ export default function GestorDetailPage() {
                   {clientes.length === 0 ? (
                     <div className="text-center py-12"><Users className="h-10 w-10 text-gray-300 mx-auto mb-3" /><p className="text-sm text-white/30">No tiene extranjeros asignados</p></div>
                   ) : clientes.map(c => (
-                    <Link key={c.id} href={`/clientes/${c.id}`} className="block p-4 border-2 border-white/[0.06] rounded-xl hover:border-brand-200 hover:shadow-md transition-all">
+                    <Link key={c.id} href={`/clientes/${c.id}`} className="block p-4 border-2 border-[#262626] rounded-xl hover:border-amber-500/30 hover:shadow-md transition-all">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 bg-gradient-to-br from-brand-400 to-brand-600 rounded-xl flex items-center justify-center">
                           <span className="text-sm font-bold text-white">{(c.nombreCompleto || '?').charAt(0).toUpperCase()}</span>
@@ -228,7 +228,7 @@ export default function GestorDetailPage() {
                   {citas.length === 0 ? (
                     <div className="text-center py-12"><Calendar className="h-10 w-10 text-gray-300 mx-auto mb-3" /><p className="text-sm text-white/30">No tiene citas registradas</p></div>
                   ) : citas.map(c => (
-                    <div key={c.id} className="p-4 border-2 border-white/[0.06] rounded-xl hover:border-brand-200 transition-all">
+                    <div key={c.id} className="p-4 border-2 border-[#262626] rounded-xl hover:border-amber-500/30 transition-all">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 bg-gradient-to-br from-purple-100 to-brand-100 rounded-xl flex items-center justify-center">
@@ -239,7 +239,7 @@ export default function GestorDetailPage() {
                             <p className="text-xs text-white/40 capitalize">{c.tipo === 'inm' ? 'Cita INM' : 'Entrevista'} • {capitalizeName(c.cliente?.nombreCompleto)}</p>
                           </div>
                         </div>
-                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${ESTATUS_BADGE[c.estatus] || 'bg-white/[0.02] text-white/60'}`}>{c.estatus}</span>
+                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${ESTATUS_BADGE[c.estatus] || 'bg-[#141414] text-white/60'}`}>{c.estatus}</span>
                       </div>
                     </div>
                   ))}

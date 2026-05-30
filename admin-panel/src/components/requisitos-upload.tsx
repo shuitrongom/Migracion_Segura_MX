@@ -98,7 +98,7 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
   return (
     <div className="space-y-6">
       {/* Barra de progreso */}
-      <div className="bg-gradient-to-r from-brand-50 to-green-50 border border-brand-200 rounded-xl p-4">
+      <div className="bg-gradient-to-r from-amber-500/10 to-green-50 border border-brand-200 rounded-xl p-4">
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm font-semibold text-white">Progreso de documentos</p>
           <p className="text-sm font-bold text-amber-500">{subidosObligatorios}/{totalObligatorios} obligatorios</p>
@@ -110,7 +110,7 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
           />
         </div>
         {progreso === 100 && (
-          <p className="text-xs text-green-600 font-medium mt-2 flex items-center gap-1">
+          <p className="text-xs text-emerald-400 font-medium mt-2 flex items-center gap-1">
             <CheckCircle className="h-3.5 w-3.5" /> Todos los documentos obligatorios han sido subidos
           </p>
         )}
@@ -127,10 +127,10 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
               key={i}
               className={`relative p-4 rounded-xl border-2 transition-all duration-300 ${
                 docSubido 
-                  ? 'border-green-300 bg-green-50/50' 
+                  ? 'border-green-300 bg-emerald-500/10/50' 
                   : req.obligatorio 
-                    ? 'border-amber-200 bg-amber-50/30' 
-                    : 'border-white/[0.08] bg-[#171717]'
+                    ? 'border-amber-200 bg-amber-500/10/30' 
+                    : 'border-[#2a2a2a] bg-[#171717]'
               }`}
             >
               <div className="flex items-start gap-4">
@@ -140,7 +140,7 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
                     ? 'bg-green-500 shadow-md shadow-green-200 scale-110' 
                     : req.obligatorio 
                       ? 'bg-amber-100 border-2 border-amber-300' 
-                      : 'bg-white/[0.04] border-2 border-white/[0.08]'
+                      : 'bg-[#1f1f1f] border-2 border-[#2a2a2a]'
                 }`}>
                   {docSubido ? (
                     <CheckCircle className="h-5 w-5 text-white animate-in zoom-in duration-300" />
@@ -157,14 +157,14 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
                       <span className="inline-flex px-1.5 py-0.5 text-[10px] font-bold text-amber-700 bg-amber-100 rounded">OBLIGATORIO</span>
                     )}
                     {docSubido && (
-                      <span className="inline-flex px-1.5 py-0.5 text-[10px] font-bold text-green-700 bg-green-100 rounded">SUBIDO</span>
+                      <span className="inline-flex px-1.5 py-0.5 text-[10px] font-bold text-emerald-400 bg-green-100 rounded">SUBIDO</span>
                     )}
                   </div>
                   <p className="text-xs text-white/40 mt-0.5">{req.descripcion}</p>
 
                   {/* Documento subido info */}
                   {docSubido && (
-                    <div className="mt-2 flex items-center gap-2 text-xs text-green-700">
+                    <div className="mt-2 flex items-center gap-2 text-xs text-emerald-400">
                       <FileText className="h-3.5 w-3.5" />
                       <span className="font-medium">{docSubido.nombre}</span>
                     </div>
@@ -180,7 +180,7 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
                   ) : (
                     <label className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-all ${
                       docSubido 
-                        ? 'text-green-700 bg-green-100 hover:bg-green-200' 
+                        ? 'text-emerald-400 bg-green-100 hover:bg-green-200' 
                         : 'text-amber-400 bg-amber-500/10 hover:bg-amber-500/10 shadow-sm'
                     }`}>
                       <Upload className="h-3.5 w-3.5" />

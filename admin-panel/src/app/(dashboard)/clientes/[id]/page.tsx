@@ -72,14 +72,14 @@ const TABS: { key: TabKey; label: string }[] = [
 ];
 
 const ESTATUS_BADGE: Record<string, string> = {
-  en_revision: 'bg-yellow-50 text-yellow-700',
-  recibido: 'bg-blue-50 text-blue-700',
-  aprobado: 'bg-green-50 text-green-700',
-  rechazado: 'bg-red-50 text-red-700',
-  borrador: 'bg-white/[0.02] text-white/70',
-  en_espera_resolucion: 'bg-orange-50 text-orange-700',
-  cancelado: 'bg-red-50 text-red-600',
-  pendiente: 'bg-yellow-50 text-yellow-700',
+  en_revision: 'bg-amber-500/10 text-amber-400',
+  recibido: 'bg-blue-500/10 text-blue-400',
+  aprobado: 'bg-emerald-500/10 text-emerald-400',
+  rechazado: 'bg-red-500/10 text-red-400',
+  borrador: 'bg-[#141414] text-white/70',
+  en_espera_resolucion: 'bg-orange-500/10 text-orange-400',
+  cancelado: 'bg-red-500/10 text-red-400',
+  pendiente: 'bg-amber-500/10 text-amber-400',
 };
 
 const TIPO_LABELS: Record<string, string> = {
@@ -283,7 +283,7 @@ export default function ClienteDetailPage() {
         <div className="flex items-center gap-4 mb-6">
           <Link
             href="/clientes"
-            className="p-2 rounded-lg hover:bg-white/[0.04] text-white/40"
+            className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/40"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -291,7 +291,7 @@ export default function ClienteDetailPage() {
             Detalle del Extranjero
           </h1>
         </div>
-        <div className="bg-[#171717] rounded-xl border shadow-sm p-12 text-center">
+        <div className="dark-card-static p-12 text-center">
           <p className="text-sm text-white/40">
             {error || 'No se encontró el extranjero'}
           </p>
@@ -318,7 +318,7 @@ export default function ClienteDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Card - Left Side */}
         <div className="lg:col-span-1">
-          <div className="bg-[#171717] rounded-2xl border shadow-sm overflow-hidden">
+          <div className="dark-card-static overflow-hidden">
             {/* Avatar + Name */}
             <div className="p-6 pb-4 bg-gradient-to-br from-gray-50 to-brand-50/30 border-b">
               <div className="flex items-center gap-4">
@@ -334,7 +334,7 @@ export default function ClienteDetailPage() {
                   )}
                   <label
                     htmlFor="foto-extranjero"
-                    className="absolute -bottom-1 -right-1 h-7 w-7 bg-[#171717] border-2 border-white/[0.08] rounded-full flex items-center justify-center shadow-sm hover:bg-amber-500/10 cursor-pointer transition-colors"
+                    className="absolute -bottom-1 -right-1 h-7 w-7 bg-[#171717] border-2 border-[#2a2a2a] rounded-full flex items-center justify-center shadow-sm hover:bg-amber-500/10 cursor-pointer transition-colors"
                     title="Subir foto"
                   >
                     <Camera className="h-3.5 w-3.5 text-amber-500" />
@@ -397,7 +397,7 @@ export default function ClienteDetailPage() {
             {/* Info Fields */}
             <div className="space-y-1">
               {/* Email */}
-              <div className="p-3 rounded-xl hover:bg-white/[0.02] transition-colors">
+              <div className="p-3 rounded-xl hover:bg-[#141414] transition-colors">
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-bold text-white/30 uppercase tracking-wider">
                     Email
@@ -405,7 +405,7 @@ export default function ClienteDetailPage() {
                   {canEditEmail && !editingEmail && (
                     <button
                       onClick={() => setEditingEmail(true)}
-                      className="p-1 rounded hover:bg-white/[0.04] text-white/30 hover:text-white/60"
+                      className="p-1 rounded hover:bg-[#1f1f1f] text-white/30 hover:text-white/60"
                       title="Editar email"
                     >
                       <Pencil className="h-3.5 w-3.5" />
@@ -418,7 +418,7 @@ export default function ClienteDetailPage() {
                       type="email"
                       value={emailValue}
                       onChange={(e) => setEmailValue(e.target.value)}
-                      className="flex-1 px-2.5 py-1.5 border border-white/[0.1] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                      className="flex-1 px-2.5 py-1.5 border border-[#333333] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                       autoFocus
                     />
                     <button
@@ -438,7 +438,7 @@ export default function ClienteDetailPage() {
                         setEditingEmail(false);
                         setEmailValue(cliente.email);
                       }}
-                      className="p-1.5 rounded-md border border-white/[0.08] text-white/40 hover:bg-white/[0.02]"
+                      className="p-1.5 rounded-md border border-[#2a2a2a] text-white/40 hover:bg-[#141414]"
                       title="Cancelar"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -452,7 +452,7 @@ export default function ClienteDetailPage() {
               </div>
 
               {/* Teléfono */}
-              <div className="p-3 rounded-xl hover:bg-white/[0.02] transition-colors">
+              <div className="p-3 rounded-xl hover:bg-[#141414] transition-colors">
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-bold text-white/30 uppercase tracking-wider">
                     Teléfono
@@ -460,7 +460,7 @@ export default function ClienteDetailPage() {
                   {canEditTelefono && !editingTelefono && (
                     <button
                       onClick={() => setEditingTelefono(true)}
-                      className="p-1 rounded hover:bg-white/[0.04] text-white/30 hover:text-white/60"
+                      className="p-1 rounded hover:bg-[#1f1f1f] text-white/30 hover:text-white/60"
                       title="Editar teléfono"
                     >
                       <Pencil className="h-3.5 w-3.5" />
@@ -473,7 +473,7 @@ export default function ClienteDetailPage() {
                       type="tel"
                       value={telefonoValue}
                       onChange={(e) => setTelefonoValue(e.target.value)}
-                      className="flex-1 px-2.5 py-1.5 border border-white/[0.1] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                      className="flex-1 px-2.5 py-1.5 border border-[#333333] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                       autoFocus
                     />
                     <button
@@ -493,7 +493,7 @@ export default function ClienteDetailPage() {
                         setEditingTelefono(false);
                         setTelefonoValue(cliente.telefono);
                       }}
-                      className="p-1.5 rounded-md border border-white/[0.08] text-white/40 hover:bg-white/[0.02]"
+                      className="p-1.5 rounded-md border border-[#2a2a2a] text-white/40 hover:bg-[#141414]"
                       title="Cancelar"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -507,7 +507,7 @@ export default function ClienteDetailPage() {
               </div>
 
               {/* Gestor */}
-              <div className="p-3 rounded-xl hover:bg-white/[0.02] transition-colors">
+              <div className="p-3 rounded-xl hover:bg-[#141414] transition-colors">
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-bold text-white/30 uppercase tracking-wider">
                     Gestor asignado
@@ -525,7 +525,7 @@ export default function ClienteDetailPage() {
                         finally { setReassigning(false); }
                       }}
                       disabled={reassigning}
-                      className="p-1 rounded hover:bg-white/[0.04] text-white/30 hover:text-amber-500 transition-colors disabled:opacity-50"
+                      className="p-1 rounded hover:bg-[#1f1f1f] text-white/30 hover:text-amber-500 transition-colors disabled:opacity-50"
                       title="Reasignar gestor automáticamente"
                     >
                       <RefreshCw className={`h-3.5 w-3.5 ${reassigning ? 'animate-spin' : ''}`} />
@@ -578,7 +578,7 @@ export default function ClienteDetailPage() {
 
         {/* Tabs - Right Side */}
         <div className="lg:col-span-2">
-          <div className="bg-[#171717] rounded-xl border shadow-sm">
+          <div className="dark-card-static">
             {/* Tab Navigation */}
             <div className="border-b">
               <nav className="flex gap-1 px-2 pt-2">
@@ -616,7 +616,7 @@ export default function ClienteDetailPage() {
                       <Link
                         key={tramite.id}
                         href={`/tramites/${tramite.id}`}
-                        className="block p-4 border rounded-lg hover:bg-white/[0.02] transition-colors"
+                        className="block p-4 border rounded-lg hover:bg-[#141414] transition-colors"
                       >
                         <div className="flex items-center justify-between">
                           <div>
@@ -636,7 +636,7 @@ export default function ClienteDetailPage() {
                           <span
                             className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
                               ESTATUS_BADGE[tramite.estatus] ??
-                              'bg-white/[0.02] text-white/70'
+                              'bg-[#141414] text-white/70'
                             }`}
                           >
                             {tramite.estatus.replace(/_/g, ' ')}
@@ -662,7 +662,7 @@ export default function ClienteDetailPage() {
                     documentos.map((doc) => (
                       <div
                         key={doc.id}
-                        className="flex items-center justify-between p-4 border-2 border-white/[0.06] rounded-xl hover:border-brand-200 hover:shadow-md bg-gradient-to-r from-white to-gray-50/50 transition-all duration-200"
+                        className="flex items-center justify-between p-4 border-2 border-[#262626] rounded-xl hover:border-amber-500/30 hover:shadow-md bg-gradient-to-r from-white to-gray-50/50 transition-all duration-200"
                       >
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 bg-gradient-to-br from-brand-100 to-amber-100 rounded-xl flex items-center justify-center shadow-sm">
@@ -699,7 +699,7 @@ export default function ClienteDetailPage() {
                           <span
                             className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
                               ESTATUS_BADGE[doc.estatus] ??
-                              'bg-white/[0.02] text-white/70'
+                              'bg-[#141414] text-white/70'
                             }`}
                           >
                             {doc.estatus.replace(/_/g, ' ')}
@@ -728,7 +728,7 @@ export default function ClienteDetailPage() {
                     </div>
                   ) : (
                     <div className="relative">
-                      <div className="absolute left-4 top-0 bottom-0 w-px bg-white/[0.06]" />
+                      <div className="absolute left-4 top-0 bottom-0 w-px bg-[#262626]" />
                       <div className="space-y-6">
                         {timeline.map((event) => (
                           <div
@@ -739,7 +739,7 @@ export default function ClienteDetailPage() {
                               className={`absolute left-2.5 top-1.5 h-3 w-3 rounded-full border-2 ${
                                 event.completada
                                   ? 'bg-green-500 border-green-500'
-                                  : 'bg-[#171717] border-white/[0.1]'
+                                  : 'bg-[#171717] border-[#333333]'
                               }`}
                             />
                             <div className="flex-1 min-w-0">
@@ -758,7 +758,7 @@ export default function ClienteDetailPage() {
                               </p>
                             </div>
                             {event.completada && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400">
                                 Completada
                               </span>
                             )}
@@ -779,7 +779,7 @@ export default function ClienteDetailPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-[#171717] rounded-2xl shadow-2xl w-[95vw] h-[90vh] max-w-5xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
             {/* Header del modal */}
-            <div className="flex items-center justify-between px-6 py-4 border-b bg-gradient-to-r from-gray-50 to-white">
+            <div className="flex items-center justify-between px-6 py-4 border-b bg-gradient-to-r from-white/[0.02] to-white/[0.04]">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 bg-amber-500/10 rounded-xl flex items-center justify-center">
                   <FileText className="h-5 w-5 text-amber-500" />
@@ -797,7 +797,7 @@ export default function ClienteDetailPage() {
                     a.download = docPreview.nombre;
                     a.click();
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-white/70 bg-white/[0.04] rounded-lg hover:bg-white/[0.06] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-white/70 bg-[#1f1f1f] rounded-lg hover:bg-[#262626] transition-colors"
                 >
                   <ArrowLeft className="h-3.5 w-3.5 rotate-[270deg]" /> Descargar
                 </button>
@@ -818,14 +818,14 @@ export default function ClienteDetailPage() {
                 </button>
                 <button
                   onClick={() => { URL.revokeObjectURL(docPreview.url); setDocPreview(null); }}
-                  className="inline-flex items-center justify-center h-9 w-9 rounded-lg hover:bg-red-50 text-white/30 hover:text-red-500 transition-colors"
+                  className="inline-flex items-center justify-center h-9 w-9 rounded-lg hover:bg-red-500/10 text-white/30 hover:text-red-500 transition-colors"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
             </div>
             {/* Contenido del documento */}
-            <div className="flex-1 bg-white/[0.04] p-4 overflow-auto">
+            <div className="flex-1 bg-[#1f1f1f] p-4 overflow-auto">
               {docPreview.tipo.startsWith('image/') ? (
                 <div className="flex items-center justify-center h-full">
                   <img src={docPreview.url} alt={docPreview.nombre} className="max-w-full max-h-full object-contain rounded-lg shadow-lg" />

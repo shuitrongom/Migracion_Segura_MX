@@ -17,11 +17,11 @@ interface DocItem {
 }
 
 const ESTATUS_BADGE: Record<string, string> = {
-  pendiente: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-  recibido: 'bg-blue-50 text-blue-700 border-blue-200',
-  en_revision: 'bg-orange-50 text-orange-700 border-orange-200',
-  aprobado: 'bg-green-50 text-green-700 border-green-200',
-  rechazado: 'bg-red-50 text-red-700 border-red-200',
+  pendiente: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  recibido: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  en_revision: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+  aprobado: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  rechazado: 'bg-red-500/10 text-red-400 border-red-500/20',
 };
 
 export default function DocumentosPage() {
@@ -114,7 +114,7 @@ export default function DocumentosPage() {
 
       {/* Metric cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-orange-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -126,7 +126,7 @@ export default function DocumentosPage() {
             <p className="text-3xl font-bold text-white">{total}</p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -138,7 +138,7 @@ export default function DocumentosPage() {
             <p className="text-3xl font-bold text-white">{documentos.filter(d => d.estatus === 'aprobado').length}</p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -153,9 +153,9 @@ export default function DocumentosPage() {
       </div>
 
       {/* Filtros */}
-      <div className="bg-[#171717] rounded-2xl border shadow-sm p-5 hover:shadow-md transition-shadow duration-300">
+      <div className="dark-card-static p-5 hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 mb-4">
-          <div className="p-2 rounded-lg bg-amber-50"><Filter className="h-4 w-4 text-amber-600" /></div>
+          <div className="p-2 rounded-lg bg-amber-500/10"><Filter className="h-4 w-4 text-amber-600" /></div>
           <h2 className="text-lg font-bold text-white">Filtros</h2>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
@@ -166,13 +166,13 @@ export default function DocumentosPage() {
               placeholder="Buscar por nombre o categoría..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+              className="w-full pl-11 pr-4 py-3 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
             />
           </div>
           <select
             value={filtroEstatus}
             onChange={e => { setFiltroEstatus(e.target.value); setPage(1); }}
-            className="px-4 py-3 border border-white/[0.08] rounded-xl text-sm text-white/70 bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+            className="px-4 py-3 border border-[#2a2a2a] rounded-xl text-sm text-white/70 bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
           >
             <option value="">Todos los estatus</option>
             <option value="pendiente">Pendiente</option>
@@ -185,22 +185,22 @@ export default function DocumentosPage() {
       </div>
 
       {/* Lista de documentos */}
-      <div className="bg-[#171717] rounded-2xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300">
+      <div className="dark-card-static overflow-hidden hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 px-6 py-4 border-b">
-          <div className="p-2 rounded-lg bg-amber-50"><FolderOpen className="h-4 w-4 text-amber-600" /></div>
+          <div className="p-2 rounded-lg bg-amber-500/10"><FolderOpen className="h-4 w-4 text-amber-600" /></div>
           <h2 className="text-lg font-bold text-white">Listado de Documentos</h2>
         </div>
 
         {loading ? (
           <div className="p-6 space-y-4">
             {[1,2,3,4,5].map(i => (
-              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02]">
-                <div className="h-10 w-10 rounded-xl bg-white/[0.06] animate-pulse" />
+              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-[#141414]">
+                <div className="h-10 w-10 rounded-xl bg-[#262626] animate-pulse" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 w-40 bg-white/[0.06] rounded animate-pulse" />
-                  <div className="h-3 w-56 bg-white/[0.06] rounded animate-pulse" />
+                  <div className="h-4 w-40 bg-[#262626] rounded animate-pulse" />
+                  <div className="h-3 w-56 bg-[#262626] rounded animate-pulse" />
                 </div>
-                <div className="h-6 w-20 bg-white/[0.06] rounded-full animate-pulse" />
+                <div className="h-6 w-20 bg-[#262626] rounded-full animate-pulse" />
               </div>
             ))}
           </div>
@@ -214,7 +214,7 @@ export default function DocumentosPage() {
           </div>
         ) : (
           <>
-            <div className="divide-y">
+            <div className="divide-y divide-[#262626]">
               {filteredDocs.map(doc => (
                 <div key={doc.id} className="flex items-center justify-between px-6 py-4 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white transition-colors group">
                   <div className="flex items-center gap-4 min-w-0">
@@ -227,7 +227,7 @@ export default function DocumentosPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
-                    <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border ${ESTATUS_BADGE[doc.estatus] || 'bg-white/[0.02] text-white/60 border-white/[0.08]'}`}>
+                    <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border ${ESTATUS_BADGE[doc.estatus] || 'bg-[#141414] text-white/60 border-[#2a2a2a]'}`}>
                       {doc.estatus.replace(/_/g, ' ')}
                     </span>
                     <button
@@ -243,7 +243,7 @@ export default function DocumentosPage() {
 
             {/* Paginación */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between px-6 py-4 border-t bg-gradient-to-r from-gray-50 to-white">
+              <div className="flex items-center justify-between px-6 py-4 border-t bg-gradient-to-r from-white/[0.02] to-white/[0.04]">
                 <p className="text-sm text-white/40">Página {page} de {totalPages} (<span className="font-semibold text-white/70">{total}</span> documentos)</p>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-xl border hover:bg-[#171717] hover:shadow-sm disabled:opacity-50 transition-all"><ChevronLeft className="h-4 w-4" /></button>
@@ -274,7 +274,7 @@ export default function DocumentosPage() {
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={handleDownload}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white/70 bg-white/[0.04] rounded-xl hover:bg-white/[0.06] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white/70 bg-[#1f1f1f] rounded-xl hover:bg-[#262626] transition-colors"
                   title="Descargar"
                 >
                   <Download className="h-4 w-4" /> Guardar
@@ -288,7 +288,7 @@ export default function DocumentosPage() {
                 </button>
                 <button
                   onClick={handleCloseModal}
-                  className="p-2 rounded-xl hover:bg-white/[0.04] text-white/30 hover:text-white/60 transition-colors"
+                  className="p-2 rounded-xl hover:bg-[#1f1f1f] text-white/30 hover:text-white/60 transition-colors"
                   aria-label="Cerrar"
                 >
                   <X className="h-5 w-5" />
@@ -297,7 +297,7 @@ export default function DocumentosPage() {
             </div>
 
             {/* Contenido del documento */}
-            <div className="flex-1 overflow-hidden bg-white/[0.04] rounded-b-2xl">
+            <div className="flex-1 overflow-hidden bg-[#1f1f1f] rounded-b-2xl">
               {viewDoc.contentType.includes('pdf') ? (
                 <iframe src={viewDoc.url} className="w-full h-full border-0" title={viewDoc.doc.nombre} />
               ) : viewDoc.contentType.includes('image') ? (

@@ -29,7 +29,7 @@ export function Header() {
   };
 
   return (
-    <header className="h-16 bg-[#0a0a0a] border-b border-white/[0.06] flex items-center justify-between px-4 md:px-6">
+    <header className="h-16 bg-[#0a0a0a] border-b border-[#262626] flex items-center justify-between px-4 md:px-6">
       <div className="flex items-center gap-3">
         <button
           onClick={toggleSidebar}
@@ -53,7 +53,7 @@ export function Header() {
         </Link>
 
         <div className="flex items-center gap-2 p-2">
-          <div className="h-8 w-8 bg-[#171717]/[0.04] border border-white/[0.08] rounded-full flex items-center justify-center">
+          <div className="h-8 w-8 bg-[#171717]/[0.04] border border-[#2a2a2a] rounded-full flex items-center justify-center">
             <User className="h-4 w-4 text-white/60" />
           </div>
           <span className="text-sm font-medium text-white/70 hidden md:block">

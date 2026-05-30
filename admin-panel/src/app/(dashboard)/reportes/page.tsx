@@ -89,7 +89,7 @@ export default function ReportesPage() {
 
       {/* Metric cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-brand-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -101,7 +101,7 @@ export default function ReportesPage() {
             <p className="text-3xl font-bold text-white">{tramites.length}</p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -113,7 +113,7 @@ export default function ReportesPage() {
             <p className="text-3xl font-bold text-white">{clientes.length}</p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -125,7 +125,7 @@ export default function ReportesPage() {
             <p className="text-3xl font-bold text-white">{estatusCounts['aprobado'] || 0}</p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-yellow-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -142,17 +142,17 @@ export default function ReportesPage() {
       {/* Grid principal */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Ingresos mensuales */}
-        <div className="bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
+        <div className="dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
               <div className="p-2 rounded-lg bg-amber-500/10"><BarChart3 className="h-4 w-4 text-amber-500" /></div>
               <h2 className="text-lg font-bold text-white">Ingresos Mensuales</h2>
             </div>
             <div className="flex gap-2">
-              <select value={mes} onChange={e => setMes(Number(e.target.value))} className="px-3 py-1.5 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <select value={mes} onChange={e => setMes(Number(e.target.value))} className="px-3 py-1.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500">
                 {MESES.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
               </select>
-              <select value={anio} onChange={e => setAnio(Number(e.target.value))} className="px-3 py-1.5 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <select value={anio} onChange={e => setAnio(Number(e.target.value))} className="px-3 py-1.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500">
                 {[2025, 2026, 2027].map(a => <option key={a} value={a}>{a}</option>)}
               </select>
             </div>
@@ -164,7 +164,7 @@ export default function ReportesPage() {
               {reporte?.porMetodo?.length > 0 && (
                 <div className="mt-5 space-y-3">
                   {reporte.porMetodo.map((m: any) => (
-                    <div key={m.metodoPago} className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-gray-50 to-white border hover:border-brand-200 transition-colors">
+                    <div key={m.metodoPago} className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-white/[0.02] to-white/[0.04] border hover:border-amber-500/30 transition-colors">
                       <span className="text-sm text-white/60 capitalize font-medium">{(m.metodoPago || '').replace(/_/g, ' ')}</span>
                       <span className="text-sm font-bold text-white">{formatCurrency(m.total)} <span className="text-xs text-white/30">({m.cantidad})</span></span>
                     </div>
@@ -176,16 +176,16 @@ export default function ReportesPage() {
         </div>
 
         {/* Trámites por tipo */}
-        <div className="bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
+        <div className="dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 mb-5">
-            <div className="p-2 rounded-lg bg-amber-50"><Activity className="h-4 w-4 text-amber-600" /></div>
+            <div className="p-2 rounded-lg bg-amber-500/10"><Activity className="h-4 w-4 text-amber-600" /></div>
             <h2 className="text-lg font-bold text-white">Trámites por Tipo</h2>
           </div>
           <div className="space-y-3">
             {Object.entries(tipoCounts).sort((a, b) => b[1] - a[1]).map(([tipo, count]) => (
-              <div key={tipo} className="group flex items-center gap-3 p-2 rounded-lg hover:bg-white/[0.02] transition-colors">
+              <div key={tipo} className="group flex items-center gap-3 p-2 rounded-lg hover:bg-[#141414] transition-colors">
                 <span className="text-sm text-white/60 w-40 shrink-0 font-medium capitalize truncate">{tipo.replace(/_/g, ' ')}</span>
-                <div className="flex-1 h-6 bg-white/[0.04] rounded-full overflow-hidden">
+                <div className="flex-1 h-6 bg-[#1f1f1f] rounded-full overflow-hidden">
                   <div className="h-full bg-gradient-to-r from-brand-400 to-amber-500 rounded-full transition-all duration-700 ease-out group-hover:opacity-90" style={{ width: `${(count / tramites.length) * 100}%` }} />
                 </div>
                 <span className="text-sm font-bold text-white/90 w-8 text-right">{count}</span>
@@ -196,14 +196,14 @@ export default function ReportesPage() {
       </div>
 
       {/* Distribución por estatus */}
-      <div className="bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-md transition-shadow duration-300">
+      <div className="dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 mb-5">
-          <div className="p-2 rounded-lg bg-green-50"><TrendingUp className="h-4 w-4 text-green-600" /></div>
+          <div className="p-2 rounded-lg bg-emerald-500/10"><TrendingUp className="h-4 w-4 text-emerald-400" /></div>
           <h2 className="text-lg font-bold text-white">Trámites por Estatus</h2>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           {Object.entries(estatusCounts).map(([estatus, count]) => (
-            <div key={estatus} className="relative overflow-hidden text-center p-4 rounded-2xl bg-gradient-to-br from-gray-50 to-white border hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 group">
+            <div key={estatus} className="relative overflow-hidden text-center p-4 rounded-2xl bg-gradient-to-br from-white/[0.02] to-white/[0.04] border hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 group">
               <div className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-br from-brand-500 to-amber-500 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
               <p className="text-3xl font-bold text-white">{count}</p>
               <p className="text-xs text-white/40 capitalize mt-1 font-medium">{estatus.replace(/_/g, ' ')}</p>

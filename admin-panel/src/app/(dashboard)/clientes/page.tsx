@@ -60,7 +60,7 @@ export default function ClientesPage() {
 
       {/* Metric cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -72,7 +72,7 @@ export default function ClientesPage() {
             <p className="text-3xl font-bold text-white">{total}</p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -84,7 +84,7 @@ export default function ClientesPage() {
             <p className="text-3xl font-bold text-white">{currentPage} <span className="text-lg text-white/30">/ {totalPages}</span></p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-brand-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -99,9 +99,9 @@ export default function ClientesPage() {
       </div>
 
       {/* Filtros */}
-      <div className="bg-[#171717] rounded-2xl border shadow-sm p-5 hover:shadow-md transition-shadow duration-300">
+      <div className="dark-card-static p-5 hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 mb-4">
-          <div className="p-2 rounded-lg bg-blue-50"><Search className="h-4 w-4 text-blue-600" /></div>
+          <div className="p-2 rounded-lg bg-blue-500/10"><Search className="h-4 w-4 text-blue-400" /></div>
           <h2 className="text-lg font-bold text-white">Buscar Extranjeros</h2>
         </div>
         <div className="relative">
@@ -114,7 +114,7 @@ export default function ClientesPage() {
               setSearch(e.target.value);
               setCurrentPage(1);
             }}
-            className="w-full pl-11 pr-4 py-3 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className="w-full pl-11 pr-4 py-3 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             aria-label="Buscar clientes"
           />
         </div>
@@ -122,17 +122,17 @@ export default function ClientesPage() {
 
       {/* Error state */}
       {isError && (
-        <div className="bg-[#171717] rounded-2xl border shadow-sm p-8 text-center">
+        <div className="dark-card-static p-8 text-center">
           <p className="text-red-500 text-sm">Error al cargar clientes. Verifica tu conexión e intenta de nuevo.</p>
         </div>
       )}
 
       {/* Loading state */}
       {isLoading && (
-        <div className="bg-[#171717] rounded-2xl border shadow-sm overflow-hidden p-6">
+        <div className="dark-card-static overflow-hidden p-6">
           <div className="space-y-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02]">
+              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-[#141414]">
                 <Skeleton className="h-10 w-10 rounded-xl" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-40" />
@@ -147,9 +147,9 @@ export default function ClientesPage() {
 
       {/* Lista de extranjeros */}
       {!isLoading && !isError && (
-        <div className="bg-[#171717] rounded-2xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300">
+        <div className="dark-card-static overflow-hidden hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 px-6 py-4 border-b">
-            <div className="p-2 rounded-lg bg-blue-50"><Users className="h-4 w-4 text-blue-600" /></div>
+            <div className="p-2 rounded-lg bg-blue-500/10"><Users className="h-4 w-4 text-blue-400" /></div>
             <h2 className="text-lg font-bold text-white">Listado de Extranjeros</h2>
           </div>
 
@@ -163,19 +163,19 @@ export default function ClientesPage() {
             </div>
           ) : (
             <>
-              <div className="divide-y">
+              <div className="divide-y divide-[#262626]">
                 {clientes.map((cliente: Cliente) => {
                   const nombreCompleto = capitalizeName(cliente.nombreCompleto) || '—';
                   return (
                     <div key={cliente.id} className="flex items-center justify-between px-6 py-4 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white transition-colors group">
                       <div className="flex items-center gap-4">
                         <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
-                          <span className="text-sm font-bold text-blue-600">{nombreCompleto.charAt(0).toUpperCase()}</span>
+                          <span className="text-sm font-bold text-blue-400">{nombreCompleto.charAt(0).toUpperCase()}</span>
                         </div>
                         <div className="min-w-0">
                           <Link
                             href={`/clientes/${cliente.id}`}
-                            className="text-sm font-semibold text-white hover:text-blue-600 capitalize truncate block transition-colors"
+                            className="text-sm font-semibold text-white hover:text-blue-400 capitalize truncate block transition-colors"
                           >
                             {nombreCompleto}
                           </Link>
@@ -186,14 +186,14 @@ export default function ClientesPage() {
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
                         {cliente.asesor?.fullName && (
-                          <span className="hidden lg:inline-flex px-2.5 py-1 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-brand-100">
+                          <span className="hidden lg:inline-flex px-2.5 py-1 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
                             {cliente.asesor.fullName}
                           </span>
                         )}
                         {cliente.etiquetas?.length > 0 && (
                           <div className="hidden xl:flex gap-1">
                             {cliente.etiquetas.slice(0, 2).map((tag) => (
-                              <span key={tag} className="inline-flex px-2 py-0.5 bg-white/[0.04] text-white/60 rounded-full text-[10px] font-medium">{tag}</span>
+                              <span key={tag} className="inline-flex px-2 py-0.5 bg-[#1f1f1f] text-white/60 rounded-full text-[10px] font-medium">{tag}</span>
                             ))}
                           </div>
                         )}
@@ -208,7 +208,7 @@ export default function ClientesPage() {
                           {isAdmin && (
                             <button
                               onClick={() => handleDelete(cliente.id, nombreCompleto)}
-                              className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-red-50 text-white/30 hover:text-red-500 transition-colors"
+                              className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-red-500/10 text-white/30 hover:text-red-500 transition-colors"
                               aria-label={`Eliminar ${nombreCompleto}`}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -223,7 +223,7 @@ export default function ClientesPage() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-between px-6 py-4 border-t bg-gradient-to-r from-gray-50 to-white">
+                <div className="flex items-center justify-between px-6 py-4 border-t bg-gradient-to-r from-white/[0.02] to-white/[0.04]">
                   <p className="text-sm text-white/40">
                     Mostrando {(currentPage - 1) * pageSize + 1} a{' '}
                     {Math.min(currentPage * pageSize, total)} de <span className="font-semibold text-white/70">{total}</span> extranjeros

@@ -8,10 +8,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
 const ESTATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  abierto: { label: 'Abierto', color: 'bg-blue-50 text-blue-700 border-blue-200' },
-  en_atencion: { label: 'En atención', color: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
-  resuelto: { label: 'Resuelto', color: 'bg-green-50 text-green-700 border-green-200' },
-  cerrado: { label: 'Cerrado', color: 'bg-white/[0.02] text-white/60 border-white/[0.08]' },
+  abierto: { label: 'Abierto', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
+  en_atencion: { label: 'En atención', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
+  resuelto: { label: 'Resuelto', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+  cerrado: { label: 'Cerrado', color: 'bg-[#141414] text-white/60 border-[#2a2a2a]' },
 };
 
 export default function SoportePage() {
@@ -69,7 +69,7 @@ export default function SoportePage() {
 
       {/* Metric cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-brand-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -81,7 +81,7 @@ export default function SoportePage() {
             <p className="text-3xl font-bold text-white">{tickets.length}</p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -93,7 +93,7 @@ export default function SoportePage() {
             <p className="text-3xl font-bold text-white">{abiertos}</p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -109,7 +109,7 @@ export default function SoportePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Lista de tickets */}
-        <div className="lg:col-span-1 bg-[#171717] rounded-2xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300">
+        <div className="lg:col-span-1 dark-card-static overflow-hidden hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 px-5 py-4 border-b">
             <div className="p-2 rounded-lg bg-amber-500/10"><Inbox className="h-4 w-4 text-amber-500" /></div>
             <h2 className="text-lg font-bold text-white">Tickets</h2>
@@ -120,12 +120,12 @@ export default function SoportePage() {
           ) : tickets.length === 0 ? (
             <div className="p-12 text-center">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-100 to-amber-100 flex items-center justify-center mx-auto mb-3">
-                <MessageSquare className="h-6 w-6 text-brand-400" />
+                <MessageSquare className="h-6 w-6 text-amber-400/70" />
               </div>
               <p className="text-white/40 font-medium">Sin tickets</p>
             </div>
           ) : (
-            <div className="divide-y max-h-[600px] overflow-y-auto">
+            <div className="divide-y divide-[#262626] max-h-[600px] overflow-y-auto">
               {tickets.map((ticket: any) => {
                 const config = ESTATUS_CONFIG[ticket.estatus] || ESTATUS_CONFIG.abierto;
                 return (
@@ -144,7 +144,7 @@ export default function SoportePage() {
         </div>
 
         {/* Detalle del ticket */}
-        <div className="lg:col-span-2 bg-[#171717] rounded-2xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300">
+        <div className="lg:col-span-2 dark-card-static overflow-hidden hover:shadow-md transition-shadow duration-300">
           {!selectedTicket ? (
             <div className="p-16 text-center">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mx-auto mb-4">
@@ -155,33 +155,33 @@ export default function SoportePage() {
             </div>
           ) : (
             <div className="flex flex-col h-[600px]">
-              <div className="px-6 py-4 border-b flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
+              <div className="px-6 py-4 border-b flex items-center justify-between bg-gradient-to-r from-white/[0.02] to-white/[0.04]">
                 <div>
                   <p className="font-bold text-white">{selectedTicket.asunto}</p>
                   <p className="text-xs text-white/40 mt-0.5">{selectedTicket.createdAt?.slice(0, 10)}</p>
                 </div>
                 {selectedTicket.estatus !== 'cerrado' && (
-                  <button onClick={() => cerrarTicket.mutate(selectedTicket.id)} className="px-4 py-2 text-xs font-semibold text-red-600 border border-red-200 rounded-xl hover:bg-red-50 transition-colors">
+                  <button onClick={() => cerrarTicket.mutate(selectedTicket.id)} className="px-4 py-2 text-xs font-semibold text-red-400 border border-red-500/20 rounded-xl hover:bg-red-500/10 transition-colors">
                     Cerrar ticket
                   </button>
                 )}
               </div>
               <div className="flex-1 overflow-y-auto p-5 space-y-3">
-                <div className="p-4 rounded-xl bg-gradient-to-r from-gray-50 to-white border">
+                <div className="p-4 rounded-xl bg-gradient-to-r from-white/[0.02] to-white/[0.04] border">
                   <p className="text-sm text-white/70">{selectedTicket.descripcion}</p>
                   <p className="text-[10px] text-white/30 mt-2">Mensaje inicial del cliente</p>
                 </div>
                 {selectedTicket.mensajes?.map((msg: any) => (
-                  <div key={msg.id} className={`p-4 rounded-xl ${msg.autorId === selectedTicket.clienteId ? 'bg-white/[0.02] border' : 'bg-gradient-to-r from-brand-50 to-amber-50 border border-brand-100 ml-8'}`}>
+                  <div key={msg.id} className={`p-4 rounded-xl ${msg.autorId === selectedTicket.clienteId ? 'bg-[#141414] border' : 'bg-gradient-to-r from-amber-500/10 to-amber-500/10 border border-amber-500/20 ml-8'}`}>
                     <p className="text-sm text-white/70">{msg.contenido}</p>
                     <p className="text-[10px] text-white/30 mt-2">{msg.createdAt?.slice(0, 16).replace('T', ' ')}</p>
                   </div>
                 ))}
               </div>
               {selectedTicket.estatus !== 'cerrado' && (
-                <div className="p-4 border-t bg-gradient-to-r from-gray-50 to-white">
+                <div className="p-4 border-t bg-gradient-to-r from-white/[0.02] to-white/[0.04]">
                   <div className="flex gap-2">
-                    <input type="text" value={respuesta} onChange={e => setRespuesta(e.target.value)} placeholder="Escribe tu respuesta..." className="flex-1 px-4 py-2.5 border border-white/[0.08] rounded-xl text-sm bg-[#171717] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" onKeyDown={e => { if (e.key === 'Enter' && respuesta.trim()) enviarRespuesta.mutate(); }} />
+                    <input type="text" value={respuesta} onChange={e => setRespuesta(e.target.value)} placeholder="Escribe tu respuesta..." className="flex-1 px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#171717] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" onKeyDown={e => { if (e.key === 'Enter' && respuesta.trim()) enviarRespuesta.mutate(); }} />
                     <button onClick={() => { if (respuesta.trim()) enviarRespuesta.mutate(); }} disabled={!respuesta.trim()} className="px-5 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-xl text-sm font-semibold hover:from-brand-600 hover:to-brand-700 disabled:opacity-50 shadow-lg shadow-amber-500/20/30 transition-all">
                       <Send className="h-4 w-4" />
                     </button>

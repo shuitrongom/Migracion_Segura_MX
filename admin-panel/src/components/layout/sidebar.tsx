@@ -58,7 +58,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <>
       {/* Logo */}
-      <div className="flex items-center h-16 px-6 border-b border-white/[0.06]">
+      <div className="flex items-center h-16 px-6 border-b border-[#262626]">
         <img src="/logo.png" alt="Logo" className="h-9 w-9 mr-2 rounded" />
         <div>
           <span className="text-lg font-bold text-white">MIGRACIÓN</span>
@@ -100,7 +100,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-white/[0.06]">
+      <div className="p-4 border-t border-[#262626]">
         <p className="text-xs text-white/20 text-center">
           Panel de gestión y control de trámites y clientes.
         </p>
@@ -115,7 +115,7 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex lg:flex-col w-64 bg-[#0a0a0a] text-white border-r border-white/[0.06]">
+      <aside className="hidden lg:flex lg:flex-col w-64 bg-[#0a0a0a] text-white border-r border-[#262626]">
         <SidebarContent />
       </aside>
 
@@ -123,7 +123,7 @@ export function Sidebar() {
       {isOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="fixed inset-0 bg-black/60" onClick={close} />
-          <aside className="fixed inset-y-0 left-0 w-72 bg-[#0a0a0a] text-white flex flex-col shadow-2xl border-r border-white/[0.06]">
+          <aside className="fixed inset-y-0 left-0 w-72 bg-[#0a0a0a] text-white flex flex-col shadow-2xl border-r border-[#262626]">
             <button
               onClick={close}
               className="absolute top-4 right-4 p-2 text-white/40 hover:text-white rounded-lg"

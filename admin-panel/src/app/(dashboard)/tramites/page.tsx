@@ -38,13 +38,13 @@ const TIPO_OPTIONS: { value: TipoFilter; label: string }[] = [
 ];
 
 const ESTATUS_BADGE: Record<string, { className: string; label: string; gradient: string }> = {
-  borrador: { className: 'bg-white/[0.02] text-white/70 border-white/[0.08]', label: 'Borrador', gradient: 'from-gray-400 to-gray-500' },
-  recibido: { className: 'bg-blue-50 text-blue-700 border-blue-200', label: 'Recibido', gradient: 'from-blue-400 to-amber-600' },
-  en_revision: { className: 'bg-yellow-50 text-yellow-700 border-yellow-200', label: 'En revisión', gradient: 'from-yellow-400 to-amber-500' },
-  en_espera_resolucion: { className: 'bg-orange-50 text-orange-700 border-orange-200', label: 'En espera', gradient: 'from-orange-400 to-orange-600' },
-  aprobado: { className: 'bg-green-50 text-green-700 border-green-200', label: 'Aprobado', gradient: 'from-green-400 to-emerald-600' },
-  rechazado: { className: 'bg-red-50 text-red-700 border-red-200', label: 'Rechazado', gradient: 'from-red-400 to-red-600' },
-  cancelado: { className: 'bg-white/[0.02] text-white/60 border-white/[0.08]', label: 'Cancelado', gradient: 'from-gray-300 to-gray-500' },
+  borrador: { className: 'bg-[#141414] text-white/70 border-[#2a2a2a]', label: 'Borrador', gradient: 'from-gray-400 to-gray-500' },
+  recibido: { className: 'bg-blue-500/10 text-blue-400 border-blue-500/20', label: 'Recibido', gradient: 'from-blue-400 to-amber-600' },
+  en_revision: { className: 'bg-amber-500/10 text-amber-400 border-amber-500/20', label: 'En revisión', gradient: 'from-yellow-400 to-amber-500' },
+  en_espera_resolucion: { className: 'bg-orange-500/10 text-orange-400 border-orange-500/20', label: 'En espera', gradient: 'from-orange-400 to-orange-600' },
+  aprobado: { className: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', label: 'Aprobado', gradient: 'from-green-400 to-emerald-600' },
+  rechazado: { className: 'bg-red-500/10 text-red-400 border-red-500/20', label: 'Rechazado', gradient: 'from-red-400 to-red-600' },
+  cancelado: { className: 'bg-[#141414] text-white/60 border-[#2a2a2a]', label: 'Cancelado', gradient: 'from-gray-300 to-gray-500' },
 };
 
 const TIPO_LABELS: Record<string, string> = {
@@ -106,7 +106,7 @@ export default function TramitesPage() {
 
       {/* Metric cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-brand-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -118,7 +118,7 @@ export default function TramitesPage() {
             <p className="text-3xl font-bold text-white">{total}</p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -130,7 +130,7 @@ export default function TramitesPage() {
             <p className="text-3xl font-bold text-white">{tramites.filter(t => ['recibido', 'en_revision', 'en_espera_resolucion'].includes(t.estatus)).length}</p>
           </div>
         </div>
-        <div className="relative overflow-hidden bg-[#171717] rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+        <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -145,7 +145,7 @@ export default function TramitesPage() {
       </div>
 
       {/* Filtros */}
-      <div className="bg-[#171717] rounded-2xl border shadow-sm p-5 hover:shadow-md transition-shadow duration-300">
+      <div className="dark-card-static p-5 hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 mb-4">
           <div className="p-2 rounded-lg bg-amber-500/10"><Filter className="h-4 w-4 text-amber-500" /></div>
           <h2 className="text-lg font-bold text-white">Filtros</h2>
@@ -158,14 +158,14 @@ export default function TramitesPage() {
               placeholder="Buscar por cliente, número de pieza o gestor..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-              className="w-full pl-11 pr-4 py-3 border border-white/[0.08] rounded-xl text-sm bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+              className="w-full pl-11 pr-4 py-3 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
               aria-label="Buscar trámites"
             />
           </div>
           <select
             value={estatusFilter}
             onChange={(e) => { setEstatusFilter(e.target.value as EstatusFilter); setCurrentPage(1); }}
-            className="px-4 py-3 border border-white/[0.08] rounded-xl text-sm text-white/70 bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+            className="px-4 py-3 border border-[#2a2a2a] rounded-xl text-sm text-white/70 bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
             aria-label="Filtrar por estatus"
           >
             {ESTATUS_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -173,7 +173,7 @@ export default function TramitesPage() {
           <select
             value={tipoFilter}
             onChange={(e) => { setTipoFilter(e.target.value as TipoFilter); setCurrentPage(1); }}
-            className="px-4 py-3 border border-white/[0.08] rounded-xl text-sm text-white/70 bg-white/[0.02]/50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+            className="px-4 py-3 border border-[#2a2a2a] rounded-xl text-sm text-white/70 bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
             aria-label="Filtrar por tipo de trámite"
           >
             {TIPO_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -183,17 +183,17 @@ export default function TramitesPage() {
 
       {/* Error state */}
       {isError && (
-        <div className="bg-[#171717] rounded-2xl border shadow-sm p-8 text-center">
+        <div className="dark-card-static p-8 text-center">
           <p className="text-red-500 text-sm">Error al cargar trámites. Verifica tu conexión e intenta de nuevo.</p>
         </div>
       )}
 
       {/* Loading state */}
       {isLoading && (
-        <div className="bg-[#171717] rounded-2xl border shadow-sm overflow-hidden p-6">
+        <div className="dark-card-static overflow-hidden p-6">
           <div className="space-y-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02]">
+              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-[#141414]">
                 <Skeleton className="h-10 w-10 rounded-xl" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-40" />
@@ -208,7 +208,7 @@ export default function TramitesPage() {
 
       {/* Lista de trámites */}
       {!isLoading && !isError && (
-        <div className="bg-[#171717] rounded-2xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300">
+        <div className="dark-card-static overflow-hidden hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center gap-2 px-6 py-4 border-b">
             <div className="p-2 rounded-lg bg-amber-500/10"><FileText className="h-4 w-4 text-amber-500" /></div>
             <h2 className="text-lg font-bold text-white">Listado de Trámites</h2>
@@ -217,16 +217,16 @@ export default function TramitesPage() {
           {tramites.length === 0 ? (
             <div className="p-12 text-center">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-100 to-amber-100 flex items-center justify-center mx-auto mb-4">
-                <FileText className="h-8 w-8 text-brand-400" />
+                <FileText className="h-8 w-8 text-amber-400/70" />
               </div>
               <p className="text-white/40 font-medium">No se encontraron trámites</p>
               <p className="text-sm text-white/30 mt-1">Intenta con otros filtros o inicia un nuevo trámite</p>
             </div>
           ) : (
             <>
-              <div className="divide-y">
+              <div className="divide-y divide-[#262626]">
                 {tramites.map((tramite: Tramite) => {
-                  const badge = ESTATUS_BADGE[tramite.estatus] ?? { className: 'bg-white/[0.02] text-white/70 border-white/[0.08]', label: tramite.estatus, gradient: 'from-gray-400 to-gray-500' };
+                  const badge = ESTATUS_BADGE[tramite.estatus] ?? { className: 'bg-[#141414] text-white/70 border-[#2a2a2a]', label: tramite.estatus, gradient: 'from-gray-400 to-gray-500' };
                   const clienteName = tramite.cliente
                     ? (tramite.cliente.nombreCompleto || `${tramite.cliente.nombre || ''} ${tramite.cliente.apellidos || ''}`.trim() || '--')
                     : (tramite.datosFormulario?.nombre ? `${tramite.datosFormulario.nombre} ${tramite.datosFormulario.apellidos || ''}`.trim() : '--');
@@ -259,7 +259,7 @@ export default function TramitesPage() {
                             Continuar
                           </Link>
                         )}
-                        <Link href={`/tramites/${tramite.id}`} className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-white/[0.04] text-white/40 transition-colors" aria-label={`Ver detalle del trámite ${tramite.numeroPieza ?? tramite.id}`}>
+                        <Link href={`/tramites/${tramite.id}`} className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-[#1f1f1f] text-white/40 transition-colors" aria-label={`Ver detalle del trámite ${tramite.numeroPieza ?? tramite.id}`}>
                           <MoreHorizontal className="h-4 w-4" />
                         </Link>
                       </div>
@@ -270,7 +270,7 @@ export default function TramitesPage() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-between px-6 py-4 border-t bg-gradient-to-r from-gray-50 to-white">
+                <div className="flex items-center justify-between px-6 py-4 border-t bg-gradient-to-r from-white/[0.02] to-white/[0.04]">
                   <p className="text-sm text-white/40">
                     Mostrando {(currentPage - 1) * pageSize + 1} a {Math.min(currentPage * pageSize, total)} de <span className="font-semibold text-white/70">{total}</span> trámites
                   </p>
