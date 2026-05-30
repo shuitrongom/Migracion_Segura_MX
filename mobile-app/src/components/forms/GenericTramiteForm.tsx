@@ -15,7 +15,7 @@ export default function GenericTramiteForm({ tipo, form, updateForm }: GenericTr
   const especificaOpciones = opciones.especifica[form.propositoViaje] || [];
 
   const showCurp = ['permiso_trabajo', 'notificacion_cambio', 'expedicion_documento', 'regularizacion_migratoria', 'cambio_condicion_estancia'].includes(tipo);
-  const showDomicilio = ['permiso_trabajo', 'expedicion_documento', 'regularizacion_migratoria', 'cambio_condicion_estancia'].includes(tipo);
+  const showDomicilio = ['permiso_trabajo', 'notificacion_cambio', 'expedicion_documento', 'regularizacion_migratoria', 'cambio_condicion_estancia'].includes(tipo);
   const showEmpleador = (tipo === 'permiso_trabajo' && form.especificaTramite === 'Con empleador') || (tipo === 'regularizacion_migratoria' && form.especificaTramite === 'Regularización por tener documento vencido o por realizar actividades no autorizadas');
   const isCIE = tipo === 'constancia_empleador';
 

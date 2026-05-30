@@ -7,17 +7,29 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 
-function CopyField({ label, value }: { label: string; value?: string }) {
+function formatDateDisplay(value: string): string {
+  if (!value) return '';
+  // Si es formato YYYY-MM-DD, convertir a DD/MM/YYYY
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const [y, m, d] = value.split('-');
+    return `${d}/${m}/${y}`;
+  }
+  return value;
+}
+
+function CopyField({ label, value, isDate }: { label: string; value?: string; isDate?: boolean }) {
   if (!value) return null;
+  const displayValue = isDate ? formatDateDisplay(value) : value;
+  const copyValue = isDate ? formatDateDisplay(value) : value;
   const handleCopy = () => {
-    navigator.clipboard.writeText(value);
-    toast.success(`"${value}" copiado`);
+    navigator.clipboard.writeText(copyValue);
+    toast.success(`"${copyValue}" copiado`);
   };
   return (
     <button type="button" onClick={handleCopy} className="w-full text-left p-1.5 rounded hover:bg-[#252525] border border-transparent hover:border-[#3a3a3a] transition-all group">
       {label && <p className="text-[10px] text-white/70">{label}</p>}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-white">{value}</p>
+        <p className="text-sm text-white">{displayValue}</p>
         <Copy className="h-3 w-3 text-gray-300 group-hover:text-amber-500" />
       </div>
     </button>
@@ -202,7 +214,7 @@ export default function ContinuarTramitePage() {
                       <CopyField label="Nombre(s)" value={tramite.datosFormulario.nombre} />
                       <CopyField label="Apellido(s)" value={tramite.datosFormulario.apellidos} />
                       <CopyField label="Sexo" value={tramite.datosFormulario.sexo === 'H' ? 'Hombre' : tramite.datosFormulario.sexo === 'M' ? 'Mujer' : ''} />
-                      <CopyField label="Fecha nacimiento" value={tramite.datosFormulario.fechaNacimiento} />
+                      <CopyField label="Fecha nacimiento" value={tramite.datosFormulario.fechaNacimiento} isDate />
                       <CopyField label="Nacionalidad" value={tramite.datosFormulario.nacionalidad} />
                       <CopyField label="Estado civil" value={tramite.datosFormulario.estadoCivil} />
                     </div>
@@ -218,24 +230,23 @@ export default function ContinuarTramitePage() {
                       <CopyField label="Tipo" value={tramite.datosFormulario.documentoIdentificacion} />
                       <CopyField label="Número" value={tramite.datosFormulario.numeroDocumento} />
                       <CopyField label="País expedición" value={tramite.datosFormulario.paisExpedicion} />
-                      <CopyField label="Expedición" value={tramite.datosFormulario.fechaExpedicion} />
-                      <CopyField label="Vencimiento" value={tramite.datosFormulario.fechaVencimiento} />
+                      <CopyField label="Expedición" value={tramite.datosFormulario.fechaExpedicion} isDate />
+                      <CopyField label="Vencimiento" value={tramite.datosFormulario.fechaVencimiento} isDate />
                     </div>
-                    {/* Domicilio */}
-                    {tramite.datosFormulario.domEstado && (
-                      <div>
-                        <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-amber-500/30 pb-1 mb-2">Domicilio en México</p>
-                        <CopyField label="CP" value={tramite.datosFormulario.domCodigoPostal} />
-                        <CopyField label="Estado" value={tramite.datosFormulario.domEstado} />
-                        <CopyField label="Municipio" value={tramite.datosFormulario.domMunicipio} />
-                        <CopyField label="Colonia" value={tramite.datosFormulario.domColonia} />
-                        <CopyField label="Calle" value={tramite.datosFormulario.domCalle} />
-                        <CopyField label="Núm. exterior" value={tramite.datosFormulario.domNumeroExterior} />
-                        <CopyField label="Núm. interior" value={tramite.datosFormulario.domNumeroInterior} />
-                        <CopyField label="Lada" value={tramite.datosFormulario.domLada} />
-                        <CopyField label="Teléfono" value={tramite.datosFormulario.domTelefonoFijo} />
-                      </div>
-                    )}
+                    {/* Domicilio en México - siempre mostrar */}
+                    <div>
+                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-amber-500/30 pb-1 mb-2">Domicilio en México</p>
+                      <CopyField label="CP" value={tramite.datosFormulario.domCodigoPostal} />
+                      <CopyField label="Estado" value={tramite.datosFormulario.domEstado} />
+                      <CopyField label="Municipio" value={tramite.datosFormulario.domMunicipio} />
+                      <CopyField label="Colonia" value={tramite.datosFormulario.domColonia} />
+                      <CopyField label="Calle" value={tramite.datosFormulario.domCalle} />
+                      <CopyField label="Núm. exterior" value={tramite.datosFormulario.domNumeroExterior} />
+                      <CopyField label="Núm. interior" value={tramite.datosFormulario.domNumeroInterior} />
+                      <CopyField label="Lada" value={tramite.datosFormulario.domLada} />
+                      <CopyField label="Teléfono" value={tramite.datosFormulario.domTelefonoFijo} />
+                      {!tramite.datosFormulario.domEstado && <p className="text-[10px] text-white/70 italic">No capturado por el extranjero</p>}
+                    </div>
                     {/* Información adicional (visa) */}
                     {tramite.datosFormulario.actividadPrincipal && (
                       <div>

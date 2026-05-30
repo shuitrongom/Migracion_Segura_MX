@@ -321,8 +321,8 @@ export default function NuevoTramitePage() {
           if (!solicitante.numeroExterior.trim()) errors['sol_numeroExterior'] = true;
         }
       }
-      // Campos solo para permisos, expedición de documento, regularización y cambio condición
-      if (selectedTramite?.tipo === 'permiso_trabajo' || selectedTramite?.tipo === 'expedicion_documento' || selectedTramite?.tipo === 'regularizacion_migratoria' || selectedTramite?.tipo === 'cambio_condicion_estancia') {
+      // Campos solo para permisos, notificación de cambio, expedición de documento, regularización y cambio condición
+      if (selectedTramite?.tipo === 'permiso_trabajo' || selectedTramite?.tipo === 'notificacion_cambio' || selectedTramite?.tipo === 'expedicion_documento' || selectedTramite?.tipo === 'regularizacion_migratoria' || selectedTramite?.tipo === 'cambio_condicion_estancia') {
         if (!extranjero.domCodigoPostal.trim()) errors['domCodigoPostal'] = true;
         if (!extranjero.domEstado) errors['domEstado'] = true;
         if (!extranjero.domMunicipio) errors['domMunicipio'] = true;
@@ -610,8 +610,8 @@ export default function NuevoTramitePage() {
               </div>
             </div>
 
-            {/* Domicilio del extranjero en México (Permisos, Expedición de Documento, Regularización y Cambio Condición) */}
-            {(selectedTramite?.tipo === 'permiso_trabajo' || selectedTramite?.tipo === 'expedicion_documento' || selectedTramite?.tipo === 'regularizacion_migratoria' || selectedTramite?.tipo === 'cambio_condicion_estancia') && (
+            {/* Domicilio del extranjero en México (Permisos, Notificación de Cambio, Expedición de Documento, Regularización y Cambio Condición) */}
+            {(selectedTramite?.tipo === 'permiso_trabajo' || selectedTramite?.tipo === 'notificacion_cambio' || selectedTramite?.tipo === 'expedicion_documento' || selectedTramite?.tipo === 'regularizacion_migratoria' || selectedTramite?.tipo === 'cambio_condicion_estancia') && (
             <div>
               <h3 className="text-xl font-bold text-amber-400 mb-4 pb-3 border-b-2 border-amber-500/20 text-amber-400">Domicilio del extranjero en México</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
