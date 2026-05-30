@@ -304,7 +304,7 @@ function DatosINMSection({ tramiteId, tramite, estatus }: { tramiteId: string; t
             <p className="text-[10px] text-white/70 uppercase font-semibold">Número de Pieza</p>
             <div className="flex items-center justify-between">
               <p className="text-lg font-mono font-bold text-amber-400">{tramite?.numeroPieza || '—'}</p>
-              {tramite?.numeroPieza && (
+              {tramite?.numeroPieza && !tramite.numeroPieza.startsWith('MSX-') && (
                 <button
                   onClick={() => setPdfSolicitudOpen(true)}
                   className="px-2.5 py-1 text-[11px] font-medium text-amber-400 border border-amber-500/30 rounded-lg hover:bg-amber-500/10 transition-colors"
