@@ -5,6 +5,7 @@ import {
   Patch,
   Param,
   Body,
+  Query,
   Request,
   ParseUUIDPipe,
   UseInterceptors,
@@ -17,6 +18,7 @@ import {
   ApiOperation,
   ApiBearerAuth,
   ApiParam,
+  ApiQuery,
   ApiConsumes,
   ApiBody,
 } from '@nestjs/swagger';
@@ -67,13 +69,22 @@ export class DocumentosController {
   }
 
   /**
-   * Listar todos los documentos (solo admin)
+   * Listar todos los documentos (solo admin), filtrable por clienteId, tramiteId, categoria, estatus
    */
   @Get()
-  @Roles(UserRole.ADMINISTRADOR)
-  @ApiOperation({ summary: 'Listar todos los documentos del sistema' })
-  findAll(@Request() req: { user: { id: string } }) {
-    return this.documentosService.findAll();
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Listar documentos del sistema (filtrable por clienteId, tramiteId)' })
+  @ApiQuery({ name: 'clienteId', required: false })
+  @ApiQuery({ name: 'tramiteId', required: false })
+  @ApiQuery({ name: 'categoria', required: false })
+  @ApiQuery({ name: 'estatus', required: false })
+  findAll(
+    @Query('clienteId') clienteId?: string,
+    @Query('tramiteId') tramiteId?: string,
+    @Query('categoria') categoria?: string,
+    @Query('estatus') estatus?: string,
+  ) {
+    return this.documentosService.findAll({ clienteId, tramiteId, categoria, estatus });
   }
 
   /**

@@ -35,7 +35,7 @@ const navigation: NavItem[] = [
   { name: 'Gestores', href: '/gestores', icon: UserCog, adminOnly: true },
   { name: 'Trámites', href: '/tramites', icon: FileText },
   { name: 'Solicitudes', href: '/solicitudes', icon: FolderOpen },
-  { name: 'Documentos', href: '/documentos', icon: FolderOpen },
+  { name: 'Expediente', href: '/documentos', icon: FolderOpen },
   { name: 'Citas', href: '/citas', icon: Calendar },
   { name: 'Soporte', href: '/soporte', icon: MessageSquare },
   { name: 'Financiero', href: '/financiero', icon: DollarSign },

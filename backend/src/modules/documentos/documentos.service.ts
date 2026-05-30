@@ -32,10 +32,35 @@ export class DocumentosService {
   ) {}
 
   /**
-   * Listar todos los documentos del sistema (admin)
+   * Listar todos los documentos del sistema (admin), opcionalmente filtrado por clienteId o tramiteId
    */
-  async findAll(): Promise<{ data: Documento[]; meta: { total: number } }> {
+  async findAll(filters?: { clienteId?: string; tramiteId?: string; categoria?: string; estatus?: string }): Promise<{ data: Documento[]; meta: { total: number } }> {
+    if (filters?.clienteId) {
+      // Buscar expedientes del cliente y luego sus documentos
+      const expedientes = await this.expedienteRepository.find({ where: { clienteId: filters.clienteId } });
+      if (expedientes.length === 0) return { data: [], meta: { total: 0 } };
+      const expedienteIds = expedientes.map(e => e.id);
+      const qb = this.documentoRepository.createQueryBuilder('doc')
+        .where('doc.expediente_id IN (:...expedienteIds)', { expedienteIds })
+        .orderBy('doc.created_at', 'DESC');
+      if (filters.categoria) qb.andWhere('doc.categoria = :categoria', { categoria: filters.categoria });
+      if (filters.estatus) qb.andWhere('doc.estatus = :estatus', { estatus: filters.estatus });
+      const [data, total] = await qb.getManyAndCount();
+      return { data, meta: { total } };
+    }
+
+    if (filters?.tramiteId) {
+      const where: any = { tramiteId: filters.tramiteId };
+      if (filters.categoria) where.categoria = filters.categoria;
+      if (filters.estatus) where.estatus = filters.estatus;
+      const [data, total] = await this.documentoRepository.findAndCount({ where, order: { createdAt: 'DESC' } });
+      return { data, meta: { total } };
+    }
+
+    const where: any = {};
+    if (filters?.estatus) where.estatus = filters.estatus;
     const [data, total] = await this.documentoRepository.findAndCount({
+      where,
       order: { createdAt: 'DESC' },
       take: 100,
     });
