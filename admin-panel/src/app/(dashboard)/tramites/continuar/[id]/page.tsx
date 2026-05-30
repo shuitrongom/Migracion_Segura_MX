@@ -132,7 +132,16 @@ export default function ContinuarTramitePage() {
     return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 text-brand-500 animate-spin" /></div>;
   }
 
-  const urlSolicitud = 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html';
+  const URL_POR_TIPO: Record<string, string> = {
+    visa: 'https://www.inm.gob.mx/tramites/publico/solicitud_internacion.html',
+    permiso_trabajo: 'https://www.inm.gob.mx/tramites/publico/solicitud_estancia.html',
+    notificacion_cambio: 'https://www.inm.gob.mx/tramites/publico/solicitud_estancia.html',
+    expedicion_documento: 'https://www.inm.gob.mx/tramites/publico/solicitud_estancia.html',
+    regularizacion_migratoria: 'https://www.inm.gob.mx/tramites/publico/solicitud_estancia.html',
+    constancia_empleador: 'https://www.inm.gob.mx/tramites/publico/solicitud_empresa.html',
+    cambio_condicion_estancia: 'https://www.inm.gob.mx/tramites/publico/solicitud_estancia.html',
+  };
+  const urlSolicitud = URL_POR_TIPO[tramite?.tipo] || 'https://www.inm.gob.mx/tramites/publico/solicitud_estancia.html';
 
   return (
     <div>
