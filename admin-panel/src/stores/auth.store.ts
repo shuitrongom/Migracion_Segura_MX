@@ -20,6 +20,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: async (email: string, password: string) => {
     const response = await authService.login(email, password);
+    localStorage.setItem('last_activity', Date.now().toString());
     set({
       user: response.user,
       accessToken: response.accessToken,
@@ -29,6 +30,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: () => {
     authService.logout();
+    localStorage.removeItem('last_activity');
     set({
       user: null,
       accessToken: null,
