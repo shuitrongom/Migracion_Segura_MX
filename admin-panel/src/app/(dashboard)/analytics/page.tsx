@@ -160,7 +160,7 @@ export default function AnalyticsPage() {
   if (loading) {
     return (
       <div className="space-y-6 animate-in fade-in duration-500">
-        <div className="h-40 rounded-2xl bg-gradient-to-br from-gray-900 via-stone-800 to-amber-700 animate-pulse" />
+        <div className="h-40 rounded-2xl bg-gradient-to-tl from-neutral-900 via-stone-800 to-amber-600 animate-pulse" />
         <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="dark-card-static p-6 animate-pulse">
@@ -180,7 +180,7 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header con gradiente */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-stone-800 to-amber-700 p-8 text-white shadow-xl">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-tl from-neutral-900 via-stone-800 to-amber-600 p-8 text-white shadow-xl">
         <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-400/10 rounded-full translate-y-1/2 -translate-x-1/2" />
         <div className="relative z-10">
@@ -291,7 +291,7 @@ export default function AnalyticsPage() {
       <div className="dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 mb-6">
           <div className="p-2 rounded-lg bg-purple-500/10">
-            <Filter className="h-4 w-4 text-purple-600" />
+            <Filter className="h-4 w-4 text-purple-400" />
           </div>
           <h2 className="text-lg font-bold text-white">Embudo de Conversión</h2>
           <span className="text-xs text-white/30 ml-2">Borrador → Recibido → En Revisión → Aprobado</span>

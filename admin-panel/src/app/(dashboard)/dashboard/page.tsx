@@ -40,12 +40,12 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header con gradiente */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0a1628] via-[#0f2027] to-[#1a1a2e] p-8 text-white shadow-xl border border-[#262626]">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-tl from-neutral-900 via-stone-800 to-amber-600 p-8 text-white shadow-xl">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-400/10 rounded-full translate-y-1/2 -translate-x-1/2" />
         <div className="relative z-10">
-          <h1 className="text-3xl font-bold text-amber-400">Dashboard</h1>
-          <p className="text-amber-400/70 mt-1">Panel de control — Migración Segura MX</p>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="text-amber-200 mt-1">Panel de control — Migración Segura MX</p>
         </div>
       </div>
 
@@ -65,10 +65,10 @@ export default function DashboardPage() {
       {/* Grid principal */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Distribución por estatus */}
-        <div className="dark-card p-6 hover:shadow-lg hover:shadow-cyan-900/10 transition-all duration-300">
+        <div className="dark-card p-6 hover:shadow-lg hover:shadow-amber-900/10 transition-all duration-300">
           <div className="flex items-center gap-2 mb-5">
             <div className="p-2 rounded-lg bg-amber-500/10"><Activity className="h-4 w-4 text-amber-400" /></div>
-            <h2 className="text-lg font-bold text-amber-300">Distribución por Estatus</h2>
+            <h2 className="text-lg font-bold text-amber-200">Distribución por Estatus</h2>
           </div>
           {estatusQuery.isLoading ? (
             <div className="space-y-3">{[1,2,3,4,5].map(i => <Skeleton key={i} className="h-7 w-full" />)}</div>
@@ -90,10 +90,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Citas de hoy */}
-        <div className="dark-card p-6 hover:shadow-lg hover:shadow-cyan-900/10 transition-all duration-300">
+        <div className="dark-card p-6 hover:shadow-lg hover:shadow-amber-900/10 transition-all duration-300">
           <div className="flex items-center gap-2 mb-5">
             <div className="p-2 rounded-lg bg-emerald-500/10"><Calendar className="h-4 w-4 text-emerald-400" /></div>
-            <h2 className="text-lg font-bold text-amber-300">Citas de Hoy</h2>
+            <h2 className="text-lg font-bold text-amber-200">Citas de Hoy</h2>
           </div>
           {citasHoyQuery.isLoading ? (
             <div className="space-y-3"><Skeleton className="h-16 w-full" /><Skeleton className="h-16 w-full" /></div>
@@ -124,10 +124,10 @@ export default function DashboardPage() {
       </div>
 
       {/* Actividad reciente */}
-      <div className="dark-card p-6 hover:shadow-lg hover:shadow-cyan-900/10 transition-all duration-300">
+      <div className="dark-card p-6 hover:shadow-lg hover:shadow-amber-900/10 transition-all duration-300">
         <div className="flex items-center gap-2 mb-5">
-          <div className="p-2 rounded-lg bg-purple-500/10"><TrendingUp className="h-4 w-4 text-purple-600" /></div>
-          <h2 className="text-lg font-bold text-amber-300">Actividad Reciente</h2>
+          <div className="p-2 rounded-lg bg-purple-500/10"><TrendingUp className="h-4 w-4 text-purple-400" /></div>
+          <h2 className="text-lg font-bold text-amber-200">Actividad Reciente</h2>
         </div>
         {recentActivityQuery.isLoading ? (
           <div className="space-y-3">{[1,2,3,4,5].map(i => <Skeleton key={i} className="h-12 w-full" />)}</div>

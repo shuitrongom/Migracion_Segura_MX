@@ -157,7 +157,7 @@ export default function GestorDetailPage() {
                   <p className="text-[10px] text-white/40">Extranjeros</p>
                 </div>
                 <div className="text-center p-3 bg-purple-500/10 rounded-xl">
-                  <p className="text-lg font-bold text-purple-600">{citas.length}</p>
+                  <p className="text-lg font-bold text-purple-400">{citas.length}</p>
                   <p className="text-[10px] text-white/40">Citas</p>
                 </div>
               </div>

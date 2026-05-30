@@ -124,9 +124,9 @@ export default function SolicitudesPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-gray-900 via-stone-800 to-amber-700 p-8 text-white shadow-xl">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-tl from-neutral-900 via-stone-800 to-amber-600 p-8 text-white shadow-xl">
         <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-yellow-400/10 rounded-full translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-400/10 rounded-full translate-y-1/2 -translate-x-1/2" />
         <div className="relative z-10 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Solicitudes</h1>
@@ -214,7 +214,7 @@ export default function SolicitudesPage() {
           <div className="p-12 text-center text-white/30">Cargando...</div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500/20 to-amber-600/20 flex items-center justify-center mx-auto mb-4">
               <FileText className="h-8 w-8 text-amber-400" />
             </div>
             <p className="text-white/40 font-medium">No hay solicitudes</p>
@@ -227,7 +227,7 @@ export default function SolicitudesPage() {
               return (
                 <div key={sol.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#1f1f1f] transition-colors group cursor-pointer" onClick={() => { setSelectedSolicitud(sol); setShowModal(true); }}>
                   <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-600/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
                       <FileText className="h-5 w-5 text-amber-600" />
                     </div>
                     <div className="min-w-0">
