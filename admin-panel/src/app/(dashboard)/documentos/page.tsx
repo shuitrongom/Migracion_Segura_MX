@@ -65,30 +65,21 @@ export default function ExpedienteDigitalPage() {
       const data = res.data?.data || res.data || [];
       const allClientes: Cliente[] = Array.isArray(data) ? data : [];
       
-      // Obtener todos los documentos y agrupar por cliente via tramiteId
-      const allDocsRes = await api.get('/documentos');
-      const allDocs: DocItem[] = allDocsRes.data?.data || allDocsRes.data || [];
-      
-      // Obtener trámites para mapear tramiteId -> clienteId
-      const tramitesRes = await api.get('/tramites', { params: { page: 1, limit: 200 } });
-      const tramites = tramitesRes.data?.data || tramitesRes.data || [];
-      const tramiteToCliente: Record<string, string> = {};
-      for (const t of tramites) {
-        if (t.clienteId) tramiteToCliente[t.id] = t.clienteId;
-      }
-      
-      // Agrupar documentos por clienteId
+      // Para cada cliente, verificar si tiene documentos usando el endpoint filtrado
+      const clientesConDocs: Cliente[] = [];
       const docsMap: Record<string, DocItem[]> = {};
-      for (const doc of allDocs) {
-        const clienteId = doc.tramiteId ? tramiteToCliente[doc.tramiteId] : null;
-        if (clienteId) {
-          if (!docsMap[clienteId]) docsMap[clienteId] = [];
-          docsMap[clienteId].push(doc);
-        }
-      }
       
-      // Solo mostrar clientes que tienen documentos
-      const clientesConDocs = allClientes.filter(c => docsMap[c.id] && docsMap[c.id].length > 0);
+      await Promise.all(allClientes.map(async (cliente) => {
+        try {
+          const docsRes = await api.get('/documentos', { params: { clienteId: cliente.id } });
+          const docs = docsRes.data?.data || docsRes.data || [];
+          const docsArray = Array.isArray(docs) ? docs : [];
+          if (docsArray.length > 0) {
+            clientesConDocs.push(cliente);
+            docsMap[cliente.id] = docsArray;
+          }
+        } catch {}
+      }));
       
       setClientes(clientesConDocs);
       setClienteDocs(docsMap);
