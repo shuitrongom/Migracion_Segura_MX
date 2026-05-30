@@ -83,6 +83,10 @@ export default function ClienteLayout() {
         name="chat"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="evaluar-tramite"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }
