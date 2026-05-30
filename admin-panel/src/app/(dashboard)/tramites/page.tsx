@@ -244,6 +244,12 @@ export default function TramitesPage() {
                             <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border ${badge.className}`}>
                               {badge.label}
                             </span>
+                            {/* Indicador de origen */}
+                            {tramite.numeroPieza?.startsWith('MSX-') ? (
+                              <span className="inline-flex px-1.5 py-0.5 rounded text-[9px] font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">📱 App</span>
+                            ) : (
+                              <span className="inline-flex px-1.5 py-0.5 rounded text-[9px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">🖥 Admin</span>
+                            )}
                           </div>
                           <p className="text-sm text-white capitalize truncate">{clienteName}</p>
                           <p className="text-xs text-white/70">
