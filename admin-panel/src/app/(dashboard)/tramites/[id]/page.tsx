@@ -40,7 +40,7 @@ interface TramiteDetail {
   etapas: Etapa[];
 }
 
-type EstatusTramite = 'borrador' | 'recibido' | 'en_revision' | 'presentado_inm' | 'en_espera_resolucion' | 'aprobado' | 'rechazado' | 'cancelado';
+type EstatusTramite = 'borrador' | 'recibido' | 'en_revision' | 'presentado_inm' | 'en_espera_resolucion' | 'aprobado' | 'rechazado' | 'cancelado' | 'entregado' | 'completado';
 
 const ESTATUS_OPTIONS: { value: EstatusTramite; label: string }[] = [
   { value: 'borrador', label: 'Borrador' },
@@ -51,6 +51,8 @@ const ESTATUS_OPTIONS: { value: EstatusTramite; label: string }[] = [
   { value: 'aprobado', label: 'Aprobado' },
   { value: 'rechazado', label: 'Rechazado' },
   { value: 'cancelado', label: 'Cancelado' },
+  { value: 'entregado', label: 'Documento entregado' },
+  { value: 'completado', label: 'Completado' },
 ];
 
 const ESTATUS_BADGE: Record<EstatusTramite, string> = {
@@ -62,6 +64,8 @@ const ESTATUS_BADGE: Record<EstatusTramite, string> = {
   aprobado: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   rechazado: 'bg-red-500/10 text-red-400 border-red-500/20',
   cancelado: 'bg-[#1a1a1a] text-white/70 border-[#3a3a3a]',
+  entregado: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+  completado: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
 };
 
 const ESTATUS_LABELS: Record<EstatusTramite, string> = {
@@ -73,6 +77,8 @@ const ESTATUS_LABELS: Record<EstatusTramite, string> = {
   aprobado: 'Aprobado',
   rechazado: 'Rechazado',
   cancelado: 'Cancelado',
+  entregado: 'Entregado',
+  completado: 'Completado',
 };
 
 const TIPO_LABELS: Record<string, string> = {

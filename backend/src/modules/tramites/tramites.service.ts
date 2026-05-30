@@ -231,7 +231,8 @@ export class TramitesService {
     if (
       dto.estatus === EstatusTramite.APROBADO ||
       dto.estatus === EstatusTramite.RECHAZADO ||
-      dto.estatus === EstatusTramite.CANCELADO
+      dto.estatus === EstatusTramite.CANCELADO ||
+      dto.estatus === EstatusTramite.COMPLETADO
     ) {
       updateData.fechaCierre = new Date();
     }
@@ -280,6 +281,30 @@ export class TramitesService {
             contenido: `Tu trámite ${tramite.numeroPieza || ''} ahora está: ${estatusLabel}${dto.observaciones ? '. Observaciones: ' + dto.observaciones : ''}`,
             metadata: { tramiteId, estatus: dto.estatus },
           }).catch(() => {});
+
+          // Notificación especial cuando se aprueba
+          if (dto.estatus === EstatusTramite.APROBADO) {
+            await this.notificacionesService.sendNotification({
+              destinatarioId: cliente[0].userId,
+              tipo: TipoNotificacion.FELICITACION_APROBADO,
+              canal: CanalNotificacion.PUSH,
+              titulo: '🎉 ¡Tu trámite fue aprobado!',
+              contenido: '🎉 ¡Tu trámite fue aprobado! Agenda una cita para recoger tu documento.',
+              metadata: { tramiteId, estatus: dto.estatus },
+            }).catch(() => {});
+          }
+
+          // Notificación cuando se entrega el documento
+          if (dto.estatus === EstatusTramite.ENTREGADO) {
+            await this.notificacionesService.sendNotification({
+              destinatarioId: cliente[0].userId,
+              tipo: TipoNotificacion.CAMBIO_ESTATUS,
+              canal: CanalNotificacion.PUSH,
+              titulo: '📄 Documento entregado',
+              contenido: '📄 Documento entregado. Por favor evalúa nuestro servicio y toma foto de tu documento para respaldo.',
+              metadata: { tramiteId, estatus: dto.estatus },
+            }).catch(() => {});
+          }
         }
       } catch {}
     }

@@ -12,9 +12,11 @@ const estatusConfig: Record<string, { color: string; label: string; icon: string
   aprobado: { color: '#27AE60', label: 'Aprobado', icon: '✅', step: 6 },
   rechazado: { color: '#E74C3C', label: 'Rechazado', icon: '❌', step: 6 },
   cancelado: { color: '#6B7280', label: 'Cancelado', icon: '🚫', step: 0 },
+  entregado: { color: '#1ABC9C', label: 'Documento entregado', icon: '📄', step: 7 },
+  completado: { color: '#27AE60', label: 'Completado', icon: '🎉', step: 8 },
 };
 
-const STEPS = ['Recibido', 'En revisión', 'En espera', 'Resuelto'];
+const STEPS = ['Recibido', 'En revisión', 'En espera', 'Resuelto', 'Entregado', 'Completado'];
 
 export default function EstatusScreen() {
   const [tramites, setTramites] = useState<any[]>([]);

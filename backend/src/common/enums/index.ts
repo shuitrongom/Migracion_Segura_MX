@@ -41,6 +41,8 @@ export enum EstatusTramite {
   APROBADO = 'aprobado',
   RECHAZADO = 'rechazado',
   CANCELADO = 'cancelado',
+  ENTREGADO = 'entregado',
+  COMPLETADO = 'completado',
 }
 
 /**
