@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, StyleSheet, Platform, Pressable } from 'react-native';
+import { useState, useRef, useEffect } from 'react';
+import { View, Text, TouchableOpacity, Modal, StyleSheet, Platform, Pressable, Animated, Easing } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface FormDatePickerProps {
@@ -13,6 +13,16 @@ interface FormDatePickerProps {
 
 export default function FormDatePicker({ label, value, onChange, required, minYear = 1940, maxYear = 2040 }: FormDatePickerProps) {
   const [show, setShow] = useState(false);
+  const glowAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, { toValue: 1, duration: 2000, easing: Easing.inOut(Easing.ease), useNativeDriver: false }),
+        Animated.timing(glowAnim, { toValue: 0, duration: 2000, easing: Easing.inOut(Easing.ease), useNativeDriver: false }),
+      ])
+    ).start();
+  }, []);
 
   const dateValue = value ? new Date(value + 'T00:00:00') : new Date(2000, 0, 1);
   const minDate = new Date(minYear, 0, 1);
@@ -34,16 +44,23 @@ export default function FormDatePicker({ label, value, onChange, required, minYe
     }
   };
 
+  const borderColor = glowAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['#1A3A4A', '#00D4FF'],
+  });
+
   if (Platform.OS === 'android') {
     return (
       <View style={styles.container}>
         <Text style={styles.label}>{label}{required ? ' *' : ''}</Text>
-        <TouchableOpacity style={styles.select} onPress={() => setShow(true)}>
-          <Text style={[styles.selectText, !value && styles.placeholder]}>
-            {value ? formatDisplay(value) : 'DD/MM/AAAA'}
-          </Text>
-          <Text style={styles.icon}>📅</Text>
-        </TouchableOpacity>
+        <Animated.View style={[styles.selectWrapper, { borderColor }]}>
+          <TouchableOpacity style={styles.select} onPress={() => setShow(true)}>
+            <Text style={[styles.selectText, !value && styles.placeholder]}>
+              {value ? formatDisplay(value) : 'DD/MM/AAAA'}
+            </Text>
+            <Text style={styles.icon}>📅</Text>
+          </TouchableOpacity>
+        </Animated.View>
         {show && (
           <DateTimePicker
             value={dateValue}
@@ -62,12 +79,14 @@ export default function FormDatePicker({ label, value, onChange, required, minYe
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}{required ? ' *' : ''}</Text>
-      <TouchableOpacity style={styles.select} onPress={() => setShow(true)}>
-        <Text style={[styles.selectText, !value && styles.placeholder]}>
-          {value ? formatDisplay(value) : 'DD/MM/AAAA'}
-        </Text>
-        <Text style={styles.icon}>📅</Text>
-      </TouchableOpacity>
+      <Animated.View style={[styles.selectWrapper, { borderColor }]}>
+        <TouchableOpacity style={styles.select} onPress={() => setShow(true)}>
+          <Text style={[styles.selectText, !value && styles.placeholder]}>
+            {value ? formatDisplay(value) : 'DD/MM/AAAA'}
+          </Text>
+          <Text style={styles.icon}>📅</Text>
+        </TouchableOpacity>
+      </Animated.View>
 
       <Modal visible={show} animationType="slide" transparent>
         <Pressable style={styles.overlay} onPress={() => setShow(false)}>
@@ -100,15 +119,16 @@ export default function FormDatePicker({ label, value, onChange, required, minYe
 
 const styles = StyleSheet.create({
   container: { marginBottom: 14 },
-  label: { fontSize: 12, fontWeight: '600', color: '#4A3F37', marginBottom: 5 },
-  select: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8DFD3', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 13 },
-  selectText: { flex: 1, fontSize: 14, color: '#2C1810' },
-  placeholder: { color: '#9CA3AF' },
+  label: { fontSize: 12, fontWeight: '600', color: '#8EC8F8', marginBottom: 5, letterSpacing: 0.3 },
+  selectWrapper: { borderWidth: 1.5, borderRadius: 12, overflow: 'hidden' },
+  select: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#0D1B2A', paddingHorizontal: 14, paddingVertical: 13 },
+  selectText: { flex: 1, fontSize: 14, color: '#E0F7FA' },
+  placeholder: { color: '#4A6FA5' },
   icon: { fontSize: 16 },
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  modal: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 30 },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E8DFD3' },
-  modalTitle: { fontSize: 16, fontWeight: '600', color: '#2C1810' },
-  cancelBtn: { fontSize: 15, color: '#6B5B4F' },
-  doneBtn: { fontSize: 15, color: '#C4A265', fontWeight: '600' },
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
+  modal: { backgroundColor: '#0F2027', borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: 30, borderTopWidth: 1, borderTopColor: '#00D4FF' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#1A3A4A' },
+  modalTitle: { fontSize: 16, fontWeight: '700', color: '#E0F7FA' },
+  cancelBtn: { fontSize: 15, color: '#4A6FA5' },
+  doneBtn: { fontSize: 15, color: '#00D4FF', fontWeight: '700' },
 });
