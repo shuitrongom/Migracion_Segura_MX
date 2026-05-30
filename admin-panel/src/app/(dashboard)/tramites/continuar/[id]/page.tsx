@@ -357,6 +357,11 @@ export default function ContinuarTramitePage() {
                 </div>
               ))}
             </div>
+            {/* Info de envío */}
+            <div className="mt-6 p-4 bg-amber-500/[0.06] border border-amber-500/20 rounded-lg max-w-2xl">
+              <p className="text-sm text-amber-300 font-medium">📧 Al dar clic en Siguiente o Finalizar y enviar requisitos:</p>
+              <p className="text-sm text-white/80 mt-1">Se enviará un correo al extranjero ({tramite?.datosFormulario?.solicitanteEmail || tramite?.cliente?.email || 'sin email'}) con la lista de documentos que debe presentar.</p>
+            </div>
           </div>
         )}
 
@@ -379,11 +384,11 @@ export default function ContinuarTramitePage() {
               </div>
             </div>
             {pagoData.monto && (
-              <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg max-w-2xl">
-                <p className="text-sm text-blue-300 font-medium">Desglose de pagos:</p>
-                <p className="text-sm text-blue-400 mt-1">• Anticipo (50%): <strong>${(parseFloat(pagoData.monto) / 2).toLocaleString()} MXN</strong> — se cobra ahora</p>
-                <p className="text-sm text-blue-400">• Liquidación (50%): <strong>${(parseFloat(pagoData.monto) / 2).toLocaleString()} MXN</strong> — se cobra al resolver</p>
-                <p className="text-xs text-blue-400 mt-2">El extranjero tiene 15 días para pagar cada parte. Si no paga el anticipo, el trámite se cancela.</p>
+              <div className="mt-4 p-4 bg-amber-500/[0.06] border border-amber-500/20 rounded-lg max-w-2xl">
+                <p className="text-sm text-amber-300 font-medium">Desglose de pagos:</p>
+                <p className="text-sm text-white/80 mt-1">• Anticipo (50%): <strong className="text-amber-400">${(parseFloat(pagoData.monto) / 2).toLocaleString()} MXN</strong> — se cobra ahora</p>
+                <p className="text-sm text-white/80">• Liquidación (50%): <strong className="text-amber-400">${(parseFloat(pagoData.monto) / 2).toLocaleString()} MXN</strong> — se cobra al resolver</p>
+                <p className="text-xs text-white/70 mt-2">El extranjero tiene 15 días para pagar cada parte. Si no paga el anticipo, el trámite se cancela.</p>
               </div>
             )}
           </div>
