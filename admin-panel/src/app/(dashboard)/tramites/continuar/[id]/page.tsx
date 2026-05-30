@@ -209,8 +209,8 @@ export default function ContinuarTramitePage() {
       </div>
 
       <div className="dark-card-static p-6">
-        {/* Step 0: Solicitud INM */}
-        {step === 0 && tramite?.numeroPieza && (
+        {/* Step 0: Solicitud INM - Ya completada (pieza real del INM) */}
+        {step === 0 && tramite?.numeroPieza && !tramite.numeroPieza.startsWith('MSX-') && (
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Check className="h-5 w-5 text-green-500" />
@@ -232,7 +232,8 @@ export default function ContinuarTramitePage() {
           </div>
         )}
 
-        {step === 0 && !tramite?.numeroPieza && (
+        {/* Step 0: Solicitud INM - Pendiente (mostrar iframe) */}
+        {step === 0 && (!tramite?.numeroPieza || tramite.numeroPieza.startsWith('MSX-')) && (
           <div>
             <div className="flex items-center gap-2 mb-4">
               <FileText className="h-5 w-5 text-amber-500" />
