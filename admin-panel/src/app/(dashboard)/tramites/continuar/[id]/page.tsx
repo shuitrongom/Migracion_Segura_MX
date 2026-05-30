@@ -14,7 +14,7 @@ function CopyField({ label, value }: { label: string; value?: string }) {
     toast.success(`"${value}" copiado`);
   };
   return (
-    <button type="button" onClick={handleCopy} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#3a3a3a] transition-all group">
+    <button type="button" onClick={handleCopy} className="w-full text-left p-1.5 rounded hover:bg-[#252525] border border-transparent hover:border-[#3a3a3a] transition-all group">
       {label && <p className="text-[10px] text-white/70">{label}</p>}
       <div className="flex items-center justify-between">
         <p className="text-sm text-white">{value}</p>
@@ -177,7 +177,7 @@ export default function ContinuarTramitePage() {
               <h2 className="text-lg font-semibold text-white">Llenar Solicitud en el INM</h2>
             </div>
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mb-4">
-              <p className="text-sm text-blue-800">Usa la ficha de la izquierda como referencia para llenar el formulario del INM a la derecha. Haz clic en cualquier dato para copiarlo.</p>
+              <p className="text-sm text-blue-300">Usa la ficha de la izquierda como referencia para llenar el formulario del INM a la derecha. Haz clic en cualquier dato para copiarlo.</p>
             </div>
 
             {/* Layout lado a lado: Ficha + Iframe */}
@@ -190,14 +190,14 @@ export default function ContinuarTramitePage() {
                     {/* Propósito */}
                     {tramite.datosFormulario.propositoViaje && (
                       <div>
-                        <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Propósito de viaje</p>
+                        <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-amber-500/30 pb-1 mb-2">Propósito de viaje</p>
                         <CopyField label="" value={tramite.datosFormulario.propositoViaje} />
                         {tramite.datosFormulario.especificaTramite && <CopyField label="Especifica" value={tramite.datosFormulario.especificaTramite} />}
                       </div>
                     )}
                     {/* Datos personales */}
                     <div>
-                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Datos del extranjero</p>
+                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-amber-500/30 pb-1 mb-2">Datos del extranjero</p>
                       {tramite.datosFormulario.curpExtranjero && <CopyField label="CURP" value={tramite.datosFormulario.curpExtranjero} />}
                       <CopyField label="Nombre(s)" value={tramite.datosFormulario.nombre} />
                       <CopyField label="Apellido(s)" value={tramite.datosFormulario.apellidos} />
@@ -208,13 +208,13 @@ export default function ContinuarTramitePage() {
                     </div>
                     {/* Lugar de nacimiento */}
                     <div>
-                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Lugar de nacimiento</p>
+                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-amber-500/30 pb-1 mb-2">Lugar de nacimiento</p>
                       <CopyField label="País" value={tramite.datosFormulario.paisNacimiento} />
                       <CopyField label="Estado/Provincia" value={tramite.datosFormulario.estadoProvinciaNacimiento} />
                     </div>
                     {/* Documento */}
                     <div>
-                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Documento de identidad</p>
+                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-amber-500/30 pb-1 mb-2">Documento de identidad</p>
                       <CopyField label="Tipo" value={tramite.datosFormulario.documentoIdentificacion} />
                       <CopyField label="Número" value={tramite.datosFormulario.numeroDocumento} />
                       <CopyField label="País expedición" value={tramite.datosFormulario.paisExpedicion} />
@@ -224,18 +224,65 @@ export default function ContinuarTramitePage() {
                     {/* Domicilio */}
                     {tramite.datosFormulario.domEstado && (
                       <div>
-                        <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Domicilio en México</p>
+                        <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-amber-500/30 pb-1 mb-2">Domicilio en México</p>
                         <CopyField label="CP" value={tramite.datosFormulario.domCodigoPostal} />
                         <CopyField label="Estado" value={tramite.datosFormulario.domEstado} />
                         <CopyField label="Municipio" value={tramite.datosFormulario.domMunicipio} />
                         <CopyField label="Colonia" value={tramite.datosFormulario.domColonia} />
-                        <CopyField label="Calle" value={`${tramite.datosFormulario.domCalle} ${tramite.datosFormulario.domNumeroExterior || ''}`} />
+                        <CopyField label="Calle" value={tramite.datosFormulario.domCalle} />
+                        <CopyField label="Núm. exterior" value={tramite.datosFormulario.domNumeroExterior} />
+                        <CopyField label="Núm. interior" value={tramite.datosFormulario.domNumeroInterior} />
+                        <CopyField label="Lada" value={tramite.datosFormulario.domLada} />
+                        <CopyField label="Teléfono" value={tramite.datosFormulario.domTelefonoFijo} />
+                      </div>
+                    )}
+                    {/* Información adicional (visa) */}
+                    {tramite.datosFormulario.actividadPrincipal && (
+                      <div>
+                        <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-amber-500/30 pb-1 mb-2">Información adicional</p>
+                        <CopyField label="Actividad principal" value={tramite.datosFormulario.actividadPrincipal} />
+                        <CopyField label="Sector trabajo" value={tramite.datosFormulario.sectorTrabajo} />
+                        <CopyField label="Situación trabajo" value={tramite.datosFormulario.situacionTrabajo} />
+                        <CopyField label="Ocupación" value={tramite.datosFormulario.ocupacionTrabajo} />
+                        <CopyField label="¿Expulsado?" value={tramite.datosFormulario.expulsadoMexico} />
+                        <CopyField label="¿Antecedentes?" value={tramite.datosFormulario.antecedentesPenales} />
+                      </div>
+                    )}
+                    {/* Empleador */}
+                    {tramite.datosFormulario.empleadorTipoPersona && (
+                      <div>
+                        <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-amber-500/30 pb-1 mb-2">Empleador</p>
+                        <CopyField label="Tipo persona" value={tramite.datosFormulario.empleadorTipoPersona} />
+                        <CopyField label="RFC" value={tramite.datosFormulario.empleadorRfc} />
+                        <CopyField label="Expediente" value={tramite.datosFormulario.empleadorNumeroExpediente} />
+                      </div>
+                    )}
+                    {/* Solicitante (visa) */}
+                    {tramite.datosFormulario.solicitante && tramite.datosFormulario.solicitante.tipoPersona && (
+                      <div>
+                        <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-amber-500/30 pb-1 mb-2">Solicitante de visa</p>
+                        <CopyField label="Tipo persona" value={tramite.datosFormulario.solicitante.tipoPersona} />
+                        <CopyField label="CURP" value={tramite.datosFormulario.solicitante.curp} />
+                        <CopyField label="RFC" value={tramite.datosFormulario.solicitante.rfc || tramite.datosFormulario.solicitante.moralRfc} />
+                        <CopyField label="Nombre" value={tramite.datosFormulario.solicitante.nombre || tramite.datosFormulario.solicitante.moralRazonSocial} />
+                        <CopyField label="Apellidos" value={tramite.datosFormulario.solicitante.apellidos} />
+                        <CopyField label="Nacionalidad" value={tramite.datosFormulario.solicitante.nacionalidad} />
+                        <CopyField label="Documento" value={tramite.datosFormulario.solicitante.tipoDocumento} />
+                        <CopyField label="Núm. documento" value={tramite.datosFormulario.solicitante.numeroDocumento} />
+                        <CopyField label="Vínculo" value={tramite.datosFormulario.solicitante.vinculoParentesco} />
+                        <CopyField label="CP" value={tramite.datosFormulario.solicitante.codigoPostal || tramite.datosFormulario.solicitante.moralCodigoPostal} />
+                        <CopyField label="Estado" value={tramite.datosFormulario.solicitante.estado || tramite.datosFormulario.solicitante.moralEstado} />
+                        <CopyField label="Municipio" value={tramite.datosFormulario.solicitante.municipio || tramite.datosFormulario.solicitante.moralMunicipio} />
+                        <CopyField label="Colonia" value={tramite.datosFormulario.solicitante.colonia || tramite.datosFormulario.solicitante.moralColonia} />
+                        <CopyField label="Calle" value={tramite.datosFormulario.solicitante.calle || tramite.datosFormulario.solicitante.moralCalle} />
+                        <CopyField label="Núm. ext" value={tramite.datosFormulario.solicitante.numeroExterior || tramite.datosFormulario.solicitante.moralNumeroExterior} />
                       </div>
                     )}
                     {/* Contacto */}
                     <div>
-                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Contacto</p>
+                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-amber-500/30 pb-1 mb-2">Contacto</p>
                       <CopyField label="Email" value={tramite.datosFormulario.solicitanteEmail || tramite.datosFormulario.email} />
+                      <CopyField label="Teléfono" value={tramite.datosFormulario.telefono} />
                     </div>
                   </div>
                 )}
@@ -254,21 +301,21 @@ export default function ContinuarTramitePage() {
 
             {/* Campos pieza y clave */}
             <div className="border-t pt-4">
-              <div className="bg-amber-500/10 border border-amber-200 rounded-lg p-3 mb-4">
-                <p className="text-sm text-amber-800"><strong>Al finalizar:</strong> Copia aquí el número de pieza y la clave que te dio el INM. Luego sube el PDF.</p>
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 mb-4">
+                <p className="text-sm text-amber-300"><strong>Al finalizar:</strong> Copia aquí el número de pieza y la clave que te dio el INM. Luego sube el PDF.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-white/70 mb-1">Número de Pieza *</label>
-                  <input type="text" value={numeroPieza} onChange={e => setNumeroPieza(e.target.value)} className="w-full px-3 py-2 border border-[#3a3a3a] rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="0000011969016" />
+                  <input type="text" value={numeroPieza} onChange={e => setNumeroPieza(e.target.value)} className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="0000011969016" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-white/70 mb-1">Clave *</label>
-                  <input type="text" value={contrasenaINM} onChange={e => setContrasenaINM(e.target.value.toUpperCase())} className="w-full px-3 py-2 border border-[#3a3a3a] rounded-lg text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="QFCSA" />
+                  <input type="text" value={contrasenaINM} onChange={e => setContrasenaINM(e.target.value.toUpperCase())} className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="QFCSA" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-white/70 mb-1">PDF Solicitud *</label>
-                  <label className="flex items-center gap-2 px-3 py-2 border border-[#3a3a3a] rounded-lg text-sm text-white/70 hover:bg-[#1a1a1a] cursor-pointer">
+                  <label className="flex items-center gap-2 px-3 py-2 border border-[#3a3a3a] bg-[#252525] rounded-lg text-sm text-white/70 hover:bg-[#2a2a2a] cursor-pointer">
                     <Upload className="h-4 w-4" />{pdfFile ? pdfFile.name : 'Seleccionar PDF...'}
                     <input type="file" accept=".pdf" onChange={e => setPdfFile(e.target.files?.[0] || null)} className="hidden" />
                   </label>
@@ -288,7 +335,7 @@ export default function ContinuarTramitePage() {
             <p className="text-sm text-white/70 mb-4">Al finalizar se enviarán los requisitos por correo al extranjero.</p>
             <div className="space-y-3 max-w-2xl">
               {requisitos.map((req, i) => (
-                <div key={i} className={`p-4 rounded-lg border ${req.obligatorio ? 'border-brand-200 bg-amber-500/10/50' : 'border-[#3a3a3a] bg-[#1a1a1a]'}`}>
+                <div key={i} className={`p-4 rounded-lg border ${req.obligatorio ? 'border-amber-500/30 bg-amber-500/[0.08]' : 'border-[#3a3a3a] bg-[#1a1a1a]'}`}>
                   <div className="flex items-start gap-3">
                     <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center text-xs font-medium ${req.obligatorio ? 'bg-amber-500 text-white' : 'bg-gray-300 text-white'}`}>{i + 1}</div>
                     <div>
@@ -313,16 +360,16 @@ export default function ContinuarTramitePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
               <div>
                 <label className="block text-xs font-medium text-white/70 mb-1">Concepto *</label>
-                <input type="text" value={pagoData.concepto} onChange={e => setPagoData(prev => ({ ...prev, concepto: e.target.value }))} className="w-full px-3 py-2.5 border border-[#333333] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Ej: Pago de derechos por visa" />
+                <input type="text" value={pagoData.concepto} onChange={e => setPagoData(prev => ({ ...prev, concepto: e.target.value }))} className="w-full px-3 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="Ej: Pago de derechos por visa" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-white/70 mb-1">Monto TOTAL (MXN) *</label>
-                <input type="number" value={pagoData.monto} onChange={e => setPagoData(prev => ({ ...prev, monto: e.target.value }))} className="w-full px-3 py-2.5 border border-[#333333] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="0.00" />
+                <input type="number" value={pagoData.monto} onChange={e => setPagoData(prev => ({ ...prev, monto: e.target.value }))} className="w-full px-3 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="0.00" />
               </div>
             </div>
             {pagoData.monto && (
               <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg max-w-2xl">
-                <p className="text-sm text-blue-800 font-medium">Desglose de pagos:</p>
+                <p className="text-sm text-blue-300 font-medium">Desglose de pagos:</p>
                 <p className="text-sm text-blue-400 mt-1">• Anticipo (50%): <strong>${(parseFloat(pagoData.monto) / 2).toLocaleString()} MXN</strong> — se cobra ahora</p>
                 <p className="text-sm text-blue-400">• Liquidación (50%): <strong>${(parseFloat(pagoData.monto) / 2).toLocaleString()} MXN</strong> — se cobra al resolver</p>
                 <p className="text-xs text-blue-400 mt-2">El extranjero tiene 15 días para pagar cada parte. Si no paga el anticipo, el trámite se cancela.</p>
