@@ -36,6 +36,7 @@ export enum EstatusTramite {
   BORRADOR = 'borrador',
   RECIBIDO = 'recibido',
   EN_REVISION = 'en_revision',
+  PRESENTADO_INM = 'presentado_inm',
   EN_ESPERA_RESOLUCION = 'en_espera_resolucion',
   APROBADO = 'aprobado',
   RECHAZADO = 'rechazado',

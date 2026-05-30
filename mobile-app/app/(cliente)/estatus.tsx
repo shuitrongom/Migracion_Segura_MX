@@ -7,9 +7,10 @@ const estatusConfig: Record<string, { color: string; label: string; icon: string
   borrador: { color: '#9CA3AF', label: 'Borrador', icon: '📝', step: 1 },
   recibido: { color: '#3498DB', label: 'Recibido', icon: '📥', step: 2 },
   en_revision: { color: '#E67E22', label: 'En revisión', icon: '🔍', step: 3 },
-  en_espera_resolucion: { color: '#9B59B6', label: 'En espera de resolución', icon: '⏳', step: 4 },
-  aprobado: { color: '#27AE60', label: 'Aprobado', icon: '✅', step: 5 },
-  rechazado: { color: '#E74C3C', label: 'Rechazado', icon: '❌', step: 5 },
+  presentado_inm: { color: '#8E44AD', label: 'Presentado ante INM', icon: '🏛️', step: 4 },
+  en_espera_resolucion: { color: '#9B59B6', label: 'En espera de resolución', icon: '⏳', step: 5 },
+  aprobado: { color: '#27AE60', label: 'Aprobado', icon: '✅', step: 6 },
+  rechazado: { color: '#E74C3C', label: 'Rechazado', icon: '❌', step: 6 },
   cancelado: { color: '#6B7280', label: 'Cancelado', icon: '🚫', step: 0 },
 };
 
@@ -128,6 +129,32 @@ export default function EstatusScreen() {
             <Text style={styles.paidText}>✅ {pago.tipoPago === 'anticipo' ? 'Anticipo' : 'Liquidación'} pagado: ${Number(pago.monto).toLocaleString()}</Text>
           </View>
         ))}
+
+        {/* Pieza INM */}
+        {item.numeroPieza && !item.numeroPieza.startsWith('MSX-') && (
+          <View style={styles.inmDataBox}>
+            <Text style={styles.inmDataLabel}>📋 Pieza INM</Text>
+            <Text style={styles.inmDataValue}>{item.numeroPieza}</Text>
+          </View>
+        )}
+
+        {/* NUT */}
+        {(item.nut || item.datosFormulario?.nut) && (
+          <View style={styles.inmDataBox}>
+            <Text style={styles.inmDataLabel}>🔑 NUT</Text>
+            <Text style={styles.inmDataValue}>{item.nut || item.datosFormulario?.nut}</Text>
+          </View>
+        )}
+
+        {/* Leyenda de requisitos - mostrar cuando está en revisión */}
+        {(item.estatus === 'en_revision' || item.estatus === 'recibido') && (
+          <View style={styles.requisitosLeyenda}>
+            <Text style={styles.requisitosTitle}>📄 Importante sobre tus documentos:</Text>
+            <Text style={styles.requisitosText}>• Entrega todos los requisitos en original y copia.</Text>
+            <Text style={styles.requisitosText}>• La solicitud debe estar firmada.</Text>
+            <Text style={styles.requisitosText}>• Tu firma debe ser lo más parecida posible a la de tu pasaporte para que no sea rechazada por el INM.</Text>
+          </View>
+        )}
       </View>
     );
   };
@@ -189,6 +216,12 @@ const styles = StyleSheet.create({
   payButtonText: { color: '#ffffff', fontSize: 14, fontWeight: '600' },
   paidBadge: { backgroundColor: '#27AE6015', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12, marginTop: 8 },
   paidText: { color: '#27AE60', fontSize: 12, fontWeight: '500' },
+  inmDataBox: { backgroundColor: 'rgba(245,158,11,0.06)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)', borderRadius: 10, padding: 12, marginTop: 10 },
+  inmDataLabel: { fontSize: 10, color: 'rgba(255,255,255,0.5)', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: 0.5 },
+  inmDataValue: { fontSize: 18, fontWeight: '700', color: '#f59e0b', fontFamily: 'monospace', marginTop: 4 },
+  requisitosLeyenda: { backgroundColor: 'rgba(245,158,11,0.04)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.15)', borderRadius: 10, padding: 12, marginTop: 12 },
+  requisitosTitle: { fontSize: 12, fontWeight: '700', color: '#f59e0b', marginBottom: 6 },
+  requisitosText: { fontSize: 11, color: 'rgba(255,255,255,0.7)', lineHeight: 18, marginBottom: 2 },
 
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, gap: 12 },
   emptyIconContainer: { width: 88, height: 88, borderRadius: 44, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },

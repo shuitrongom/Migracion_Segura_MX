@@ -56,6 +56,15 @@ export class Tramite extends BaseEntity {
   @Column({ name: 'comprobante_url', type: 'varchar', length: 500, nullable: true })
   comprobanteUrl: string | null;
 
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  nut: string | null;
+
+  @Column({ name: 'nut_url', type: 'varchar', length: 500, nullable: true })
+  nutUrl: string | null;
+
+  @Column({ name: 'fecha_presentacion_inm', type: 'timestamptz', nullable: true })
+  fechaPresentacionInm: Date | null;
+
   @OneToMany(() => EtapaTramite, (etapa) => etapa.tramite, { cascade: true })
   etapas: EtapaTramite[];
 }

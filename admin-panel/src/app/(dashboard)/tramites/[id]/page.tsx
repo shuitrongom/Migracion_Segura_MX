@@ -32,15 +32,21 @@ interface TramiteDetail {
   estatus: string;
   clienteId: string;
   clienteNombre: string;
+  contrasenaTramite?: string;
+  nut?: string;
+  nutUrl?: string;
+  fechaPresentacionInm?: string;
+  datosFormulario?: Record<string, any>;
   etapas: Etapa[];
 }
 
-type EstatusTramite = 'borrador' | 'recibido' | 'en_revision' | 'en_espera_resolucion' | 'aprobado' | 'rechazado' | 'cancelado';
+type EstatusTramite = 'borrador' | 'recibido' | 'en_revision' | 'presentado_inm' | 'en_espera_resolucion' | 'aprobado' | 'rechazado' | 'cancelado';
 
 const ESTATUS_OPTIONS: { value: EstatusTramite; label: string }[] = [
   { value: 'borrador', label: 'Borrador' },
   { value: 'recibido', label: 'Recibido' },
   { value: 'en_revision', label: 'En revisión' },
+  { value: 'presentado_inm', label: 'Presentado ante INM' },
   { value: 'en_espera_resolucion', label: 'En espera de resolución' },
   { value: 'aprobado', label: 'Aprobado' },
   { value: 'rechazado', label: 'Rechazado' },
@@ -51,6 +57,7 @@ const ESTATUS_BADGE: Record<EstatusTramite, string> = {
   borrador: 'bg-[#1a1a1a] text-white/70 border-[#3a3a3a]',
   recibido: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
   en_revision: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  presentado_inm: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
   en_espera_resolucion: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
   aprobado: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   rechazado: 'bg-red-500/10 text-red-400 border-red-500/20',
@@ -61,6 +68,7 @@ const ESTATUS_LABELS: Record<EstatusTramite, string> = {
   borrador: 'Borrador',
   recibido: 'Recibido',
   en_revision: 'En revisión',
+  presentado_inm: 'Presentado ante INM',
   en_espera_resolucion: 'En espera',
   aprobado: 'Aprobado',
   rechazado: 'Rechazado',
@@ -245,6 +253,52 @@ export default function TramiteDetailPage() {
 
           {/* Pagos del trámite */}
           <PagosDelTramite tramiteId={tramiteId} clienteId={tramite?.clienteId} />
+
+          {/* Pieza INM + NUT */}
+          <div className="dark-card-static p-6">
+            <h3 className="text-sm font-semibold text-white mb-4">📋 Datos INM</h3>
+            <div className="space-y-3">
+              <div className="p-3 rounded-lg border border-[#3a3a3a] bg-[#1a1a1a]">
+                <p className="text-[10px] text-white/70 uppercase font-semibold">Número de Pieza</p>
+                <p className="text-lg font-mono font-bold text-amber-400">{tramite?.numeroPieza || '—'}</p>
+              </div>
+              <div className="p-3 rounded-lg border border-[#3a3a3a] bg-[#1a1a1a]">
+                <p className="text-[10px] text-white/70 uppercase font-semibold">Clave INM</p>
+                <p className="text-lg font-mono font-bold text-amber-400">{tramite?.contrasenaTramite || '—'}</p>
+              </div>
+              <div className="p-3 rounded-lg border border-[#3a3a3a] bg-[#1a1a1a]">
+                <p className="text-[10px] text-white/70 uppercase font-semibold">NUT (Número Único de Trámite)</p>
+                {tramite?.nut ? (
+                  <p className="text-lg font-mono font-bold text-emerald-400">{tramite.nut}</p>
+                ) : (
+                  <div className="mt-2">
+                    <p className="text-xs text-white/70 italic mb-2">No registrado aún</p>
+                    {(estatus === 'presentado_inm' || estatus === 'en_revision') && (
+                      <div className="space-y-2">
+                        <input type="text" id="nut-input" className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="Ingresa el NUT..." />
+                        <button
+                          onClick={async () => {
+                            const nutValue = (document.getElementById('nut-input') as HTMLInputElement)?.value;
+                            if (!nutValue?.trim()) { toast.error('Ingresa el NUT'); return; }
+                            try {
+                              await api.patch(`/tramites/${tramiteId}/continuar`, { datosFormulario: { ...tramite?.datosFormulario, nut: nutValue.trim() } });
+                              // Cambiar estatus a en_espera_resolucion
+                              await api.patch(`/tramites/${tramiteId}/estatus`, { estatus: 'en_espera_resolucion', observaciones: `NUT registrado: ${nutValue.trim()}. Trámite presentado ante INM.` });
+                              toast.success('NUT registrado. Se notificó al extranjero.');
+                              window.location.reload();
+                            } catch { toast.error('Error al registrar NUT'); }
+                          }}
+                          className="w-full px-3 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700"
+                        >
+                          Registrar NUT y notificar
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
