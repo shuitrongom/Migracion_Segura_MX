@@ -183,21 +183,21 @@ export default function CitasPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-medium text-white/70 mb-1.5">Extranjero *</label>
-                <select value={form.clienteId} onChange={e => setForm(prev => ({ ...prev, clienteId: e.target.value }))} className="w-full px-4 py-2.5 border border-[#3a3a3a] bg-[#252525] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 capitalize transition-all">
+                <select value={form.clienteId} onChange={e => setForm(prev => ({ ...prev, clienteId: e.target.value }))} className="w-full px-4 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 capitalize transition-all">
                   <option value="">Selecciona</option>
                   {clientes.map(c => <option key={c.id} value={c.id}>{c.nombreCompleto}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-medium text-white/70 mb-1.5">Gestor asignado</label>
-                <select value={form.gestorId} onChange={e => setForm(prev => ({ ...prev, gestorId: e.target.value }))} className="w-full px-4 py-2.5 border border-[#3a3a3a] bg-[#252525] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 capitalize transition-all">
+                <select value={form.gestorId} onChange={e => setForm(prev => ({ ...prev, gestorId: e.target.value }))} className="w-full px-4 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 capitalize transition-all">
                   <option value="">Automático (yo)</option>
                   {gestores.map(g => <option key={g.id} value={g.id}>{g.fullName}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-medium text-white/70 mb-1.5">Tipo de cita *</label>
-                <select value={form.tipo} onChange={e => setForm(prev => ({ ...prev, tipo: e.target.value, hora: '' }))} className="w-full px-4 py-2.5 border border-[#3a3a3a] bg-[#252525] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all">
+                <select value={form.tipo} onChange={e => setForm(prev => ({ ...prev, tipo: e.target.value, hora: '' }))} className="w-full px-4 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all">
                   <option value="inm">Cita en el INM</option>
                   <option value="entrevista">Entrevista con Gestor</option>
                 </select>
@@ -207,7 +207,7 @@ export default function CitasPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-medium text-white/70 mb-1.5">Modalidad</label>
-                <select value={form.modalidad} onChange={e => setForm(prev => ({ ...prev, modalidad: e.target.value }))} className="w-full px-4 py-2.5 border border-[#3a3a3a] bg-[#252525] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all">
+                <select value={form.modalidad} onChange={e => setForm(prev => ({ ...prev, modalidad: e.target.value }))} className="w-full px-4 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all">
                   <option value="presencial">Presencial (en oficina)</option>
                   <option value="videollamada">Videollamada</option>
                 </select>
@@ -244,7 +244,7 @@ export default function CitasPage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-white/70 mb-1.5">Notas</label>
-              <input type="text" value={form.notas} onChange={e => setForm(prev => ({ ...prev, notas: e.target.value }))} className="w-full px-4 py-2.5 border border-[#3a3a3a] bg-[#252525] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" placeholder="Observaciones..." />
+              <input type="text" value={form.notas} onChange={e => setForm(prev => ({ ...prev, notas: e.target.value }))} className="w-full px-4 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all" placeholder="Observaciones..." />
             </div>
             <div className="flex items-center justify-between pt-2">
               <div className="flex items-center gap-2"><Send className="h-3.5 w-3.5 text-white/70" /><p className="text-[10px] text-white/70">Se enviará confirmación por correo y WhatsApp</p></div>
