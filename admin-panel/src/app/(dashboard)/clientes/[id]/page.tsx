@@ -283,7 +283,7 @@ export default function ClienteDetailPage() {
         <div className="flex items-center gap-4 mb-6">
           <Link
             href="/clientes"
-            className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/40"
+            className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/70"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -292,7 +292,7 @@ export default function ClienteDetailPage() {
           </h1>
         </div>
         <div className="dark-card-static p-12 text-center">
-          <p className="text-sm text-white/40">
+          <p className="text-sm text-white/70">
             {error || 'No se encontró el extranjero'}
           </p>
         </div>
@@ -306,7 +306,7 @@ export default function ClienteDetailPage() {
       <div className="flex items-center gap-4 mb-6">
         <Link
           href="/clientes"
-          className="p-2 rounded-xl hover:bg-amber-500/10 text-white/40 hover:text-amber-500 transition-colors"
+          className="p-2 rounded-xl hover:bg-amber-500/10 text-white/70 hover:text-amber-500 transition-colors"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
@@ -386,7 +386,7 @@ export default function ClienteDetailPage() {
                   <h2 className="text-lg font-bold text-white">
                     {cliente.nombreCompleto}
                   </h2>
-                  <p className="text-xs text-white/40">
+                  <p className="text-xs text-white/70">
                     Extranjero desde {formatDate(cliente.createdAt)}
                   </p>
                 </div>
@@ -399,13 +399,13 @@ export default function ClienteDetailPage() {
               {/* Email */}
               <div className="p-3 rounded-xl hover:bg-[#141414] transition-colors">
                 <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-bold text-white/30 uppercase tracking-wider">
+                  <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider">
                     Email
                   </p>
                   {canEditEmail && !editingEmail && (
                     <button
                       onClick={() => setEditingEmail(true)}
-                      className="p-1 rounded hover:bg-[#1f1f1f] text-white/30 hover:text-white/60"
+                      className="p-1 rounded hover:bg-[#1f1f1f] text-white/70 hover:text-white/70"
                       title="Editar email"
                     >
                       <Pencil className="h-3.5 w-3.5" />
@@ -438,7 +438,7 @@ export default function ClienteDetailPage() {
                         setEditingEmail(false);
                         setEmailValue(cliente.email);
                       }}
-                      className="p-1.5 rounded-md border border-[#2a2a2a] text-white/40 hover:bg-[#141414]"
+                      className="p-1.5 rounded-md border border-[#2a2a2a] text-white/70 hover:bg-[#141414]"
                       title="Cancelar"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -454,13 +454,13 @@ export default function ClienteDetailPage() {
               {/* Teléfono */}
               <div className="p-3 rounded-xl hover:bg-[#141414] transition-colors">
                 <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-bold text-white/30 uppercase tracking-wider">
+                  <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider">
                     Teléfono
                   </p>
                   {canEditTelefono && !editingTelefono && (
                     <button
                       onClick={() => setEditingTelefono(true)}
-                      className="p-1 rounded hover:bg-[#1f1f1f] text-white/30 hover:text-white/60"
+                      className="p-1 rounded hover:bg-[#1f1f1f] text-white/70 hover:text-white/70"
                       title="Editar teléfono"
                     >
                       <Pencil className="h-3.5 w-3.5" />
@@ -493,7 +493,7 @@ export default function ClienteDetailPage() {
                         setEditingTelefono(false);
                         setTelefonoValue(cliente.telefono);
                       }}
-                      className="p-1.5 rounded-md border border-[#2a2a2a] text-white/40 hover:bg-[#141414]"
+                      className="p-1.5 rounded-md border border-[#2a2a2a] text-white/70 hover:bg-[#141414]"
                       title="Cancelar"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -509,7 +509,7 @@ export default function ClienteDetailPage() {
               {/* Gestor */}
               <div className="p-3 rounded-xl hover:bg-[#141414] transition-colors">
                 <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-bold text-white/30 uppercase tracking-wider">
+                  <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider">
                     Gestor asignado
                   </p>
                   {isAdmin && (
@@ -525,7 +525,7 @@ export default function ClienteDetailPage() {
                         finally { setReassigning(false); }
                       }}
                       disabled={reassigning}
-                      className="p-1 rounded hover:bg-[#1f1f1f] text-white/30 hover:text-amber-500 transition-colors disabled:opacity-50"
+                      className="p-1 rounded hover:bg-[#1f1f1f] text-white/70 hover:text-amber-500 transition-colors disabled:opacity-50"
                       title="Reasignar gestor automáticamente"
                     >
                       <RefreshCw className={`h-3.5 w-3.5 ${reassigning ? 'animate-spin' : ''}`} />
@@ -539,7 +539,7 @@ export default function ClienteDetailPage() {
 
               {/* Fecha de registro */}
               <div className="p-3 rounded-xl">
-                <p className="text-[10px] font-bold text-white/30 uppercase tracking-wider">
+                <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider">
                   Fecha de registro
                 </p>
                 <p className="text-sm font-medium text-white mt-0.5">
@@ -589,7 +589,7 @@ export default function ClienteDetailPage() {
                     className={`px-5 py-2.5 text-sm font-semibold rounded-t-lg transition-all duration-200 ${
                       activeTab === tab.key
                         ? 'bg-[#171717] text-amber-500 border-2 border-b-0 border-brand-200 shadow-sm -mb-[2px]'
-                        : 'text-white/40 hover:text-amber-500 hover:bg-amber-500/10/50'
+                        : 'text-white/70 hover:text-amber-500 hover:bg-amber-500/10/50'
                     }`}
                     role="tab"
                   >
@@ -607,7 +607,7 @@ export default function ClienteDetailPage() {
                   {tramites.length === 0 ? (
                     <div className="text-center py-12">
                       <FileText className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-                      <p className="text-sm text-white/30">
+                      <p className="text-sm text-white/70">
                         Este extranjero no tiene trámites registrados.
                       </p>
                     </div>
@@ -623,13 +623,13 @@ export default function ClienteDetailPage() {
                             <p className="text-sm font-medium text-white">
                               {TIPO_LABELS[tramite.tipo] ?? tramite.tipo}
                             </p>
-                            <p className="text-xs text-white/40 mt-0.5">
+                            <p className="text-xs text-white/70 mt-0.5">
                               {tramite.numeroPieza ||
                                 (tramite.datosFormulario
                                   ?.numeroPiezaINM as string) ||
                                 'Sin número de pieza'}
                             </p>
-                            <p className="text-xs text-white/30 mt-0.5">
+                            <p className="text-xs text-white/70 mt-0.5">
                               {formatDate(tramite.createdAt)}
                             </p>
                           </div>
@@ -654,7 +654,7 @@ export default function ClienteDetailPage() {
                   {documentos.length === 0 ? (
                     <div className="text-center py-12">
                       <FileText className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-                      <p className="text-sm text-white/30">
+                      <p className="text-sm text-white/70">
                         No hay documentos registrados para este extranjero.
                       </p>
                     </div>
@@ -672,7 +672,7 @@ export default function ClienteDetailPage() {
                             <p className="text-sm font-semibold text-white">
                               {doc.nombre}
                             </p>
-                            <p className="text-xs text-white/40">
+                            <p className="text-xs text-white/70">
                               {doc.categoria || 'Sin categoría'} •{' '}
                               {formatDate(doc.createdAt)}
                             </p>
@@ -722,7 +722,7 @@ export default function ClienteDetailPage() {
                   {timeline.length === 0 ? (
                     <div className="text-center py-12">
                       <Clock className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-                      <p className="text-sm text-white/30">
+                      <p className="text-sm text-white/70">
                         No hay actividad registrada.
                       </p>
                     </div>
@@ -747,11 +747,11 @@ export default function ClienteDetailPage() {
                                 {event.nombre}
                               </p>
                               {event.observaciones && (
-                                <p className="text-xs text-white/40 mt-0.5">
+                                <p className="text-xs text-white/70 mt-0.5">
                                   {event.observaciones}
                                 </p>
                               )}
-                              <p className="text-xs text-white/30 mt-1">
+                              <p className="text-xs text-white/70 mt-1">
                                 {event.fechaCompletada
                                   ? formatDate(event.fechaCompletada)
                                   : formatDate(event.createdAt)}
@@ -786,7 +786,7 @@ export default function ClienteDetailPage() {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-white">{docPreview.nombre}</h3>
-                  <p className="text-xs text-white/40">Vista previa del documento</p>
+                  <p className="text-xs text-white/70">Vista previa del documento</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -818,7 +818,7 @@ export default function ClienteDetailPage() {
                 </button>
                 <button
                   onClick={() => { URL.revokeObjectURL(docPreview.url); setDocPreview(null); }}
-                  className="inline-flex items-center justify-center h-9 w-9 rounded-lg hover:bg-red-500/10 text-white/30 hover:text-red-500 transition-colors"
+                  className="inline-flex items-center justify-center h-9 w-9 rounded-lg hover:bg-red-500/10 text-white/70 hover:text-red-500 transition-colors"
                 >
                   <X className="h-5 w-5" />
                 </button>

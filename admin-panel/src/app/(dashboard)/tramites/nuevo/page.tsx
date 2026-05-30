@@ -440,7 +440,7 @@ export default function NuevoTramitePage() {
               <FileText className="h-8 w-8 text-amber-600" />
             </div>
             <h2 className="text-xl font-bold text-white mb-2">Borrador encontrado</h2>
-            <p className="text-sm text-white/40 mb-6">
+            <p className="text-sm text-white/70 mb-6">
               Tienes un trámite sin terminar guardado. ¿Deseas continuar donde te quedaste o empezar uno nuevo?
             </p>
             <div className="flex gap-3">
@@ -472,10 +472,10 @@ export default function NuevoTramitePage() {
         <div className="flex items-center justify-between overflow-x-auto relative z-10">
           {STEPS.map((label, i) => (
             <div key={label} className="flex items-center gap-2 flex-shrink-0">
-              <div className={`flex items-center justify-center h-9 w-9 rounded-full text-sm font-semibold transition-all duration-500 ${i < step ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 amber-glow' : i === step ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white shadow-lg shadow-cyan-500/30 ring-4 ring-cyan-500/20 amber-glow' : 'bg-[#1f1f1f] text-white/30 border border-[#2a2a2a]'}`}>
+              <div className={`flex items-center justify-center h-9 w-9 rounded-full text-sm font-semibold transition-all duration-500 ${i < step ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 amber-glow' : i === step ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white shadow-lg shadow-cyan-500/30 ring-4 ring-cyan-500/20 amber-glow' : 'bg-[#1f1f1f] text-white/70 border border-[#2a2a2a]'}`}>
                 {i < step ? <Check className="h-4 w-4" /> : i + 1}
               </div>
-              <span className={`text-sm hidden lg:inline transition-colors duration-300 ${i === step ? 'font-semibold text-amber-400' : i < step ? 'font-medium text-emerald-400' : 'text-white/30'}`}>{label}</span>
+              <span className={`text-sm hidden lg:inline transition-colors duration-300 ${i === step ? 'font-semibold text-amber-400' : i < step ? 'font-medium text-emerald-400' : 'text-white/70'}`}>{label}</span>
               {i < STEPS.length - 1 && <div className={`hidden lg:block w-8 h-0.5 mx-2 rounded transition-all duration-500 ${i < step ? 'bg-emerald-400 shadow-sm shadow-emerald-400/50' : 'bg-[#262626]'}`} />}
             </div>
           ))}
@@ -488,16 +488,16 @@ export default function NuevoTramitePage() {
         {step === 0 && (
           <div className="relative z-10">
             <h3 className="text-xl font-bold text-amber-400 mb-2">Selecciona el trámite</h3>
-            <p className="text-sm text-white/40 mb-6">Haz clic en el tipo de trámite para comenzar</p>
+            <p className="text-sm text-white/70 mb-6">Haz clic en el tipo de trámite para comenzar</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {TRAMITES_INM.map((t, idx) => (
                 <button key={t.tipo} type="button" onClick={() => { setSelectedTramite(t); setStep(1); }} className={`group relative text-left p-6 rounded-2xl border transition-all duration-500 overflow-hidden bg-[#171717]/80 border-[#2a2a2a]/50 hover:border-amber-500/60 hover:shadow-xl hover:shadow-amber-900/20 hover:scale-[1.03] animate-fade-in-up stagger-${idx + 1}`} style={{ opacity: 0 }}>
                   {/* Número decorativo */}
-                  <div className="absolute top-3 right-3 flex items-center justify-center h-8 w-8 rounded-full text-xs font-bold transition-all duration-500 bg-[#1f1f1f] text-white/30 border border-[#2a2a2a] group-hover:bg-cyan-500/20 group-hover:text-amber-400 group-hover:border-cyan-500/50 group-hover:shadow-lg group-hover:shadow-cyan-500/20">{idx + 1}</div>
+                  <div className="absolute top-3 right-3 flex items-center justify-center h-8 w-8 rounded-full text-xs font-bold transition-all duration-500 bg-[#1f1f1f] text-white/70 border border-[#2a2a2a] group-hover:bg-cyan-500/20 group-hover:text-amber-400 group-hover:border-cyan-500/50 group-hover:shadow-lg group-hover:shadow-cyan-500/20">{idx + 1}</div>
                   {/* Barra lateral decorativa con glow */}
                   <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl transition-all duration-500 bg-[#1f1f1f] group-hover:bg-gradient-to-b group-hover:from-amber-400 group-hover:to-amber-600 group-hover:shadow-[0_0_8px_rgba(0,212,255,0.5)]" />
                   <p className="text-base font-bold leading-tight pr-10 text-white/80 group-hover:text-amber-200 transition-colors">{t.nombre}</p>
-                  <p className="text-xs text-white/40 mt-2 leading-relaxed group-hover:text-white/60 transition-colors">{t.descripcion}</p>
+                  <p className="text-xs text-white/70 mt-2 leading-relaxed group-hover:text-white/70 transition-colors">{t.descripcion}</p>
                   <div className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-[-8px] group-hover:translate-x-0">Comenzar →</div>
                 </button>
               ))}
@@ -524,7 +524,7 @@ export default function NuevoTramitePage() {
               <h3 className="text-xl font-bold text-amber-400 mb-4 pb-3 border-b-2 border-amber-500/20 text-amber-400">Tipo de trámite</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-semibold text-amber-200/70 mb-1 uppercase tracking-wide">¿Qué deseas hacer? *</label><select value={extranjero.propositoViaje} onChange={e => { updateExtranjero('propositoViaje', e.target.value); if (e.target.value !== 'Obtener permiso para trabajar') updateExtranjero('especificaTramite', ''); }} className={inputClass('propositoViaje')}><option value="">Selecciona</option><option value="Obtener permiso para trabajar">Obtener permiso para trabajar</option><option value="Obtener permiso de salida y regreso">Obtener permiso de salida y regreso</option></select><ErrorMsg field="propositoViaje" /></div>
-                <div><label className="block text-xs font-semibold text-amber-200/70 mb-1 uppercase tracking-wide">Especifica *</label><select value={extranjero.especificaTramite} onChange={e => updateExtranjero('especificaTramite', e.target.value)} disabled={extranjero.propositoViaje !== 'Obtener permiso para trabajar'} className={`w-full px-3 py-2.5 border border-[#2a2a2a] bg-[#171717]/80 text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-amber-500 shadow-sm transition-all duration-300 hover:border-[#404040] ${extranjero.propositoViaje !== 'Obtener permiso para trabajar' ? 'bg-[#1f1f1f] text-white/30 cursor-not-allowed' : ''}`}><option value="">Selecciona</option><option value="Con empleador">Obtener permiso para trabajar con empleador</option><option value="Independiente/autoempleo">Obtener permiso para trabajar (actividades independientes/autoempleo)</option></select></div>
+                <div><label className="block text-xs font-semibold text-amber-200/70 mb-1 uppercase tracking-wide">Especifica *</label><select value={extranjero.especificaTramite} onChange={e => updateExtranjero('especificaTramite', e.target.value)} disabled={extranjero.propositoViaje !== 'Obtener permiso para trabajar'} className={`w-full px-3 py-2.5 border border-[#2a2a2a] bg-[#171717]/80 text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-amber-500 shadow-sm transition-all duration-300 hover:border-[#404040] ${extranjero.propositoViaje !== 'Obtener permiso para trabajar' ? 'bg-[#1f1f1f] text-white/70 cursor-not-allowed' : ''}`}><option value="">Selecciona</option><option value="Con empleador">Obtener permiso para trabajar con empleador</option><option value="Independiente/autoempleo">Obtener permiso para trabajar (actividades independientes/autoempleo)</option></select></div>
               </div>
             </div>
             )}
@@ -546,7 +546,7 @@ export default function NuevoTramitePage() {
               <h3 className="text-xl font-bold text-amber-400 mb-4 pb-3 border-b-2 border-amber-500/20 text-amber-400">Tipo de trámite</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
                 <div><label className="block text-xs font-semibold text-amber-200/70 mb-1 uppercase tracking-wide">¿Qué deseas hacer? *</label><select value={extranjero.propositoViaje} onChange={e => { updateExtranjero('propositoViaje', e.target.value); updateExtranjero('especificaTramite', ''); }} className={inputClass('propositoViaje')}><option value="">Selecciona</option><option value="Extender la estancia">Extender la estancia</option><option value="Canjear o reponer documento migratorio">Canjear o reponer documento migratorio</option></select><ErrorMsg field="propositoViaje" /></div>
-                <div><label className="block text-xs font-semibold text-amber-200/70 mb-1 uppercase tracking-wide">Especifica *</label><select value={extranjero.especificaTramite} onChange={e => updateExtranjero('especificaTramite', e.target.value)} disabled={!extranjero.propositoViaje} className={`w-full px-3 py-2.5 border border-[#2a2a2a] bg-[#171717]/80 text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-amber-500 shadow-sm transition-all duration-300 hover:border-[#404040] ${!extranjero.propositoViaje ? 'bg-[#1f1f1f] text-white/30 cursor-not-allowed' : ''}`}><option value="">Selecciona</option>{extranjero.propositoViaje === 'Extender la estancia' && (<><option value="Expedición de Tarjeta de Residente por Renovación">Expedición de Tarjeta de Residente por Renovación</option><option value="Expedición de Tarjeta de Visitante por Ampliación">Expedición de Tarjeta de Visitante por Ampliación</option></>)}{extranjero.propositoViaje === 'Canjear o reponer documento migratorio' && (<><option value="Canje de FMM por Tarjeta de Visitante o de Residente">Canje de FMM por Tarjeta de Visitante o de Residente</option><option value="Reposición de documento migratorio por pérdida, robo o deterioro">Reposición de documento migratorio por pérdida, robo o deterioro</option><option value="Expedición de Tarjeta de Residente cuando se otorga la condición por acuerdo">Expedición de Tarjeta de Residente cuando se otorga la condición por acuerdo</option></>)}</select><ErrorMsg field="especificaTramite" /></div>
+                <div><label className="block text-xs font-semibold text-amber-200/70 mb-1 uppercase tracking-wide">Especifica *</label><select value={extranjero.especificaTramite} onChange={e => updateExtranjero('especificaTramite', e.target.value)} disabled={!extranjero.propositoViaje} className={`w-full px-3 py-2.5 border border-[#2a2a2a] bg-[#171717]/80 text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-amber-500 shadow-sm transition-all duration-300 hover:border-[#404040] ${!extranjero.propositoViaje ? 'bg-[#1f1f1f] text-white/70 cursor-not-allowed' : ''}`}><option value="">Selecciona</option>{extranjero.propositoViaje === 'Extender la estancia' && (<><option value="Expedición de Tarjeta de Residente por Renovación">Expedición de Tarjeta de Residente por Renovación</option><option value="Expedición de Tarjeta de Visitante por Ampliación">Expedición de Tarjeta de Visitante por Ampliación</option></>)}{extranjero.propositoViaje === 'Canjear o reponer documento migratorio' && (<><option value="Canje de FMM por Tarjeta de Visitante o de Residente">Canje de FMM por Tarjeta de Visitante o de Residente</option><option value="Reposición de documento migratorio por pérdida, robo o deterioro">Reposición de documento migratorio por pérdida, robo o deterioro</option><option value="Expedición de Tarjeta de Residente cuando se otorga la condición por acuerdo">Expedición de Tarjeta de Residente cuando se otorga la condición por acuerdo</option></>)}</select><ErrorMsg field="especificaTramite" /></div>
               </div>
             </div>
             )}
@@ -684,7 +684,7 @@ export default function NuevoTramitePage() {
               {visas.length > 0 && (
                 <div className="mt-4 max-w-4xl">
                   <table className="w-full text-sm border rounded-lg overflow-hidden">
-                    <thead><tr className="bg-[#141414] border-b"><th className="text-left px-3 py-2 text-xs font-medium text-white/40">País</th><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Número</th><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Vencimiento</th><th className="px-3 py-2"></th></tr></thead>
+                    <thead><tr className="bg-[#141414] border-b"><th className="text-left px-3 py-2 text-xs font-medium text-white/70">País</th><th className="text-left px-3 py-2 text-xs font-medium text-white/70">Número</th><th className="text-left px-3 py-2 text-xs font-medium text-white/70">Vencimiento</th><th className="px-3 py-2"></th></tr></thead>
                     <tbody>{visas.map((v, i) => (<tr key={i} className="border-b last:border-0"><td className="px-3 py-2">{v.pais}</td><td className="px-3 py-2">{v.numero}</td><td className="px-3 py-2">{v.vencimiento}</td><td className="px-3 py-2 text-right"><button type="button" onClick={() => handleRemoveVisa(i)} className="text-xs text-red-500 hover:text-red-400">Eliminar</button></td></tr>))}</tbody>
                   </table>
                 </div>
@@ -805,7 +805,7 @@ export default function NuevoTramitePage() {
               {personasAutorizadas.length > 0 && (
                 <div className="mt-4 max-w-4xl">
                   <table className="w-full text-sm border rounded-lg overflow-hidden">
-                    <thead><tr className="bg-[#141414] border-b"><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Nombre</th><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Nacionalidad</th><th className="text-left px-3 py-2 text-xs font-medium text-white/40">Documento</th><th className="px-3 py-2"></th></tr></thead>
+                    <thead><tr className="bg-[#141414] border-b"><th className="text-left px-3 py-2 text-xs font-medium text-white/70">Nombre</th><th className="text-left px-3 py-2 text-xs font-medium text-white/70">Nacionalidad</th><th className="text-left px-3 py-2 text-xs font-medium text-white/70">Documento</th><th className="px-3 py-2"></th></tr></thead>
                     <tbody>{personasAutorizadas.map((p, i) => (<tr key={i} className="border-b last:border-0"><td className="px-3 py-2">{p.nombre} {p.apellidos}</td><td className="px-3 py-2">{p.nacionalidad}</td><td className="px-3 py-2">{p.tipoDocumento} {p.numeroDocumento}</td><td className="px-3 py-2 text-right"><button type="button" onClick={() => handleRemovePersona(i)} className="text-xs text-red-500 hover:text-red-400">Eliminar</button></td></tr>))}</tbody>
                   </table>
                 </div>
@@ -814,9 +814,9 @@ export default function NuevoTramitePage() {
 
             <div>
               <h3 className="text-xl font-bold text-amber-400 mb-4 pb-3 border-b-2 border-amber-500/20 text-amber-400">Comentarios</h3>
-              <p className="text-sm text-white/40 mb-3">Si lo deseas, puedes agregar algún comentario a la solicitud.</p>
+              <p className="text-sm text-white/70 mb-3">Si lo deseas, puedes agregar algún comentario a la solicitud.</p>
               <textarea value={extranjero.comentarios} onChange={e => updateExtranjero('comentarios', e.target.value)} rows={4} className="w-full max-w-4xl px-3 py-2 border border-[#2a2a2a] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none" />
-              <p className="text-xs text-white/30 mt-2">* Campos obligatorios</p>
+              <p className="text-xs text-white/70 mt-2">* Campos obligatorios</p>
             </div>
           </div>
         )}
@@ -848,19 +848,19 @@ export default function NuevoTramitePage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ height: '620px' }}>
               {/* Ficha de datos (izquierda) */}
               <div className="lg:col-span-1 overflow-y-auto border rounded-lg p-4 bg-[#141414]">
-                <h4 className="text-xs font-semibold text-white/40 uppercase mb-3">Ficha del Extranjero</h4>
+                <h4 className="text-xs font-semibold text-white/70 uppercase mb-3">Ficha del Extranjero</h4>
                 <div className="space-y-4">
                   {/* Propósito de viaje */}
                   {extranjero.propositoViaje && (
                     <div>
                       <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Propósito de viaje</p>
                       <button type="button" onClick={() => copyToClipboard(extranjero.propositoViaje)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#2a2a2a] transition-all group">
-                        <div className="flex items-center justify-between"><p className="text-sm text-white">{extranjero.propositoViaje}</p><Copy className="h-3 w-3 text-white/20 group-hover:text-amber-500" /></div>
+                        <div className="flex items-center justify-between"><p className="text-sm text-white">{extranjero.propositoViaje}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
                       </button>
                       {extranjero.especificaTramite && (
                       <button type="button" onClick={() => copyToClipboard(extranjero.especificaTramite)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#2a2a2a] transition-all group mt-1">
-                        <p className="text-[10px] text-white/30">Especifica</p>
-                        <div className="flex items-center justify-between"><p className="text-sm text-white">{extranjero.especificaTramite}</p><Copy className="h-3 w-3 text-white/20 group-hover:text-amber-500" /></div>
+                        <p className="text-[10px] text-white/70">Especifica</p>
+                        <div className="flex items-center justify-between"><p className="text-sm text-white">{extranjero.especificaTramite}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
                       </button>
                       )}
                     </div>
@@ -881,8 +881,8 @@ export default function NuevoTramitePage() {
                           { label: 'Estado civil', value: extranjero.estadoCivil },
                         ].filter(item => item.value).map(item => (
                           <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#2a2a2a] transition-all group">
-                            <p className="text-[10px] text-white/30">{item.label}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/20 group-hover:text-amber-500" /></div>
+                            <p className="text-[10px] text-white/70">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
                           </button>
                         ))}
                       </div>
@@ -899,8 +899,8 @@ export default function NuevoTramitePage() {
                           { label: 'Estado/Provincia', value: extranjero.estadoProvinciaNacimiento },
                         ].filter(item => item.value).map(item => (
                           <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#2a2a2a] transition-all group">
-                            <p className="text-[10px] text-white/30">{item.label}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/20 group-hover:text-amber-500" /></div>
+                            <p className="text-[10px] text-white/70">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
                           </button>
                         ))}
                       </div>
@@ -920,8 +920,8 @@ export default function NuevoTramitePage() {
                           { label: 'Vencimiento', value: formatDateDisplay(extranjero.fechaVencimiento) },
                         ].filter(item => item.value).map(item => (
                           <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#2a2a2a] transition-all group">
-                            <p className="text-[10px] text-white/30">{item.label}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/20 group-hover:text-amber-500" /></div>
+                            <p className="text-[10px] text-white/70">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
                           </button>
                         ))}
                       </div>
@@ -943,8 +943,8 @@ export default function NuevoTramitePage() {
                           { label: 'Número interior', value: extranjero.domNumeroInterior },
                         ].filter(item => item.value).map(item => (
                           <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#2a2a2a] transition-all group">
-                            <p className="text-[10px] text-white/30">{item.label}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/20 group-hover:text-amber-500" /></div>
+                            <p className="text-[10px] text-white/70">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
                           </button>
                         ))}
                       </div>
@@ -967,8 +967,8 @@ export default function NuevoTramitePage() {
                           { label: 'Antecedentes penales', value: extranjero.antecedentesPenales },
                         ].filter(item => item.value).map(item => (
                           <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#2a2a2a] transition-all group">
-                            <p className="text-[10px] text-white/30">{item.label}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/20 group-hover:text-amber-500" /></div>
+                            <p className="text-[10px] text-white/70">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
                           </button>
                         ))}
                       </div>
@@ -985,8 +985,8 @@ export default function NuevoTramitePage() {
                           { label: 'Email', value: extranjero.solicitanteEmail },
                         ].filter(item => item.value).map(item => (
                           <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#2a2a2a] transition-all group">
-                            <p className="text-[10px] text-white/30">{item.label}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/20 group-hover:text-amber-500" /></div>
+                            <p className="text-[10px] text-white/70">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
                           </button>
                         ))}
                       </div>
@@ -1000,8 +1000,8 @@ export default function NuevoTramitePage() {
                       <div className="space-y-1">
                         {visas.map((v, i) => (
                           <button key={i} type="button" onClick={() => copyToClipboard(`${v.pais} - ${v.numero}`)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#2a2a2a] transition-all group">
-                            <p className="text-[10px] text-white/30">Visa {i + 1}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{v.pais} {v.numero && `- ${v.numero}`} {v.vencimiento && `(${formatDateDisplay(v.vencimiento)})`}</p><Copy className="h-3 w-3 text-white/20 group-hover:text-amber-500" /></div>
+                            <p className="text-[10px] text-white/70">Visa {i + 1}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{v.pais} {v.numero && `- ${v.numero}`} {v.vencimiento && `(${formatDateDisplay(v.vencimiento)})`}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
                           </button>
                         ))}
                       </div>
@@ -1052,8 +1052,8 @@ export default function NuevoTramitePage() {
                           ]),
                         ].filter(item => item.value).map(item => (
                           <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#2a2a2a] transition-all group">
-                            <p className="text-[10px] text-white/30">{item.label}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/20 group-hover:text-amber-500" /></div>
+                            <p className="text-[10px] text-white/70">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
                           </button>
                         ))}
                       </div>
@@ -1067,8 +1067,8 @@ export default function NuevoTramitePage() {
                       <div className="space-y-1">
                         {personasAutorizadas.map((p, i) => (
                           <button key={i} type="button" onClick={() => copyToClipboard(`${p.nombre} ${p.apellidos}`)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#2a2a2a] transition-all group">
-                            <p className="text-[10px] text-white/30">Persona {i + 1}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{p.nombre} {p.apellidos} ({p.nacionalidad})</p><Copy className="h-3 w-3 text-white/20 group-hover:text-amber-500" /></div>
+                            <p className="text-[10px] text-white/70">Persona {i + 1}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{p.nombre} {p.apellidos} ({p.nacionalidad})</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
                           </button>
                         ))}
                       </div>
@@ -1081,7 +1081,7 @@ export default function NuevoTramitePage() {
                 <iframe src={selectedTramite.urlSolicitud} className="w-full h-full" title="Formulario INM" />
               </div>
             </div>
-            <div className="flex items-center gap-2 mt-3 text-sm text-white/40">
+            <div className="flex items-center gap-2 mt-3 text-sm text-white/70">
               <ExternalLink className="h-4 w-4" />
               <a href={selectedTramite.urlSolicitud} target="_blank" rel="noopener noreferrer" className="text-amber-500 hover:text-amber-400 font-medium">Abrir en nueva pestaña</a>
             </div>
@@ -1133,7 +1133,7 @@ export default function NuevoTramitePage() {
               </button>
             </div>
 
-            <p className="text-xs text-white/40 mb-4">Los documentos podrán ser cargados por el extranjero desde su perfil, o el gestor puede subirlos desde el detalle del trámite una vez creado.</p>
+            <p className="text-xs text-white/70 mb-4">Los documentos podrán ser cargados por el extranjero desde su perfil, o el gestor puede subirlos desde el detalle del trámite una vez creado.</p>
 
             <div className="space-y-3 max-w-2xl">
               {requisitos.map((req, i) => (
@@ -1141,8 +1141,8 @@ export default function NuevoTramitePage() {
                   <div className="flex items-start gap-3">
                     <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center text-xs font-medium ${req.obligatorio ? 'bg-amber-500 text-white' : 'bg-gray-300 text-white'}`}>{i + 1}</div>
                     <div>
-                      <p className="text-sm font-medium text-white">{req.nombre}{req.obligatorio ? <span className="ml-2 text-xs text-amber-500">(Obligatorio)</span> : <span className="ml-2 text-xs text-white/30">(Si aplica)</span>}</p>
-                      <p className="text-xs text-white/40 mt-0.5">{req.descripcion}</p>
+                      <p className="text-sm font-medium text-white">{req.nombre}{req.obligatorio ? <span className="ml-2 text-xs text-amber-500">(Obligatorio)</span> : <span className="ml-2 text-xs text-white/70">(Si aplica)</span>}</p>
+                      <p className="text-xs text-white/70 mt-0.5">{req.descripcion}</p>
                     </div>
                   </div>
                 </div>
@@ -1158,7 +1158,7 @@ export default function NuevoTramitePage() {
               <DollarSign className="h-5 w-5 text-amber-500" />
               <h2 className="text-xl font-bold text-white">Pago de Derechos</h2>
             </div>
-            <p className="text-sm text-white/40 mb-6">Registra el pago de derechos del trámite migratorio</p>
+            <p className="text-sm text-white/70 mb-6">Registra el pago de derechos del trámite migratorio</p>
 
             <div className="max-w-2xl space-y-5">
               {/* Concepto */}
@@ -1172,7 +1172,7 @@ export default function NuevoTramitePage() {
                 <div>
                   <label className="block text-xs font-semibold text-amber-200/70 mb-1 uppercase tracking-wide">Monto (MXN) *</label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 text-sm">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 text-sm">$</span>
                     <input type="number" value={pagoData.monto} onChange={e => setPagoData(prev => ({ ...prev, monto: e.target.value }))} className="w-full pl-7 pr-3 py-2.5 border border-[#333333] bg-[#1a1a1a] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-sm hover:shadow transition-shadow" placeholder="0.00" min="0" step="0.01" />
                   </div>
                 </div>
@@ -1200,11 +1200,11 @@ export default function NuevoTramitePage() {
                 <div className="border-2 border-dashed border-[#333333] rounded-lg p-4 text-center hover:border-amber-500/50 transition-colors">
                   <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setPagoData(prev => ({ ...prev, comprobante: e.target.files?.[0] || null }))} className="hidden" id="comprobante-pago" />
                   <label htmlFor="comprobante-pago" className="cursor-pointer">
-                    <Upload className="h-8 w-8 text-white/30 mx-auto mb-2" />
+                    <Upload className="h-8 w-8 text-white/70 mx-auto mb-2" />
                     {pagoData.comprobante ? (
                       <p className="text-sm text-amber-500 font-medium">{pagoData.comprobante.name}</p>
                     ) : (
-                      <p className="text-sm text-white/40">Click para subir comprobante</p>
+                      <p className="text-sm text-white/70">Click para subir comprobante</p>
                     )}
                   </label>
                 </div>
@@ -1225,7 +1225,7 @@ export default function NuevoTramitePage() {
       {/* Navigation - ocultar en paso 0 */}
       {step > 0 && (
       <div className="flex items-center justify-between mt-6">
-        <button type="button" onClick={handleBack} disabled={step === 0} className="flex items-center gap-2 px-4 py-2.5 border border-[#333333] text-white/60 rounded-lg text-sm font-medium hover:bg-[#1f1f1f] hover:border-[#404040] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"><ArrowLeft className="h-4 w-4" /> Anterior</button>
+        <button type="button" onClick={handleBack} disabled={step === 0} className="flex items-center gap-2 px-4 py-2.5 border border-[#333333] text-white/70 rounded-lg text-sm font-medium hover:bg-[#1f1f1f] hover:border-[#404040] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"><ArrowLeft className="h-4 w-4" /> Anterior</button>
         {step < STEPS.length - 1 ? (
           <button type="button" onClick={handleNext} className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg text-sm font-semibold hover:from-amber-400 hover:to-amber-500 shadow-lg shadow-amber-500/20 transition-all duration-300 hover:shadow-amber-500/30 hover:scale-[1.02]">Siguiente <ArrowRight className="h-4 w-4" /></button>
         ) : (

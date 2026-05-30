@@ -294,7 +294,7 @@ export default function AnalyticsPage() {
             <Filter className="h-4 w-4 text-purple-400" />
           </div>
           <h2 className="text-lg font-bold text-white">Embudo de Conversión</h2>
-          <span className="text-xs text-white/30 ml-2">Borrador → Recibido → En Revisión → Aprobado</span>
+          <span className="text-xs text-white/70 ml-2">Borrador → Recibido → En Revisión → Aprobado</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {funnelData.map((stage, index) => {
@@ -310,7 +310,7 @@ export default function AnalyticsPage() {
                 <div className={`${color.bg} rounded-xl p-5 text-center`}>
                   <p className={`text-sm font-medium ${color.text} mb-1`}>{stage.etapa}</p>
                   <p className="text-3xl font-bold text-white">{stage.cantidad}</p>
-                  <p className="text-xs text-white/40 mt-1">{stage.porcentaje}% del total</p>
+                  <p className="text-xs text-white/70 mt-1">{stage.porcentaje}% del total</p>
                   <div className="mt-3 h-2 bg-[#1f1f1f] rounded-full overflow-hidden">
                     <div
                       className={`h-full ${color.bar} rounded-full transition-all duration-700`}
@@ -320,7 +320,7 @@ export default function AnalyticsPage() {
                 </div>
                 {index < funnelData.length - 1 && (
                   <div className="hidden md:flex absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
-                    <div className="w-4 h-4 text-white/20">→</div>
+                    <div className="w-4 h-4 text-white/70">→</div>
                   </div>
                 )}
               </div>
@@ -368,7 +368,7 @@ export default function AnalyticsPage() {
               <div key={item.etapa} className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: Object.values(CHART_COLORS)[index % 5] }} />
-                  <span className="text-white/60">{item.etapa}</span>
+                  <span className="text-white/70">{item.etapa}</span>
                 </div>
                 <span className="font-semibold text-white">{item.cantidad}</span>
               </div>
@@ -438,7 +438,7 @@ function MetricCard({
       />
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm font-medium text-white/40">{title}</p>
+          <p className="text-sm font-medium text-white/70">{title}</p>
           <div className={`p-2.5 rounded-xl bg-gradient-to-br ${color} text-white shadow-lg`}>
             {icon}
           </div>
@@ -478,9 +478,9 @@ function ResolutionCard({
         className={`absolute top-0 left-0 w-1 h-full bg-gradient-to-b ${color}`}
       />
       <div className="pl-3">
-        <p className="text-xs font-medium text-white/40 uppercase tracking-wide">{label}</p>
+        <p className="text-xs font-medium text-white/70 uppercase tracking-wide">{label}</p>
         <p className="text-xl font-bold text-white mt-1">{value}</p>
-        <p className="text-xs text-white/30 mt-1">{description}</p>
+        <p className="text-xs text-white/70 mt-1">{description}</p>
       </div>
     </div>
   );

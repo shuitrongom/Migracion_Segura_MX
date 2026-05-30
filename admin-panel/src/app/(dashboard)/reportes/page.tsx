@@ -93,7 +93,7 @@ export default function ReportesPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-amber-600 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Total Trámites</p>
+              <p className="text-sm font-medium text-white/70">Total Trámites</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/20/30">
                 <FileText className="h-5 w-5" />
               </div>
@@ -105,7 +105,7 @@ export default function ReportesPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Total Clientes</p>
+              <p className="text-sm font-medium text-white/70">Total Clientes</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-amber-600 text-white shadow-lg shadow-blue-200/30">
                 <Users className="h-5 w-5" />
               </div>
@@ -117,7 +117,7 @@ export default function ReportesPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Aprobados</p>
+              <p className="text-sm font-medium text-white/70">Aprobados</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-200/30">
                 <TrendingUp className="h-5 w-5" />
               </div>
@@ -129,7 +129,7 @@ export default function ReportesPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-yellow-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">En Proceso</p>
+              <p className="text-sm font-medium text-white/70">En Proceso</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 text-white shadow-lg shadow-yellow-200/30">
                 <Calendar className="h-5 w-5" />
               </div>
@@ -160,13 +160,13 @@ export default function ReportesPage() {
           {reporteQuery.isLoading ? <Skeleton className="h-32 w-full" /> : (
             <div>
               <p className="text-4xl font-bold text-white mb-4">{formatCurrency(reporte?.totalIngresos || 0)}</p>
-              <p className="text-sm text-white/40">{reporte?.totalPagos || 0} pagos en {MESES[mes - 1]} {anio}</p>
+              <p className="text-sm text-white/70">{reporte?.totalPagos || 0} pagos en {MESES[mes - 1]} {anio}</p>
               {reporte?.porMetodo?.length > 0 && (
                 <div className="mt-5 space-y-3">
                   {reporte.porMetodo.map((m: any) => (
                     <div key={m.metodoPago} className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-white/[0.02] to-white/[0.04] border hover:border-amber-500/30 transition-colors">
-                      <span className="text-sm text-white/60 capitalize font-medium">{(m.metodoPago || '').replace(/_/g, ' ')}</span>
-                      <span className="text-sm font-bold text-white">{formatCurrency(m.total)} <span className="text-xs text-white/30">({m.cantidad})</span></span>
+                      <span className="text-sm text-white/70 capitalize font-medium">{(m.metodoPago || '').replace(/_/g, ' ')}</span>
+                      <span className="text-sm font-bold text-white">{formatCurrency(m.total)} <span className="text-xs text-white/70">({m.cantidad})</span></span>
                     </div>
                   ))}
                 </div>
@@ -184,7 +184,7 @@ export default function ReportesPage() {
           <div className="space-y-3">
             {Object.entries(tipoCounts).sort((a, b) => b[1] - a[1]).map(([tipo, count]) => (
               <div key={tipo} className="group flex items-center gap-3 p-2 rounded-lg hover:bg-[#141414] transition-colors">
-                <span className="text-sm text-white/60 w-40 shrink-0 font-medium capitalize truncate">{tipo.replace(/_/g, ' ')}</span>
+                <span className="text-sm text-white/70 w-40 shrink-0 font-medium capitalize truncate">{tipo.replace(/_/g, ' ')}</span>
                 <div className="flex-1 h-6 bg-[#1f1f1f] rounded-full overflow-hidden">
                   <div className="h-full bg-gradient-to-r from-brand-400 to-amber-500 rounded-full transition-all duration-700 ease-out group-hover:opacity-90" style={{ width: `${(count / tramites.length) * 100}%` }} />
                 </div>
@@ -206,7 +206,7 @@ export default function ReportesPage() {
             <div key={estatus} className="relative overflow-hidden text-center p-4 rounded-2xl bg-gradient-to-br from-white/[0.02] to-white/[0.04] border hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 group">
               <div className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-500 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
               <p className="text-3xl font-bold text-white">{count}</p>
-              <p className="text-xs text-white/40 capitalize mt-1 font-medium">{estatus.replace(/_/g, ' ')}</p>
+              <p className="text-xs text-white/70 capitalize mt-1 font-medium">{estatus.replace(/_/g, ' ')}</p>
             </div>
           ))}
         </div>

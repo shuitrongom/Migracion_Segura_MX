@@ -73,12 +73,12 @@ export default function DashboardPage() {
           {estatusQuery.isLoading ? (
             <div className="space-y-3">{[1,2,3,4,5].map(i => <Skeleton key={i} className="h-7 w-full" />)}</div>
           ) : totalTramitesEstatus === 0 ? (
-            <p className="text-sm text-white/30 text-center py-8">No hay trámites registrados</p>
+            <p className="text-sm text-white/70 text-center py-8">No hay trámites registrados</p>
           ) : (
             <div className="space-y-3">
               {estatusData.filter(item => item.cantidad > 0).map((item) => (
                 <div key={item.key} className="group flex items-center gap-3 p-2 rounded-lg hover:bg-[#141414] transition-colors">
-                  <span className="text-sm text-white/60 w-24 shrink-0 font-medium">{item.label}</span>
+                  <span className="text-sm text-white/70 w-24 shrink-0 font-medium">{item.label}</span>
                   <div className="flex-1 h-7 bg-[#1f1f1f] rounded-full overflow-hidden">
                     <div className={`h-full bg-gradient-to-r ${item.gradient} rounded-full transition-all duration-700 ease-out group-hover:opacity-90`} style={{ width: `${(item.cantidad / totalTramitesEstatus) * 100}%` }} />
                   </div>
@@ -100,7 +100,7 @@ export default function DashboardPage() {
           ) : !citasHoyQuery.data || citasHoyQuery.data.length === 0 ? (
             <div className="text-center py-8">
               <Clock className="h-10 w-10 text-gray-200 mx-auto mb-2" />
-              <p className="text-white/30 text-sm">No hay citas para hoy</p>
+              <p className="text-white/70 text-sm">No hay citas para hoy</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -110,7 +110,7 @@ export default function DashboardPage() {
                     <div className="bg-amber-500/10 text-amber-400 font-mono font-bold text-sm px-3 py-1.5 rounded-lg">{cita.horaInicio}</div>
                     <div>
                       <p className="text-sm font-semibold text-white">{cita.cliente?.nombreCompleto || 'Cliente'}</p>
-                      <p className="text-xs text-white/40">{cita.asesor?.fullName ?? 'Gestor'}</p>
+                      <p className="text-xs text-white/70">{cita.asesor?.fullName ?? 'Gestor'}</p>
                     </div>
                   </div>
                   <span className={`text-xs font-semibold px-3 py-1 rounded-full ${cita.modalidad === 'videollamada' ? 'bg-blue-500/10 text-blue-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
@@ -132,7 +132,7 @@ export default function DashboardPage() {
         {recentActivityQuery.isLoading ? (
           <div className="space-y-3">{[1,2,3,4,5].map(i => <Skeleton key={i} className="h-12 w-full" />)}</div>
         ) : !recentActivityQuery.data || recentActivityQuery.data.length === 0 ? (
-          <p className="text-white/30 text-sm text-center py-8">No hay actividad reciente</p>
+          <p className="text-white/70 text-sm text-center py-8">No hay actividad reciente</p>
         ) : (
           <div className="space-y-2">
             {recentActivityQuery.data.map((tramite: Tramite) => (
@@ -144,9 +144,9 @@ export default function DashboardPage() {
                   <p className="text-sm font-medium text-white capitalize truncate">
                     {(tramite.tipo || '').replace(/_/g, ' ')} {tramite.cliente && `— ${tramite.cliente.nombreCompleto || ''}`}
                   </p>
-                  <p className="text-xs text-white/30">{tramite.numeroPieza || tramite.id?.slice(0, 8)} · {tramite.estatus?.replace(/_/g, ' ')}</p>
+                  <p className="text-xs text-white/70">{tramite.numeroPieza || tramite.id?.slice(0, 8)} · {tramite.estatus?.replace(/_/g, ' ')}</p>
                 </div>
-                <div className="text-xs text-white/30 shrink-0">
+                <div className="text-xs text-white/70 shrink-0">
                   {tramite.createdAt ? new Date(tramite.createdAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }) : ''}
                 </div>
               </div>
@@ -164,7 +164,7 @@ function MetricCard({ title, value, icon, color, trend }: { title: string; value
       <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${color} opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500`} />
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm font-medium text-white/40">{title}</p>
+          <p className="text-sm font-medium text-white/70">{title}</p>
           <div className={`p-2.5 rounded-xl bg-gradient-to-br ${color} text-white shadow-lg shadow-amber-500/10`}>{icon}</div>
         </div>
         <p className="text-3xl font-bold text-white">{value}</p>

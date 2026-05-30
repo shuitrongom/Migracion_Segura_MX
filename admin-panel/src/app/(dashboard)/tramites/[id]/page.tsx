@@ -54,7 +54,7 @@ const ESTATUS_BADGE: Record<EstatusTramite, string> = {
   en_espera_resolucion: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
   aprobado: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   rechazado: 'bg-red-500/10 text-red-400 border-red-500/20',
-  cancelado: 'bg-[#141414] text-white/60 border-[#2a2a2a]',
+  cancelado: 'bg-[#141414] text-white/70 border-[#2a2a2a]',
 };
 
 const ESTATUS_LABELS: Record<EstatusTramite, string> = {
@@ -148,11 +148,11 @@ export default function TramiteDetailPage() {
     return (
       <div>
         <div className="flex items-center gap-4 mb-6">
-          <Link href="/tramites" className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/40"><ArrowLeft className="h-5 w-5" /></Link>
+          <Link href="/tramites" className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/70"><ArrowLeft className="h-5 w-5" /></Link>
           <h1 className="text-2xl font-bold text-white">Detalle del Trámite</h1>
         </div>
         <div className="dark-card-static p-12 text-center">
-          <p className="text-sm text-white/40">{error || 'No se encontró el trámite'}</p>
+          <p className="text-sm text-white/70">{error || 'No se encontró el trámite'}</p>
         </div>
       </div>
     );
@@ -164,13 +164,13 @@ export default function TramiteDetailPage() {
   return (
     <div>
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/tramites" className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/40"><ArrowLeft className="h-5 w-5" /></Link>
+        <Link href="/tramites" className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/70"><ArrowLeft className="h-5 w-5" /></Link>
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-white">{tramite.numeroPieza || tramite.id}</h1>
             <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${ESTATUS_BADGE[estatus] || ESTATUS_BADGE.borrador}`}>{ESTATUS_LABELS[estatus] || estatus}</span>
           </div>
-          <p className="text-sm text-white/40 mt-1">{TIPO_LABELS[tramite.tipo] || tramite.tipo}{tramite.clienteNombre && ` · Cliente: ${tramite.clienteNombre}`}</p>
+          <p className="text-sm text-white/70 mt-1">{TIPO_LABELS[tramite.tipo] || tramite.tipo}{tramite.clienteNombre && ` · Cliente: ${tramite.clienteNombre}`}</p>
         </div>
       </div>
 
@@ -180,7 +180,7 @@ export default function TramiteDetailPage() {
           <div className="dark-card-static p-6">
             <h2 className="text-lg font-semibold text-white mb-6">Etapas del trámite</h2>
             {etapas.length === 0 ? (
-              <p className="text-sm text-white/30 text-center py-8">No hay etapas registradas para este trámite.</p>
+              <p className="text-sm text-white/70 text-center py-8">No hay etapas registradas para este trámite.</p>
             ) : (
               <div className="space-y-0">
                 {etapas.map((etapa, index) => {
@@ -194,16 +194,16 @@ export default function TramiteDetailPage() {
                         ) : isCurrent ? (
                           <div className="h-8 w-8 rounded-full bg-amber-500/10 border-2 border-amber-500 flex items-center justify-center"><Clock className="h-4 w-4 text-amber-500" /></div>
                         ) : (
-                          <div className="h-8 w-8 rounded-full bg-[#1f1f1f] border-2 border-[#2a2a2a] flex items-center justify-center"><Circle className="h-3 w-3 text-white/30" /></div>
+                          <div className="h-8 w-8 rounded-full bg-[#1f1f1f] border-2 border-[#2a2a2a] flex items-center justify-center"><Circle className="h-3 w-3 text-white/70" /></div>
                         )}
                       </div>
                       <div className="flex-1 pb-8">
                         <div className="flex items-center gap-2">
-                          <p className={`text-sm font-medium ${etapa.completada ? 'text-white' : isCurrent ? 'text-amber-400' : 'text-white/30'}`}>{etapa.nombre}</p>
+                          <p className={`text-sm font-medium ${etapa.completada ? 'text-white' : isCurrent ? 'text-amber-400' : 'text-white/70'}`}>{etapa.nombre}</p>
                           {isCurrent && <span className="text-xs bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full font-medium">Actual</span>}
                         </div>
-                        {etapa.fechaCompletada && <p className="text-xs text-white/40 mt-0.5">{formatDateTime(etapa.fechaCompletada)}</p>}
-                        {etapa.observaciones && <p className="text-sm text-white/60 mt-2 bg-[#141414] rounded-lg p-3">{etapa.observaciones}</p>}
+                        {etapa.fechaCompletada && <p className="text-xs text-white/70 mt-0.5">{formatDateTime(etapa.fechaCompletada)}</p>}
+                        {etapa.observaciones && <p className="text-sm text-white/70 mt-2 bg-[#141414] rounded-lg p-3">{etapa.observaciones}</p>}
                       </div>
                     </div>
                   );
@@ -247,7 +247,7 @@ export default function TramiteDetailPage() {
           <div className="dark-card-static p-6">
             <h3 className="text-sm font-semibold text-white mb-4">Tareas internas</h3>
             {tareas.length === 0 ? (
-              <p className="text-sm text-white/30 text-center py-4">No hay tareas registradas</p>
+              <p className="text-sm text-white/70 text-center py-4">No hay tareas registradas</p>
             ) : (
               <div className="space-y-2 mb-4">
                 {tareas.map(tarea => (
@@ -255,7 +255,7 @@ export default function TramiteDetailPage() {
                     <button onClick={() => handleToggleTarea(tarea.id)} className={`flex-shrink-0 mt-0.5 h-5 w-5 rounded border-2 flex items-center justify-center ${tarea.completada ? 'bg-green-500 border-green-500' : 'border-[#333333] hover:border-amber-500'}`} aria-label={`${tarea.completada ? 'Desmarcar' : 'Marcar'} tarea`}>
                       {tarea.completada && <Check className="h-3 w-3 text-white" />}
                     </button>
-                    <p className={`text-sm ${tarea.completada ? 'text-white/30 line-through' : 'text-white/90'}`}>{tarea.titulo}</p>
+                    <p className={`text-sm ${tarea.completada ? 'text-white/70 line-through' : 'text-white/90'}`}>{tarea.titulo}</p>
                   </div>
                 ))}
               </div>
@@ -271,11 +271,11 @@ export default function TramiteDetailPage() {
             <h3 className="text-sm font-semibold text-white mb-4">Pago de Derechos</h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-white/60 mb-1">Monto total (MXN)</label>
+                <label className="block text-xs font-medium text-white/70 mb-1">Monto total (MXN)</label>
                 <input type="number" id="monto-pago" min="0" step="0.01" className="w-full px-3 py-2.5 border border-[#2a2a2a] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="0.00" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-white/60 mb-1">Concepto</label>
+                <label className="block text-xs font-medium text-white/70 mb-1">Concepto</label>
                 <input type="text" id="concepto-pago" className="w-full px-3 py-2.5 border border-[#2a2a2a] rounded-lg text-sm capitalize focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Pago de derechos migratorios" />
               </div>
               <button

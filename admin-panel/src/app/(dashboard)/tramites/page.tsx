@@ -44,7 +44,7 @@ const ESTATUS_BADGE: Record<string, { className: string; label: string; gradient
   en_espera_resolucion: { className: 'bg-orange-500/10 text-orange-400 border-orange-500/20', label: 'En espera', gradient: 'from-orange-400 to-orange-600' },
   aprobado: { className: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', label: 'Aprobado', gradient: 'from-green-400 to-emerald-600' },
   rechazado: { className: 'bg-red-500/10 text-red-400 border-red-500/20', label: 'Rechazado', gradient: 'from-red-400 to-red-600' },
-  cancelado: { className: 'bg-[#141414] text-white/60 border-[#2a2a2a]', label: 'Cancelado', gradient: 'from-gray-300 to-gray-500' },
+  cancelado: { className: 'bg-[#141414] text-white/70 border-[#2a2a2a]', label: 'Cancelado', gradient: 'from-gray-300 to-gray-500' },
 };
 
 const TIPO_LABELS: Record<string, string> = {
@@ -110,7 +110,7 @@ export default function TramitesPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-amber-600 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Total Trámites</p>
+              <p className="text-sm font-medium text-white/70">Total Trámites</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/20/30">
                 <FileText className="h-5 w-5" />
               </div>
@@ -122,7 +122,7 @@ export default function TramitesPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">En Proceso</p>
+              <p className="text-sm font-medium text-white/70">En Proceso</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-amber-600 text-white shadow-lg shadow-blue-200/30">
                 <Activity className="h-5 w-5" />
               </div>
@@ -134,12 +134,12 @@ export default function TramitesPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Página</p>
+              <p className="text-sm font-medium text-white/70">Página</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-200/30">
                 <Filter className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-white">{currentPage} <span className="text-lg text-white/30">/ {totalPages}</span></p>
+            <p className="text-3xl font-bold text-white">{currentPage} <span className="text-lg text-white/70">/ {totalPages}</span></p>
           </div>
         </div>
       </div>
@@ -152,7 +152,7 @@ export default function TramitesPage() {
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
             <input
               type="text"
               placeholder="Buscar por cliente, número de pieza o gestor..."
@@ -219,8 +219,8 @@ export default function TramitesPage() {
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500/15 to-amber-600/15 flex items-center justify-center mx-auto mb-4">
                 <FileText className="h-8 w-8 text-amber-400/70" />
               </div>
-              <p className="text-white/40 font-medium">No se encontraron trámites</p>
-              <p className="text-sm text-white/30 mt-1">Intenta con otros filtros o inicia un nuevo trámite</p>
+              <p className="text-white/70 font-medium">No se encontraron trámites</p>
+              <p className="text-sm text-white/70 mt-1">Intenta con otros filtros o inicia un nuevo trámite</p>
             </div>
           ) : (
             <>
@@ -246,7 +246,7 @@ export default function TramitesPage() {
                             </span>
                           </div>
                           <p className="text-sm text-white capitalize truncate">{clienteName}</p>
-                          <p className="text-xs text-white/40">
+                          <p className="text-xs text-white/70">
                             {TIPO_LABELS[tramite.tipo] ?? tramite.tipo}
                             {(tramite as any).asesor?.fullName && ` • ${(tramite as any).asesor.fullName}`}
                             {tramite.createdAt && ` • ${new Date(tramite.createdAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}`}
@@ -259,7 +259,7 @@ export default function TramitesPage() {
                             Continuar
                           </Link>
                         )}
-                        <Link href={`/tramites/${tramite.id}`} className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-[#1f1f1f] text-white/40 transition-colors" aria-label={`Ver detalle del trámite ${tramite.numeroPieza ?? tramite.id}`}>
+                        <Link href={`/tramites/${tramite.id}`} className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-[#1f1f1f] text-white/70 transition-colors" aria-label={`Ver detalle del trámite ${tramite.numeroPieza ?? tramite.id}`}>
                           <MoreHorizontal className="h-4 w-4" />
                         </Link>
                       </div>
@@ -271,7 +271,7 @@ export default function TramitesPage() {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-between px-6 py-4 border-t bg-gradient-to-r from-white/[0.02] to-white/[0.04]">
-                  <p className="text-sm text-white/40">
+                  <p className="text-sm text-white/70">
                     Mostrando {(currentPage - 1) * pageSize + 1} a {Math.min(currentPage * pageSize, total)} de <span className="font-semibold text-white/70">{total}</span> trámites
                   </p>
                   <div className="flex items-center gap-2">

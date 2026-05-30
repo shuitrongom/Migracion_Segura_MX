@@ -60,22 +60,22 @@ export default function NotificacionesPage() {
         ) : notificaciones.length === 0 ? (
           <div className="p-16 text-center">
             <Bell className="h-12 w-12 text-gray-200 mx-auto mb-3" />
-            <p className="text-white/40">No hay notificaciones</p>
+            <p className="text-white/70">No hay notificaciones</p>
           </div>
         ) : (
           <div className="divide-y divide-[#262626]">
             {notificaciones.map((notif: any) => (
               <div key={notif.id} className={`flex items-start gap-4 p-5 hover:bg-[#141414] transition-colors ${!notif.leida ? 'bg-amber-500/10/30 border-l-4 border-l-brand-500' : ''}`}>
                 <div className={`p-2.5 rounded-xl shrink-0 ${!notif.leida ? 'bg-amber-500/10' : 'bg-[#1f1f1f]'}`}>
-                  <Bell className={`h-4 w-4 ${!notif.leida ? 'text-amber-500' : 'text-white/30'}`} />
+                  <Bell className={`h-4 w-4 ${!notif.leida ? 'text-amber-500' : 'text-white/70'}`} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm ${!notif.leida ? 'font-semibold text-white' : 'text-white/70'}`}>{notif.titulo}</p>
-                  <p className="text-sm text-white/40 mt-0.5 line-clamp-2">{notif.contenido}</p>
-                  <p className="text-xs text-white/30 mt-1">{notif.createdAt ? new Date(notif.createdAt).toLocaleString('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}</p>
+                  <p className="text-sm text-white/70 mt-0.5 line-clamp-2">{notif.contenido}</p>
+                  <p className="text-xs text-white/70 mt-1">{notif.createdAt ? new Date(notif.createdAt).toLocaleString('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}</p>
                 </div>
                 {!notif.leida && (
-                  <button onClick={() => markRead.mutate(notif.id)} className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/30 hover:text-green-500 transition-colors shrink-0" title="Marcar como leída">
+                  <button onClick={() => markRead.mutate(notif.id)} className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/70 hover:text-green-500 transition-colors shrink-0" title="Marcar como leída">
                     <Check className="h-4 w-4" />
                   </button>
                 )}

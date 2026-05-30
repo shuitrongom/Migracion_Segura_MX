@@ -14,7 +14,7 @@ const ESTATUS_CONFIG: Record<string, { label: string; color: string; icon: typeo
   pendiente: { label: 'Pendiente', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20', icon: Clock },
   aprobado: { label: 'Pagado', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', icon: CheckCircle },
   rechazado: { label: 'Rechazado', color: 'bg-red-500/10 text-red-400 border-red-500/20', icon: XCircle },
-  cancelado: { label: 'Cancelado', color: 'bg-[#141414] text-white/60 border-[#2a2a2a]', icon: XCircle },
+  cancelado: { label: 'Cancelado', color: 'bg-[#141414] text-white/70 border-[#2a2a2a]', icon: XCircle },
 };
 
 const TIPO_PAGO_LABELS: Record<string, string> = {
@@ -77,7 +77,7 @@ export default function FinancieroPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Total Cobrado</p>
+              <p className="text-sm font-medium text-white/70">Total Cobrado</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-200/30">
                 <CheckCircle className="h-5 w-5" />
               </div>
@@ -90,7 +90,7 @@ export default function FinancieroPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-yellow-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Pendiente</p>
+              <p className="text-sm font-medium text-white/70">Pendiente</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 text-white shadow-lg shadow-yellow-200/30">
                 <Clock className="h-5 w-5" />
               </div>
@@ -103,7 +103,7 @@ export default function FinancieroPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-red-500 to-red-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Cancelado</p>
+              <p className="text-sm font-medium text-white/70">Cancelado</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg shadow-red-200/30">
                 <XCircle className="h-5 w-5" />
               </div>
@@ -116,7 +116,7 @@ export default function FinancieroPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-amber-600 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Total Generado</p>
+              <p className="text-sm font-medium text-white/70">Total Generado</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/20/30">
                 <Wallet className="h-5 w-5" />
               </div>
@@ -134,7 +134,7 @@ export default function FinancieroPage() {
             <div className="p-2 rounded-lg bg-amber-500/10"><DollarSign className="h-4 w-4 text-amber-500" /></div>
             <h2 className="text-lg font-bold text-white">Registro de Pagos</h2>
           </div>
-          <button onClick={() => pagosQuery.refetch()} className="p-2.5 rounded-xl hover:bg-[#1f1f1f] text-white/30 transition-colors">
+          <button onClick={() => pagosQuery.refetch()} className="p-2.5 rounded-xl hover:bg-[#1f1f1f] text-white/70 transition-colors">
             <RefreshCw className="h-4 w-4" />
           </button>
         </div>
@@ -152,8 +152,8 @@ export default function FinancieroPage() {
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500/15 to-amber-600/15 flex items-center justify-center mx-auto mb-4">
               <DollarSign className="h-8 w-8 text-amber-400/70" />
             </div>
-            <p className="text-white/40 font-medium">No hay pagos registrados</p>
-            <p className="text-xs text-white/30 mt-1">Los pagos aparecerán aquí cuando se generen desde Continuar Trámite</p>
+            <p className="text-white/70 font-medium">No hay pagos registrados</p>
+            <p className="text-xs text-white/70 mt-1">Los pagos aparecerán aquí cuando se generen desde Continuar Trámite</p>
           </div>
         ) : (
           <div className="divide-y divide-[#262626]">
@@ -168,8 +168,8 @@ export default function FinancieroPage() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-white">{pago.tramite?.cliente?.nombreCompleto || pago.tramite?.datosFormulario?.nombre || '—'}</p>
-                      <p className="text-xs text-white/40">{pago.concepto} • {pago.createdAt?.slice(0, 10)}</p>
-                      <p className="text-[10px] text-white/30">{pago.tramite?.numeroPieza || pago.tramiteId?.slice(0, 8)}</p>
+                      <p className="text-xs text-white/70">{pago.concepto} • {pago.createdAt?.slice(0, 10)}</p>
+                      <p className="text-[10px] text-white/70">{pago.tramite?.numeroPieza || pago.tramiteId?.slice(0, 8)}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 shrink-0">

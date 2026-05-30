@@ -26,7 +26,7 @@ const TIPO_CITA_LABELS: Record<string, { label: string; color: string }> = {
 const ESTATUS_CITA_BADGE: Record<string, string> = {
   programada: 'bg-blue-500/10 text-blue-400',
   confirmada: 'bg-emerald-500/10 text-emerald-400',
-  completada: 'bg-[#141414] text-white/60',
+  completada: 'bg-[#141414] text-white/70',
   cancelada: 'bg-red-500/10 text-red-400',
   reagendada: 'bg-orange-500/10 text-orange-400',
 };
@@ -152,7 +152,7 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
   };
 
   if (loading) {
-    return <div className="text-center py-8 text-white/30">Cargando citas...</div>;
+    return <div className="text-center py-8 text-white/70">Cargando citas...</div>;
   }
 
   return (
@@ -173,19 +173,19 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
         <form onSubmit={handleCreate} className="p-5 border-2 border-amber-500/20 rounded-xl bg-gradient-to-br from-amber-500/[0.06] to-white space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-base font-bold text-white">Agendar cita</p>
-            <button type="button" onClick={() => setShowForm(false)} className="p-1.5 rounded-lg hover:bg-[#262626] transition-colors"><X className="h-4 w-4 text-white/40" /></button>
+            <button type="button" onClick={() => setShowForm(false)} className="p-1.5 rounded-lg hover:bg-[#262626] transition-colors"><X className="h-4 w-4 text-white/70" /></button>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-white/60 mb-1">Tipo de cita *</label>
+              <label className="block text-xs font-medium text-white/70 mb-1">Tipo de cita *</label>
               <select value={form.tipo} onChange={e => setForm(prev => ({ ...prev, tipo: e.target.value, hora: '' }))} className="w-full px-3 py-2.5 border border-[#333333] bg-[#1a1a1a] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm">
                 <option value="inm">Cita en el INM</option>
                 <option value="entrevista">Entrevista con Gestor</option>
               </select>
-              <p className="text-[10px] text-white/30 mt-1">{form.tipo === 'inm' ? 'L-V de 9:00 a 15:00' : 'L-V de 9:00 a 19:00'}</p>
+              <p className="text-[10px] text-white/70 mt-1">{form.tipo === 'inm' ? 'L-V de 9:00 a 15:00' : 'L-V de 9:00 a 19:00'}</p>
             </div>
             <div>
-              <label className="block text-xs font-medium text-white/60 mb-1">Modalidad</label>
+              <label className="block text-xs font-medium text-white/70 mb-1">Modalidad</label>
               <select value={form.modalidad} onChange={e => setForm(prev => ({ ...prev, modalidad: e.target.value }))} className="w-full px-3 py-2.5 border border-[#333333] bg-[#1a1a1a] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm">
                 <option value="presencial">Presencial</option>
                 <option value="videollamada">Videollamada</option>
@@ -194,11 +194,11 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-white/60 mb-1">Fecha * (solo L-V)</label>
+              <label className="block text-xs font-medium text-white/70 mb-1">Fecha * (solo L-V)</label>
               <DatePicker value={form.fecha} onChange={v => setForm(prev => ({ ...prev, fecha: v }))} yearRange={[2025, 2027]} disablePast disableWeekends />
             </div>
             <div>
-              <label className="block text-xs font-medium text-white/60 mb-1">Hora * (sesión de 1 hora)</label>
+              <label className="block text-xs font-medium text-white/70 mb-1">Hora * (sesión de 1 hora)</label>
               {form.fecha && (
                 <div className="flex items-center gap-2 mb-2">
                   <span className="inline-flex items-center gap-1 text-[10px]"><span className="h-2 w-2 rounded-full bg-green-500"></span> Disponible</span>
@@ -230,12 +230,12 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
             </div>
           </div>
           <div>
-            <label className="block text-xs font-medium text-white/60 mb-1">Notas</label>
+            <label className="block text-xs font-medium text-white/70 mb-1">Notas</label>
             <input type="text" value={form.notas} onChange={e => setForm(prev => ({ ...prev, notas: e.target.value }))} className="w-full px-3 py-2.5 border border-[#333333] bg-[#1a1a1a] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm" placeholder="Observaciones..." />
           </div>
           <div className="flex items-center gap-2 pt-1">
-            <Send className="h-3.5 w-3.5 text-white/30" />
-            <p className="text-[10px] text-white/30">Se enviará confirmación por correo electrónico y WhatsApp al extranjero</p>
+            <Send className="h-3.5 w-3.5 text-white/70" />
+            <p className="text-[10px] text-white/70">Se enviará confirmación por correo electrónico y WhatsApp al extranjero</p>
           </div>
           <button type="submit" disabled={submitting} className="w-full px-4 py-2.5 bg-amber-500 text-white rounded-lg text-sm font-semibold hover:bg-amber-600 disabled:opacity-50 transition-colors shadow-sm">
             {submitting ? 'Agendando...' : 'Agendar Cita'}
@@ -246,9 +246,9 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
       {/* Lista de citas */}
       {citas.length === 0 ? (
         <div className="text-center py-8">
-          <Calendar className="h-10 w-10 text-white/20 mx-auto mb-3" />
-          <p className="text-sm text-white/30">No hay citas registradas.</p>
-          <p className="text-xs text-white/20 mt-1">Las citas del INM y entrevistas con el gestor aparecerán aquí.</p>
+          <Calendar className="h-10 w-10 text-white/70 mx-auto mb-3" />
+          <p className="text-sm text-white/70">No hay citas registradas.</p>
+          <p className="text-xs text-white/70 mt-1">Las citas del INM y entrevistas con el gestor aparecerán aquí.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -259,21 +259,21 @@ export function CitasTab({ clienteId }: { clienteId: string }) {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 bg-[#1f1f1f] rounded-xl flex items-center justify-center">
-                      <Clock className="h-5 w-5 text-white/40" />
+                      <Clock className="h-5 w-5 text-white/70" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${tipoInfo.color}`}>{tipoInfo.label}</span>
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${ESTATUS_CITA_BADGE[cita.estatus] || 'bg-[#141414] text-white/60'}`}>{cita.estatus}</span>
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${ESTATUS_CITA_BADGE[cita.estatus] || 'bg-[#141414] text-white/70'}`}>{cita.estatus}</span>
                       </div>
                       <p className="text-sm font-medium text-white mt-1">
                         {formatDate(cita.fecha)} a las {cita.hora?.slice(0, 5)}
                       </p>
-                      <p className="text-xs text-white/40">
+                      <p className="text-xs text-white/70">
                         {cita.modalidad === 'videollamada' ? '📹 Videollamada' : '📍 Presencial'}
                         {cita.asesor?.fullName && ` • ${cita.asesor.fullName}`}
                       </p>
-                      {cita.notas && <p className="text-xs text-white/30 mt-1">{cita.notas}</p>}
+                      {cita.notas && <p className="text-xs text-white/70 mt-1">{cita.notas}</p>}
                     </div>
                   </div>
                 </div>

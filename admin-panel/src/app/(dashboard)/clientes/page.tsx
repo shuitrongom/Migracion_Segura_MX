@@ -64,7 +64,7 @@ export default function ClientesPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Total Extranjeros</p>
+              <p className="text-sm font-medium text-white/70">Total Extranjeros</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-amber-600 text-white shadow-lg shadow-blue-200/30">
                 <Users className="h-5 w-5" />
               </div>
@@ -76,24 +76,24 @@ export default function ClientesPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Página Actual</p>
+              <p className="text-sm font-medium text-white/70">Página Actual</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-200/30">
                 <Globe className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-white">{currentPage} <span className="text-lg text-white/30">/ {totalPages}</span></p>
+            <p className="text-3xl font-bold text-white">{currentPage} <span className="text-lg text-white/70">/ {totalPages}</span></p>
           </div>
         </div>
         <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-amber-600 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Mostrando</p>
+              <p className="text-sm font-medium text-white/70">Mostrando</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/20/30">
                 <ArrowUpRight className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-white">{clientes.length} <span className="text-lg text-white/30">registros</span></p>
+            <p className="text-3xl font-bold text-white">{clientes.length} <span className="text-lg text-white/70">registros</span></p>
           </div>
         </div>
       </div>
@@ -105,7 +105,7 @@ export default function ClientesPage() {
           <h2 className="text-lg font-bold text-white">Buscar Extranjeros</h2>
         </div>
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
           <input
             type="text"
             placeholder="Buscar por nombre, email o teléfono..."
@@ -158,8 +158,8 @@ export default function ClientesPage() {
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center mx-auto mb-4">
                 <Users className="h-8 w-8 text-blue-400" />
               </div>
-              <p className="text-white/40 font-medium">No se encontraron extranjeros</p>
-              <p className="text-sm text-white/30 mt-1">Intenta con otros términos de búsqueda</p>
+              <p className="text-white/70 font-medium">No se encontraron extranjeros</p>
+              <p className="text-sm text-white/70 mt-1">Intenta con otros términos de búsqueda</p>
             </div>
           ) : (
             <>
@@ -179,7 +179,7 @@ export default function ClientesPage() {
                           >
                             {nombreCompleto}
                           </Link>
-                          <p className="text-xs text-white/40 truncate">
+                          <p className="text-xs text-white/70 truncate">
                             {cliente.email} {cliente.telefono && `• ${cliente.telefono}`}
                           </p>
                         </div>
@@ -193,7 +193,7 @@ export default function ClientesPage() {
                         {cliente.etiquetas?.length > 0 && (
                           <div className="hidden xl:flex gap-1">
                             {cliente.etiquetas.slice(0, 2).map((tag) => (
-                              <span key={tag} className="inline-flex px-2 py-0.5 bg-[#1f1f1f] text-white/60 rounded-full text-[10px] font-medium">{tag}</span>
+                              <span key={tag} className="inline-flex px-2 py-0.5 bg-[#1f1f1f] text-white/70 rounded-full text-[10px] font-medium">{tag}</span>
                             ))}
                           </div>
                         )}
@@ -208,7 +208,7 @@ export default function ClientesPage() {
                           {isAdmin && (
                             <button
                               onClick={() => handleDelete(cliente.id, nombreCompleto)}
-                              className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-red-500/10 text-white/30 hover:text-red-500 transition-colors"
+                              className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-red-500/10 text-white/70 hover:text-red-500 transition-colors"
                               aria-label={`Eliminar ${nombreCompleto}`}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -224,7 +224,7 @@ export default function ClientesPage() {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-between px-6 py-4 border-t bg-gradient-to-r from-white/[0.02] to-white/[0.04]">
-                  <p className="text-sm text-white/40">
+                  <p className="text-sm text-white/70">
                     Mostrando {(currentPage - 1) * pageSize + 1} a{' '}
                     {Math.min(currentPage * pageSize, total)} de <span className="font-semibold text-white/70">{total}</span> extranjeros
                   </p>

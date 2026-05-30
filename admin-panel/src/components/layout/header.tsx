@@ -33,7 +33,7 @@ export function Header() {
       <div className="flex items-center gap-3">
         <button
           onClick={toggleSidebar}
-          className="lg:hidden p-2 text-white/60 hover:bg-[#171717]/[0.04] rounded-lg transition"
+          className="lg:hidden p-2 text-white/70 hover:bg-[#171717]/[0.04] rounded-lg transition"
           aria-label="Abrir menú"
         >
           <Menu className="h-6 w-6" />
@@ -43,7 +43,7 @@ export function Header() {
       <div className="flex items-center gap-2 md:gap-4">
         <Link
           href="/notificaciones"
-          className="relative p-2 text-white/40 hover:text-amber-400 hover:bg-[#171717]/[0.04] rounded-lg transition-all duration-200"
+          className="relative p-2 text-white/70 hover:text-amber-400 hover:bg-[#171717]/[0.04] rounded-lg transition-all duration-200"
           aria-label="Notificaciones"
         >
           <Bell className="h-5 w-5" />
@@ -54,7 +54,7 @@ export function Header() {
 
         <div className="flex items-center gap-2 p-2">
           <div className="h-8 w-8 bg-[#171717]/[0.04] border border-[#2a2a2a] rounded-full flex items-center justify-center">
-            <User className="h-4 w-4 text-white/60" />
+            <User className="h-4 w-4 text-white/70" />
           </div>
           <span className="text-sm font-medium text-white/70 hidden md:block">
             {user?.fullName || user?.email || 'Admin'}

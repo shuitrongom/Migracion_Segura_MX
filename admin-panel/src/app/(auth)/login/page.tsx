@@ -87,14 +87,14 @@ function LoginForm() {
               <div className="p-2 rounded-lg bg-amber-500/20"><Shield className="h-4 w-4 text-amber-400" /></div>
               <div>
                 <p className="text-sm font-medium text-white/90">Seguridad avanzada</p>
-                <p className="text-xs text-white/40">Cifrado AES-256 + JWT rotativo</p>
+                <p className="text-xs text-white/70">Cifrado AES-256 + JWT rotativo</p>
               </div>
             </div>
             <div className="flex items-center gap-3 text-left p-3 rounded-xl bg-[#1a1a1a] border border-white/5 backdrop-blur-sm">
               <div className="p-2 rounded-lg bg-amber-500/20"><Lock className="h-4 w-4 text-amber-400" /></div>
               <div>
                 <p className="text-sm font-medium text-white/90">Auto-cierre de sesión</p>
-                <p className="text-xs text-white/40">Protección por inactividad de 15 min</p>
+                <p className="text-xs text-white/70">Protección por inactividad de 15 min</p>
               </div>
             </div>
           </div>
@@ -114,26 +114,26 @@ function LoginForm() {
               <div className="lg:hidden text-center mb-8">
                 <img src="/logo.png" alt="Logo" className="h-16 w-16 rounded-xl mx-auto mb-3 shadow-lg shadow-amber-500/20 border border-amber-500/20" />
                 <h1 className="text-2xl font-bold text-white">MIGRACIÓN <span className="text-amber-400">SEGURA</span></h1>
-                <p className="text-sm text-white/40 mt-1">Panel de Gestión</p>
+                <p className="text-sm text-white/70 mt-1">Panel de Gestión</p>
               </div>
 
               {/* Header del form */}
               <div className="hidden lg:block mb-8">
                 <h2 className="text-2xl font-bold text-white">Bienvenido</h2>
-                <p className="text-sm text-white/40 mt-1">Ingresa tus credenciales para acceder al panel</p>
+                <p className="text-sm text-white/70 mt-1">Ingresa tus credenciales para acceder al panel</p>
               </div>
 
               {/* Formulario */}
               <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Email */}
                 <div className="space-y-2">
-                  <label htmlFor="email" className="block text-xs font-medium text-white/60 uppercase tracking-wider">
+                  <label htmlFor="email" className="block text-xs font-medium text-white/70 uppercase tracking-wider">
                     Correo electrónico
                   </label>
                   <div className="relative group">
                     <div className="absolute inset-0 bg-gradient-to-r from-amber-500/15 to-amber-600/15 rounded-xl opacity-0 group-focus-within:opacity-100 blur-sm transition-opacity duration-300" />
                     <div className="relative flex items-center">
-                      <Mail className="absolute left-4 h-4 w-4 text-white/30 group-focus-within:text-amber-400 transition-colors" />
+                      <Mail className="absolute left-4 h-4 w-4 text-white/70 group-focus-within:text-amber-400 transition-colors" />
                       <input
                         id="email"
                         type="email"
@@ -149,13 +149,13 @@ function LoginForm() {
 
                 {/* Password */}
                 <div className="space-y-2">
-                  <label htmlFor="password" className="block text-xs font-medium text-white/60 uppercase tracking-wider">
+                  <label htmlFor="password" className="block text-xs font-medium text-white/70 uppercase tracking-wider">
                     Contraseña
                   </label>
                   <div className="relative group">
                     <div className="absolute inset-0 bg-gradient-to-r from-amber-500/15 to-amber-600/15 rounded-xl opacity-0 group-focus-within:opacity-100 blur-sm transition-opacity duration-300" />
                     <div className="relative flex items-center">
-                      <Lock className="absolute left-4 h-4 w-4 text-white/30 group-focus-within:text-amber-400 transition-colors" />
+                      <Lock className="absolute left-4 h-4 w-4 text-white/70 group-focus-within:text-amber-400 transition-colors" />
                       <input
                         id="password"
                         type={showPassword ? 'text' : 'password'}
@@ -168,7 +168,7 @@ function LoginForm() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 p-1 text-white/30 hover:text-amber-400 transition-colors"
+                        className="absolute right-4 p-1 text-white/70 hover:text-amber-400 transition-colors"
                         aria-label={showPassword ? 'Ocultar' : 'Mostrar'}
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -202,7 +202,7 @@ function LoginForm() {
 
               {/* Footer */}
               <div className="mt-8 pt-6 border-t border-white/5 text-center">
-                <p className="text-xs text-white/20">
+                <p className="text-xs text-white/70">
                   Sesión protegida con cifrado de extremo a extremo
                 </p>
                 <div className="flex items-center justify-center gap-1 mt-2">

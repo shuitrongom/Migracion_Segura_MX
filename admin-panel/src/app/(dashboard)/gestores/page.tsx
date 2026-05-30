@@ -111,7 +111,7 @@ export default function GestoresPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-purple-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Total Gestores</p>
+              <p className="text-sm font-medium text-white/70">Total Gestores</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-purple-600 text-white shadow-lg shadow-amber-500/20/30">
                 <UserCog className="h-5 w-5" />
               </div>
@@ -123,7 +123,7 @@ export default function GestoresPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Activos</p>
+              <p className="text-sm font-medium text-white/70">Activos</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-200/30">
                 <Shield className="h-5 w-5" />
               </div>
@@ -135,7 +135,7 @@ export default function GestoresPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-orange-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Rol</p>
+              <p className="text-sm font-medium text-white/70">Rol</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-200/30">
                 <ArrowUpRight className="h-5 w-5" />
               </div>
@@ -169,8 +169,8 @@ export default function GestoresPage() {
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500/20 to-purple-100 flex items-center justify-center mx-auto mb-4">
               <UserCog className="h-8 w-8 text-amber-400/70" />
             </div>
-            <p className="text-white/40 font-medium">No hay Gestores registrados</p>
-            <p className="text-sm text-white/30 mt-1">Crea el primer Gestor para asignarlos a clientes y trámites.</p>
+            <p className="text-white/70 font-medium">No hay Gestores registrados</p>
+            <p className="text-sm text-white/70 mt-1">Crea el primer Gestor para asignarlos a clientes y trámites.</p>
           </div>
         ) : (
           <div className="divide-y divide-[#262626]">
@@ -208,7 +208,7 @@ export default function GestoresPage() {
                       <a href={`/gestores/${Gestor.id}`} className="text-sm font-semibold text-white hover:text-amber-500 capitalize transition-colors">
                         {Gestor.fullName || '—'}
                       </a>
-                      <p className="text-xs text-white/40">{Gestor.email}</p>
+                      <p className="text-xs text-white/70">{Gestor.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -216,7 +216,7 @@ export default function GestoresPage() {
                     {isAdmin && (
                       <button
                         onClick={() => handleDelete(Gestor.id, Gestor.fullName)}
-                        className="p-2 text-white/30 hover:text-red-500 rounded-lg hover:bg-red-500/10 transition-colors"
+                        className="p-2 text-white/70 hover:text-red-500 rounded-lg hover:bg-red-500/10 transition-colors"
                         aria-label={`Eliminar Gestor ${Gestor.fullName}`}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -241,7 +241,7 @@ export default function GestoresPage() {
                 </div>
                 <h2 className="text-lg font-bold text-white">Nuevo Gestor</h2>
               </div>
-              <button onClick={handleCloseModal} className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/30 transition-colors" aria-label="Cerrar">
+              <button onClick={handleCloseModal} className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/70 transition-colors" aria-label="Cerrar">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -249,19 +249,19 @@ export default function GestoresPage() {
             <form onSubmit={handleCreate} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <label htmlFor="fullName" className="block text-xs font-medium text-white/60 mb-1.5">Nombre completo *</label>
+                  <label htmlFor="fullName" className="block text-xs font-medium text-white/70 mb-1.5">Nombre completo *</label>
                   <input id="fullName" type="text" value={formData.fullName} onChange={(e) => setFormData((prev) => ({ ...prev, fullName: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm capitalize focus:outline-none focus:ring-2 focus:ring-amber-500 bg-[#1a1a1a] transition-all" placeholder="Nombre y apellidos" />
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-xs font-medium text-white/60 mb-1.5">Correo electrónico *</label>
+                  <label htmlFor="email" className="block text-xs font-medium text-white/70 mb-1.5">Correo electrónico *</label>
                   <input id="email" type="email" autoComplete="new-email" value={formData.email} onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-[#1a1a1a] transition-all" placeholder="correo@ejemplo.com" />
                 </div>
                 <div>
-                  <label htmlFor="phone" className="block text-xs font-medium text-white/60 mb-1.5">Teléfono *</label>
+                  <label htmlFor="phone" className="block text-xs font-medium text-white/70 mb-1.5">Teléfono *</label>
                   <input id="phone" type="tel" value={formData.phone} onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-[#1a1a1a] transition-all" placeholder="+52 55 1234 5678" />
                 </div>
                 <div>
-                  <label htmlFor="sexo" className="block text-xs font-medium text-white/60 mb-1.5">Sexo</label>
+                  <label htmlFor="sexo" className="block text-xs font-medium text-white/70 mb-1.5">Sexo</label>
                   <select id="sexo" value={formData.sexo} onChange={(e) => setFormData((prev) => ({ ...prev, sexo: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-[#1a1a1a] transition-all">
                     <option value="">Selecciona</option>
                     <option value="H">Hombre</option>
@@ -269,32 +269,32 @@ export default function GestoresPage() {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="fechaNacimiento" className="block text-xs font-medium text-white/60 mb-1.5">Fecha de nacimiento</label>
+                  <label htmlFor="fechaNacimiento" className="block text-xs font-medium text-white/70 mb-1.5">Fecha de nacimiento</label>
                   <DatePicker value={formData.fechaNacimiento} onChange={(v) => setFormData((prev) => ({ ...prev, fechaNacimiento: v }))} yearRange={[1960, 2005]} />
                 </div>
                 <div>
-                  <label htmlFor="curp" className="block text-xs font-medium text-white/60 mb-1.5">CURP</label>
+                  <label htmlFor="curp" className="block text-xs font-medium text-white/70 mb-1.5">CURP</label>
                   <input id="curp" type="text" value={formData.curp} onChange={(e) => setFormData((prev) => ({ ...prev, curp: e.target.value.toUpperCase() }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm uppercase focus:outline-none focus:ring-2 focus:ring-amber-500 bg-[#1a1a1a] transition-all" placeholder="18 caracteres" maxLength={18} />
                 </div>
                 <div>
-                  <label htmlFor="rfc" className="block text-xs font-medium text-white/60 mb-1.5">RFC</label>
+                  <label htmlFor="rfc" className="block text-xs font-medium text-white/70 mb-1.5">RFC</label>
                   <input id="rfc" type="text" value={formData.rfc} onChange={(e) => setFormData((prev) => ({ ...prev, rfc: e.target.value.toUpperCase() }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm uppercase focus:outline-none focus:ring-2 focus:ring-amber-500 bg-[#1a1a1a] transition-all" placeholder="13 caracteres" maxLength={13} />
                 </div>
                 <div className="md:col-span-2">
-                  <label htmlFor="direccion" className="block text-xs font-medium text-white/60 mb-1.5">Dirección</label>
+                  <label htmlFor="direccion" className="block text-xs font-medium text-white/70 mb-1.5">Dirección</label>
                   <input id="direccion" type="text" value={formData.direccion} onChange={(e) => setFormData((prev) => ({ ...prev, direccion: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm capitalize focus:outline-none focus:ring-2 focus:ring-amber-500 bg-[#1a1a1a] transition-all" placeholder="Calle, número, colonia, ciudad" />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-xs font-medium text-white/60 mb-1.5">Contraseña temporal *</label>
+                <label htmlFor="password" className="block text-xs font-medium text-white/70 mb-1.5">Contraseña temporal *</label>
                 <div className="relative">
                   <input id="password" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))} className="w-full px-4 py-2.5 pr-12 border border-[#2a2a2a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-[#1a1a1a] transition-all" placeholder="Mínimo 8 caracteres" />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-white/30 hover:text-white/60" aria-label={showPassword ? 'Ocultar' : 'Mostrar'}>
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-white/70 hover:text-white/70" aria-label={showPassword ? 'Ocultar' : 'Mostrar'}>
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
-                <p className="mt-1.5 text-xs text-white/30">Se enviará por correo y WhatsApp al Gestor.</p>
+                <p className="mt-1.5 text-xs text-white/70">Se enviará por correo y WhatsApp al Gestor.</p>
               </div>
 
               <div className="flex items-center gap-3 pt-2">
@@ -316,7 +316,7 @@ export default function GestoresPage() {
           <div className="bg-[#171717] rounded-2xl shadow-2xl w-full max-w-lg mx-4 animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b">
               <h2 className="text-lg font-bold text-white">Información del Gestor</h2>
-              <button onClick={() => setSelectedGestor(null)} className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/30 transition-colors"><X className="h-5 w-5" /></button>
+              <button onClick={() => setSelectedGestor(null)} className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/70 transition-colors"><X className="h-5 w-5" /></button>
             </div>
             <div className="p-6 space-y-4">
               <div className="flex items-center gap-4 pb-4 border-b">
@@ -325,16 +325,16 @@ export default function GestoresPage() {
                 </div>
                 <div>
                   <p className="text-lg font-semibold text-white">{selectedGestor.fullName || '—'}</p>
-                  <p className="text-sm text-white/40">{selectedGestor.email}</p>
+                  <p className="text-sm text-white/70">{selectedGestor.email}</p>
                 </div>
               </div>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-medium text-white/40 uppercase mb-1">Nombre completo</label>
+                  <label className="block text-xs font-medium text-white/70 uppercase mb-1">Nombre completo</label>
                   <input type="text" defaultValue={selectedGestor.fullName || ''} id="edit-gestor-name" className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm capitalize focus:outline-none focus:ring-2 focus:ring-amber-500 bg-[#1a1a1a]" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-white/40 uppercase mb-1">Correo electrónico</label>
+                  <label className="block text-xs font-medium text-white/70 uppercase mb-1">Correo electrónico</label>
                   <input type="email" defaultValue={selectedGestor.email} id="edit-gestor-email" className="w-full px-4 py-2.5 border border-[#2a2a2a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-[#1a1a1a]" />
                 </div>
               </div>

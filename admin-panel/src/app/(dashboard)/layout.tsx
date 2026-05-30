@@ -59,7 +59,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="flex h-screen items-center justify-center bg-[#0a0a0a]">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
-          <p className="text-sm text-white/40">Cargando...</p>
+          <p className="text-sm text-white/70">Cargando...</p>
         </div>
       </div>
     );
@@ -87,7 +87,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </svg>
             </div>
             <h2 className="text-xl font-bold text-white mb-2">Sesión por expirar</h2>
-            <p className="text-sm text-white/40 mb-6">
+            <p className="text-sm text-white/70 mb-6">
               Tu sesión se cerrará en <span className="font-bold text-amber-600">2 minutos</span> por inactividad.
               ¿Deseas continuar trabajando?
             </p>

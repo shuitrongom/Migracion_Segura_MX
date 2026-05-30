@@ -33,7 +33,7 @@ export default function AutomatizacionesPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-amber-600 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Total Reglas</p>
+              <p className="text-sm font-medium text-white/70">Total Reglas</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/20/30">
                 <Zap className="h-5 w-5" />
               </div>
@@ -45,7 +45,7 @@ export default function AutomatizacionesPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Activas</p>
+              <p className="text-sm font-medium text-white/70">Activas</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-200/30">
                 <CheckCircle className="h-5 w-5" />
               </div>
@@ -57,7 +57,7 @@ export default function AutomatizacionesPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-gray-400 to-gray-500 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Inactivas</p>
+              <p className="text-sm font-medium text-white/70">Inactivas</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-gray-400 to-gray-500 text-white shadow-lg shadow-gray-200/30">
                 <Activity className="h-5 w-5" />
               </div>
@@ -81,14 +81,14 @@ export default function AutomatizacionesPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <h3 className="font-bold text-white">{auto.nombre}</h3>
-                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${auto.activa ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-[#1f1f1f] text-white/40 border-[#2a2a2a]'}`}>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${auto.activa ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-[#1f1f1f] text-white/70 border-[#2a2a2a]'}`}>
                       {auto.activa ? 'Activa' : 'Inactiva'}
                     </span>
                   </div>
-                  <p className="text-sm text-white/40 mt-1">{auto.descripcion}</p>
+                  <p className="text-sm text-white/70 mt-1">{auto.descripcion}</p>
                   <div className="flex items-center gap-1.5 mt-3">
-                    <Clock className="h-3 w-3 text-white/30" />
-                    <p className="text-xs font-medium text-white/30">{auto.frecuencia}</p>
+                    <Clock className="h-3 w-3 text-white/70" />
+                    <p className="text-xs font-medium text-white/70">{auto.frecuencia}</p>
                   </div>
                 </div>
               </div>

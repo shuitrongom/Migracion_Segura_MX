@@ -87,7 +87,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                     'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
                     isActive
                       ? 'bg-amber-500/10 text-amber-400 border-l-2 border-amber-500'
-                      : 'text-white/50 hover:bg-[#171717]/[0.04] hover:text-white/80',
+                      : 'text-white/70 hover:bg-[#171717]/[0.04] hover:text-white/80',
                   )}
                 >
                   <item.icon className="h-5 w-5 flex-shrink-0" />
@@ -101,7 +101,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
       {/* Footer */}
       <div className="p-4 border-t border-[#262626]">
-        <p className="text-xs text-white/20 text-center">
+        <p className="text-xs text-white/70 text-center">
           Panel de gestión y control de trámites y clientes.
         </p>
       </div>
@@ -126,7 +126,7 @@ export function Sidebar() {
           <aside className="fixed inset-y-0 left-0 w-72 bg-[#0a0a0a] text-white flex flex-col shadow-2xl border-r border-[#262626]">
             <button
               onClick={close}
-              className="absolute top-4 right-4 p-2 text-white/40 hover:text-white rounded-lg"
+              className="absolute top-4 right-4 p-2 text-white/70 hover:text-white rounded-lg"
               aria-label="Cerrar menú"
             >
               <X className="h-5 w-5" />

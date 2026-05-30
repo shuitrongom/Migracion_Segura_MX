@@ -27,7 +27,7 @@ const TIPO_CITA_LABELS: Record<string, { label: string; color: string }> = {
 const ESTATUS_BADGE: Record<string, string> = {
   programada: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
   confirmada: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  completada: 'bg-[#1f1f1f] text-white/60 border-[#2a2a2a]',
+  completada: 'bg-[#1f1f1f] text-white/70 border-[#2a2a2a]',
   cancelada: 'bg-red-500/10 text-red-400 border-red-500/20',
 };
 
@@ -135,7 +135,7 @@ export default function CitasPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Total Citas</p>
+              <p className="text-sm font-medium text-white/70">Total Citas</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-200/30">
                 <Calendar className="h-5 w-5" />
               </div>
@@ -147,7 +147,7 @@ export default function CitasPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-amber-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Programadas</p>
+              <p className="text-sm font-medium text-white/70">Programadas</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-amber-600 text-white shadow-lg shadow-blue-200/30">
                 <Clock className="h-5 w-5" />
               </div>
@@ -159,7 +159,7 @@ export default function CitasPage() {
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-500 to-purple-600 opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-white/40">Completadas</p>
+              <p className="text-sm font-medium text-white/70">Completadas</p>
               <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-200/30">
                 <Video className="h-5 w-5" />
               </div>
@@ -177,47 +177,47 @@ export default function CitasPage() {
               <div className="p-2 rounded-lg bg-emerald-500/10"><Plus className="h-4 w-4 text-emerald-400" /></div>
               <h2 className="text-lg font-bold text-white">Agendar Cita</h2>
             </div>
-            <button type="button" onClick={() => setShowForm(false)} className="p-2 rounded-lg hover:bg-[#1f1f1f] transition-colors"><X className="h-4 w-4 text-white/40" /></button>
+            <button type="button" onClick={() => setShowForm(false)} className="p-2 rounded-lg hover:bg-[#1f1f1f] transition-colors"><X className="h-4 w-4 text-white/70" /></button>
           </div>
           <form onSubmit={handleCreate} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-medium text-white/60 mb-1.5">Extranjero *</label>
+                <label className="block text-xs font-medium text-white/70 mb-1.5">Extranjero *</label>
                 <select value={form.clienteId} onChange={e => setForm(prev => ({ ...prev, clienteId: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] bg-[#1a1a1a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 capitalize transition-all">
                   <option value="">Selecciona</option>
                   {clientes.map(c => <option key={c.id} value={c.id}>{c.nombreCompleto}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-white/60 mb-1.5">Gestor asignado</label>
+                <label className="block text-xs font-medium text-white/70 mb-1.5">Gestor asignado</label>
                 <select value={form.gestorId} onChange={e => setForm(prev => ({ ...prev, gestorId: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] bg-[#1a1a1a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 capitalize transition-all">
                   <option value="">Automático (yo)</option>
                   {gestores.map(g => <option key={g.id} value={g.id}>{g.fullName}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-white/60 mb-1.5">Tipo de cita *</label>
+                <label className="block text-xs font-medium text-white/70 mb-1.5">Tipo de cita *</label>
                 <select value={form.tipo} onChange={e => setForm(prev => ({ ...prev, tipo: e.target.value, hora: '' }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] bg-[#1a1a1a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all">
                   <option value="inm">Cita en el INM</option>
                   <option value="entrevista">Entrevista con Gestor</option>
                 </select>
-                <p className="text-[10px] text-white/30 mt-1">{form.tipo === 'inm' ? 'L-V de 9:00 a 15:00' : 'L-V de 9:00 a 19:00'}</p>
+                <p className="text-[10px] text-white/70 mt-1">{form.tipo === 'inm' ? 'L-V de 9:00 a 15:00' : 'L-V de 9:00 a 19:00'}</p>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-medium text-white/60 mb-1.5">Modalidad</label>
+                <label className="block text-xs font-medium text-white/70 mb-1.5">Modalidad</label>
                 <select value={form.modalidad} onChange={e => setForm(prev => ({ ...prev, modalidad: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] bg-[#1a1a1a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all">
                   <option value="presencial">Presencial (en oficina)</option>
                   <option value="videollamada">Videollamada</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-white/60 mb-1.5">Fecha * (solo L-V)</label>
+                <label className="block text-xs font-medium text-white/70 mb-1.5">Fecha * (solo L-V)</label>
                 <DatePicker value={form.fecha} onChange={v => setForm(prev => ({ ...prev, fecha: v }))} yearRange={[2025, 2027]} disablePast disableWeekends />
               </div>
               <div>
-                <label className="block text-xs font-medium text-white/60 mb-1.5">Hora * (sesión de 1 hora)</label>
+                <label className="block text-xs font-medium text-white/70 mb-1.5">Hora * (sesión de 1 hora)</label>
                 {form.fecha && (
                   <div className="flex items-center gap-2 mb-2">
                     <span className="inline-flex items-center gap-1 text-[10px]"><span className="h-2 w-2 rounded-full bg-green-500"></span> Disponible</span>
@@ -243,11 +243,11 @@ export default function CitasPage() {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-medium text-white/60 mb-1.5">Notas</label>
+              <label className="block text-xs font-medium text-white/70 mb-1.5">Notas</label>
               <input type="text" value={form.notas} onChange={e => setForm(prev => ({ ...prev, notas: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] bg-[#1a1a1a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" placeholder="Observaciones..." />
             </div>
             <div className="flex items-center justify-between pt-2">
-              <div className="flex items-center gap-2"><Send className="h-3.5 w-3.5 text-white/30" /><p className="text-[10px] text-white/30">Se enviará confirmación por correo y WhatsApp</p></div>
+              <div className="flex items-center gap-2"><Send className="h-3.5 w-3.5 text-white/70" /><p className="text-[10px] text-white/70">Se enviará confirmación por correo y WhatsApp</p></div>
               <button type="submit" disabled={submitting} className="px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 shadow-lg shadow-green-200/30 transition-all">{submitting ? 'Agendando...' : 'Agendar Cita'}</button>
             </div>
           </form>
@@ -279,8 +279,8 @@ export default function CitasPage() {
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center mx-auto mb-4">
               <Calendar className="h-8 w-8 text-green-400" />
             </div>
-            <p className="text-white/40 font-medium">No hay citas registradas</p>
-            <p className="text-sm text-white/30 mt-1">Agenda la primera cita con el botón de arriba</p>
+            <p className="text-white/70 font-medium">No hay citas registradas</p>
+            <p className="text-sm text-white/70 mt-1">Agenda la primera cita con el botón de arriba</p>
           </div>
         ) : (
           <div className="divide-y divide-[#262626]">
@@ -295,10 +295,10 @@ export default function CitasPage() {
                     <div>
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border ${tipoInfo.color}`}>{tipoInfo.label}</span>
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium border ${ESTATUS_BADGE[cita.estatus] || 'bg-[#141414] text-white/60 border-[#2a2a2a]'}`}>{cita.estatus}</span>
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium border ${ESTATUS_BADGE[cita.estatus] || 'bg-[#141414] text-white/70 border-[#2a2a2a]'}`}>{cita.estatus}</span>
                       </div>
                       <p className="text-sm font-semibold text-white">{formatDate(cita.fecha)} a las {cita.hora?.slice(0, 5)}</p>
-                      <p className="text-xs text-white/40 capitalize">
+                      <p className="text-xs text-white/70 capitalize">
                         {cita.cliente?.nombreCompleto || 'Sin asignar'}
                         {cita.asesor?.fullName && ` • ${cita.asesor.fullName}`}
                       </p>
@@ -308,7 +308,7 @@ export default function CitasPage() {
                     <span className={`inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg ${cita.modalidad === 'videollamada' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
                       {cita.modalidad === 'videollamada' ? <><Video className="h-3 w-3" /> Video</> : <><Building2 className="h-3 w-3" /> Oficina</>}
                     </span>
-                    {cita.notas && <p className="text-xs text-white/30 max-w-[150px] truncate hidden lg:block">{cita.notas}</p>}
+                    {cita.notas && <p className="text-xs text-white/70 max-w-[150px] truncate hidden lg:block">{cita.notas}</p>}
                   </div>
                 </div>
               );

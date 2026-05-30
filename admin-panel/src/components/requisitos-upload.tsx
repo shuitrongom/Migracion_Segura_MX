@@ -85,8 +85,8 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
   if (requisitos.length === 0) {
     return (
       <div className="text-center py-12">
-        <FileText className="h-10 w-10 text-white/20 mx-auto mb-3" />
-        <p className="text-sm text-white/30">No hay requisitos configurados para este trámite.</p>
+        <FileText className="h-10 w-10 text-white/70 mx-auto mb-3" />
+        <p className="text-sm text-white/70">No hay requisitos configurados para este trámite.</p>
       </div>
     );
   }
@@ -145,7 +145,7 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
                   {docSubido ? (
                     <CheckCircle className="h-5 w-5 text-white animate-in zoom-in duration-300" />
                   ) : (
-                    <span className={`text-xs font-bold ${req.obligatorio ? 'text-amber-600' : 'text-white/30'}`}>{i + 1}</span>
+                    <span className={`text-xs font-bold ${req.obligatorio ? 'text-amber-600' : 'text-white/70'}`}>{i + 1}</span>
                   )}
                 </div>
 
@@ -160,7 +160,7 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
                       <span className="inline-flex px-1.5 py-0.5 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 rounded">SUBIDO</span>
                     )}
                   </div>
-                  <p className="text-xs text-white/40 mt-0.5">{req.descripcion}</p>
+                  <p className="text-xs text-white/70 mt-0.5">{req.descripcion}</p>
 
                   {/* Documento subido info */}
                   {docSubido && (
