@@ -16,7 +16,7 @@
 
 @layer base {
   * {
-    @apply border-[#2a2a2a];
+    @apply border-[#3a3a3a];
   }
   body {
     @apply bg-[#0a0a0a] text-white antialiased;
@@ -64,7 +64,7 @@
 /* Utility classes */
 .dark-card {
   background: #171717;
-  border: 1px solid #2a2a2a;
+  border: 1px solid #3a3a3a;
   border-radius: 16px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -76,46 +76,46 @@
 
 .dark-card-static {
   background: #171717;
-  border: 1px solid #2a2a2a;
+  border: 1px solid #3a3a3a;
   border-radius: 16px;
 }
 
 .dark-input {
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
+  background: #222222;
+  border: 1px solid #3a3a3a;
   border-radius: 12px;
   color: #ffffff;
   transition: all 0.3s ease;
 }
 
 .dark-input:focus {
-  border-color: rgba(245, 158, 11, 0.4);
-  background: #1f1f1f;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.5);
+  background: #282828;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
   outline: none;
 }
 
 .dark-input::placeholder {
-  color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .dark-select {
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
+  background: #222222;
+  border: 1px solid #3a3a3a;
   border-radius: 12px;
   color: #ffffff;
   transition: all 0.3s ease;
 }
 
 .dark-select:focus {
-  border-color: rgba(245, 158, 11, 0.4);
-  background: #1f1f1f;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.5);
+  background: #282828;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
   outline: none;
 }
 
 .dark-select option {
-  background: #171717;
+  background: #222222;
   color: #ffffff;
 }
 

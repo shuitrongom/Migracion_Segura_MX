@@ -166,13 +166,13 @@ export default function DocumentosPage() {
               placeholder="Buscar por nombre o categoría..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+              className="w-full pl-11 pr-4 py-3 border border-[#3a3a3a] rounded-xl text-sm bg-[#222222] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
             />
           </div>
           <select
             value={filtroEstatus}
             onChange={e => { setFiltroEstatus(e.target.value); setPage(1); }}
-            className="px-4 py-3 border border-[#2a2a2a] rounded-xl text-sm text-white/70 bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+            className="px-4 py-3 border border-[#3a3a3a] rounded-xl text-sm text-white/70 bg-[#222222] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
           >
             <option value="">Todos los estatus</option>
             <option value="pendiente">Pendiente</option>
@@ -194,7 +194,7 @@ export default function DocumentosPage() {
         {loading ? (
           <div className="p-6 space-y-4">
             {[1,2,3,4,5].map(i => (
-              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-[#141414]">
+              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-[#1a1a1a]">
                 <div className="h-10 w-10 rounded-xl bg-[#262626] animate-pulse" />
                 <div className="flex-1 space-y-2">
                   <div className="h-4 w-40 bg-[#262626] rounded animate-pulse" />
@@ -216,7 +216,7 @@ export default function DocumentosPage() {
           <>
             <div className="divide-y divide-[#262626]">
               {filteredDocs.map(doc => (
-                <div key={doc.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#1f1f1f] transition-colors group">
+                <div key={doc.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#222222] transition-colors group">
                   <div className="flex items-center gap-4 min-w-0">
                     <div className="h-11 w-11 bg-gradient-to-br from-amber-500/20 to-amber-600/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
                       <FileText className="h-5 w-5 text-amber-600" />
@@ -227,7 +227,7 @@ export default function DocumentosPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
-                    <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border ${ESTATUS_BADGE[doc.estatus] || 'bg-[#141414] text-white/70 border-[#2a2a2a]'}`}>
+                    <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border ${ESTATUS_BADGE[doc.estatus] || 'bg-[#1a1a1a] text-white/70 border-[#3a3a3a]'}`}>
                       {doc.estatus.replace(/_/g, ' ')}
                     </span>
                     <button
@@ -246,9 +246,9 @@ export default function DocumentosPage() {
               <div className="flex items-center justify-between px-6 py-4 border-t bg-gradient-to-r from-white/[0.02] to-white/[0.04]">
                 <p className="text-sm text-white/70">Página {page} de {totalPages} (<span className="font-semibold text-white/70">{total}</span> documentos)</p>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-xl border hover:bg-[#1f1f1f] disabled:opacity-50 transition-all"><ChevronLeft className="h-4 w-4" /></button>
+                  <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-xl border hover:bg-[#222222] disabled:opacity-50 transition-all"><ChevronLeft className="h-4 w-4" /></button>
                   <span className="text-sm font-medium text-white/70 px-3 py-1.5 bg-[#171717] rounded-lg border">{page} / {totalPages}</span>
-                  <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 rounded-xl border hover:bg-[#1f1f1f] disabled:opacity-50 transition-all"><ChevronRight className="h-4 w-4" /></button>
+                  <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 rounded-xl border hover:bg-[#222222] disabled:opacity-50 transition-all"><ChevronRight className="h-4 w-4" /></button>
                 </div>
               </div>
             )}
@@ -274,7 +274,7 @@ export default function DocumentosPage() {
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={handleDownload}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white/70 bg-[#1f1f1f] rounded-xl hover:bg-[#262626] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white/70 bg-[#222222] rounded-xl hover:bg-[#262626] transition-colors"
                   title="Descargar"
                 >
                   <Download className="h-4 w-4" /> Guardar
@@ -288,7 +288,7 @@ export default function DocumentosPage() {
                 </button>
                 <button
                   onClick={handleCloseModal}
-                  className="p-2 rounded-xl hover:bg-[#1f1f1f] text-white/70 hover:text-white/70 transition-colors"
+                  className="p-2 rounded-xl hover:bg-[#222222] text-white/70 hover:text-white/70 transition-colors"
                   aria-label="Cerrar"
                 >
                   <X className="h-5 w-5" />
@@ -297,7 +297,7 @@ export default function DocumentosPage() {
             </div>
 
             {/* Contenido del documento */}
-            <div className="flex-1 overflow-hidden bg-[#1f1f1f] rounded-b-2xl">
+            <div className="flex-1 overflow-hidden bg-[#222222] rounded-b-2xl">
               {viewDoc.contentType.includes('pdf') ? (
                 <iframe src={viewDoc.url} className="w-full h-full border-0" title={viewDoc.doc.nombre} />
               ) : viewDoc.contentType.includes('image') ? (

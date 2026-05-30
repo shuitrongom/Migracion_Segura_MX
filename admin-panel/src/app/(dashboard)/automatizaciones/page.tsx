@@ -81,7 +81,7 @@ export default function AutomatizacionesPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <h3 className="font-bold text-white">{auto.nombre}</h3>
-                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${auto.activa ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-[#1f1f1f] text-white/70 border-[#2a2a2a]'}`}>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${auto.activa ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-[#222222] text-white/70 border-[#3a3a3a]'}`}>
                       {auto.activa ? 'Activa' : 'Inactiva'}
                     </span>
                   </div>

@@ -76,7 +76,7 @@ const ESTATUS_BADGE: Record<string, string> = {
   recibido: 'bg-blue-500/10 text-blue-400',
   aprobado: 'bg-emerald-500/10 text-emerald-400',
   rechazado: 'bg-red-500/10 text-red-400',
-  borrador: 'bg-[#141414] text-white/70',
+  borrador: 'bg-[#1a1a1a] text-white/70',
   en_espera_resolucion: 'bg-orange-500/10 text-orange-400',
   cancelado: 'bg-red-500/10 text-red-400',
   pendiente: 'bg-amber-500/10 text-amber-400',
@@ -283,7 +283,7 @@ export default function ClienteDetailPage() {
         <div className="flex items-center gap-4 mb-6">
           <Link
             href="/clientes"
-            className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/70"
+            className="p-2 rounded-lg hover:bg-[#222222] text-white/70"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -334,7 +334,7 @@ export default function ClienteDetailPage() {
                   )}
                   <label
                     htmlFor="foto-extranjero"
-                    className="absolute -bottom-1 -right-1 h-7 w-7 bg-[#171717] border-2 border-[#2a2a2a] rounded-full flex items-center justify-center shadow-sm hover:bg-amber-500/10 cursor-pointer transition-colors"
+                    className="absolute -bottom-1 -right-1 h-7 w-7 bg-[#171717] border-2 border-[#3a3a3a] rounded-full flex items-center justify-center shadow-sm hover:bg-amber-500/10 cursor-pointer transition-colors"
                     title="Subir foto"
                   >
                     <Camera className="h-3.5 w-3.5 text-amber-500" />
@@ -397,7 +397,7 @@ export default function ClienteDetailPage() {
             {/* Info Fields */}
             <div className="space-y-1">
               {/* Email */}
-              <div className="p-3 rounded-xl hover:bg-[#141414] transition-colors">
+              <div className="p-3 rounded-xl hover:bg-[#1a1a1a] transition-colors">
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider">
                     Email
@@ -405,7 +405,7 @@ export default function ClienteDetailPage() {
                   {canEditEmail && !editingEmail && (
                     <button
                       onClick={() => setEditingEmail(true)}
-                      className="p-1 rounded hover:bg-[#1f1f1f] text-white/70 hover:text-white/70"
+                      className="p-1 rounded hover:bg-[#222222] text-white/70 hover:text-white/70"
                       title="Editar email"
                     >
                       <Pencil className="h-3.5 w-3.5" />
@@ -438,7 +438,7 @@ export default function ClienteDetailPage() {
                         setEditingEmail(false);
                         setEmailValue(cliente.email);
                       }}
-                      className="p-1.5 rounded-md border border-[#2a2a2a] text-white/70 hover:bg-[#141414]"
+                      className="p-1.5 rounded-md border border-[#3a3a3a] text-white/70 hover:bg-[#1a1a1a]"
                       title="Cancelar"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -452,7 +452,7 @@ export default function ClienteDetailPage() {
               </div>
 
               {/* Teléfono */}
-              <div className="p-3 rounded-xl hover:bg-[#141414] transition-colors">
+              <div className="p-3 rounded-xl hover:bg-[#1a1a1a] transition-colors">
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider">
                     Teléfono
@@ -460,7 +460,7 @@ export default function ClienteDetailPage() {
                   {canEditTelefono && !editingTelefono && (
                     <button
                       onClick={() => setEditingTelefono(true)}
-                      className="p-1 rounded hover:bg-[#1f1f1f] text-white/70 hover:text-white/70"
+                      className="p-1 rounded hover:bg-[#222222] text-white/70 hover:text-white/70"
                       title="Editar teléfono"
                     >
                       <Pencil className="h-3.5 w-3.5" />
@@ -493,7 +493,7 @@ export default function ClienteDetailPage() {
                         setEditingTelefono(false);
                         setTelefonoValue(cliente.telefono);
                       }}
-                      className="p-1.5 rounded-md border border-[#2a2a2a] text-white/70 hover:bg-[#141414]"
+                      className="p-1.5 rounded-md border border-[#3a3a3a] text-white/70 hover:bg-[#1a1a1a]"
                       title="Cancelar"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -507,7 +507,7 @@ export default function ClienteDetailPage() {
               </div>
 
               {/* Gestor */}
-              <div className="p-3 rounded-xl hover:bg-[#141414] transition-colors">
+              <div className="p-3 rounded-xl hover:bg-[#1a1a1a] transition-colors">
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider">
                     Gestor asignado
@@ -525,7 +525,7 @@ export default function ClienteDetailPage() {
                         finally { setReassigning(false); }
                       }}
                       disabled={reassigning}
-                      className="p-1 rounded hover:bg-[#1f1f1f] text-white/70 hover:text-amber-500 transition-colors disabled:opacity-50"
+                      className="p-1 rounded hover:bg-[#222222] text-white/70 hover:text-amber-500 transition-colors disabled:opacity-50"
                       title="Reasignar gestor automáticamente"
                     >
                       <RefreshCw className={`h-3.5 w-3.5 ${reassigning ? 'animate-spin' : ''}`} />
@@ -616,7 +616,7 @@ export default function ClienteDetailPage() {
                       <Link
                         key={tramite.id}
                         href={`/tramites/${tramite.id}`}
-                        className="block p-4 border rounded-lg hover:bg-[#141414] transition-colors"
+                        className="block p-4 border rounded-lg hover:bg-[#1a1a1a] transition-colors"
                       >
                         <div className="flex items-center justify-between">
                           <div>
@@ -636,7 +636,7 @@ export default function ClienteDetailPage() {
                           <span
                             className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
                               ESTATUS_BADGE[tramite.estatus] ??
-                              'bg-[#141414] text-white/70'
+                              'bg-[#1a1a1a] text-white/70'
                             }`}
                           >
                             {tramite.estatus.replace(/_/g, ' ')}
@@ -699,7 +699,7 @@ export default function ClienteDetailPage() {
                           <span
                             className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
                               ESTATUS_BADGE[doc.estatus] ??
-                              'bg-[#141414] text-white/70'
+                              'bg-[#1a1a1a] text-white/70'
                             }`}
                           >
                             {doc.estatus.replace(/_/g, ' ')}
@@ -797,7 +797,7 @@ export default function ClienteDetailPage() {
                     a.download = docPreview.nombre;
                     a.click();
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-white/70 bg-[#1f1f1f] rounded-lg hover:bg-[#262626] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-white/70 bg-[#222222] rounded-lg hover:bg-[#262626] transition-colors"
                 >
                   <ArrowLeft className="h-3.5 w-3.5 rotate-[270deg]" /> Descargar
                 </button>
@@ -825,7 +825,7 @@ export default function ClienteDetailPage() {
               </div>
             </div>
             {/* Contenido del documento */}
-            <div className="flex-1 bg-[#1f1f1f] p-4 overflow-auto">
+            <div className="flex-1 bg-[#222222] p-4 overflow-auto">
               {docPreview.tipo.startsWith('image/') ? (
                 <div className="flex items-center justify-center h-full">
                   <img src={docPreview.url} alt={docPreview.nombre} className="max-w-full max-h-full object-contain rounded-lg shadow-lg" />

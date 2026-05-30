@@ -114,7 +114,7 @@ export default function ClientesPage() {
               setSearch(e.target.value);
               setCurrentPage(1);
             }}
-            className="w-full pl-11 pr-4 py-3 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className="w-full pl-11 pr-4 py-3 border border-[#3a3a3a] rounded-xl text-sm bg-[#222222] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             aria-label="Buscar clientes"
           />
         </div>
@@ -132,7 +132,7 @@ export default function ClientesPage() {
         <div className="dark-card-static overflow-hidden p-6">
           <div className="space-y-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-[#141414]">
+              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-[#1a1a1a]">
                 <Skeleton className="h-10 w-10 rounded-xl" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-40" />
@@ -167,7 +167,7 @@ export default function ClientesPage() {
                 {clientes.map((cliente: Cliente) => {
                   const nombreCompleto = capitalizeName(cliente.nombreCompleto) || '—';
                   return (
-                    <div key={cliente.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#1f1f1f] transition-colors group">
+                    <div key={cliente.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#222222] transition-colors group">
                       <div className="flex items-center gap-4">
                         <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
                           <span className="text-sm font-bold text-blue-400">{nombreCompleto.charAt(0).toUpperCase()}</span>
@@ -193,7 +193,7 @@ export default function ClientesPage() {
                         {cliente.etiquetas?.length > 0 && (
                           <div className="hidden xl:flex gap-1">
                             {cliente.etiquetas.slice(0, 2).map((tag) => (
-                              <span key={tag} className="inline-flex px-2 py-0.5 bg-[#1f1f1f] text-white/70 rounded-full text-[10px] font-medium">{tag}</span>
+                              <span key={tag} className="inline-flex px-2 py-0.5 bg-[#222222] text-white/70 rounded-full text-[10px] font-medium">{tag}</span>
                             ))}
                           </div>
                         )}
@@ -232,7 +232,7 @@ export default function ClientesPage() {
                     <button
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
-                      className="p-2 rounded-xl border hover:bg-[#1f1f1f] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="p-2 rounded-xl border hover:bg-[#222222] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       aria-label="Página anterior"
                     >
                       <ChevronLeft className="h-4 w-4" />
@@ -241,7 +241,7 @@ export default function ClientesPage() {
                     <button
                       onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
-                      className="p-2 rounded-xl border hover:bg-[#1f1f1f] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="p-2 rounded-xl border hover:bg-[#222222] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       aria-label="Página siguiente"
                     >
                       <ChevronRight className="h-4 w-4" />

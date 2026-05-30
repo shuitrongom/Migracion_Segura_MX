@@ -14,7 +14,7 @@ const ESTATUS_CONFIG: Record<string, { label: string; color: string; icon: typeo
   pendiente: { label: 'Pendiente', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20', icon: Clock },
   aprobado: { label: 'Pagado', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', icon: CheckCircle },
   rechazado: { label: 'Rechazado', color: 'bg-red-500/10 text-red-400 border-red-500/20', icon: XCircle },
-  cancelado: { label: 'Cancelado', color: 'bg-[#141414] text-white/70 border-[#2a2a2a]', icon: XCircle },
+  cancelado: { label: 'Cancelado', color: 'bg-[#1a1a1a] text-white/70 border-[#3a3a3a]', icon: XCircle },
 };
 
 const TIPO_PAGO_LABELS: Record<string, string> = {
@@ -134,14 +134,14 @@ export default function FinancieroPage() {
             <div className="p-2 rounded-lg bg-amber-500/10"><DollarSign className="h-4 w-4 text-amber-500" /></div>
             <h2 className="text-lg font-bold text-white">Registro de Pagos</h2>
           </div>
-          <button onClick={() => pagosQuery.refetch()} className="p-2.5 rounded-xl hover:bg-[#1f1f1f] text-white/70 transition-colors">
+          <button onClick={() => pagosQuery.refetch()} className="p-2.5 rounded-xl hover:bg-[#222222] text-white/70 transition-colors">
             <RefreshCw className="h-4 w-4" />
           </button>
         </div>
 
         {pagosQuery.isLoading ? (
           <div className="p-6 space-y-4">{[1,2,3,4].map(i => (
-            <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-[#141414]">
+            <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-[#1a1a1a]">
               <Skeleton className="h-10 w-10 rounded-xl" />
               <div className="flex-1 space-y-2"><Skeleton className="h-4 w-40" /><Skeleton className="h-3 w-56" /></div>
               <Skeleton className="h-6 w-24 rounded-full" />
@@ -161,7 +161,7 @@ export default function FinancieroPage() {
               const config = ESTATUS_CONFIG[pago.estatusPago] || ESTATUS_CONFIG.pendiente;
               const Icon = config.icon;
               return (
-                <div key={pago.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#1f1f1f] transition-colors group">
+                <div key={pago.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#222222] transition-colors group">
                   <div className="flex items-center gap-4">
                     <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500/15 to-amber-600/15 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
                       <DollarSign className="h-5 w-5 text-amber-500" />

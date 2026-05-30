@@ -14,7 +14,7 @@ function CopyField({ label, value }: { label: string; value?: string }) {
     toast.success(`"${value}" copiado`);
   };
   return (
-    <button type="button" onClick={handleCopy} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#2a2a2a] transition-all group">
+    <button type="button" onClick={handleCopy} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#3a3a3a] transition-all group">
       {label && <p className="text-[10px] text-white/70">{label}</p>}
       <div className="flex items-center justify-between">
         <p className="text-sm text-white">{value}</p>
@@ -146,7 +146,7 @@ export default function ContinuarTramitePage() {
   return (
     <div>
       <div className="flex items-center gap-4 mb-6">
-        <Link href={`/tramites/${tramiteId}`} className="p-2 rounded-lg hover:bg-[#1f1f1f] text-white/70"><ArrowLeft className="h-5 w-5" /></Link>
+        <Link href={`/tramites/${tramiteId}`} className="p-2 rounded-lg hover:bg-[#222222] text-white/70"><ArrowLeft className="h-5 w-5" /></Link>
         <div>
           <h1 className="text-2xl font-bold text-white">Continuar Trámite</h1>
           <p className="text-sm text-white/70">Extranjero: {tramite?.cliente?.nombreCompleto || tramite?.datosFormulario?.nombre || '—'}</p>
@@ -183,7 +183,7 @@ export default function ContinuarTramitePage() {
             {/* Layout lado a lado: Ficha + Iframe */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ height: '620px' }}>
               {/* Ficha de datos (izquierda) */}
-              <div className="lg:col-span-1 overflow-y-auto border rounded-lg p-4 bg-[#141414]">
+              <div className="lg:col-span-1 overflow-y-auto border rounded-lg p-4 bg-[#1a1a1a]">
                 <h4 className="text-xs font-semibold text-white/70 uppercase mb-3">Ficha del Extranjero</h4>
                 {tramite?.datosFormulario && (
                   <div className="space-y-4">
@@ -260,15 +260,15 @@ export default function ContinuarTramitePage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-white/70 mb-1">Número de Pieza *</label>
-                  <input type="text" value={numeroPieza} onChange={e => setNumeroPieza(e.target.value)} className="w-full px-3 py-2 border border-[#2a2a2a] rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="0000011969016" />
+                  <input type="text" value={numeroPieza} onChange={e => setNumeroPieza(e.target.value)} className="w-full px-3 py-2 border border-[#3a3a3a] rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="0000011969016" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-white/70 mb-1">Clave *</label>
-                  <input type="text" value={contrasenaINM} onChange={e => setContrasenaINM(e.target.value.toUpperCase())} className="w-full px-3 py-2 border border-[#2a2a2a] rounded-lg text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="QFCSA" />
+                  <input type="text" value={contrasenaINM} onChange={e => setContrasenaINM(e.target.value.toUpperCase())} className="w-full px-3 py-2 border border-[#3a3a3a] rounded-lg text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="QFCSA" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-white/70 mb-1">PDF Solicitud *</label>
-                  <label className="flex items-center gap-2 px-3 py-2 border border-[#2a2a2a] rounded-lg text-sm text-white/70 hover:bg-[#141414] cursor-pointer">
+                  <label className="flex items-center gap-2 px-3 py-2 border border-[#3a3a3a] rounded-lg text-sm text-white/70 hover:bg-[#1a1a1a] cursor-pointer">
                     <Upload className="h-4 w-4" />{pdfFile ? pdfFile.name : 'Seleccionar PDF...'}
                     <input type="file" accept=".pdf" onChange={e => setPdfFile(e.target.files?.[0] || null)} className="hidden" />
                   </label>
@@ -288,7 +288,7 @@ export default function ContinuarTramitePage() {
             <p className="text-sm text-white/70 mb-4">Al finalizar se enviarán los requisitos por correo al extranjero.</p>
             <div className="space-y-3 max-w-2xl">
               {requisitos.map((req, i) => (
-                <div key={i} className={`p-4 rounded-lg border ${req.obligatorio ? 'border-brand-200 bg-amber-500/10/50' : 'border-[#2a2a2a] bg-[#141414]'}`}>
+                <div key={i} className={`p-4 rounded-lg border ${req.obligatorio ? 'border-brand-200 bg-amber-500/10/50' : 'border-[#3a3a3a] bg-[#1a1a1a]'}`}>
                   <div className="flex items-start gap-3">
                     <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center text-xs font-medium ${req.obligatorio ? 'bg-amber-500 text-white' : 'bg-gray-300 text-white'}`}>{i + 1}</div>
                     <div>
@@ -334,7 +334,7 @@ export default function ContinuarTramitePage() {
 
       {/* Navigation */}
       <div className="flex items-center justify-between mt-6">
-        <button type="button" onClick={() => step > 0 ? setStep(s => s - 1) : router.push(`/tramites/${tramiteId}`)} className="flex items-center gap-2 px-4 py-2.5 border border-[#2a2a2a] text-white/70 rounded-lg text-sm font-medium hover:bg-[#141414]">
+        <button type="button" onClick={() => step > 0 ? setStep(s => s - 1) : router.push(`/tramites/${tramiteId}`)} className="flex items-center gap-2 px-4 py-2.5 border border-[#3a3a3a] text-white/70 rounded-lg text-sm font-medium hover:bg-[#1a1a1a]">
           <ArrowLeft className="h-4 w-4" /> {step === 0 ? 'Cancelar' : 'Anterior'}
         </button>
         {step < STEPS.length - 1 ? (

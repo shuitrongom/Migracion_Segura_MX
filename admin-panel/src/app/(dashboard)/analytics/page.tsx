@@ -299,7 +299,7 @@ export default function AnalyticsPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {funnelData.map((stage, index) => {
             const colors = [
-              { bg: 'bg-[#1f1f1f]', text: 'text-white/70', bar: 'bg-gray-400' },
+              { bg: 'bg-[#222222]', text: 'text-white/70', bar: 'bg-gray-400' },
               { bg: 'bg-blue-500/10', text: 'text-blue-400', bar: 'bg-blue-500' },
               { bg: 'bg-amber-500/10', text: 'text-amber-700', bar: 'bg-amber-500' },
               { bg: 'bg-emerald-500/10', text: 'text-emerald-400', bar: 'bg-green-500' },
@@ -311,7 +311,7 @@ export default function AnalyticsPage() {
                   <p className={`text-sm font-medium ${color.text} mb-1`}>{stage.etapa}</p>
                   <p className="text-3xl font-bold text-white">{stage.cantidad}</p>
                   <p className="text-xs text-white/70 mt-1">{stage.porcentaje}% del total</p>
-                  <div className="mt-3 h-2 bg-[#1f1f1f] rounded-full overflow-hidden">
+                  <div className="mt-3 h-2 bg-[#222222] rounded-full overflow-hidden">
                     <div
                       className={`h-full ${color.bar} rounded-full transition-all duration-700`}
                       style={{ width: `${stage.porcentaje}%` }}

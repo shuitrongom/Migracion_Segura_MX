@@ -132,7 +132,7 @@ export default function SolicitudesPage() {
             <h1 className="text-3xl font-bold">Solicitudes</h1>
             <p className="text-amber-200 mt-1">Generación de solicitudes INM — Costo: ${costoActual} MXN</p>
           </div>
-          <button onClick={handleActualizarCosto} className="px-4 py-2 bg-[#1f1f1f] backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20">
+          <button onClick={handleActualizarCosto} className="px-4 py-2 bg-[#222222] backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20">
             ⚙️ Cambiar costo
           </button>
         </div>
@@ -191,9 +191,9 @@ export default function SolicitudesPage() {
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
-            <input type="text" placeholder="Buscar por nombre o pieza..." value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-11 pr-4 py-3 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" />
+            <input type="text" placeholder="Buscar por nombre o pieza..." value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-11 pr-4 py-3 border border-[#3a3a3a] rounded-xl text-sm bg-[#222222] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" />
           </div>
-          <select value={filtroEstatus} onChange={e => setFiltroEstatus(e.target.value)} className="px-4 py-3 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
+          <select value={filtroEstatus} onChange={e => setFiltroEstatus(e.target.value)} className="px-4 py-3 border border-[#3a3a3a] rounded-xl text-sm bg-[#222222] focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
             <option value="">Todos los estatus</option>
             <option value="pendiente_revision">Pendiente revisión</option>
             <option value="pendiente_pago">Pendiente pago</option>
@@ -225,7 +225,7 @@ export default function SolicitudesPage() {
             {filtered.map(sol => {
               const badge = ESTATUS_BADGE[sol.estatus] || ESTATUS_BADGE.pendiente_revision;
               return (
-                <div key={sol.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#1f1f1f] transition-colors group cursor-pointer" onClick={() => { setSelectedSolicitud(sol); setShowModal(true); }}>
+                <div key={sol.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#222222] transition-colors group cursor-pointer" onClick={() => { setSelectedSolicitud(sol); setShowModal(true); }}>
                   <div className="flex items-center gap-4">
                     <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-600/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
                       <FileText className="h-5 w-5 text-amber-600" />
@@ -255,14 +255,14 @@ export default function SolicitudesPage() {
                 <h2 className="text-lg font-bold text-white">Solicitud de {getNombre(selectedSolicitud)}</h2>
                 <p className="text-xs text-white/70">{TIPO_LABELS[selectedSolicitud.tipoTramite] || selectedSolicitud.tipoTramite} • {formatDate(selectedSolicitud.createdAt)}</p>
               </div>
-              <button onClick={() => setShowModal(false)} className="p-2 rounded-xl hover:bg-[#1f1f1f] text-white/70 text-xl">✕</button>
+              <button onClick={() => setShowModal(false)} className="p-2 rounded-xl hover:bg-[#222222] text-white/70 text-xl">✕</button>
             </div>
 
             <div className="p-6 space-y-6">
               {/* Datos del extranjero */}
               <div>
                 <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2"><Eye className="h-4 w-4 text-amber-500" /> Datos del extranjero</h3>
-                <div className="grid grid-cols-2 gap-3 bg-[#141414] rounded-xl p-4">
+                <div className="grid grid-cols-2 gap-3 bg-[#1a1a1a] rounded-xl p-4">
                   {Object.entries(selectedSolicitud.datosFormulario || {}).map(([key, val]) => (
                     <div key={key}>
                       <p className="text-[10px] text-white/70 uppercase">{key.replace(/([A-Z])/g, ' $1')}</p>
@@ -288,16 +288,16 @@ export default function SolicitudesPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-medium text-white/70 mb-1">Número de pieza *</label>
-                      <input type="text" value={formProcesar.numeroPieza} onChange={e => setFormProcesar(p => ({ ...p, numeroPieza: e.target.value }))} className="w-full px-3 py-2.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Pieza del INM" />
+                      <input type="text" value={formProcesar.numeroPieza} onChange={e => setFormProcesar(p => ({ ...p, numeroPieza: e.target.value }))} className="w-full px-3 py-2.5 border border-[#3a3a3a] rounded-xl text-sm bg-[#222222] focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Pieza del INM" />
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-white/70 mb-1">Contraseña INM</label>
-                      <input type="text" value={formProcesar.contrasenaINM} onChange={e => setFormProcesar(p => ({ ...p, contrasenaINM: e.target.value }))} className="w-full px-3 py-2.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Clave" />
+                      <input type="text" value={formProcesar.contrasenaINM} onChange={e => setFormProcesar(p => ({ ...p, contrasenaINM: e.target.value }))} className="w-full px-3 py-2.5 border border-[#3a3a3a] rounded-xl text-sm bg-[#222222] focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Clave" />
                     </div>
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-white/70 mb-1">Requisitos (uno por línea)</label>
-                    <textarea value={formProcesar.requisitos} onChange={e => setFormProcesar(p => ({ ...p, requisitos: e.target.value }))} rows={4} className="w-full px-3 py-2.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none" placeholder="Pasaporte vigente&#10;Formato de solicitud&#10;Comprobante de domicilio" />
+                    <textarea value={formProcesar.requisitos} onChange={e => setFormProcesar(p => ({ ...p, requisitos: e.target.value }))} rows={4} className="w-full px-3 py-2.5 border border-[#3a3a3a] rounded-xl text-sm bg-[#222222] focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none" placeholder="Pasaporte vigente&#10;Formato de solicitud&#10;Comprobante de domicilio" />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-white/70 mb-1">PDF de la solicitud</label>

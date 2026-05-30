@@ -77,9 +77,9 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-3">
               {estatusData.filter(item => item.cantidad > 0).map((item) => (
-                <div key={item.key} className="group flex items-center gap-3 p-2 rounded-lg hover:bg-[#141414] transition-colors">
+                <div key={item.key} className="group flex items-center gap-3 p-2 rounded-lg hover:bg-[#1a1a1a] transition-colors">
                   <span className="text-sm text-white/70 w-24 shrink-0 font-medium">{item.label}</span>
-                  <div className="flex-1 h-7 bg-[#1f1f1f] rounded-full overflow-hidden">
+                  <div className="flex-1 h-7 bg-[#222222] rounded-full overflow-hidden">
                     <div className={`h-full bg-gradient-to-r ${item.gradient} rounded-full transition-all duration-700 ease-out group-hover:opacity-90`} style={{ width: `${(item.cantidad / totalTramitesEstatus) * 100}%` }} />
                   </div>
                   <span className="text-sm font-bold text-white/90 w-8 text-right">{item.cantidad}</span>
@@ -136,7 +136,7 @@ export default function DashboardPage() {
         ) : (
           <div className="space-y-2">
             {recentActivityQuery.data.map((tramite: Tramite) => (
-              <div key={tramite.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-[#141414] transition-colors group">
+              <div key={tramite.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-[#1a1a1a] transition-colors group">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500/15 to-amber-600/15 flex items-center justify-center shrink-0">
                   <FileText className="h-4 w-4 text-amber-400" />
                 </div>

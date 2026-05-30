@@ -130,7 +130,7 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
                   ? 'border-emerald-500/30 bg-emerald-500/10/50' 
                   : req.obligatorio 
                     ? 'border-amber-200 bg-amber-500/10/30' 
-                    : 'border-[#2a2a2a] bg-[#171717]'
+                    : 'border-[#3a3a3a] bg-[#171717]'
               }`}
             >
               <div className="flex items-start gap-4">
@@ -140,7 +140,7 @@ export default function RequisitosUpload({ tramiteId, tipoTramite }: RequisitosU
                     ? 'bg-green-500 shadow-md shadow-green-200 scale-110' 
                     : req.obligatorio 
                       ? 'bg-amber-500/10 border-2 border-amber-300' 
-                      : 'bg-[#1f1f1f] border-2 border-[#2a2a2a]'
+                      : 'bg-[#222222] border-2 border-[#3a3a3a]'
                 }`}>
                   {docSubido ? (
                     <CheckCircle className="h-5 w-5 text-white animate-in zoom-in duration-300" />

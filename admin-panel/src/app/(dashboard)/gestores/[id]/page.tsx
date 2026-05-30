@@ -53,7 +53,7 @@ const TIPO_LABELS: Record<string, string> = {
 const ESTATUS_BADGE: Record<string, string> = {
   recibido: 'bg-blue-500/10 text-blue-400', en_revision: 'bg-amber-500/10 text-amber-400',
   aprobado: 'bg-emerald-500/10 text-emerald-400', rechazado: 'bg-red-500/10 text-red-400',
-  borrador: 'bg-[#141414] text-white/70', en_espera_resolucion: 'bg-orange-500/10 text-orange-400',
+  borrador: 'bg-[#1a1a1a] text-white/70', en_espera_resolucion: 'bg-orange-500/10 text-orange-400',
 };
 
 export default function GestorDetailPage() {
@@ -138,11 +138,11 @@ export default function GestorDetailPage() {
               </div>
             </div>
             <div className="p-6 space-y-4">
-              <div className="p-3 rounded-xl hover:bg-[#141414]">
+              <div className="p-3 rounded-xl hover:bg-[#1a1a1a]">
                 <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider">Email</p>
                 <p className="text-sm font-medium text-white mt-0.5">{gestor.email}</p>
               </div>
-              <div className="p-3 rounded-xl hover:bg-[#141414]">
+              <div className="p-3 rounded-xl hover:bg-[#1a1a1a]">
                 <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider">Teléfono</p>
                 <p className="text-sm font-medium text-white mt-0.5">{gestor.phone || 'Sin registrar'}</p>
               </div>
@@ -194,7 +194,7 @@ export default function GestorDetailPage() {
                           <p className="text-sm font-semibold text-white">{TIPO_LABELS[t.tipo] || t.tipo}</p>
                           <p className="text-xs text-white/70 mt-0.5">{t.numeroPieza || 'Sin pieza'} • {capitalizeName(t.cliente?.nombreCompleto)} • {formatDate(t.createdAt)}</p>
                         </div>
-                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${ESTATUS_BADGE[t.estatus] || 'bg-[#141414] text-white/70'}`}>{t.estatus.replace(/_/g, ' ')}</span>
+                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${ESTATUS_BADGE[t.estatus] || 'bg-[#1a1a1a] text-white/70'}`}>{t.estatus.replace(/_/g, ' ')}</span>
                       </div>
                     </Link>
                   ))}
@@ -239,7 +239,7 @@ export default function GestorDetailPage() {
                             <p className="text-xs text-white/70 capitalize">{c.tipo === 'inm' ? 'Cita INM' : 'Entrevista'} • {capitalizeName(c.cliente?.nombreCompleto)}</p>
                           </div>
                         </div>
-                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${ESTATUS_BADGE[c.estatus] || 'bg-[#141414] text-white/70'}`}>{c.estatus}</span>
+                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${ESTATUS_BADGE[c.estatus] || 'bg-[#1a1a1a] text-white/70'}`}>{c.estatus}</span>
                       </div>
                     </div>
                   ))}

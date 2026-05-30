@@ -83,14 +83,14 @@ function LoginForm() {
           
           {/* Features */}
           <div className="space-y-4 max-w-sm mx-auto">
-            <div className="flex items-center gap-3 text-left p-3 rounded-xl bg-[#1a1a1a] border border-white/5 backdrop-blur-sm">
+            <div className="flex items-center gap-3 text-left p-3 rounded-xl bg-[#222222] border border-white/5 backdrop-blur-sm">
               <div className="p-2 rounded-lg bg-amber-500/20"><Shield className="h-4 w-4 text-amber-400" /></div>
               <div>
                 <p className="text-sm font-medium text-white/90">Seguridad avanzada</p>
                 <p className="text-xs text-white/70">Cifrado AES-256 + JWT rotativo</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 text-left p-3 rounded-xl bg-[#1a1a1a] border border-white/5 backdrop-blur-sm">
+            <div className="flex items-center gap-3 text-left p-3 rounded-xl bg-[#222222] border border-white/5 backdrop-blur-sm">
               <div className="p-2 rounded-lg bg-amber-500/20"><Lock className="h-4 w-4 text-amber-400" /></div>
               <div>
                 <p className="text-sm font-medium text-white/90">Auto-cierre de sesión</p>
@@ -109,7 +109,7 @@ function LoginForm() {
             {/* Glow detrás del card */}
             <div className="absolute -inset-1 bg-gradient-to-r from-amber-500/20 via-amber-600/10 to-amber-500/20 rounded-3xl blur-xl" />
             
-            <div className="relative bg-gray-900/80 backdrop-blur-xl rounded-3xl border border-[#2a2a2a] shadow-2xl p-8 lg:p-10">
+            <div className="relative bg-gray-900/80 backdrop-blur-xl rounded-3xl border border-[#3a3a3a] shadow-2xl p-8 lg:p-10">
               {/* Logo mobile */}
               <div className="lg:hidden text-center mb-8">
                 <img src="/logo.png" alt="Logo" className="h-16 w-16 rounded-xl mx-auto mb-3 shadow-lg shadow-amber-500/20 border border-amber-500/20" />
@@ -140,7 +140,7 @@ function LoginForm() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="w-full pl-11 pr-4 py-3.5 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl text-white placeholder-white/20 text-sm focus:outline-none focus:border-amber-500/50 focus:bg-[#171717]/10 transition-all duration-300"
+                        className="w-full pl-11 pr-4 py-3.5 bg-[#222222] border border-[#3a3a3a] rounded-xl text-white placeholder-white/20 text-sm focus:outline-none focus:border-amber-400/50 focus:bg-[#171717]/10 transition-all duration-300"
                         placeholder="admin@migracion-segura.mx"
                       />
                     </div>
@@ -162,7 +162,7 @@ function LoginForm() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="w-full pl-11 pr-12 py-3.5 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl text-white placeholder-white/20 text-sm focus:outline-none focus:border-amber-500/50 focus:bg-[#171717]/10 transition-all duration-300"
+                        className="w-full pl-11 pr-12 py-3.5 bg-[#222222] border border-[#3a3a3a] rounded-xl text-white placeholder-white/20 text-sm focus:outline-none focus:border-amber-400/50 focus:bg-[#171717]/10 transition-all duration-300"
                         placeholder="••••••••"
                       />
                       <button

@@ -80,7 +80,7 @@ export default function ReportesPage() {
                 toast.success('PDF descargado');
               } catch { toast.error('Error al generar PDF'); }
             }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#1f1f1f] backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#222222] backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20"
           >
             <Download className="h-4 w-4" /> Descargar PDF
           </button>
@@ -149,10 +149,10 @@ export default function ReportesPage() {
               <h2 className="text-lg font-bold text-white">Ingresos Mensuales</h2>
             </div>
             <div className="flex gap-2">
-              <select value={mes} onChange={e => setMes(Number(e.target.value))} className="px-3 py-1.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <select value={mes} onChange={e => setMes(Number(e.target.value))} className="px-3 py-1.5 border border-[#3a3a3a] rounded-xl text-sm bg-[#222222] focus:outline-none focus:ring-2 focus:ring-amber-500">
                 {MESES.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
               </select>
-              <select value={anio} onChange={e => setAnio(Number(e.target.value))} className="px-3 py-1.5 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <select value={anio} onChange={e => setAnio(Number(e.target.value))} className="px-3 py-1.5 border border-[#3a3a3a] rounded-xl text-sm bg-[#222222] focus:outline-none focus:ring-2 focus:ring-amber-500">
                 {[2025, 2026, 2027].map(a => <option key={a} value={a}>{a}</option>)}
               </select>
             </div>
@@ -183,9 +183,9 @@ export default function ReportesPage() {
           </div>
           <div className="space-y-3">
             {Object.entries(tipoCounts).sort((a, b) => b[1] - a[1]).map(([tipo, count]) => (
-              <div key={tipo} className="group flex items-center gap-3 p-2 rounded-lg hover:bg-[#141414] transition-colors">
+              <div key={tipo} className="group flex items-center gap-3 p-2 rounded-lg hover:bg-[#1a1a1a] transition-colors">
                 <span className="text-sm text-white/70 w-40 shrink-0 font-medium capitalize truncate">{tipo.replace(/_/g, ' ')}</span>
-                <div className="flex-1 h-6 bg-[#1f1f1f] rounded-full overflow-hidden">
+                <div className="flex-1 h-6 bg-[#222222] rounded-full overflow-hidden">
                   <div className="h-full bg-gradient-to-r from-brand-400 to-amber-500 rounded-full transition-all duration-700 ease-out group-hover:opacity-90" style={{ width: `${(count / tramites.length) * 100}%` }} />
                 </div>
                 <span className="text-sm font-bold text-white/90 w-8 text-right">{count}</span>

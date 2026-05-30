@@ -38,13 +38,13 @@ const TIPO_OPTIONS: { value: TipoFilter; label: string }[] = [
 ];
 
 const ESTATUS_BADGE: Record<string, { className: string; label: string; gradient: string }> = {
-  borrador: { className: 'bg-[#141414] text-white/70 border-[#2a2a2a]', label: 'Borrador', gradient: 'from-gray-400 to-gray-500' },
+  borrador: { className: 'bg-[#1a1a1a] text-white/70 border-[#3a3a3a]', label: 'Borrador', gradient: 'from-gray-400 to-gray-500' },
   recibido: { className: 'bg-blue-500/10 text-blue-400 border-blue-500/20', label: 'Recibido', gradient: 'from-blue-400 to-amber-600' },
   en_revision: { className: 'bg-amber-500/10 text-amber-400 border-amber-500/20', label: 'En revisión', gradient: 'from-yellow-400 to-amber-500' },
   en_espera_resolucion: { className: 'bg-orange-500/10 text-orange-400 border-orange-500/20', label: 'En espera', gradient: 'from-orange-400 to-orange-600' },
   aprobado: { className: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', label: 'Aprobado', gradient: 'from-green-400 to-emerald-600' },
   rechazado: { className: 'bg-red-500/10 text-red-400 border-red-500/20', label: 'Rechazado', gradient: 'from-red-400 to-red-600' },
-  cancelado: { className: 'bg-[#141414] text-white/70 border-[#2a2a2a]', label: 'Cancelado', gradient: 'from-gray-300 to-gray-500' },
+  cancelado: { className: 'bg-[#1a1a1a] text-white/70 border-[#3a3a3a]', label: 'Cancelado', gradient: 'from-gray-300 to-gray-500' },
 };
 
 const TIPO_LABELS: Record<string, string> = {
@@ -97,7 +97,7 @@ export default function TramitesPage() {
           </div>
           <Link
             href="/tramites/nuevo"
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#1f1f1f] backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#222222] backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20"
           >
             <Plus className="h-4 w-4" /> Iniciar Trámite
           </Link>
@@ -158,14 +158,14 @@ export default function TramitesPage() {
               placeholder="Buscar por cliente, número de pieza o gestor..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-              className="w-full pl-11 pr-4 py-3 border border-[#2a2a2a] rounded-xl text-sm bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+              className="w-full pl-11 pr-4 py-3 border border-[#3a3a3a] rounded-xl text-sm bg-[#222222] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
               aria-label="Buscar trámites"
             />
           </div>
           <select
             value={estatusFilter}
             onChange={(e) => { setEstatusFilter(e.target.value as EstatusFilter); setCurrentPage(1); }}
-            className="px-4 py-3 border border-[#2a2a2a] rounded-xl text-sm text-white/70 bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+            className="px-4 py-3 border border-[#3a3a3a] rounded-xl text-sm text-white/70 bg-[#222222] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
             aria-label="Filtrar por estatus"
           >
             {ESTATUS_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -173,7 +173,7 @@ export default function TramitesPage() {
           <select
             value={tipoFilter}
             onChange={(e) => { setTipoFilter(e.target.value as TipoFilter); setCurrentPage(1); }}
-            className="px-4 py-3 border border-[#2a2a2a] rounded-xl text-sm text-white/70 bg-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+            className="px-4 py-3 border border-[#3a3a3a] rounded-xl text-sm text-white/70 bg-[#222222] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
             aria-label="Filtrar por tipo de trámite"
           >
             {TIPO_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -193,7 +193,7 @@ export default function TramitesPage() {
         <div className="dark-card-static overflow-hidden p-6">
           <div className="space-y-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-[#141414]">
+              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-[#1a1a1a]">
                 <Skeleton className="h-10 w-10 rounded-xl" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-40" />
@@ -226,12 +226,12 @@ export default function TramitesPage() {
             <>
               <div className="divide-y divide-[#262626]">
                 {tramites.map((tramite: Tramite) => {
-                  const badge = ESTATUS_BADGE[tramite.estatus] ?? { className: 'bg-[#141414] text-white/70 border-[#2a2a2a]', label: tramite.estatus, gradient: 'from-gray-400 to-gray-500' };
+                  const badge = ESTATUS_BADGE[tramite.estatus] ?? { className: 'bg-[#1a1a1a] text-white/70 border-[#3a3a3a]', label: tramite.estatus, gradient: 'from-gray-400 to-gray-500' };
                   const clienteName = tramite.cliente
                     ? (tramite.cliente.nombreCompleto || `${tramite.cliente.nombre || ''} ${tramite.cliente.apellidos || ''}`.trim() || '--')
                     : (tramite.datosFormulario?.nombre ? `${tramite.datosFormulario.nombre} ${tramite.datosFormulario.apellidos || ''}`.trim() : '--');
                   return (
-                    <div key={tramite.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#1f1f1f] transition-colors group">
+                    <div key={tramite.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#222222] transition-colors group">
                       <div className="flex items-center gap-4">
                         <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500/15 to-amber-600/15 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
                           <FileText className="h-5 w-5 text-amber-500" />
@@ -259,7 +259,7 @@ export default function TramitesPage() {
                             Continuar
                           </Link>
                         )}
-                        <Link href={`/tramites/${tramite.id}`} className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-[#1f1f1f] text-white/70 transition-colors" aria-label={`Ver detalle del trámite ${tramite.numeroPieza ?? tramite.id}`}>
+                        <Link href={`/tramites/${tramite.id}`} className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-[#222222] text-white/70 transition-colors" aria-label={`Ver detalle del trámite ${tramite.numeroPieza ?? tramite.id}`}>
                           <MoreHorizontal className="h-4 w-4" />
                         </Link>
                       </div>
@@ -275,11 +275,11 @@ export default function TramitesPage() {
                     Mostrando {(currentPage - 1) * pageSize + 1} a {Math.min(currentPage * pageSize, total)} de <span className="font-semibold text-white/70">{total}</span> trámites
                   </p>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-xl border hover:bg-[#1f1f1f] disabled:opacity-50 disabled:cursor-not-allowed transition-all" aria-label="Página anterior">
+                    <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-xl border hover:bg-[#222222] disabled:opacity-50 disabled:cursor-not-allowed transition-all" aria-label="Página anterior">
                       <ChevronLeft className="h-4 w-4" />
                     </button>
                     <span className="text-sm font-medium text-white/70 px-3 py-1.5 bg-[#171717] rounded-lg border">{currentPage} / {totalPages}</span>
-                    <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="p-2 rounded-xl border hover:bg-[#1f1f1f] disabled:opacity-50 disabled:cursor-not-allowed transition-all" aria-label="Página siguiente">
+                    <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="p-2 rounded-xl border hover:bg-[#222222] disabled:opacity-50 disabled:cursor-not-allowed transition-all" aria-label="Página siguiente">
                       <ChevronRight className="h-4 w-4" />
                     </button>
                   </div>

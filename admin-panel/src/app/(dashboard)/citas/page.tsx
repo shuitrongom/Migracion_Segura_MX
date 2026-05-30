@@ -27,7 +27,7 @@ const TIPO_CITA_LABELS: Record<string, { label: string; color: string }> = {
 const ESTATUS_BADGE: Record<string, string> = {
   programada: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
   confirmada: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  completada: 'bg-[#1f1f1f] text-white/70 border-[#2a2a2a]',
+  completada: 'bg-[#222222] text-white/70 border-[#3a3a3a]',
   cancelada: 'bg-red-500/10 text-red-400 border-red-500/20',
 };
 
@@ -122,7 +122,7 @@ export default function CitasPage() {
           </div>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#1f1f1f] backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#222222] backdrop-blur-sm text-white rounded-xl text-sm font-semibold hover:bg-[#171717]/30 transition-all border border-white/20"
           >
             <Plus className="h-4 w-4" /> Nueva Cita
           </button>
@@ -177,27 +177,27 @@ export default function CitasPage() {
               <div className="p-2 rounded-lg bg-emerald-500/10"><Plus className="h-4 w-4 text-emerald-400" /></div>
               <h2 className="text-lg font-bold text-white">Agendar Cita</h2>
             </div>
-            <button type="button" onClick={() => setShowForm(false)} className="p-2 rounded-lg hover:bg-[#1f1f1f] transition-colors"><X className="h-4 w-4 text-white/70" /></button>
+            <button type="button" onClick={() => setShowForm(false)} className="p-2 rounded-lg hover:bg-[#222222] transition-colors"><X className="h-4 w-4 text-white/70" /></button>
           </div>
           <form onSubmit={handleCreate} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-medium text-white/70 mb-1.5">Extranjero *</label>
-                <select value={form.clienteId} onChange={e => setForm(prev => ({ ...prev, clienteId: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] bg-[#1a1a1a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 capitalize transition-all">
+                <select value={form.clienteId} onChange={e => setForm(prev => ({ ...prev, clienteId: e.target.value }))} className="w-full px-4 py-2.5 border border-[#3a3a3a] bg-[#252525] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 capitalize transition-all">
                   <option value="">Selecciona</option>
                   {clientes.map(c => <option key={c.id} value={c.id}>{c.nombreCompleto}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-medium text-white/70 mb-1.5">Gestor asignado</label>
-                <select value={form.gestorId} onChange={e => setForm(prev => ({ ...prev, gestorId: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] bg-[#1a1a1a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 capitalize transition-all">
+                <select value={form.gestorId} onChange={e => setForm(prev => ({ ...prev, gestorId: e.target.value }))} className="w-full px-4 py-2.5 border border-[#3a3a3a] bg-[#252525] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 capitalize transition-all">
                   <option value="">Automático (yo)</option>
                   {gestores.map(g => <option key={g.id} value={g.id}>{g.fullName}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-medium text-white/70 mb-1.5">Tipo de cita *</label>
-                <select value={form.tipo} onChange={e => setForm(prev => ({ ...prev, tipo: e.target.value, hora: '' }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] bg-[#1a1a1a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all">
+                <select value={form.tipo} onChange={e => setForm(prev => ({ ...prev, tipo: e.target.value, hora: '' }))} className="w-full px-4 py-2.5 border border-[#3a3a3a] bg-[#252525] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all">
                   <option value="inm">Cita en el INM</option>
                   <option value="entrevista">Entrevista con Gestor</option>
                 </select>
@@ -207,7 +207,7 @@ export default function CitasPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-medium text-white/70 mb-1.5">Modalidad</label>
-                <select value={form.modalidad} onChange={e => setForm(prev => ({ ...prev, modalidad: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] bg-[#1a1a1a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all">
+                <select value={form.modalidad} onChange={e => setForm(prev => ({ ...prev, modalidad: e.target.value }))} className="w-full px-4 py-2.5 border border-[#3a3a3a] bg-[#252525] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all">
                   <option value="presencial">Presencial (en oficina)</option>
                   <option value="videollamada">Videollamada</option>
                 </select>
@@ -244,7 +244,7 @@ export default function CitasPage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-white/70 mb-1.5">Notas</label>
-              <input type="text" value={form.notas} onChange={e => setForm(prev => ({ ...prev, notas: e.target.value }))} className="w-full px-4 py-2.5 border border-[#2a2a2a] bg-[#1a1a1a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" placeholder="Observaciones..." />
+              <input type="text" value={form.notas} onChange={e => setForm(prev => ({ ...prev, notas: e.target.value }))} className="w-full px-4 py-2.5 border border-[#3a3a3a] bg-[#252525] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" placeholder="Observaciones..." />
             </div>
             <div className="flex items-center justify-between pt-2">
               <div className="flex items-center gap-2"><Send className="h-3.5 w-3.5 text-white/70" /><p className="text-[10px] text-white/70">Se enviará confirmación por correo y WhatsApp</p></div>
@@ -264,7 +264,7 @@ export default function CitasPage() {
         {loading ? (
           <div className="p-6 space-y-4">
             {[1,2,3,4].map(i => (
-              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-[#141414]">
+              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-[#1a1a1a]">
                 <div className="h-11 w-11 rounded-xl bg-[#262626] animate-pulse" />
                 <div className="flex-1 space-y-2">
                   <div className="h-4 w-40 bg-[#262626] rounded animate-pulse" />
@@ -287,7 +287,7 @@ export default function CitasPage() {
             {citas.map(cita => {
               const tipoInfo = TIPO_CITA_LABELS[cita.tipo] || TIPO_CITA_LABELS.entrevista;
               return (
-                <div key={cita.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#1f1f1f] transition-colors group">
+                <div key={cita.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#222222] transition-colors group">
                   <div className="flex items-center gap-4">
                     <div className="h-11 w-11 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
                       <Clock className="h-5 w-5 text-emerald-400" />
@@ -295,7 +295,7 @@ export default function CitasPage() {
                     <div>
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border ${tipoInfo.color}`}>{tipoInfo.label}</span>
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium border ${ESTATUS_BADGE[cita.estatus] || 'bg-[#141414] text-white/70 border-[#2a2a2a]'}`}>{cita.estatus}</span>
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium border ${ESTATUS_BADGE[cita.estatus] || 'bg-[#1a1a1a] text-white/70 border-[#3a3a3a]'}`}>{cita.estatus}</span>
                       </div>
                       <p className="text-sm font-semibold text-white">{formatDate(cita.fecha)} a las {cita.hora?.slice(0, 5)}</p>
                       <p className="text-xs text-white/70 capitalize">
