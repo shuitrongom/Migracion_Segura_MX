@@ -47,7 +47,7 @@ export default function FormSelect({ label, value, options, onChange, required, 
 
   const borderColor = glowAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['#1A3A4A', '#00D4FF'],
+    outputRange: ['#2a2a2a', '#f59e0b'],
   });
 
   return (
@@ -64,7 +64,7 @@ export default function FormSelect({ label, value, options, onChange, required, 
 
       <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
         <SafeAreaView style={styles.modalContainer}>
-          <LinearGradient colors={['#0A1628', '#0F2027', '#1A1A2E']} style={styles.modalGradient}>
+          <LinearGradient colors={['#0a0a0a', '#0F2027', '#1A1A2E']} style={styles.modalGradient}>
             {/* Header */}
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{label}</Text>
@@ -81,7 +81,7 @@ export default function FormSelect({ label, value, options, onChange, required, 
                   value={search}
                   onChangeText={setSearch}
                   placeholder="Buscar..."
-                  placeholderTextColor="#4A6FA5"
+                  placeholderTextColor="rgba(255,255,255,0.2)"
                   autoCorrect={false}
                   clearButtonMode="while-editing"
                 />
@@ -114,28 +114,28 @@ export default function FormSelect({ label, value, options, onChange, required, 
 
 const styles = StyleSheet.create({
   container: { marginBottom: 14 },
-  label: { fontSize: 12, fontWeight: '600', color: '#8EC8F8', marginBottom: 5, letterSpacing: 0.3 },
+  label: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.6)', marginBottom: 5, letterSpacing: 0.3 },
   selectWrapper: { borderWidth: 1.5, borderRadius: 12, overflow: 'hidden' },
-  select: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#0D1B2A', paddingHorizontal: 14, paddingVertical: 13 },
-  selectText: { flex: 1, fontSize: 14, color: '#E0F7FA' },
-  placeholder: { color: '#4A6FA5' },
-  arrow: { fontSize: 14, color: '#00D4FF', marginLeft: 8 },
+  select: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#171717', paddingHorizontal: 14, paddingVertical: 13 },
+  selectText: { flex: 1, fontSize: 14, color: '#ffffff' },
+  placeholder: { color: 'rgba(255,255,255,0.2)' },
+  arrow: { fontSize: 14, color: '#f59e0b', marginLeft: 8 },
 
-  modalContainer: { flex: 1, backgroundColor: '#0A1628' },
+  modalContainer: { flex: 1, backgroundColor: '#0a0a0a' },
   modalGradient: { flex: 1 },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#1A3A4A' },
-  modalTitle: { fontSize: 17, fontWeight: '700', color: '#E0F7FA', letterSpacing: 0.5 },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#2a2a2a' },
+  modalTitle: { fontSize: 17, fontWeight: '700', color: '#ffffff', letterSpacing: 0.5 },
   closeButton: { paddingVertical: 4, paddingHorizontal: 8 },
-  closeText: { fontSize: 15, color: '#00D4FF', fontWeight: '600' },
+  closeText: { fontSize: 15, color: '#f59e0b', fontWeight: '600' },
 
-  searchContainer: { paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#1A3A4A' },
-  searchInput: { backgroundColor: '#112240', borderWidth: 1, borderColor: '#1A3A4A', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 11, fontSize: 15, color: '#E0F7FA' },
+  searchContainer: { paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#2a2a2a' },
+  searchInput: { backgroundColor: '#1a1a1a', borderWidth: 1, borderColor: '#2a2a2a', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 11, fontSize: 15, color: '#ffffff' },
 
   listContent: { paddingBottom: 40 },
-  option: { paddingVertical: 14, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: '#112240', flexDirection: 'row', alignItems: 'center' },
-  optionActive: { backgroundColor: '#112240', borderLeftWidth: 3, borderLeftColor: '#00D4FF' },
-  optionText: { flex: 1, fontSize: 15, color: '#B0C4DE' },
-  optionTextActive: { fontWeight: '700', color: '#00D4FF' },
-  check: { fontSize: 18, color: '#00D4FF', fontWeight: '700', marginLeft: 8 },
-  emptyText: { textAlign: 'center', padding: 24, color: '#4A6FA5', fontSize: 15 },
+  option: { paddingVertical: 14, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: '#1a1a1a', flexDirection: 'row', alignItems: 'center' },
+  optionActive: { backgroundColor: '#1a1a1a', borderLeftWidth: 3, borderLeftColor: '#f59e0b' },
+  optionText: { flex: 1, fontSize: 15, color: 'rgba(255,255,255,0.7)' },
+  optionTextActive: { fontWeight: '700', color: '#f59e0b' },
+  check: { fontSize: 18, color: '#f59e0b', fontWeight: '700', marginLeft: 8 },
+  emptyText: { textAlign: 'center', padding: 24, color: 'rgba(255,255,255,0.2)', fontSize: 15 },
 });

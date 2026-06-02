@@ -46,7 +46,7 @@ export default function FormDatePicker({ label, value, onChange, required, minYe
 
   const borderColor = glowAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['#1A3A4A', '#00D4FF'],
+    outputRange: ['#2a2a2a', '#f59e0b'],
   });
 
   if (Platform.OS === 'android') {
@@ -119,16 +119,16 @@ export default function FormDatePicker({ label, value, onChange, required, minYe
 
 const styles = StyleSheet.create({
   container: { marginBottom: 14 },
-  label: { fontSize: 12, fontWeight: '600', color: '#8EC8F8', marginBottom: 5, letterSpacing: 0.3 },
+  label: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.6)', marginBottom: 5, letterSpacing: 0.3 },
   selectWrapper: { borderWidth: 1.5, borderRadius: 12, overflow: 'hidden' },
-  select: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#0D1B2A', paddingHorizontal: 14, paddingVertical: 13 },
-  selectText: { flex: 1, fontSize: 14, color: '#E0F7FA' },
-  placeholder: { color: '#4A6FA5' },
+  select: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#171717', paddingHorizontal: 14, paddingVertical: 13 },
+  selectText: { flex: 1, fontSize: 14, color: '#ffffff' },
+  placeholder: { color: 'rgba(255,255,255,0.2)' },
   icon: { fontSize: 16 },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
-  modal: { backgroundColor: '#0F2027', borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: 30, borderTopWidth: 1, borderTopColor: '#00D4FF' },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#1A3A4A' },
-  modalTitle: { fontSize: 16, fontWeight: '700', color: '#E0F7FA' },
-  cancelBtn: { fontSize: 15, color: '#4A6FA5' },
-  doneBtn: { fontSize: 15, color: '#00D4FF', fontWeight: '700' },
+  modal: { backgroundColor: '#171717', borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: 30, borderTopWidth: 1, borderTopColor: '#f59e0b' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#2a2a2a' },
+  modalTitle: { fontSize: 16, fontWeight: '700', color: '#ffffff' },
+  cancelBtn: { fontSize: 15, color: 'rgba(255,255,255,0.2)' },
+  doneBtn: { fontSize: 15, color: '#f59e0b', fontWeight: '700' },
 });
