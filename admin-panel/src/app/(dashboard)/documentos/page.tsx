@@ -24,6 +24,27 @@ interface DocItem {
   tramiteId?: string;
 }
 
+interface TramiteInfo {
+  id: string;
+  tipo: string;
+  numeroPieza?: string;
+  estatus: string;
+  createdAt: string;
+  docs: DocItem[];
+}
+
+const TIPO_LABELS: Record<string, string> = {
+  visa: '🛂 Visa',
+  permiso_trabajo: '💼 Permiso de Trabajo',
+  notificacion_cambio: '📝 Notificación de Cambio',
+  expedicion_documento: '📄 Expedición de Documento',
+  regularizacion_migratoria: '🔄 Regularización Migratoria',
+  constancia_empleador: '🏢 Constancia de Empleador (CIE)',
+  cambio_condicion_estancia: '🔀 Cambio de Condición',
+  residencia_temporal: '🏠 Residencia Temporal',
+  residencia_permanente: '🏡 Residencia Permanente',
+};
+
 const CATEGORIA_LABELS: Record<string, string> = {
   solicitud: '📋 Solicitud',
   identificacion: '🪪 Identificación',
@@ -49,7 +70,7 @@ export default function ExpedienteDigitalPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [expandedCliente, setExpandedCliente] = useState<string | null>(null);
-  const [clienteDocs, setClienteDocs] = useState<Record<string, DocItem[]>>({});
+  const [clienteTramites, setClienteTramites] = useState<Record<string, TramiteInfo[]>>({});
   const [loadingDocs, setLoadingDocs] = useState<string | null>(null);
   const [viewDoc, setViewDoc] = useState<{ doc: DocItem; url: string; contentType: string } | null>(null);
   const [loadingDoc, setLoadingDoc] = useState(false);
@@ -65,24 +86,44 @@ export default function ExpedienteDigitalPage() {
       const data = res.data?.data || res.data || [];
       const allClientes: Cliente[] = Array.isArray(data) ? data : [];
       
-      // Para cada cliente, verificar si tiene documentos usando el endpoint filtrado
-      const clientesConDocs: Cliente[] = [];
-      const docsMap: Record<string, DocItem[]> = {};
+      // Obtener trámites de todos los clientes
+      const tramitesRes = await api.get('/tramites', { params: { page: 1, limit: 200 } });
+      const allTramites = tramitesRes.data?.data || tramitesRes.data || [];
       
-      await Promise.all(allClientes.map(async (cliente) => {
-        try {
-          const docsRes = await api.get('/documentos', { params: { clienteId: cliente.id } });
-          const docs = docsRes.data?.data || docsRes.data || [];
-          const docsArray = Array.isArray(docs) ? docs : [];
-          if (docsArray.length > 0) {
-            clientesConDocs.push(cliente);
-            docsMap[cliente.id] = docsArray;
-          }
-        } catch {}
-      }));
+      // Obtener todos los documentos
+      const docsRes = await api.get('/documentos');
+      const allDocs: DocItem[] = docsRes.data?.data || docsRes.data || [];
       
+      // Agrupar docs por tramiteId
+      const docsByTramite: Record<string, DocItem[]> = {};
+      for (const doc of allDocs) {
+        if (doc.tramiteId) {
+          if (!docsByTramite[doc.tramiteId]) docsByTramite[doc.tramiteId] = [];
+          docsByTramite[doc.tramiteId].push(doc);
+        }
+      }
+
+      // Agrupar trámites por clienteId con sus docs
+      const tramitesByCliente: Record<string, TramiteInfo[]> = {};
+      for (const t of allTramites) {
+        if (!t.clienteId) continue;
+        const docs = docsByTramite[t.id] || [];
+        if (docs.length === 0) continue; // Solo trámites con documentos
+        if (!tramitesByCliente[t.clienteId]) tramitesByCliente[t.clienteId] = [];
+        tramitesByCliente[t.clienteId].push({
+          id: t.id,
+          tipo: t.tipo,
+          numeroPieza: t.numeroPieza,
+          estatus: t.estatus,
+          createdAt: t.createdAt,
+          docs,
+        });
+      }
+
+      // Solo clientes que tienen trámites con documentos
+      const clientesConDocs = allClientes.filter(c => tramitesByCliente[c.id]?.length > 0);
       setClientes(clientesConDocs);
-      setClienteDocs(docsMap);
+      setClienteTramites(tramitesByCliente);
     } catch {
       setClientes([]);
     } finally {
@@ -91,17 +132,8 @@ export default function ExpedienteDigitalPage() {
   };
 
   const fetchDocsByCliente = async (clienteId: string) => {
-    if (clienteDocs[clienteId]) return;
-    try {
-      setLoadingDocs(clienteId);
-      const res = await api.get(`/documentos?clienteId=${clienteId}`);
-      const docs = res.data?.data || res.data || [];
-      setClienteDocs(prev => ({ ...prev, [clienteId]: Array.isArray(docs) ? docs : [] }));
-    } catch {
-      setClienteDocs(prev => ({ ...prev, [clienteId]: [] }));
-    } finally {
-      setLoadingDocs(null);
-    }
+    if (clienteTramites[clienteId]) return;
+    // Already loaded in fetchClientes
   };
 
   const handleToggleCliente = (clienteId: string) => {
@@ -233,9 +265,9 @@ export default function ExpedienteDigitalPage() {
         ) : (
           filteredClientes.map(cliente => {
             const isExpanded = expandedCliente === cliente.id;
-            const docs = clienteDocs[cliente.id] || [];
+            const tramites = clienteTramites[cliente.id] || [];
+            const totalDocs = tramites.reduce((sum, t) => sum + t.docs.length, 0);
             const isLoadingThisClient = loadingDocs === cliente.id;
-            const grouped = groupByCategoria(docs);
 
             return (
               <div key={cliente.id} className="dark-card-static overflow-hidden hover:shadow-md transition-shadow duration-300">
@@ -252,9 +284,9 @@ export default function ExpedienteDigitalPage() {
                     <p className="text-xs text-white/70 truncate">{cliente.email || 'Sin email'}</p>
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
-                    {clienteDocs[cliente.id] && (
+                    {clienteTramites[cliente.id] && (
                       <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                        {docs.length} docs
+                        {totalDocs} docs · {tramites.length} trámites
                       </span>
                     )}
                     {isExpanded ? (
@@ -273,25 +305,52 @@ export default function ExpedienteDigitalPage() {
                         <div className="h-6 w-6 animate-spin rounded-full border-2 border-amber-500 border-t-transparent mx-auto mb-2" />
                         <p className="text-xs text-white/70">Cargando documentos...</p>
                       </div>
-                    ) : docs.length === 0 ? (
+                    ) : tramites.length === 0 ? (
                       <div className="p-6 text-center">
                         <p className="text-sm text-white/70">No hay documentos para este extranjero</p>
                       </div>
                     ) : (
-                      <div className="p-4 space-y-4">
-                        {Object.entries(grouped).map(([cat, catDocs]) => (
-                          <div key={cat}>
-                            <p className="text-xs font-semibold text-white/70 uppercase mb-2 px-2">
-                              {CATEGORIA_LABELS[cat] || `📎 ${cat}`}
-                            </p>
-                            <div className="space-y-1">
-                              {catDocs.map(doc => (
+                      <div className="p-4 space-y-6">
+                        {tramites.map((tramite) => (
+                          <div key={tramite.id}>
+                            {/* Encabezado del trámite */}
+                            <div className="flex items-center gap-3 mb-3 px-2">
+                              <div className="h-8 w-8 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                                <FileText className="h-4 w-4 text-amber-500" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-bold text-amber-400">
+                                  {TIPO_LABELS[tramite.tipo] || tramite.tipo}
+                                </p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  {tramite.numeroPieza && (
+                                    <span className="text-[10px] font-mono text-white/70">
+                                      Pieza: {tramite.numeroPieza}
+                                    </span>
+                                  )}
+                                  <span className="text-[10px] text-white/70">
+                                    {formatDate(tramite.createdAt)}
+                                  </span>
+                                  <span className={`inline-flex px-2 py-0.5 rounded-full text-[9px] font-bold border ${ESTATUS_BADGE[tramite.estatus] || 'bg-[#1a1a1a] text-white/70 border-[#3a3a3a]'}`}>
+                                    {tramite.estatus?.replace(/_/g, ' ')}
+                                  </span>
+                                </div>
+                              </div>
+                              <span className="text-[10px] text-white/70 flex-shrink-0">
+                                {tramite.docs.length} doc{tramite.docs.length !== 1 ? 's' : ''}
+                              </span>
+                            </div>
+                            {/* Documentos del trámite */}
+                            <div className="space-y-1 ml-2 border-l-2 border-amber-500/20 pl-4">
+                              {tramite.docs.map(doc => (
                                 <div key={doc.id} className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-[#1a1a1a] transition-colors group">
                                   <div className="flex items-center gap-3 min-w-0">
-                                    <FileText className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                                    <FileText className="h-4 w-4 text-white/40 flex-shrink-0" />
                                     <div className="min-w-0">
                                       <p className="text-xs font-medium text-white truncate">{doc.nombre}</p>
-                                      <p className="text-[10px] text-white/70">{formatDate(doc.createdAt)}</p>
+                                      <p className="text-[10px] text-white/70">
+                                        {CATEGORIA_LABELS[doc.categoria || ''] || doc.categoria || 'Sin categoría'} · {formatDate(doc.createdAt)}
+                                      </p>
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-2 flex-shrink-0">
