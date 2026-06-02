@@ -116,34 +116,45 @@ export default function SubirDocumentoScreen() {
     setUploading(true);
     try {
       const token = await storage.getItem('access_token');
-      const userData = await storage.getItem('user_data');
-      const user = userData ? JSON.parse(userData) : null;
+      if (!token) {
+        Alert.alert('Error', 'No hay sesión activa. Cierra sesión e inicia de nuevo.');
+        setUploading(false);
+        return;
+      }
 
       for (const img of images) {
         const formData = new FormData();
         const filename = `${tipoSeleccionado}_${img.label}_${Date.now()}.jpg`;
-        
+
+        // React Native FormData requiere este formato exacto
         formData.append('file', {
-          uri: img.uri,
+          uri: Platform.OS === 'android' ? img.uri : img.uri.replace('file://', ''),
           type: 'image/jpeg',
           name: filename,
         } as any);
         formData.append('nombre', `${TIPOS_DOCUMENTO.find(t => t.value === tipoSeleccionado)?.label || tipoSeleccionado} - ${img.label}`);
-        formData.append('categoria', tipoSeleccionado === 'ine' ? 'identificacion' : tipoSeleccionado === 'residencia' ? 'identificacion' : tipoSeleccionado === 'pasaporte' ? 'pasaporte' : 'otro');
+        formData.append('categoria', 
+          tipoSeleccionado === 'ine' || tipoSeleccionado === 'residencia' ? 'identificacion' : 
+          tipoSeleccionado === 'pasaporte' ? 'pasaporte' : 'otro'
+        );
 
+        // NO poner Content-Type manualmente — fetch lo pone automáticamente con el boundary
         const res = await fetch('https://api.migracionseguramx.com/api/v1/documentos/upload', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
+            // NO incluir Content-Type aquí — fetch lo agrega con boundary automáticamente
           },
           body: formData,
         });
 
+        const responseText = await res.text();
+        console.log('Upload response:', res.status, responseText);
+
         if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          console.error('Upload error:', err);
-          throw new Error(err.message || 'Error al subir');
+          let errMsg = `Error ${res.status}`;
+          try { errMsg = JSON.parse(responseText)?.message || errMsg; } catch {}
+          throw new Error(errMsg);
         }
       }
 
@@ -154,7 +165,7 @@ export default function SubirDocumentoScreen() {
       );
     } catch (error: any) {
       console.error('Upload error:', error);
-      Alert.alert('Error', `No se pudieron subir los documentos: ${error.message || 'Intenta de nuevo.'}`);
+      Alert.alert('Error al subir', error.message || 'No se pudieron subir los documentos. Intenta de nuevo.');
     } finally {
       setUploading(false);
     }
