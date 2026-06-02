@@ -60,6 +60,24 @@ export default function SubirDocumentoScreen() {
     }
   }, [tipoSeleccionado]);
 
+  // Elegir desde galería
+  const pickFromGallery = useCallback(async (label: string) => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permiso requerido', 'Necesitamos acceso a tu galería.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.85,
+      allowsEditing: true,
+      aspect: tipoSeleccionado === 'pasaporte' ? [3, 4] : [16, 10],
+    });
+    if (!result.canceled && result.assets[0]) {
+      setImages(prev => [...prev, { uri: result.assets[0].uri, label }]);
+    }
+  }, [tipoSeleccionado]);
+
   const handleSelectTipo = (tipo: TipoDocumento) => {
     setTipoSeleccionado(tipo);
     setImages([]);
@@ -97,9 +115,9 @@ export default function SubirDocumentoScreen() {
 
     setUploading(true);
     try {
+      const token = await storage.getItem('access_token');
       const userData = await storage.getItem('user_data');
       const user = userData ? JSON.parse(userData) : null;
-      const token = await storage.getItem('access_token');
 
       for (const img of images) {
         const formData = new FormData();
@@ -110,20 +128,22 @@ export default function SubirDocumentoScreen() {
           type: 'image/jpeg',
           name: filename,
         } as any);
-        formData.append('nombre', `${tipoSeleccionado?.toUpperCase()} - ${img.label}`);
-        formData.append('categoria', tipoSeleccionado === 'ine' ? 'identificacion' : tipoSeleccionado || 'otro');
-        if (user?.id) formData.append('clienteId', user.id);
+        formData.append('nombre', `${TIPOS_DOCUMENTO.find(t => t.value === tipoSeleccionado)?.label || tipoSeleccionado} - ${img.label}`);
+        formData.append('categoria', tipoSeleccionado === 'ine' ? 'identificacion' : tipoSeleccionado === 'residencia' ? 'identificacion' : tipoSeleccionado === 'pasaporte' ? 'pasaporte' : 'otro');
 
-        const res = await apiFetch('/documentos/upload', {
+        const res = await fetch('https://api.migracionseguramx.com/api/v1/documentos/upload', {
           method: 'POST',
           headers: {
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
           },
-          body: formData as any,
+          body: formData,
         });
 
         if (!res.ok) {
-          throw new Error('Error al subir documento');
+          const err = await res.json().catch(() => ({}));
+          console.error('Upload error:', err);
+          throw new Error(err.message || 'Error al subir');
         }
       }
 
@@ -132,8 +152,9 @@ export default function SubirDocumentoScreen() {
         'Tus documentos se han enviado correctamente. Serán revisados por tu asesor.',
         [{ text: 'Aceptar', onPress: () => router.back() }]
       );
-    } catch (error) {
-      Alert.alert('Error', 'No se pudieron subir los documentos. Intenta de nuevo.');
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      Alert.alert('Error', `No se pudieron subir los documentos: ${error.message || 'Intenta de nuevo.'}`);
     } finally {
       setUploading(false);
     }
@@ -193,17 +214,28 @@ export default function SubirDocumentoScreen() {
           {captures.map(capture => {
             const captured = images.find(img => img.label === capture.label);
             return (
-              <TouchableOpacity
-                key={capture.label}
-                style={[styles.captureBtn, captured && styles.captureBtnDone]}
-                onPress={() => handleCaptureSingle(capture.label)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.captureBtnIcon}>{captured ? '✅' : '📷'}</Text>
-                <Text style={[styles.captureBtnText, captured && styles.captureBtnTextDone]}>
-                  {captured ? `${capture.label} ✓` : `Capturar ${capture.label}`}
-                </Text>
-              </TouchableOpacity>
+              <View key={capture.label} style={{ gap: 8 }}>
+                <TouchableOpacity
+                  style={[styles.captureBtn, captured && styles.captureBtnDone]}
+                  onPress={() => handleCaptureSingle(capture.label)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.captureBtnIcon}>{captured ? '✅' : '📷'}</Text>
+                  <Text style={[styles.captureBtnText, captured && styles.captureBtnTextDone]}>
+                    {captured ? `${capture.label} ✓` : `Tomar foto: ${capture.label}`}
+                  </Text>
+                </TouchableOpacity>
+                {!captured && (
+                  <TouchableOpacity
+                    style={styles.galleryBtn}
+                    onPress={() => pickFromGallery(capture.label)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.captureBtnIcon}>🖼️</Text>
+                    <Text style={styles.galleryBtnText}>Elegir de galería: {capture.label}</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
             );
           })}
         </View>
@@ -353,6 +385,17 @@ const styles = StyleSheet.create({
   captureBtnIcon: { fontSize: 20 },
   captureBtnText: { fontSize: 14, fontWeight: '600', color: '#fff' },
   captureBtnTextDone: { color: '#22c55e' },
+  galleryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: 'rgba(245,158,11,0.06)',
+    borderRadius: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(245,158,11,0.3)',
+  },
+  galleryBtnText: { fontSize: 14, fontWeight: '500', color: '#f59e0b' },
   previewBtn: {
     marginTop: 16,
     backgroundColor: '#f59e0b',

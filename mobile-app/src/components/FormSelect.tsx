@@ -94,6 +94,11 @@ export default function FormSelect({ label, value, options, onChange, required, 
               keyExtractor={(item, i) => `${item}-${i}`}
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={styles.listContent}
+              getItemLayout={(_data, index) => ({ length: 50, offset: 50 * index, index })}
+              initialNumToRender={20}
+              maxToRenderPerBatch={20}
+              windowSize={10}
+              removeClippedSubviews={true}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={[styles.option, item === value && styles.optionActive]}
