@@ -1,49 +1,96 @@
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ActivityIndicator, Animated, Dimensions } from 'react-native';
-import { useState, useEffect, useRef } from 'react';
+import {
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert,
+  ActivityIndicator, KeyboardAvoidingView, Platform, TouchableWithoutFeedback,
+  Keyboard, Animated,
+} from 'react-native';
+import { useState, useRef, useEffect } from 'react';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { apiFetch } from '@/lib/api';
-
-const { width } = Dimensions.get('window');
+import VisaForm from '@/components/forms/VisaForm';
+import GenericTramiteForm from '@/components/forms/GenericTramiteForm';
 
 const TIPOS_TRAMITE = [
-  { value: 'visa', label: 'Visas solicitadas ante el INM' },
-  { value: 'permiso_trabajo', label: 'Permisos solicitados al INM' },
-  { value: 'notificacion_cambio', label: 'Notificación de Cambio' },
-  { value: 'expedicion_documento', label: 'Expedición de Documento Migratorio' },
-  { value: 'regularizacion_migratoria', label: 'Regularización Migratoria' },
-  { value: 'constancia_empleador', label: 'Constancia de Inscripción de Empleador' },
-  { value: 'cambio_condicion_estancia', label: 'Cambio de Condición de Estancia' },
+  { value: 'visa', label: 'Visas solicitadas ante el INM', descripcion: 'Solicitud de visa por unidad familiar, razones humanitarias u oferta de empleo', icon: '✈️' },
+  { value: 'permiso_trabajo', label: 'Permisos solicitados al INM', descripcion: 'Permiso para trabajar o permiso de salida y regreso', icon: '💼' },
+  { value: 'notificacion_cambio', label: 'Notificación de Cambio', descripcion: 'Notificar cambio de estado civil, nombre, nacionalidad, domicilio o lugar de trabajo', icon: '📝' },
+  { value: 'expedicion_documento', label: 'Expedición de Documento Migratorio', descripcion: 'Renovación, canje, reposición o expedición por acuerdo de documento migratorio', icon: '📄' },
+  { value: 'regularizacion_migratoria', label: 'Regularización Migratoria', descripcion: 'Regularización por razones humanitarias, unidad familiar o documento vencido', icon: '📋' },
+  { value: 'constancia_empleador', label: 'Constancia de Inscripción de Empleador', descripcion: 'Obtención o actualización de constancia para emitir ofertas de empleo a extranjeros', icon: '🏢' },
+  { value: 'cambio_condicion_estancia', label: 'Cambio de Condición de Estancia', descripcion: 'Cambiar de una condición migratoria a otra (7 modalidades)', icon: '🔄' },
 ];
 
+const EMPTY_FORM: Record<string, string> = {
+  propositoViaje: '', especificaTramite: '', curpExtranjero: '',
+  nombre: '', apellidos: '', sexo: '', fechaNacimiento: '',
+  nacionalidad: '', estadoCivil: '',
+  paisNacimiento: '', estadoProvinciaNacimiento: '',
+  documentoIdentificacion: '', numeroDocumento: '',
+  paisExpedicion: '', fechaExpedicion: '', fechaVencimiento: '',
+  domCodigoPostal: '', domEstado: '', domMunicipio: '', domColonia: '', domCalle: '',
+  domNumeroExterior: '', domNumeroInterior: '', domLada: '', domTelefonoFijo: '',
+  actividadPrincipal: '', sectorTrabajo: '', situacionTrabajo: '', ocupacionTrabajo: '',
+  expulsadoMexico: '', antecedentesPenales: '',
+  empleadorTipoPersona: '', empleadorRfc: '', empleadorNumeroExpediente: '',
+  solicitanteEmail: '', solicitanteEmailConfirmacion: '', comentarios: '',
+};
+
+const EMPTY_SOLICITANTE: Record<string, string> = {
+  tipoPersona: '', curp: '', rfc: '', nombre: '', apellidos: '', nacionalidad: '',
+  tipoDocumento: '', numeroDocumento: '', vinculoParentesco: '',
+  codigoPostal: '', estado: '', municipio: '', colonia: '', calle: '',
+  numeroExterior: '', numeroInterior: '', lada: '', telefonoFijo: '',
+  moralRfc: '', moralRazonSocial: '', moralSector: '', moralGiroComercial: '',
+  moralCodigoPostal: '', moralEstado: '', moralMunicipio: '', moralColonia: '',
+  moralCalle: '', moralNumeroExterior: '', moralNumeroInterior: '', moralLada: '', moralTelefonoFijo: '',
+  moralNumeroActa: '', moralFechaActa: '',
+};
+
 export default function SolicitudNuevaScreen() {
-  const [step, setStep] = useState(0); // 0=tipo, 1=datos, 2=confirmacion
+  const [step, setStep] = useState<0 | 1 | 2>(0); // 0=tipo, 1=form, 2=confirmacion
   const [tipoTramite, setTipoTramite] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [datos, setDatos] = useState({
-    nombre: '', apellidos: '', sexo: '', fechaNacimiento: '',
-    nacionalidad: '', paisNacimiento: '', curp: '',
-    email: '', telefono: '', domicilio: '',
-    pasaporteNumero: '', pasaporteVigencia: '',
-  });
+
+  const [form, setForm] = useState<Record<string, string>>({ ...EMPTY_FORM });
+  const updateForm = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
+
+  const [solicitante, setSolicitante] = useState<Record<string, string>>({ ...EMPTY_SOLICITANTE });
+  const updateSolicitante = (field: string, value: string) => setSolicitante(prev => ({ ...prev, [field]: value }));
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+
   useEffect(() => {
-    Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }).start();
+    fadeAnim.setValue(0);
+    slideAnim.setValue(30);
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 500, useNativeDriver: true }),
+    ]).start();
   }, [step]);
 
-  const updateDato = (field: string, value: string) => {
-    const upper = ['curp'].includes(field) ? value.toUpperCase() : value;
-    setDatos(prev => ({ ...prev, [field]: upper }));
+  const resetForm = () => {
+    setForm({ ...EMPTY_FORM });
+    setSolicitante({ ...EMPTY_SOLICITANTE });
+  };
+
+  const handleSelectTipo = (value: string) => {
+    setTipoTramite(value);
+    resetForm();
+    setStep(1);
   };
 
   const handleSubmit = async () => {
-    if (!datos.nombre.trim() || !datos.apellidos.trim()) {
+    if (!form.nombre.trim() || !form.apellidos.trim()) {
       Alert.alert('Error', 'Nombre y apellidos son obligatorios');
       return;
     }
-    if (!datos.email.trim() || !datos.email.includes('@')) {
-      Alert.alert('Error', 'Ingresa un correo válido');
+    if (!form.solicitanteEmail.trim()) {
+      Alert.alert('Error', 'Ingresa tu correo electrónico');
+      return;
+    }
+    if (form.solicitanteEmail !== form.solicitanteEmailConfirmacion) {
+      Alert.alert('Error', 'Los correos no coinciden');
       return;
     }
 
@@ -53,15 +100,15 @@ export default function SolicitudNuevaScreen() {
         method: 'POST',
         body: JSON.stringify({
           tipoTramite,
-          datosFormulario: datos,
+          datosFormulario: { ...form, solicitante },
         }),
       });
 
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        setStep(2); // Pantalla de confirmación
+        setStep(2);
       } else {
-        const error = await res.json();
-        Alert.alert('Error', error.message || 'No se pudo enviar la solicitud');
+        Alert.alert('Error', Array.isArray(data.message) ? data.message.join('\n') : (data.message || 'No se pudo enviar la solicitud'));
       }
     } catch {
       Alert.alert('Error', 'No se pudo conectar al servidor');
@@ -70,13 +117,12 @@ export default function SolicitudNuevaScreen() {
     }
   };
 
-  // Paso 0: Seleccionar tipo de trámite
+  // ─── Paso 0: Seleccionar tipo ───────────────────────────────────────────────
   if (step === 0) {
     return (
-      <View style={styles.container}>
-        <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={StyleSheet.absoluteFill} />
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <Animated.View style={{ opacity: fadeAnim }}>
+      <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={{ flex: 1 }}>
+        <ScrollView style={styles.container} contentContainerStyle={{ padding: 20, paddingTop: 56, paddingBottom: 40 }}>
+          <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
               <Text style={styles.backText}>← Volver</Text>
             </TouchableOpacity>
@@ -87,191 +133,198 @@ export default function SolicitudNuevaScreen() {
               <Text style={styles.headerSub}>Selecciona el tipo de trámite que necesitas</Text>
             </View>
 
-            <View style={styles.tiposList}>
-              {TIPOS_TRAMITE.map((tipo) => (
-                <TouchableOpacity
-                  key={tipo.value}
-                  style={[styles.tipoCard, tipoTramite === tipo.value && styles.tipoCardSelected]}
-                  onPress={() => setTipoTramite(tipo.value)}
-                  activeOpacity={0.8}
-                >
-                  <View style={[styles.tipoRadio, tipoTramite === tipo.value && styles.tipoRadioSelected]} />
-                  <Text style={[styles.tipoLabel, tipoTramite === tipo.value && styles.tipoLabelSelected]}>{tipo.label}</Text>
-                </TouchableOpacity>
-              ))}
+            {/* Costo info */}
+            <View style={styles.costoInfo}>
+              <Text style={styles.costoLabel}>COSTO DEL SERVICIO</Text>
+              <Text style={styles.costoValue}>$100 MXN</Text>
+              <Text style={styles.costoNote}>Se genera el cobro una vez que tu solicitud sea procesada por el gestor</Text>
             </View>
 
-            {tipoTramite && (
-              <TouchableOpacity style={styles.nextBtn} onPress={() => setStep(1)} activeOpacity={0.85}>
-                <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.nextGradient}>
-                  <Text style={styles.nextText}>Continuar →</Text>
-                </LinearGradient>
+            {TIPOS_TRAMITE.map((tipo) => (
+              <TouchableOpacity
+                key={tipo.value}
+                style={styles.tipoCard}
+                onPress={() => handleSelectTipo(tipo.value)}
+                activeOpacity={0.8}
+              >
+                <View style={styles.tipoIcon}><Text style={{ fontSize: 22 }}>{tipo.icon}</Text></View>
+                <View style={styles.tipoInfo}>
+                  <Text style={styles.tipoLabel}>{tipo.label}</Text>
+                  <Text style={styles.tipoDesc} numberOfLines={2}>{tipo.descripcion}</Text>
+                </View>
+                <Text style={{ fontSize: 22, color: '#f59e0b' }}>›</Text>
               </TouchableOpacity>
-            )}
+            ))}
           </Animated.View>
         </ScrollView>
-      </View>
+      </LinearGradient>
     );
   }
 
-  // Paso 2: Confirmación
+  // ─── Paso 2: Confirmación ────────────────────────────────────────────────────
   if (step === 2) {
     return (
-      <View style={styles.container}>
-        <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={StyleSheet.absoluteFill} />
-        <View style={styles.confirmContainer}>
-          <View style={styles.confirmIcon}>
-            <Text style={{ fontSize: 48 }}>✅</Text>
+      <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.successContainer}>
+        <Animated.View style={{ alignItems: 'center', opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+          <View style={styles.successIconContainer}>
+            <Text style={{ fontSize: 56 }}>✅</Text>
           </View>
-          <Text style={styles.confirmTitle}>Solicitud enviada</Text>
-          <Text style={styles.confirmText}>
+          <Text style={styles.successTitle}>¡Solicitud enviada!</Text>
+          <Text style={styles.successText}>
             Tu solicitud fue recibida exitosamente.{'\n\n'}
-            En breve tu gestor te contactará para procesar tu solicitud y enviarte los requisitos.{'\n\n'}
-            Recibirás una notificación cuando esté lista.
+            En breve tu gestor la procesará en el INM y te enviará los requisitos.{'\n\n'}
+            Recibirás una notificación con el enlace de pago por <Text style={{ color: '#f59e0b', fontWeight: '700' }}>$100 MXN</Text> una vez lista.
           </Text>
-          <TouchableOpacity style={styles.nextBtn} onPress={() => router.replace('/(cliente)/mis-tramites')} activeOpacity={0.85}>
-            <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.nextGradient}>
-              <Text style={styles.nextText}>Volver al inicio</Text>
+          <TouchableOpacity onPress={() => router.replace('/(cliente)/mis-tramites')} activeOpacity={0.85}>
+            <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.successBtn}>
+              <Text style={styles.successBtnText}>Volver al inicio</Text>
             </LinearGradient>
           </TouchableOpacity>
-        </View>
-      </View>
+        </Animated.View>
+      </LinearGradient>
     );
   }
 
-  // Paso 1: Formulario de datos
+  // ─── Paso 1: Formulario ──────────────────────────────────────────────────────
+  const tipoInfo = TIPOS_TRAMITE.find(t => t.value === tipoTramite);
+
   return (
-    <View style={styles.container}>
-      <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={StyleSheet.absoluteFill} />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        <Animated.View style={{ opacity: fadeAnim }}>
-          <TouchableOpacity onPress={() => setStep(0)} style={styles.backBtn}>
-            <Text style={styles.backText}>← Cambiar tipo</Text>
-          </TouchableOpacity>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={{ flex: 1 }}>
+          <ScrollView
+            style={styles.container}
+            contentContainerStyle={{ padding: 16, paddingTop: 56, paddingBottom: 40 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <TouchableOpacity onPress={() => setStep(0)} style={styles.backBtn}>
+              <Text style={styles.backText}>← Cambiar tipo</Text>
+            </TouchableOpacity>
 
-          <View style={styles.headerSection}>
-            <Text style={styles.headerTitle}>Tus datos</Text>
-            <Text style={styles.headerSub}>Llena la información conforme a tu pasaporte</Text>
-          </View>
+            <Text style={styles.formTitle}>{tipoInfo?.label}</Text>
+            <Text style={styles.formDesc}>Llena la información conforme a tu pasaporte o documento de identidad.</Text>
 
-          <View style={styles.formCard}>
-            <LinearGradient colors={['rgba(245,158,11,0.1)', 'rgba(245,158,11,0.02)']} style={styles.formCardBorder} />
-            <View style={styles.formInner}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>NOMBRE(S) *</Text>
-                <TextInput style={styles.input} value={datos.nombre} onChangeText={v => updateDato('nombre', v)} placeholder="Como aparece en pasaporte" placeholderTextColor="rgba(255,255,255,0.2)" autoCapitalize="words" />
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>APELLIDOS *</Text>
-                <TextInput style={styles.input} value={datos.apellidos} onChangeText={v => updateDato('apellidos', v)} placeholder="Apellido paterno y materno" placeholderTextColor="rgba(255,255,255,0.2)" autoCapitalize="words" />
-              </View>
-              <View style={styles.row}>
-                <View style={[styles.inputGroup, { flex: 1 }]}>
-                  <Text style={styles.label}>SEXO</Text>
-                  <TextInput style={styles.input} value={datos.sexo} onChangeText={v => updateDato('sexo', v)} placeholder="H / M" placeholderTextColor="rgba(255,255,255,0.2)" maxLength={1} autoCapitalize="characters" />
-                </View>
-                <View style={[styles.inputGroup, { flex: 2 }]}>
-                  <Text style={styles.label}>FECHA NACIMIENTO</Text>
-                  <TextInput style={styles.input} value={datos.fechaNacimiento} onChangeText={v => updateDato('fechaNacimiento', v)} placeholder="DD/MM/AAAA" placeholderTextColor="rgba(255,255,255,0.2)" keyboardType="numeric" />
-                </View>
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>NACIONALIDAD</Text>
-                <TextInput style={styles.input} value={datos.nacionalidad} onChangeText={v => updateDato('nacionalidad', v)} placeholder="Ej: Colombiana" placeholderTextColor="rgba(255,255,255,0.2)" autoCapitalize="words" />
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>PAÍS DE NACIMIENTO</Text>
-                <TextInput style={styles.input} value={datos.paisNacimiento} onChangeText={v => updateDato('paisNacimiento', v)} placeholder="Ej: Colombia" placeholderTextColor="rgba(255,255,255,0.2)" autoCapitalize="words" />
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>CURP (si tienes)</Text>
-                <TextInput style={styles.input} value={datos.curp} onChangeText={v => updateDato('curp', v)} placeholder="18 caracteres" placeholderTextColor="rgba(255,255,255,0.2)" maxLength={18} autoCapitalize="characters" />
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>CORREO ELECTRÓNICO *</Text>
-                <TextInput style={styles.input} value={datos.email} onChangeText={v => updateDato('email', v)} placeholder="tu@email.com" placeholderTextColor="rgba(255,255,255,0.2)" keyboardType="email-address" autoCapitalize="none" />
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>TELÉFONO / WHATSAPP</Text>
-                <TextInput style={styles.input} value={datos.telefono} onChangeText={v => updateDato('telefono', v)} placeholder="+52 55 1234 5678" placeholderTextColor="rgba(255,255,255,0.2)" keyboardType="phone-pad" />
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>DOMICILIO EN MÉXICO</Text>
-                <TextInput style={styles.input} value={datos.domicilio} onChangeText={v => updateDato('domicilio', v)} placeholder="Calle, número, colonia, ciudad" placeholderTextColor="rgba(255,255,255,0.2)" />
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>NÚMERO DE PASAPORTE</Text>
-                <TextInput style={styles.input} value={datos.pasaporteNumero} onChangeText={v => updateDato('pasaporteNumero', v)} placeholder="Número de pasaporte" placeholderTextColor="rgba(255,255,255,0.2)" autoCapitalize="characters" />
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>VIGENCIA DEL PASAPORTE</Text>
-                <TextInput style={styles.input} value={datos.pasaporteVigencia} onChangeText={v => updateDato('pasaporteVigencia', v)} placeholder="DD/MM/AAAA" placeholderTextColor="rgba(255,255,255,0.2)" keyboardType="numeric" />
-              </View>
-
-              {/* Info de costo */}
-              <View style={styles.costoInfo}>
-                <Text style={styles.costoLabel}>Costo del servicio</Text>
-                <Text style={styles.costoValue}>$100 MXN</Text>
-                <Text style={styles.costoNote}>Se generará el cobro una vez que tu solicitud sea procesada</Text>
-              </View>
-
-              {/* Submit */}
-              <TouchableOpacity style={[styles.nextBtn, submitting && { opacity: 0.6 }]} onPress={handleSubmit} disabled={submitting} activeOpacity={0.85}>
-                <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.nextGradient}>
-                  {submitting ? (
-                    <ActivityIndicator color="#fff" size="small" />
-                  ) : (
-                    <Text style={styles.nextText}>Enviar solicitud</Text>
-                  )}
-                </LinearGradient>
-              </TouchableOpacity>
+            {/* Costo destacado arriba del form */}
+            <View style={styles.costoInfoSmall}>
+              <Text style={styles.costoLabelSmall}>💰 Costo del servicio: </Text>
+              <Text style={styles.costoValueSmall}>$100 MXN</Text>
+              <Text style={styles.costoNoteSmall}> — Se cobra al procesar tu solicitud</Text>
             </View>
-          </View>
-        </Animated.View>
-      </ScrollView>
-    </View>
+
+            {/* Formulario específico por tipo */}
+            {tipoTramite === 'visa' ? (
+              <VisaForm
+                form={form}
+                solicitante={solicitante}
+                updateForm={updateForm}
+                updateSolicitante={updateSolicitante}
+              />
+            ) : (
+              <GenericTramiteForm
+                tipo={tipoTramite}
+                form={form}
+                updateForm={updateForm}
+              />
+            )}
+
+            {/* Botón enviar */}
+            <TouchableOpacity
+              style={[styles.submitBtnWrapper, submitting && { opacity: 0.6 }]}
+              onPress={handleSubmit}
+              disabled={submitting}
+              activeOpacity={0.85}
+            >
+              <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.submitBtn}>
+                {submitting ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Text style={styles.submitText}>Enviar solicitud</Text>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <Text style={styles.disclaimer}>
+              Al enviar, un gestor revisará tu información, la cargará en el INM y te enviará el cobro de $100 MXN.
+            </Text>
+          </ScrollView>
+        </LinearGradient>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
-  content: { paddingHorizontal: 20, paddingVertical: 50 },
+  container: { flex: 1 },
   backBtn: { marginBottom: 16 },
   backText: { color: '#f59e0b', fontSize: 14, fontWeight: '600' },
 
-  headerSection: { alignItems: 'center', marginBottom: 24 },
+  headerSection: { alignItems: 'center', marginBottom: 20 },
   headerEmoji: { fontSize: 40, marginBottom: 8 },
   headerTitle: { fontSize: 24, fontWeight: '800', color: '#ffffff', letterSpacing: 0.5 },
   headerSub: { fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4, textAlign: 'center' },
 
-  tiposList: { gap: 10, marginBottom: 24 },
-  tipoCard: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 14, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  tipoCardSelected: { borderColor: 'rgba(245,158,11,0.5)', backgroundColor: 'rgba(245,158,11,0.05)' },
-  tipoRadio: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: 'rgba(255,255,255,0.2)' },
-  tipoRadioSelected: { borderColor: '#f59e0b', backgroundColor: '#f59e0b' },
-  tipoLabel: { fontSize: 14, color: 'rgba(255,255,255,0.6)', flex: 1, fontWeight: '500' },
-  tipoLabelSelected: { color: '#ffffff' },
+  costoInfo: {
+    backgroundColor: 'rgba(245,158,11,0.08)', borderRadius: 14, padding: 16,
+    alignItems: 'center', marginBottom: 20, borderWidth: 1, borderColor: 'rgba(245,158,11,0.25)',
+  },
+  costoLabel: { fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: '600', letterSpacing: 1.5 },
+  costoValue: { fontSize: 30, fontWeight: '800', color: '#f59e0b', marginVertical: 4 },
+  costoNote: { fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center' },
 
-  formCard: { position: 'relative', borderRadius: 20, overflow: 'hidden', marginBottom: 30 },
-  formCardBorder: { ...StyleSheet.absoluteFillObject, borderRadius: 20 },
-  formInner: { margin: 1, borderRadius: 19, backgroundColor: 'rgba(23,23,23,0.9)', padding: 20 },
+  costoInfoSmall: {
+    flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',
+    backgroundColor: 'rgba(245,158,11,0.07)', borderRadius: 10, padding: 12,
+    marginBottom: 16, borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)',
+  },
+  costoLabelSmall: { fontSize: 12, color: 'rgba(255,255,255,0.5)', fontWeight: '500' },
+  costoValueSmall: { fontSize: 14, fontWeight: '800', color: '#f59e0b' },
+  costoNoteSmall: { fontSize: 11, color: 'rgba(255,255,255,0.35)' },
 
-  inputGroup: { marginBottom: 14 },
-  label: { fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.4)', letterSpacing: 1.5, marginBottom: 6 },
-  input: { backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, color: '#ffffff' },
-  row: { flexDirection: 'row', gap: 10 },
+  tipoCard: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: 16,
+    marginBottom: 10, gap: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)',
+  },
+  tipoIcon: {
+    width: 46, height: 46, borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.06)', justifyContent: 'center', alignItems: 'center',
+  },
+  tipoInfo: { flex: 1 },
+  tipoLabel: { fontSize: 14, fontWeight: '600', color: '#ffffff' },
+  tipoDesc: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2, lineHeight: 16 },
 
-  costoInfo: { backgroundColor: 'rgba(245,158,11,0.08)', borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 8, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)' },
-  costoLabel: { fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: '600', letterSpacing: 1 },
-  costoValue: { fontSize: 28, fontWeight: '800', color: '#f59e0b', marginVertical: 4 },
-  costoNote: { fontSize: 11, color: 'rgba(255,255,255,0.3)', textAlign: 'center' },
+  formTitle: { fontSize: 18, fontWeight: '700', color: '#ffffff', marginBottom: 4 },
+  formDesc: { fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 16, lineHeight: 18 },
 
-  nextBtn: { borderRadius: 14, overflow: 'hidden', shadowColor: '#f59e0b', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 8 },
-  nextGradient: { paddingVertical: 16, alignItems: 'center', justifyContent: 'center' },
-  nextText: { color: '#ffffff', fontSize: 16, fontWeight: '700' },
+  submitBtnWrapper: {
+    borderRadius: 14, overflow: 'hidden', marginTop: 24,
+    shadowColor: '#f59e0b', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3, shadowRadius: 12, elevation: 6,
+  },
+  submitBtn: { paddingVertical: 16, alignItems: 'center', justifyContent: 'center' },
+  submitText: { color: '#ffffff', fontSize: 16, fontWeight: '700' },
+  disclaimer: {
+    fontSize: 11, color: 'rgba(255,255,255,0.35)',
+    textAlign: 'center', marginTop: 12, lineHeight: 16, marginBottom: 20,
+  },
 
-  confirmContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
-  confirmIcon: { marginBottom: 20 },
-  confirmTitle: { fontSize: 24, fontWeight: '800', color: '#ffffff', marginBottom: 16 },
-  confirmText: { fontSize: 14, color: 'rgba(255,255,255,0.5)', textAlign: 'center', lineHeight: 22, marginBottom: 32 },
+  successContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
+  successIconContainer: {
+    width: 100, height: 100, borderRadius: 50,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    justifyContent: 'center', alignItems: 'center',
+    marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)',
+  },
+  successTitle: { fontSize: 22, fontWeight: '700', color: '#ffffff', marginTop: 16, marginBottom: 8 },
+  successText: {
+    fontSize: 14, color: 'rgba(255,255,255,0.5)',
+    textAlign: 'center', lineHeight: 22, marginBottom: 24,
+  },
+  successBtn: {
+    borderRadius: 12, paddingVertical: 14, paddingHorizontal: 32,
+    shadowColor: '#f59e0b', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3, shadowRadius: 12, elevation: 6,
+  },
+  successBtnText: { color: '#ffffff', fontSize: 15, fontWeight: '600' },
 });

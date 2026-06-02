@@ -90,6 +90,9 @@ export class SolicitudesService {
     solicitud.asesorId = adminId;
     solicitud.estatus = EstatusSolicitud.PENDIENTE_PAGO;
 
+    // Costo fijo de $100 MXN para solicitudes
+    solicitud.costo = 100;
+
     // Generar link de pago MercadoPago
     const nombreExtranjero = this.getNombreExtranjero(solicitud);
     const emailExtranjero = this.getEmailExtranjero(solicitud);
@@ -97,7 +100,7 @@ export class SolicitudesService {
     const mpPreference = await this.mercadoPagoService.createPreference({
       tramiteId: solicitud.id,
       concepto: `Generación de solicitud INM - ${(solicitud.tipoTramite || '').replace(/_/g, ' ')}`,
-      monto: Number(solicitud.costo),
+      monto: 100,
       clienteNombre: nombreExtranjero,
       email: emailExtranjero,
     });
@@ -123,7 +126,7 @@ export class SolicitudesService {
         tipo: TipoNotificacion.PAGO_PENDIENTE,
         canal: CanalNotificacion.PUSH,
         titulo: '💰 Solicitud lista — Pago pendiente',
-        contenido: `Tu solicitud fue procesada. Paga $${solicitud.costo} MXN para recibir el documento. Se te enviaron los requisitos por correo.`,
+        contenido: `Tu solicitud fue procesada. Paga $100 MXN para recibir el documento. Se te enviaron los requisitos por correo.`,
         metadata: { solicitudId: saved.id, monto: solicitud.costo.toString() },
       }).catch(() => {});
     }
