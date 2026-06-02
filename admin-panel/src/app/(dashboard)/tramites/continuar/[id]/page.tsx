@@ -63,6 +63,7 @@ export default function ContinuarTramitePage() {
   const [requisitos, setRequisitos] = useState<Requisito[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [pagoData, setPagoData] = useState({ concepto: '', monto: '', metodoPago: '', referencia: '' });
+  const [requisitosSeleccionados, setRequisitosSeleccionados] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     async function fetchData() {
@@ -71,6 +72,11 @@ export default function ContinuarTramitePage() {
         setTramite(res.data);
         const reqRes = await api.get(`/tramites/requisitos/${res.data.tipo}`);
         setRequisitos(reqRes.data || []);
+        // Pre-seleccionar los requisitos obligatorios automáticamente
+        const reqs = reqRes.data || [];
+        const obligatorios = new Set<number>();
+        reqs.forEach((r: any, i: number) => { if (r.obligatorio) obligatorios.add(i); });
+        setRequisitosSeleccionados(obligatorios);
 
         // Determinar en qué paso retomar según etapaGestion guardada
         const etapa = res.data.datosFormulario?.etapaGestion;
@@ -149,6 +155,8 @@ export default function ContinuarTramitePage() {
     }
 
     if (step === 1) {
+      // Validar que se seleccionó al menos un requisito
+      if (requisitosSeleccionados.size === 0) { toast.error('Selecciona al menos un requisito'); return; }
       // Guardar que pasó a etapa de pago
       await saveEtapa('pago');
     }
@@ -180,15 +188,21 @@ export default function ContinuarTramitePage() {
         await api.post('/documentos/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).catch(() => {});
       }
 
-      // Enviar requisitos por correo al extranjero
+      // Enviar requisitos seleccionados por correo al extranjero
       if (tramite?.cliente?.email || tramite?.datosFormulario?.email) {
         const emailExtranjero = tramite?.cliente?.email || tramite?.datosFormulario?.email;
         const nombreExtranjero = tramite?.cliente?.nombreCompleto || `${tramite?.datosFormulario?.nombre || ''} ${tramite?.datosFormulario?.apellidos || ''}`.trim();
-        await api.post('/notificaciones/enviar-requisitos', {
-          email: emailExtranjero,
-          nombreExtranjero,
-          requisitos: requisitos.map(r => r.nombre),
-        }).catch(() => {});
+        // Solo enviar los requisitos que el admin seleccionó
+        const requisitosAEnviar = requisitos
+          .filter((_, i) => requisitosSeleccionados.has(i))
+          .map(r => r.nombre);
+        if (requisitosAEnviar.length > 0) {
+          await api.post('/notificaciones/enviar-requisitos', {
+            email: emailExtranjero,
+            nombreExtranjero,
+            requisitos: requisitosAEnviar,
+          }).catch(() => {});
+        }
       }
 
       // Registrar pago dividido si se llenó el monto
@@ -455,28 +469,58 @@ export default function ContinuarTramitePage() {
         {/* Step 1: Requisitos */}
         {step === 1 && (
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <ClipboardList className="h-5 w-5 text-amber-500" />
-              <h2 className="text-lg font-semibold text-white">Requisitos Documentales</h2>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <ClipboardList className="h-5 w-5 text-amber-500" />
+                <h2 className="text-lg font-semibold text-white">Requisitos Documentales</h2>
+              </div>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setRequisitosSeleccionados(new Set(requisitos.map((_, i) => i)))} className="text-xs text-amber-400 hover:text-amber-300 px-3 py-1 border border-amber-500/30 rounded-lg">Seleccionar todos</button>
+                <button type="button" onClick={() => setRequisitosSeleccionados(new Set())} className="text-xs text-white/70 hover:text-white px-3 py-1 border border-[#3a3a3a] rounded-lg">Limpiar</button>
+              </div>
             </div>
-            <p className="text-sm text-white/70 mb-4">Al finalizar se enviarán los requisitos por correo al extranjero.</p>
-            <div className="space-y-3 max-w-2xl">
-              {requisitos.map((req, i) => (
-                <div key={i} className={`p-4 rounded-lg border ${req.obligatorio ? 'border-amber-500/30 bg-amber-500/[0.08]' : 'border-[#3a3a3a] bg-[#1a1a1a]'}`}>
-                  <div className="flex items-start gap-3">
-                    <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center text-xs font-medium ${req.obligatorio ? 'bg-amber-500 text-white' : 'bg-gray-300 text-white'}`}>{i + 1}</div>
-                    <div>
-                      <p className="text-sm font-medium text-white">{req.nombre}{req.obligatorio ? <span className="ml-2 text-xs text-amber-500">(Obligatorio)</span> : <span className="ml-2 text-xs text-white/70">(Si aplica)</span>}</p>
+            <p className="text-sm text-white/70 mb-4">Selecciona los requisitos que aplican para este extranjero. Solo se enviarán los que marques.</p>
+            <div className="space-y-2 max-w-2xl">
+              {requisitos.map((req, i) => {
+                const selected = requisitosSeleccionados.has(i);
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => {
+                      const next = new Set(requisitosSeleccionados);
+                      if (next.has(i)) next.delete(i); else next.add(i);
+                      setRequisitosSeleccionados(next);
+                    }}
+                    className={`w-full text-left p-4 rounded-lg border transition-all duration-200 flex items-start gap-3 ${selected ? 'border-amber-500/50 bg-amber-500/[0.08]' : 'border-[#3a3a3a] bg-[#1a1a1a] hover:border-[#4a4a4a]'}`}
+                  >
+                    <div className={`mt-0.5 flex-shrink-0 h-5 w-5 rounded border-2 flex items-center justify-center transition-all ${selected ? 'bg-amber-500 border-amber-500' : 'border-[#3a3a3a]'}`}>
+                      {selected && <Check className="h-3 w-3 text-white" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white">
+                        {req.nombre}
+                        {req.obligatorio
+                          ? <span className="ml-2 text-xs text-amber-500">(Obligatorio)</span>
+                          : <span className="ml-2 text-xs text-white/70">(Si aplica)</span>}
+                      </p>
                       <p className="text-xs text-white/70 mt-0.5">{req.descripcion}</p>
                     </div>
-                  </div>
-                </div>
-              ))}
+                  </button>
+                );
+              })}
             </div>
+
+            {/* Resumen de selección */}
+            <div className="mt-4 max-w-2xl p-3 bg-[#1a1a1a] border border-[#3a3a3a] rounded-lg flex items-center justify-between">
+              <span className="text-sm text-white/70">{requisitosSeleccionados.size} de {requisitos.length} requisitos seleccionados</span>
+              {requisitosSeleccionados.size === 0 && <span className="text-xs text-amber-400">⚠️ Selecciona al menos uno</span>}
+            </div>
+
             {/* Info de envío */}
-            <div className="mt-6 p-4 bg-amber-500/[0.06] border border-amber-500/20 rounded-lg max-w-2xl">
+            <div className="mt-4 p-4 bg-amber-500/[0.06] border border-amber-500/20 rounded-lg max-w-2xl">
               <p className="text-sm text-amber-300 font-medium">📧 Al dar clic en Siguiente o Finalizar y enviar requisitos:</p>
-              <p className="text-sm text-white/80 mt-1">Se enviará un correo al extranjero ({tramite?.datosFormulario?.solicitanteEmail || tramite?.cliente?.email || 'sin email'}) con la lista de documentos que debe presentar.</p>
+              <p className="text-sm text-white/80 mt-1">Se enviará un correo al extranjero ({tramite?.datosFormulario?.solicitanteEmail || tramite?.cliente?.email || 'sin email'}) con los {requisitosSeleccionados.size} requisitos seleccionados.</p>
             </div>
           </div>
         )}
