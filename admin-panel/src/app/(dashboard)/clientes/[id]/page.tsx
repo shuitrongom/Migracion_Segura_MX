@@ -320,7 +320,7 @@ export default function ClienteDetailPage() {
         <div className="lg:col-span-1">
           <div className="dark-card-static overflow-hidden">
             {/* Avatar + Name */}
-            <div className="p-6 pb-4 bg-gradient-to-br from-gray-50 to-brand-50/30 border-b">
+            <div className="p-6 pb-4 bg-gradient-to-br from-[#1a1a1a] to-[#222222] border-b border-[#3a3a3a]">
               <div className="flex items-center gap-4">
                 <div className="relative group">
                   {fotoUrl ? (
@@ -550,22 +550,22 @@ export default function ClienteDetailPage() {
 
             {/* Pieza & Clave INM */}
             {(numeroPiezaINM || contrasenaINM) && (
-              <div className="mt-4 p-4 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl space-y-3">
-                <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
+              <div className="mt-4 p-4 bg-amber-500/[0.06] border border-amber-500/20 rounded-xl space-y-3">
+                <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">
                   🔑 Datos INM
                 </p>
                 {numeroPiezaINM && (
                   <div>
-                    <p className="text-[10px] text-amber-600">Pieza</p>
-                    <p className="text-sm font-mono font-bold text-white">
+                    <p className="text-[10px] text-white/70">Pieza</p>
+                    <p className="text-sm font-mono font-bold text-amber-400">
                       {numeroPiezaINM}
                     </p>
                   </div>
                 )}
                 {contrasenaINM && (
                   <div>
-                    <p className="text-[10px] text-amber-600">Clave</p>
-                    <p className="text-sm font-mono font-bold text-white">
+                    <p className="text-[10px] text-white/70">Clave</p>
+                    <p className="text-sm font-mono font-bold text-amber-400">
                       {contrasenaINM}
                     </p>
                   </div>
@@ -662,7 +662,7 @@ export default function ClienteDetailPage() {
                     documentos.map((doc) => (
                       <div
                         key={doc.id}
-                        className="flex items-center justify-between p-4 border-2 border-[#262626] rounded-xl hover:border-amber-500/30 hover:shadow-md bg-gradient-to-r from-white to-gray-50/50 transition-all duration-200"
+                        className="flex items-center justify-between p-4 border border-[#3a3a3a] rounded-xl hover:border-amber-500/30 bg-[#1a1a1a] hover:bg-[#222222] transition-all duration-200"
                       >
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 bg-gradient-to-br from-amber-500/15 to-amber-600/15 rounded-xl flex items-center justify-center shadow-sm">
