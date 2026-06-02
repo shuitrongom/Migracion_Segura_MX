@@ -87,6 +87,31 @@ export class DocumentosService {
       }
     }
 
+    // Si no hay expedienteId ni tramiteId, buscar o crear expediente del usuario (upload desde app móvil)
+    if (!expedienteId) {
+      try {
+        // Buscar el clienteId del usuario
+        const clienteRows = await this.expedienteRepository.manager.query(
+          `SELECT id FROM clientes WHERE user_id = $1 LIMIT 1`, [usuarioId]
+        );
+        if (clienteRows?.[0]?.id) {
+          const clienteId = clienteRows[0].id;
+          // Buscar expediente sin tramite del cliente
+          const expExistente = await this.expedienteRepository.findOne({
+            where: { clienteId, tramiteId: null as any },
+          });
+          if (expExistente) {
+            expedienteId = expExistente.id;
+          } else {
+            // Crear expediente general del cliente
+            const nuevoExp = this.expedienteRepository.create({ clienteId, tramiteId: null as any });
+            const savedExp = await this.expedienteRepository.save(nuevoExp);
+            expedienteId = savedExp.id;
+          }
+        }
+      } catch {}
+    }
+
     if (!expedienteId) {
       throw new NotFoundException('No se encontró un expediente para este documento. Proporcione expedienteId o tramiteId.');
     }
