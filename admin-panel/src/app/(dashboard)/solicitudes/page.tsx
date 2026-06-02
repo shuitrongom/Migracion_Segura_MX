@@ -490,10 +490,6 @@ export default function SolicitudesPage() {
                           className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-amber-500/30 text-amber-400 rounded-xl text-sm font-medium hover:bg-amber-500/10 transition-all">
                           <Send className="h-4 w-4" /> Reenviar link de pago al extranjero
                         </button>
-                        <button onClick={() => handleConfirmarPago(selectedSolicitud.id)}
-                          className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-green-600 hover:to-emerald-700 shadow-lg transition-all">
-                          ✅ Confirmar pago manualmente
-                        </button>
                       </div>
                     </>
                   )}
