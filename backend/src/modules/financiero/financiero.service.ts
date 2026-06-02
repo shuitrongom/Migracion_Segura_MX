@@ -192,7 +192,7 @@ export class FinancieroService {
     try {
       // Notificar al admin
       const admins = await this.pagoRepository.manager.query(
-        `SELECT id FROM users WHERE role = 'administrador' AND "deletedAt" IS NULL LIMIT 1`
+        `SELECT id FROM users WHERE role = 'administrador' AND deleted_at IS NULL LIMIT 1`
       );
       if (admins?.[0]?.id) {
         await this.notificacionesService.sendNotification({

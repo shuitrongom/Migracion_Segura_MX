@@ -176,7 +176,7 @@ export class DocumentosService {
     // Notificar al admin que se subió un documento nuevo
     try {
       const admins = await this.documentoRepository.manager.query(
-        `SELECT id FROM users WHERE role = 'administrador' AND "deletedAt" IS NULL LIMIT 1`
+        `SELECT id FROM users WHERE role = 'administrador' AND deleted_at IS NULL LIMIT 1`
       );
       if (admins?.[0]?.id && admins[0].id !== usuarioId) {
         await this.notificacionesService.sendNotification({

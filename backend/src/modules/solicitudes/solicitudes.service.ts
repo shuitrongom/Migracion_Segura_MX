@@ -32,7 +32,7 @@ export class SolicitudesService {
     let clienteId = dto.clienteId;
     if (!clienteId) {
       const cliente = await this.solicitudRepository.manager.query(
-        `SELECT id FROM clientes WHERE "userId" = $1 LIMIT 1`, [userId]
+        `SELECT id FROM clientes WHERE user_id = $1 LIMIT 1`, [userId]
       );
       if (cliente?.[0]?.id) {
         clienteId = cliente[0].id;
@@ -41,7 +41,7 @@ export class SolicitudesService {
         const nombre = `${dto.datosFormulario?.nombre || ''} ${dto.datosFormulario?.apellidos || ''}`.trim();
         const email = (dto.datosFormulario?.email || dto.datosFormulario?.solicitanteEmail || 'pendiente@app.com') as string;
         const result = await this.solicitudRepository.manager.query(
-          `INSERT INTO clientes (id, "nombreCompleto", email, telefono, "userId") VALUES (gen_random_uuid(), $1, $2, $3, $4) RETURNING id`,
+          `INSERT INTO clientes (id, nombre_completo, email, telefono, user_id) VALUES (gen_random_uuid(), $1, $2, $3, $4) RETURNING id`,
           [nombre || 'Sin nombre', email, 'pendiente', userId]
         ).catch(() => null);
         clienteId = result?.[0]?.id || userId;
@@ -152,7 +152,7 @@ export class SolicitudesService {
 
     // Notificar al admin
     const admins = await this.solicitudRepository.manager.query(
-      `SELECT id FROM users WHERE role = 'administrador' AND "deletedAt" IS NULL LIMIT 1`
+      `SELECT id FROM users WHERE role = 'administrador' AND deleted_at IS NULL LIMIT 1`
     );
     if (admins?.[0]?.id) {
       await this.notificacionesService.sendNotification({
@@ -271,7 +271,7 @@ export class SolicitudesService {
 
     // Push al admin
     const admins = await this.solicitudRepository.manager.query(
-      `SELECT id, email FROM users WHERE role = 'administrador' AND "deletedAt" IS NULL LIMIT 1`
+      `SELECT id, email FROM users WHERE role = 'administrador' AND deleted_at IS NULL LIMIT 1`
     );
 
     if (admins?.[0]?.id) {
