@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ActivityIndicator, RefreshControl, Animated } from 'react-native';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-import * as DocumentPicker from 'expo-document-picker';
+import { router } from 'expo-router';
 import { apiFetch } from '@/lib/api';
 
 export default function DocumentosScreen() {
@@ -39,19 +39,10 @@ export default function DocumentosScreen() {
     setNotificaciones(prev => prev.map(n => n.id === id ? { ...n, leida: true } : n));
   };
 
-  const handleUpload = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: ['application/pdf', 'image/*'],
-        copyToCacheDirectory: true,
-      });
-      if (!result.canceled && result.assets.length > 0) {
-        const file = result.assets[0];
-        Alert.alert('Documento seleccionado', `${file.name}\n\nSe enviará a tu gestor para revisión.\n\n(Funcionalidad de subida en desarrollo)`);
-      }
-    } catch {
-      Alert.alert('Error', 'No se pudo seleccionar el documento');
-    }
+  const handleUpload = () => {
+    // Navegar a la pantalla de subida de documentos con el flujo completo
+    // (INE/Residencia: frente y reverso, Pasaporte: primera hoja, Documentos: escáner)
+    router.push('/(cliente)/subir-documento');
   };
 
   if (loading) return (
