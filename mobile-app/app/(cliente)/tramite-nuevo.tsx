@@ -64,7 +64,7 @@ export default function TramiteNuevoScreen() {
   const uSol = (field: string, value: string) => setSolicitante(prev => ({ ...prev, [field]: value }));
 
   const handleSubmit = async () => {
-    if (!form.nombre.trim() || !form.apellidos.trim()) { Alert.alert('Error', 'Nombre y apellidos son obligatorios'); return; }
+    if (selectedTipo !== 'constancia_empleador' && (!form.nombre.trim() || !form.apellidos.trim())) { Alert.alert('Error', 'Nombre y apellidos son obligatorios'); return; }
     if (!form.propositoViaje) { Alert.alert('Error', 'Selecciona qué deseas hacer'); return; }
     if (!form.nacionalidad) { Alert.alert('Error', 'Selecciona tu nacionalidad'); return; }
     if (!form.solicitanteEmail.trim()) { Alert.alert('Error', 'Ingresa tu correo electrónico'); return; }

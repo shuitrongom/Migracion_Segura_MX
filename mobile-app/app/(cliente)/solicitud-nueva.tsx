@@ -81,9 +81,13 @@ export default function SolicitudNuevaScreen() {
   };
 
   const handleSubmit = async () => {
-    if (!form.nombre.trim() || !form.apellidos.trim()) {
-      Alert.alert('Error', 'Nombre y apellidos son obligatorios');
-      return;
+    // Validar según tipo de trámite
+    if (tipoTramite !== 'constancia_empleador') {
+      // Para todos los trámites excepto CIE, nombre y apellidos son obligatorios
+      if (!form.nombre.trim() || !form.apellidos.trim()) {
+        Alert.alert('Error', 'Nombre y apellidos son obligatorios');
+        return;
+      }
     }
     if (!form.solicitanteEmail.trim()) {
       Alert.alert('Error', 'Ingresa tu correo electrónico');
