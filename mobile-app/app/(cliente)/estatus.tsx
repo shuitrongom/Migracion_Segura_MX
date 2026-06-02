@@ -20,14 +20,16 @@ const STEPS = ['Recibido', 'En revisión', 'En espera', 'Resuelto', 'Entregado',
 
 export default function EstatusScreen() {
   const [tramites, setTramites] = useState<any[]>([]);
+  const [solicitudes, setSolicitudes] = useState<any[]>([]);
   const [pagos, setPagos] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState<'tramites' | 'solicitudes'>('tramites');
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
-  useEffect(() => { loadTramites(); }, []);
+  useEffect(() => { loadData(); }, []);
 
   useEffect(() => {
     Animated.parallel([
@@ -35,6 +37,22 @@ export default function EstatusScreen() {
       Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
     ]).start();
   }, []);
+
+  const loadData = async () => {
+    await Promise.all([loadTramites(), loadSolicitudes()]);
+    setLoading(false);
+    setRefreshing(false);
+  };
+
+  const loadSolicitudes = async () => {
+    try {
+      const res = await apiFetch('/solicitudes/mis-solicitudes');
+      if (res.ok) {
+        const data = await res.json();
+        setSolicitudes(Array.isArray(data) ? data : []);
+      }
+    } catch {}
+  };
 
   const loadTramites = async () => {
     try {
@@ -60,7 +78,7 @@ export default function EstatusScreen() {
     setLoading(false);
   };
 
-  const onRefresh = useCallback(async () => { setRefreshing(true); await loadTramites(); setRefreshing(false); }, []);
+  const onRefresh = useCallback(async () => { setRefreshing(true); await loadData(); }, []);
 
   if (loading) return (
     <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.loadingContainer}>
@@ -170,7 +188,25 @@ export default function EstatusScreen() {
         </View>
       </Animated.View>
 
-      {tramites.length === 0 ? (
+      {/* Tab switcher */}
+      <View style={styles.tabRow}>
+        <TouchableOpacity
+          style={[styles.tabBtn, activeTab === 'tramites' && styles.tabBtnActive]}
+          onPress={() => setActiveTab('tramites')}
+        >
+          <Text style={[styles.tabText, activeTab === 'tramites' && styles.tabTextActive]}>Trámites</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tabBtn, activeTab === 'solicitudes' && styles.tabBtnActive]}
+          onPress={() => setActiveTab('solicitudes')}
+        >
+          <Text style={[styles.tabText, activeTab === 'solicitudes' && styles.tabTextActive]}>
+            Solicitudes {solicitudes.filter(s => s.estatus === 'pendiente_pago').length > 0 ? `🔴` : ''}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {activeTab === 'tramites' && (tramites.length === 0 ? (
         <View style={styles.emptyState}>
           <View style={styles.emptyIconContainer}>
             <Text style={{ fontSize: 48 }}>📋</Text>
@@ -186,6 +222,68 @@ export default function EstatusScreen() {
           contentContainerStyle={styles.list}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#f59e0b" />}
         />
+      ))}
+
+      {activeTab === 'solicitudes' && (
+        solicitudes.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyIcon}>📄</Text>
+            <Text style={styles.emptyTitle}>Sin solicitudes</Text>
+            <Text style={styles.emptyText}>Aquí verás tus solicitudes de generación de documentos INM.</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={solicitudes}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.list}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#f59e0b" />}
+            renderItem={({ item }) => {
+              const ESTATUS_SOL: Record<string, { color: string; label: string; icon: string }> = {
+                pendiente_revision: { color: '#E67E22', label: 'Pendiente revisión', icon: '⏳' },
+                en_proceso: { color: '#3498DB', label: 'En proceso', icon: '🔄' },
+                pendiente_pago: { color: '#E74C3C', label: 'Pago pendiente', icon: '💳' },
+                pagada: { color: '#27AE60', label: 'Pagada', icon: '✅' },
+                cancelada: { color: '#6B7280', label: 'Cancelada', icon: '🚫' },
+              };
+              const cfg = ESTATUS_SOL[item.estatus] || ESTATUS_SOL.pendiente_revision;
+              const tipoLabel = (item.tipoTramite || '').replace(/_/g, ' ');
+              const nombre = `${item.datosFormulario?.nombre || ''} ${item.datosFormulario?.apellidos || ''}`.trim();
+              return (
+                <View style={styles.card}>
+                  <View style={styles.cardHeader}>
+                    <View style={[styles.statusBadge, { backgroundColor: cfg.color + '15' }]}>
+                      <Text style={{ fontSize: 16 }}>{cfg.icon}</Text>
+                      <Text style={[styles.statusText, { color: cfg.color }]}>{cfg.label}</Text>
+                    </View>
+                    <Text style={styles.pieceNumber}>{item.costo ? `$${item.costo} MXN` : ''}</Text>
+                  </View>
+                  <Text style={styles.tramiteType}>{tipoLabel}</Text>
+                  {nombre && <Text style={styles.date}>Extranjero: {nombre}</Text>}
+                  <Text style={styles.date}>Creada: {item.createdAt?.slice(0, 10)}</Text>
+
+                  {/* Botón pagar si está pendiente */}
+                  {item.estatus === 'pendiente_pago' && item.mercadopagoInitPoint && (
+                    <TouchableOpacity
+                      onPress={() => Linking.openURL(item.mercadopagoInitPoint)}
+                      style={styles.payButton}
+                    >
+                      <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.payButton}>
+                        <Text style={styles.payButtonText}>💳 Pagar $100 MXN — Enlace de pago</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  )}
+
+                  {/* Pagada */}
+                  {item.estatus === 'pagada' && (
+                    <View style={styles.paidBadge}>
+                      <Text style={styles.paidText}>✅ Solicitud pagada el {item.fechaPago?.slice(0, 10)}</Text>
+                    </View>
+                  )}
+                </View>
+              );
+            }}
+          />
+        )
       )}
     </LinearGradient>
   );
@@ -227,6 +325,13 @@ const styles = StyleSheet.create({
 
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, gap: 12 },
   emptyIconContainer: { width: 88, height: 88, borderRadius: 44, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  emptyIcon: { fontSize: 48 },
   emptyTitle: { fontSize: 18, fontWeight: '600', color: '#ffffff' },
   emptyText: { fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', lineHeight: 20 },
+
+  tabRow: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, marginBottom: 8 },
+  tabBtn: { flex: 1, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', alignItems: 'center' },
+  tabBtnActive: { borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)' },
+  tabText: { fontSize: 14, fontWeight: '600', color: 'rgba(255,255,255,0.5)' },
+  tabTextActive: { color: '#f59e0b' },
 });
