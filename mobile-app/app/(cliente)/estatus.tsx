@@ -194,7 +194,9 @@ export default function EstatusScreen() {
           style={[styles.tabBtn, activeTab === 'tramites' && styles.tabBtnActive]}
           onPress={() => setActiveTab('tramites')}
         >
-          <Text style={[styles.tabText, activeTab === 'tramites' && styles.tabTextActive]}>Trámites</Text>
+          <Text style={[styles.tabText, activeTab === 'tramites' && styles.tabTextActive]}>
+            Trámites {Object.values(pagos).flat().filter((p: any) => p.estatusPago === 'pendiente' && p.mercadopagoInitPoint).length > 0 ? '🔴' : ''}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tabBtn, activeTab === 'solicitudes' && styles.tabBtnActive]}
