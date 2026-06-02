@@ -11,18 +11,18 @@ export default function ClienteLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#C4A265',
-        tabBarInactiveTintColor: '#8B7B6F',
+        tabBarActiveTintColor: '#f59e0b',
+        tabBarInactiveTintColor: 'rgba(255,255,255,0.4)',
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: '#0a0a0a',
           borderTopWidth: 1,
-          borderTopColor: '#E8DFD3',
+          borderTopColor: '#1a1a1a',
           paddingTop: 8,
           paddingBottom: bottomPadding + 6,
           height: 62 + bottomPadding,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.05,
+          shadowOpacity: 0.5,
           shadowRadius: 8,
           elevation: 8,
         },
