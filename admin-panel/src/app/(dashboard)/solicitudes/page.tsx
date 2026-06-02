@@ -443,115 +443,148 @@ export default function SolicitudesPage() {
               })()}
             </div>
 
-            {/* ── Right panel: iframe INM + pieza/clave/PDF (2/3) ── */}
+            {/* ── Right panel: iframe INM (solo para pendiente_revision/en_proceso) o pantalla de pago ── */}
             <div className="flex-1 flex flex-col overflow-hidden">
-              {/* Iframe INM */}
-              <div className="flex-1 relative overflow-hidden border-b border-[#262626]">
-                <div className="absolute top-2 right-3 z-10 flex items-center gap-2">
-                  <a href={URL_POR_TIPO[selectedSolicitud.tipoTramite] || URL_POR_TIPO.permiso_trabajo}
-                    target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-xs text-amber-500 hover:text-amber-400 bg-[#1a1a1a] border border-[#3a3a3a] px-2 py-1 rounded-lg">
-                    <ExternalLink className="h-3 w-3" /> Abrir en nueva pestaña
-                  </a>
-                </div>
-                <iframe
-                  src={URL_POR_TIPO[selectedSolicitud.tipoTramite] || URL_POR_TIPO.permiso_trabajo}
-                  className="w-full h-full"
-                  title="Formulario INM"
-                />
-              </div>
 
-              {/* Pieza + Clave + PDF + Botón */}
-              <div className="p-5 bg-[#0f0f0f] shrink-0 overflow-y-auto max-h-[320px]">
-                {(selectedSolicitud.estatus === 'pendiente_revision' || selectedSolicitud.estatus === 'en_proceso') && (
-                  <div className="space-y-4">
-                    <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
-                      <p className="text-sm text-amber-300">
-                        <strong>Al finalizar en el INM:</strong> Ingresa el número de pieza y la clave que te proporcionó el sistema, sube el PDF y haz clic en &quot;Procesar&quot;.
-                        Se generará automáticamente el cobro de <strong>$100 MXN</strong> al extranjero.
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <div>
-                        <label className="block text-xs font-medium text-white/70 mb-1 flex items-center gap-1">
-                          <Key className="h-3 w-3" /> Número de Pieza *
-                        </label>
-                        <input type="text"
-                          value={numeroPieza}
-                          onChange={e => setNumeroPieza(e.target.value)}
-                          className="w-full px-3 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400"
-                          placeholder="0000011969016" />
+              {/* Pantalla de pago - cuando ya se procesó */}
+              {(selectedSolicitud.estatus === 'pendiente_pago' || selectedSolicitud.estatus === 'pagada') ? (
+                <div className="flex-1 flex flex-col justify-center items-center p-8 gap-6">
+                  {selectedSolicitud.estatus === 'pendiente_pago' && (
+                    <>
+                      <div className="text-center">
+                        <div className="text-5xl mb-4">💳</div>
+                        <h3 className="text-xl font-bold text-white mb-2">Esperando pago del extranjero</h3>
+                        <p className="text-sm text-white/70">La solicitud fue procesada. El extranjero debe pagar $100 MXN.</p>
                       </div>
-                      <div>
-                        <label className="block text-xs font-medium text-white/70 mb-1 flex items-center gap-1">
-                          <Key className="h-3 w-3" /> Clave INM *
-                        </label>
-                        <input type="text"
-                          value={contrasenaINM}
-                          onChange={e => setContrasenaINM(e.target.value.toUpperCase())}
-                          className="w-full px-3 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400"
-                          placeholder="QFCSA" />
+                      <div className="w-full max-w-md p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 space-y-2">
+                        <p className="text-xs text-white/70 uppercase font-semibold">Pieza INM</p>
+                        <p className="text-lg font-mono font-bold text-amber-400">{selectedSolicitud.numeroPieza || '—'}</p>
                       </div>
-                      <div>
-                        <label className="block text-xs font-medium text-white/70 mb-1 flex items-center gap-1">
-                          <Upload className="h-3 w-3" /> PDF Solicitud
-                        </label>
-                        <label className="flex items-center gap-2 px-3 py-2.5 border border-[#3a3a3a] bg-[#252525] rounded-lg text-sm text-white/70 hover:bg-[#2a2a2a] cursor-pointer">
-                          <Upload className="h-4 w-4 shrink-0" />
-                          <span className="truncate">{pdfFile ? pdfFile.name : 'Seleccionar PDF...'}</span>
-                          <input type="file" accept=".pdf" onChange={e => setPdfFile(e.target.files?.[0] || null)} className="hidden" />
-                        </label>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handleProcesar}
-                      disabled={procesando}
-                      className="w-full px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl text-sm font-semibold hover:from-amber-600 hover:to-amber-700 disabled:opacity-50 shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2">
-                      {procesando ? (
-                        <><Loader2 className="h-4 w-4 animate-spin" /> Procesando...</>
-                      ) : (
-                        <><Send className="h-4 w-4" /> Procesar y generar pago ($100 MXN)</>
+                      {selectedSolicitud.mercadopagoInitPoint && (
+                        <div className="w-full max-w-md space-y-3">
+                          <div className="p-3 rounded-xl bg-[#1a1a1a] border border-[#3a3a3a]">
+                            <p className="text-xs text-white/70 mb-1">Link de pago Mercado Pago:</p>
+                            <p className="text-xs font-mono text-amber-400 break-all">{selectedSolicitud.mercadopagoInitPoint}</p>
+                          </div>
+                          <a href={selectedSolicitud.mercadopagoInitPoint} target="_blank" rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl text-sm font-semibold hover:from-amber-600 hover:to-amber-700 shadow-lg transition-all">
+                            <ExternalLink className="h-4 w-4" /> Ver link de pago
+                          </a>
+                        </div>
                       )}
-                    </button>
-                  </div>
-                )}
-
-                {selectedSolicitud.estatus === 'pendiente_pago' && (
-                  <div className="space-y-3">
-                    <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20">
-                      <p className="text-sm font-semibold text-orange-400">💳 Esperando pago del extranjero...</p>
-                      <p className="text-xs text-white/70 mt-1">
-                        Pieza: <span className="font-mono text-amber-400">{selectedSolicitud.numeroPieza}</span>
-                      </p>
+                      {/* Reenviar link de pago */}
+                      <div className="w-full max-w-md space-y-2">
+                        <button
+                          onClick={async () => {
+                            if (!selectedSolicitud) return;
+                            try {
+                              await api.patch(`/solicitudes/${selectedSolicitud.id}/procesar`, {
+                                numeroPieza: selectedSolicitud.numeroPieza || '',
+                                contrasenaINM: selectedSolicitud.numeroPieza || '',
+                                reenviar: true,
+                              });
+                              toast.success('Link de pago reenviado al extranjero');
+                              fetchSolicitudes();
+                            } catch { toast.error('Error al reenviar'); }
+                          }}
+                          className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-amber-500/30 text-amber-400 rounded-xl text-sm font-medium hover:bg-amber-500/10 transition-all">
+                          <Send className="h-4 w-4" /> Reenviar link de pago al extranjero
+                        </button>
+                        <button onClick={() => handleConfirmarPago(selectedSolicitud.id)}
+                          className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-green-600 hover:to-emerald-700 shadow-lg transition-all">
+                          ✅ Confirmar pago manualmente
+                        </button>
+                      </div>
+                    </>
+                  )}
+                  {selectedSolicitud.estatus === 'pagada' && (
+                    <div className="text-center space-y-4">
+                      <div className="text-5xl">🎉</div>
+                      <h3 className="text-xl font-bold text-emerald-400">Solicitud pagada y completada</h3>
+                      <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                        <p className="text-sm text-white/70">Pagada el {selectedSolicitud.fechaPago ? formatDate(selectedSolicitud.fechaPago) : '—'}</p>
+                        <p className="text-sm text-white/70">Pieza: <span className="font-mono text-amber-400">{selectedSolicitud.numeroPieza}</span></p>
+                      </div>
                     </div>
-                    {selectedSolicitud.mercadopagoInitPoint && (
-                      <a href={selectedSolicitud.mercadopagoInitPoint} target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-400 bg-blue-500/10 rounded-xl hover:bg-blue-500/20 transition-colors">
-                        <ExternalLink className="h-4 w-4" /> Ver link de pago Mercado Pago
+                  )}
+                </div>
+              ) : (
+                <>
+                  {/* Iframe INM - solo para pendiente_revision y en_proceso */}
+                  <div className="flex-1 relative overflow-hidden border-b border-[#262626]">
+                    <div className="absolute top-2 right-3 z-10 flex items-center gap-2">
+                      <a href={URL_POR_TIPO[selectedSolicitud.tipoTramite] || URL_POR_TIPO.permiso_trabajo}
+                        target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs text-amber-500 hover:text-amber-400 bg-[#1a1a1a] border border-[#3a3a3a] px-2 py-1 rounded-lg">
+                        <ExternalLink className="h-3 w-3" /> Abrir en nueva pestaña
                       </a>
-                    )}
-                    <button onClick={() => handleConfirmarPago(selectedSolicitud.id)}
-                      className="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-green-600 hover:to-emerald-700 shadow-lg transition-all">
-                      ✅ Confirmar pago manualmente
-                    </button>
-                  </div>
-                )}
-
-                {selectedSolicitud.estatus === 'pagada' && (
-                  <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                    <CheckCircle className="h-5 w-5 text-emerald-400 shrink-0" />
-                    <div>
-                      <p className="text-sm font-semibold text-emerald-300">Solicitud pagada y entregada</p>
-                      <p className="text-xs text-white/70">
-                        Pagada el {selectedSolicitud.fechaPago ? formatDate(selectedSolicitud.fechaPago) : '—'} •
-                        Pieza: <span className="font-mono text-amber-400">{selectedSolicitud.numeroPieza}</span>
-                      </p>
                     </div>
+                    <iframe
+                      src={URL_POR_TIPO[selectedSolicitud.tipoTramite] || URL_POR_TIPO.permiso_trabajo}
+                      className="w-full h-full"
+                      title="Formulario INM"
+                    />
                   </div>
-                )}
-              </div>
+
+                  {/* Pieza + Clave + PDF + Botón */}
+                  <div className="p-5 bg-[#0f0f0f] shrink-0 overflow-y-auto max-h-[320px]">
+                    {(selectedSolicitud.estatus === 'pendiente_revision' || selectedSolicitud.estatus === 'en_proceso') && (
+                      <div className="space-y-4">
+                        <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
+                          <p className="text-sm text-amber-300">
+                            <strong>Al finalizar en el INM:</strong> Ingresa el número de pieza y la clave que te proporcionó el sistema, sube el PDF y haz clic en &quot;Procesar&quot;.
+                            Se generará automáticamente el cobro de <strong>$100 MXN</strong> al extranjero.
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div>
+                            <label className="block text-xs font-medium text-white/70 mb-1 flex items-center gap-1">
+                              <Key className="h-3 w-3" /> Número de Pieza *
+                            </label>
+                            <input type="text"
+                              value={numeroPieza}
+                              onChange={e => setNumeroPieza(e.target.value)}
+                              className="w-full px-3 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400"
+                              placeholder="0000011969016" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-white/70 mb-1 flex items-center gap-1">
+                              <Key className="h-3 w-3" /> Clave INM *
+                            </label>
+                            <input type="text"
+                              value={contrasenaINM}
+                              onChange={e => setContrasenaINM(e.target.value.toUpperCase())}
+                              className="w-full px-3 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400"
+                              placeholder="QFCSA" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-white/70 mb-1 flex items-center gap-1">
+                              <Upload className="h-3 w-3" /> PDF Solicitud
+                            </label>
+                            <label className="flex items-center gap-2 px-3 py-2.5 border border-[#3a3a3a] bg-[#252525] rounded-lg text-sm text-white/70 hover:bg-[#2a2a2a] cursor-pointer">
+                              <Upload className="h-4 w-4 shrink-0" />
+                              <span className="truncate">{pdfFile ? pdfFile.name : 'Seleccionar PDF...'}</span>
+                              <input type="file" accept=".pdf" onChange={e => setPdfFile(e.target.files?.[0] || null)} className="hidden" />
+                            </label>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={handleProcesar}
+                          disabled={procesando}
+                          className="w-full px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl text-sm font-semibold hover:from-amber-600 hover:to-amber-700 disabled:opacity-50 shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2">
+                          {procesando ? (
+                            <><Loader2 className="h-4 w-4 animate-spin" /> Procesando...</>
+                          ) : (
+                            <><Send className="h-4 w-4" /> Procesar y generar pago ($100 MXN)</>
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
