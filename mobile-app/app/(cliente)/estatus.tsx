@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, TouchableOpacity, Linking, Animated } from 'react-native';
+import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, TouchableOpacity, Linking, Animated, Alert } from 'react-native';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { apiFetch } from '@/lib/api';
@@ -275,32 +275,47 @@ export default function EstatusScreen() {
                     </TouchableOpacity>
                   )}
 
+                  {/* Pieza asignada en pendiente_pago */}
+                  {item.numeroPieza && item.estatus === 'pendiente_pago' && (
+                    <View style={styles.inmDataBox}>
+                      <Text style={styles.inmDataLabel}>📋 Pieza INM asignada</Text>
+                      <Text style={styles.inmDataValue}>{item.numeroPieza}</Text>
+                      <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Se entregará completa al confirmar el pago</Text>
+                    </View>
+                  )}
+
                   {/* Pagada — mostrar pieza, contraseña y link descarga */}
                   {item.estatus === 'pagada' && (
-                    <View style={{ gap: 8 }}>
+                    <View style={{ marginTop: 10 }}>
                       <View style={styles.paidBadge}>
                         <Text style={styles.paidText}>✅ Solicitud pagada el {item.fechaPago?.slice(0, 10)}</Text>
                       </View>
+                      {/* Pieza y Contraseña */}
                       {item.numeroPieza && (
                         <View style={styles.inmDataBox}>
-                          <Text style={styles.inmDataLabel}>📋 Número de Pieza</Text>
+                          <Text style={styles.inmDataLabel}>📋 Tu número de pieza INM</Text>
                           <Text style={styles.inmDataValue}>{item.numeroPieza}</Text>
                         </View>
                       )}
                       {item.contrasenaINM && (
                         <View style={styles.inmDataBox}>
-                          <Text style={styles.inmDataLabel}>🔑 Contraseña INM</Text>
+                          <Text style={styles.inmDataLabel}>🔑 Tu clave INM</Text>
                           <Text style={styles.inmDataValue}>{item.contrasenaINM}</Text>
                         </View>
                       )}
-                      {item.documentoUrl && (
-                        <TouchableOpacity
-                          onPress={() => Linking.openURL(item.documentoUrl)}
-                          style={styles.downloadBtn}
-                        >
-                          <Text style={styles.downloadBtnText}>📄 Descargar / Ver solicitud PDF</Text>
-                        </TouchableOpacity>
-                      )}
+                      {/* Botón descargar PDF */}
+                      <TouchableOpacity
+                        style={{ marginTop: 10, backgroundColor: 'rgba(245,158,11,0.1)', borderRadius: 12, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)' }}
+                        onPress={() => {
+                          if (item.documentoUrl) {
+                            Linking.openURL(item.documentoUrl);
+                          } else {
+                            Alert.alert('PDF', 'Tu solicitud será enviada por correo y notificación. Si ya la recibiste, revisa tu correo o pestaña de documentos.');
+                          }
+                        }}
+                      >
+                        <Text style={{ color: '#f59e0b', fontSize: 14, fontWeight: '700' }}>📄 Ver/Descargar solicitud PDF</Text>
+                      </TouchableOpacity>
                     </View>
                   )}
                 </View>
