@@ -44,7 +44,7 @@ export class MercadoPagoService {
             name: params.clienteNombre || 'Extranjero',
             email: params.email && params.email.includes('@') && !params.email.includes('pendiente') && params.email !== 'gmigratoriamx@gmail.com'
               ? params.email 
-              : 'test_user_extranjero@testuser.com',
+              : 'test_user_6041679174077412980@testuser.com',
           },
           payment_methods: {
             excluded_payment_types: [],
