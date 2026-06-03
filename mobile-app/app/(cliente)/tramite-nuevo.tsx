@@ -132,10 +132,16 @@ export default function TramiteNuevoScreen() {
     const especificaOpciones = opciones.especifica[form.propositoViaje] || [];
 
     return (
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={{ flex: 1 }}>
-            <ScrollView style={styles.container} contentContainerStyle={{ padding: 16, paddingTop: 56, paddingBottom: 40 }}>
+            <ScrollView
+              style={styles.container}
+              contentContainerStyle={{ padding: 16, paddingTop: 56, paddingBottom: 40 }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={true}
+              bounces={true}
+              nestedScrollEnabled={true}
+            >
               <TouchableOpacity onPress={() => { setStep('select'); setForm({ propositoViaje:'',especificaTramite:'',curpExtranjero:'',nombre:'',apellidos:'',sexo:'',fechaNacimiento:'',nacionalidad:'',estadoCivil:'',paisNacimiento:'',estadoProvinciaNacimiento:'',documentoIdentificacion:'',numeroDocumento:'',paisExpedicion:'',fechaExpedicion:'',fechaVencimiento:'',domCodigoPostal:'',domEstado:'',domMunicipio:'',domColonia:'',domCalle:'',domNumeroExterior:'',domNumeroInterior:'',domLada:'',domTelefonoFijo:'',actividadPrincipal:'',sectorTrabajo:'',situacionTrabajo:'',ocupacionTrabajo:'',expulsadoMexico:'',antecedentesPenales:'',empleadorTipoPersona:'',empleadorRfc:'',empleadorNumeroExpediente:'',solicitanteEmail:'',solicitanteEmailConfirmacion:'',comentarios:'' }); setSolicitante({ tipoPersona:'',curp:'',rfc:'',nombre:'',apellidos:'',nacionalidad:'',tipoDocumento:'',numeroDocumento:'',vinculoParentesco:'',codigoPostal:'',estado:'',municipio:'',colonia:'',calle:'',numeroExterior:'',numeroInterior:'',lada:'',telefonoFijo:'',moralRfc:'',moralRazonSocial:'',moralSector:'',moralGiroComercial:'',moralCodigoPostal:'',moralEstado:'',moralMunicipio:'',moralColonia:'',moralCalle:'',moralNumeroExterior:'',moralNumeroInterior:'',moralLada:'',moralTelefonoFijo:'',moralNumeroActa:'',moralFechaActa:'' }); }} style={styles.backBtn}><Text style={styles.backText}>← Volver</Text></TouchableOpacity>
               <Text style={styles.formTitle}>{tipoInfo?.nombre}</Text>
               <Text style={styles.formDesc}>Completa tus datos conforme a tu pasaporte o documento de identidad.</Text>
@@ -155,7 +161,6 @@ export default function TramiteNuevoScreen() {
               <Text style={styles.disclaimer}>Al enviar, un gestor revisará tu información y te contactará para continuar.</Text>
             </ScrollView>
           </LinearGradient>
-        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     );
   }

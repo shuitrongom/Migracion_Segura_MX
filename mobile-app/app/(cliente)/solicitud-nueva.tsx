@@ -208,14 +208,15 @@ export default function SolicitudNuevaScreen() {
   const tipoInfo = TIPOS_TRAMITE.find(t => t.value === tipoTramite);
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={{ flex: 1 }}>
           <ScrollView
             style={styles.container}
             contentContainerStyle={{ padding: 16, paddingTop: 56, paddingBottom: 40 }}
             keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
+            showsVerticalScrollIndicator={true}
+            bounces={true}
+            nestedScrollEnabled={true}
           >
             <TouchableOpacity onPress={() => setStep(0)} style={styles.backBtn}>
               <Text style={styles.backText}>← Cambiar tipo</Text>
@@ -268,7 +269,6 @@ export default function SolicitudNuevaScreen() {
             </Text>
           </ScrollView>
         </LinearGradient>
-      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 }
