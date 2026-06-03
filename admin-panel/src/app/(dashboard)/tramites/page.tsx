@@ -256,6 +256,9 @@ export default function TramitesPage() {
                             {TIPO_LABELS[tramite.tipo] ?? tramite.tipo}
                             {(tramite as any).asesor?.fullName && ` • ${(tramite as any).asesor.fullName}`}
                             {tramite.createdAt && ` • ${new Date(tramite.createdAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}`}
+                            {(tramite.datosFormulario as any)?.ubicacionOrigen?.ciudad && (
+                              <span className="text-[10px] text-white/70 ml-2">📍 {(tramite.datosFormulario as any).ubicacionOrigen.ciudad}</span>
+                            )}
                           </p>
                         </div>
                       </div>

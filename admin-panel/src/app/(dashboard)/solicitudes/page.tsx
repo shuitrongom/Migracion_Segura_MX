@@ -287,7 +287,11 @@ export default function SolicitudesPage() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-white">{getNombre(sol)}</p>
-                      <p className="text-xs text-white/70">{TIPO_LABELS[sol.tipoTramite] || sol.tipoTramite} • {formatDate(sol.createdAt)}</p>
+                      <p className="text-xs text-white/70">{TIPO_LABELS[sol.tipoTramite] || sol.tipoTramite} • {formatDate(sol.createdAt)}
+                        {sol.datosFormulario?.ubicacionOrigen?.ciudad && (
+                          <span className="text-[10px] text-white/70 ml-2">📍 {sol.datosFormulario.ubicacionOrigen.ciudad}</span>
+                        )}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
@@ -438,6 +442,18 @@ export default function SolicitudesPage() {
                       <CopyField label="Email" value={d.solicitanteEmail || d.email} />
                       <CopyField label="Teléfono" value={d.telefono} />
                     </div>
+                    {/* Ubicación de origen */}
+                    {d.ubicacionOrigen && (
+                      <div className="col-span-2 mt-2 p-3 rounded-lg bg-amber-500/[0.04] border border-amber-500/20">
+                        <p className="text-[10px] text-amber-400 uppercase font-semibold mb-1">📍 Ubicación de origen</p>
+                        <p className="text-sm text-white">{d.ubicacionOrigen.ciudad || `${d.ubicacionOrigen.lat}, ${d.ubicacionOrigen.lng}`}</p>
+                        {d.ubicacionOrigen.lat && (
+                          <a href={`https://maps.google.com/?q=${d.ubicacionOrigen.lat},${d.ubicacionOrigen.lng}`} target="_blank" rel="noopener noreferrer" className="text-xs text-amber-400 hover:text-amber-300 mt-1 inline-block">
+                            🗺️ Ver en Google Maps
+                          </a>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })()}

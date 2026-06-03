@@ -184,7 +184,12 @@ export default function TramiteDetailPage() {
             <h1 className="text-2xl font-bold text-white">{tramite.numeroPieza || tramite.id}</h1>
             <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${ESTATUS_BADGE[estatus] || ESTATUS_BADGE.borrador}`}>{ESTATUS_LABELS[estatus] || estatus}</span>
           </div>
-          <p className="text-sm text-white/70 mt-1">{TIPO_LABELS[tramite.tipo] || tramite.tipo}{tramite.clienteNombre && ` · Cliente: ${tramite.clienteNombre}`}</p>
+          <p className="text-sm text-white/70 mt-1">
+            {TIPO_LABELS[tramite.tipo] || tramite.tipo}{tramite.clienteNombre && ` · Cliente: ${tramite.clienteNombre}`}
+            {tramite?.datosFormulario?.ubicacionOrigen && (
+              <span className="text-xs text-white/70 ml-3">📍 {(tramite.datosFormulario as any).ubicacionOrigen.ciudad || ''}</span>
+            )}
+          </p>
         </div>
       </div>
 
