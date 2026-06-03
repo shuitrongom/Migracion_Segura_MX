@@ -15,18 +15,18 @@ TRUNCATE TABLE tareas_internas CASCADE;
 TRUNCATE TABLE documentos CASCADE;
 TRUNCATE TABLE expedientes CASCADE;
 TRUNCATE TABLE pagos CASCADE;
+TRUNCATE TABLE acuerdos_pago CASCADE;
 TRUNCATE TABLE solicitudes CASCADE;
 TRUNCATE TABLE tramites CASCADE;
 TRUNCATE TABLE citas CASCADE;
-TRUNCATE TABLE tickets_soporte CASCADE;
-TRUNCATE TABLE mensajes_soporte CASCADE;
-TRUNCATE TABLE chat_mensajes CASCADE;
-TRUNCATE TABLE chat_rooms CASCADE;
+TRUNCATE TABLE tickets CASCADE;
+TRUNCATE TABLE mensajes_ticket CASCADE;
+TRUNCATE TABLE chat_messages CASCADE;
 TRUNCATE TABLE activity_logs CASCADE;
 TRUNCATE TABLE user_devices CASCADE;
+TRUNCATE TABLE log_automatizaciones CASCADE;
+TRUNCATE TABLE automatizacion_configs CASCADE;
 TRUNCATE TABLE clientes CASCADE;
-TRUNCATE TABLE beneficiarios CASCADE;
-TRUNCATE TABLE client_locations CASCADE;
 
 -- NO truncar la tabla users para no perder tu cuenta de admin
 -- Si quieres borrar clientes (usuarios con role='cliente'), descomentar:
