@@ -35,9 +35,9 @@ export class NotificacionesController {
     const userId = req.user.id;
     // Upsert en tabla user_devices
     await this.notificacionesService['notificacionRepository'].manager.query(
-      `INSERT INTO user_devices (user_id, "pushToken", platform, "updatedAt")
+      `INSERT INTO user_devices (user_id, push_token, platform, updated_at)
        VALUES ($1, $2, $3, NOW())
-       ON CONFLICT (user_id) DO UPDATE SET "pushToken" = $2, platform = $3, "updatedAt" = NOW()`,
+       ON CONFLICT (user_id) DO UPDATE SET push_token = $2, platform = $3, updated_at = NOW()`,
       [userId, dto.pushToken, dto.platform],
     );
     return { message: 'Dispositivo registrado para notificaciones push' };

@@ -54,13 +54,13 @@ export class NotificacionesService {
       try {
         // Buscar el push token del usuario
         const tokenRecord = await this.notificacionRepository.manager.query(
-          `SELECT "pushToken" FROM user_devices WHERE user_id = $1 ORDER BY "updatedAt" DESC LIMIT 1`,
+          `SELECT push_token FROM user_devices WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 1`,
           [input.destinatarioId],
         );
 
-        if (tokenRecord?.[0]?.pushToken) {
+        if (tokenRecord?.[0]?.push_token) {
           const sent = await this.pushService.sendPush({
-            token: tokenRecord[0].pushToken,
+            token: tokenRecord[0].push_token,
             title: input.titulo,
             body: input.contenido,
             data: { notificationId: saved.id, tipo: input.tipo },
