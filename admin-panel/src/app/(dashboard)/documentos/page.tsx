@@ -43,6 +43,14 @@ const TIPO_LABELS: Record<string, string> = {
   cambio_condicion_estancia: '🔀 Cambio de Condición',
   residencia_temporal: '🏠 Residencia Temporal',
   residencia_permanente: '🏡 Residencia Permanente',
+  solicitud_visa: '📋 Solicitud — Visa',
+  solicitud_permiso_trabajo: '📋 Solicitud — Permiso de Trabajo',
+  solicitud_notificacion_cambio: '📋 Solicitud — Notificación de Cambio',
+  solicitud_expedicion_documento: '📋 Solicitud — Expedición Documento',
+  solicitud_regularizacion_migratoria: '📋 Solicitud — Regularización',
+  solicitud_constancia_empleador: '📋 Solicitud — CIE',
+  solicitud_cambio_condicion_estancia: '📋 Solicitud — Cambio Condición',
+  solicitud_generacion: '📋 Solicitud de Generación',
 };
 
 const CATEGORIA_LABELS: Record<string, string> = {
@@ -108,7 +116,7 @@ export default function ExpedienteDigitalPage() {
       for (const t of allTramites) {
         if (!t.clienteId) continue;
         const docs = docsByTramite[t.id] || [];
-        if (docs.length === 0) continue; // Solo trámites con documentos
+        if (docs.length === 0) continue;
         if (!tramitesByCliente[t.clienteId]) tramitesByCliente[t.clienteId] = [];
         tramitesByCliente[t.clienteId].push({
           id: t.id,
@@ -119,6 +127,26 @@ export default function ExpedienteDigitalPage() {
           docs,
         });
       }
+
+      // También agregar solicitudes con documentos
+      try {
+        const solRes = await api.get('/solicitudes', { params: { page: 1, limit: 200 } });
+        const allSolicitudes = solRes.data?.data || solRes.data || [];
+        for (const sol of allSolicitudes) {
+          if (!sol.clienteId) continue;
+          const docs = docsByTramite[sol.id] || [];
+          if (docs.length === 0) continue;
+          if (!tramitesByCliente[sol.clienteId]) tramitesByCliente[sol.clienteId] = [];
+          tramitesByCliente[sol.clienteId].push({
+            id: sol.id,
+            tipo: `solicitud_${sol.tipoTramite || 'generacion'}`,
+            numeroPieza: sol.numeroPieza,
+            estatus: sol.estatus,
+            createdAt: sol.createdAt,
+            docs,
+          });
+        }
+      } catch {}
 
       // Solo clientes que tienen trámites con documentos
       const clientesConDocs = allClientes.filter(c => tramitesByCliente[c.id]?.length > 0);
