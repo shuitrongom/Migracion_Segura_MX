@@ -54,6 +54,16 @@ export class ClientesController {
   }
 
   /**
+   * Admin: obtener datos geográficos de todos los clientes (para analytics)
+   */
+  @Get('analytics/geografia')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Obtener datos geográficos de clientes (admin)' })
+  getGeografia() {
+    return this.clientesService.getGeografia();
+  }
+
+  /**
    * Obtener cliente por ID
    */
   @Get(':id')
@@ -213,5 +223,18 @@ export class ClientesController {
   @ApiParam({ name: 'etiqueta', description: 'Nombre de la etiqueta' })
   removeTag(@Param('id', ParseUUIDPipe) id: string, @Param('etiqueta') etiqueta: string) {
     return this.clientesService.removeTag(id, etiqueta);
+  }
+
+  /**
+   * Registrar ubicación del cliente (desde la app móvil)
+   */
+  @Post('ubicacion')
+  @Roles(UserRole.CLIENTE)
+  @ApiOperation({ summary: 'Registrar ubicación del dispositivo del cliente' })
+  async registerUbicacion(
+    @Request() req: any,
+    @Body() dto: { lat: number; lng: number; ciudad?: string; platform?: string },
+  ) {
+    return this.clientesService.registerUbicacion(req.user.id, dto);
   }
 }

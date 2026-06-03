@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
-import { Platform } from 'react-native';
+import { Platform, AppState } from 'react-native';
 import { apiFetch } from './api';
 import { storage } from './storage';
 
@@ -10,6 +10,7 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    priority: Notifications.AndroidNotificationPriority.HIGH,
   }),
 });
 
@@ -27,7 +28,14 @@ export async function registerForPushNotifications(): Promise<string | null> {
   let finalStatus = existingStatus;
 
   if (existingStatus !== 'granted') {
-    const { status } = await Notifications.requestPermissionsAsync();
+    const { status } = await Notifications.requestPermissionsAsync({
+      ios: {
+        allowAlert: true,
+        allowBadge: true,
+        allowSound: true,
+        allowAnnouncements: true,
+      },
+    });
     finalStatus = status;
   }
 
@@ -36,13 +44,18 @@ export async function registerForPushNotifications(): Promise<string | null> {
     return null;
   }
 
-  // Configurar canal de Android
+  // Configurar canal de Android con prioridad MAX
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('default', {
       name: 'Migración Segura MX',
-      importance: Notifications.AndroidImportance.HIGH,
+      importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#f59e0b',
+      sound: 'default',
+      enableLights: true,
+      enableVibrate: true,
+      showBadge: true,
+      lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
     });
   }
 
@@ -78,6 +91,15 @@ async function sendTokenToBackend(token: string): Promise<void> {
   } catch (error) {
     console.error('Error registrando push token en backend:', error);
   }
+}
+
+/**
+ * Resetear el badge count cuando el usuario abre la app
+ */
+export async function resetBadgeCount(): Promise<void> {
+  try {
+    await Notifications.setBadgeCountAsync(0);
+  } catch {}
 }
 
 /**

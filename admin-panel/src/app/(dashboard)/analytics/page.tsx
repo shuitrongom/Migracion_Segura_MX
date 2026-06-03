@@ -15,7 +15,7 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import { TrendingUp, BarChart3, Filter, Clock, DollarSign, Users, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { TrendingUp, BarChart3, Filter, Clock, DollarSign, Users, ArrowUpRight, ArrowDownRight, MapPin, Globe } from 'lucide-react';
 import { api } from '@/lib/api';
 
 const CHART_COLORS = {
@@ -48,6 +48,7 @@ export default function AnalyticsPage() {
   const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
   const [tramiteTypes, setTramiteTypes] = useState<TramiteTypeData[]>([]);
   const [funnelData, setFunnelData] = useState<FunnelData[]>([]);
+  const [geoData, setGeoData] = useState<{ porCiudad: { ciudad: string; lat: number; lng: number; cantidad: number }[]; porEstado: { estado: string; cantidad: number }[]; total: number }>({ porCiudad: [], porEstado: [], total: 0 });
   const [metrics, setMetrics] = useState({
     avgResolutionDays: 0,
     totalClientes: 0,
@@ -146,6 +147,15 @@ export default function AnalyticsPage() {
         totalIngresosMes: currentMonthRevenue,
         conversionRate,
       });
+
+      // Fetch geographic data
+      try {
+        const geoRes = await api.get('/clientes/analytics/geografia');
+        setGeoData(geoRes.data || { porCiudad: [], porEstado: [], total: 0 });
+      } catch {
+        // Si no hay datos geográficos aún, usar datos de solicitudes
+        setGeoData({ porCiudad: [], porEstado: [], total: 0 });
+      }
     } catch (error) {
       console.error('Error fetching analytics data:', error);
     } finally {
@@ -410,6 +420,91 @@ export default function AnalyticsPage() {
               color="from-amber-500 to-amber-600"
             />
           </div>
+        </div>
+      </div>
+
+      {/* Geographic Distribution */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Cities ranking */}
+        <div className="dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="p-2 rounded-lg bg-rose-500/10">
+              <MapPin className="h-4 w-4 text-rose-400" />
+            </div>
+            <h2 className="text-lg font-bold text-white">Origen Geográfico — Ciudades</h2>
+            <span className="text-xs text-white/50 ml-auto">{geoData.total} registros</span>
+          </div>
+          {geoData.porCiudad.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-64 text-white/40">
+              <Globe className="h-10 w-10 mb-3 opacity-50" />
+              <p className="text-sm">Aún no hay datos de ubicación</p>
+              <p className="text-xs mt-1">Se registran al abrir la app móvil</p>
+            </div>
+          ) : (
+            <div className="space-y-3 max-h-80 overflow-y-auto pr-2">
+              {geoData.porCiudad.map((loc, i) => {
+                const maxCantidad = geoData.porCiudad[0]?.cantidad || 1;
+                const pct = Math.round((loc.cantidad / maxCantidad) * 100);
+                return (
+                  <div key={i} className="relative">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-amber-400 w-5">{i + 1}</span>
+                        <span className="text-sm text-white font-medium">{loc.ciudad}</span>
+                      </div>
+                      <span className="text-sm font-bold text-white">{loc.cantidad}</span>
+                    </div>
+                    <div className="h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-rose-500 to-amber-500 rounded-full transition-all duration-700"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* States ranking */}
+        <div className="dark-card-static p-6 hover:shadow-md transition-shadow duration-300">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="p-2 rounded-lg bg-cyan-500/10">
+              <Globe className="h-4 w-4 text-cyan-400" />
+            </div>
+            <h2 className="text-lg font-bold text-white">Origen — Estados / Regiones</h2>
+          </div>
+          {geoData.porEstado.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-64 text-white/40">
+              <Globe className="h-10 w-10 mb-3 opacity-50" />
+              <p className="text-sm">Sin datos geográficos todavía</p>
+            </div>
+          ) : (
+            <div className="space-y-3 max-h-80 overflow-y-auto pr-2">
+              {geoData.porEstado.map((estado, i) => {
+                const maxCantidad = geoData.porEstado[0]?.cantidad || 1;
+                const pct = Math.round((estado.cantidad / maxCantidad) * 100);
+                return (
+                  <div key={i} className="relative">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-cyan-400 w-5">{i + 1}</span>
+                        <span className="text-sm text-white font-medium">{estado.estado}</span>
+                      </div>
+                      <span className="text-sm font-bold text-white">{estado.cantidad}</span>
+                    </div>
+                    <div className="h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-700"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>

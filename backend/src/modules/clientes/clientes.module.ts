@@ -3,13 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { Cliente } from './entities/cliente.entity';
 import { NotaInterna } from './entities/nota-interna.entity';
+import { ClientLocation } from './entities/client-location.entity';
 import { ClientesService } from './clientes.service';
 import { ClientesController } from './clientes.controller';
 import { StorageService } from '../../common/services/storage.service';
 import { EncryptionService } from '../../common/services/encryption.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Cliente, NotaInterna])],
+  imports: [TypeOrmModule.forFeature([Cliente, NotaInterna, ClientLocation])],
   controllers: [ClientesController],
   providers: [ClientesService, StorageService, EncryptionService],
   exports: [ClientesService],

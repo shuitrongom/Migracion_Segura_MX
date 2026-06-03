@@ -91,14 +91,21 @@ export class PushService implements OnModuleInit {
     try {
       const response = await fetch('https://exp.host/--/api/v2/push/send', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Accept-Encoding': 'gzip, deflate',
+        },
         body: JSON.stringify({
           to: token,
           title,
           body,
           sound: 'default',
+          priority: 'high',
+          badge: 1,
           data: data || {},
           channelId: 'default',
+          _displayInForeground: true,
         }),
       });
 

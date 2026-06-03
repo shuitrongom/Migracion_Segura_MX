@@ -63,6 +63,12 @@
         }
       ],
       [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Necesitamos tu ubicación para mostrarte las oficinas del INM más cercanas y mejorar nuestro servicio."
+        }
+      ],
+      [
         "@react-native-google-signin/google-signin",
         {
           "iosUrlScheme": "com.googleusercontent.apps.31322060365-46s1mlqv0mnfbiadu075m206quafsmna"

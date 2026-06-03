@@ -303,4 +303,94 @@ export class ClientesService {
     }
     return cliente;
   }
+
+  /**
+   * Registrar la ubicación del dispositivo del cliente (se llama al abrir la app)
+   */
+  async registerUbicacion(
+    userId: string,
+    dto: { lat: number; lng: number; ciudad?: string; platform?: string },
+  ): Promise<{ message: string }> {
+    // Upsert en tabla client_locations
+    await this.clienteRepository.manager.query(
+      `INSERT INTO client_locations (user_id, lat, lng, ciudad, platform, updated_at)
+       VALUES ($1, $2, $3, $4, $5, NOW())
+       ON CONFLICT (user_id) DO UPDATE SET lat = $2, lng = $3, ciudad = $4, platform = $5, updated_at = NOW()`,
+      [userId, dto.lat, dto.lng, dto.ciudad || null, dto.platform || 'unknown'],
+    );
+    return { message: 'Ubicación registrada' };
+  }
+
+  /**
+   * Obtener datos geográficos agrupados por ciudad (para mapa en admin analytics)
+   */
+  async getGeografia(): Promise<{
+    porCiudad: { ciudad: string; lat: number; lng: number; cantidad: number }[];
+    porEstado: { estado: string; cantidad: number }[];
+    total: number;
+  }> {
+    // Datos de tabla client_locations
+    const locations = await this.clienteRepository.manager.query(
+      `SELECT ciudad, lat, lng, COUNT(*) as cantidad
+       FROM client_locations
+       WHERE ciudad IS NOT NULL AND ciudad != ''
+       GROUP BY ciudad, lat, lng
+       ORDER BY cantidad DESC
+       LIMIT 50`,
+    );
+
+    // Agrupar por estado (extraer de ciudad "Ciudad, Estado")
+    const estadoMap: Record<string, number> = {};
+    for (const loc of locations) {
+      const parts = (loc.ciudad || '').split(',');
+      const estado = (parts[1] || parts[0] || 'Desconocido').trim();
+      estadoMap[estado] = (estadoMap[estado] || 0) + parseInt(loc.cantidad);
+    }
+    const porEstado = Object.entries(estadoMap)
+      .map(([estado, cantidad]) => ({ estado, cantidad }))
+      .sort((a, b) => b.cantidad - a.cantidad);
+
+    // También incluir ubicaciones de solicitudes (datosFormulario->ubicacionOrigen)
+    const solicitudLocations = await this.clienteRepository.manager.query(
+      `SELECT
+        datos_formulario->'ubicacionOrigen'->>'ciudad' as ciudad,
+        (datos_formulario->'ubicacionOrigen'->>'lat')::float as lat,
+        (datos_formulario->'ubicacionOrigen'->>'lng')::float as lng,
+        COUNT(*) as cantidad
+       FROM solicitudes
+       WHERE datos_formulario->'ubicacionOrigen' IS NOT NULL
+       AND datos_formulario->'ubicacionOrigen'->>'ciudad' IS NOT NULL
+       GROUP BY ciudad, lat, lng
+       ORDER BY cantidad DESC
+       LIMIT 50`,
+    );
+
+    // Merge ambas fuentes
+    const allLocations = [...locations, ...solicitudLocations];
+    const mergedMap = new Map<string, { ciudad: string; lat: number; lng: number; cantidad: number }>();
+    for (const loc of allLocations) {
+      const key = loc.ciudad || `${loc.lat},${loc.lng}`;
+      const existing = mergedMap.get(key);
+      if (existing) {
+        existing.cantidad += parseInt(loc.cantidad);
+      } else {
+        mergedMap.set(key, {
+          ciudad: loc.ciudad || 'Desconocido',
+          lat: parseFloat(loc.lat),
+          lng: parseFloat(loc.lng),
+          cantidad: parseInt(loc.cantidad),
+        });
+      }
+    }
+
+    const total = await this.clienteRepository.manager.query(
+      `SELECT COUNT(*) as total FROM client_locations`,
+    );
+
+    return {
+      porCiudad: Array.from(mergedMap.values()).sort((a, b) => b.cantidad - a.cantidad),
+      porEstado,
+      total: parseInt(total?.[0]?.total || '0'),
+    };
+  }
 }
