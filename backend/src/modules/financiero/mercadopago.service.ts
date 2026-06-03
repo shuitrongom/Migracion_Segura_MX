@@ -42,9 +42,10 @@ export class MercadoPagoService {
           ],
           payer: {
             name: params.clienteNombre || 'Extranjero',
-            email: params.email && params.email.includes('@') && !params.email.includes('pendiente') && params.email !== 'gmigratoriamx@gmail.com'
-              ? params.email 
-              : 'test_user_6041679174077412980@testuser.com',
+            // No pre-llenar email para que el usuario lo ingrese manualmente al pagar sin cuenta
+            ...(params.email && params.email.includes('@') && !params.email.includes('pendiente') && !params.email.includes('gmail') && !params.email.includes('testuser')
+              ? { email: params.email }
+              : {}),
           },
           payment_methods: {
             excluded_payment_types: [],
