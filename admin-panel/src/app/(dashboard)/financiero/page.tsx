@@ -39,16 +39,44 @@ export default function FinancieroPage() {
   const pagosQuery = useQuery({
     queryKey: ['financiero', 'pagos-all'],
     queryFn: async () => {
+      const allPagos: any[] = [];
+
+      // Pagos de trámites
       const tramitesRes = await api.get('/tramites?page=1&limit=100');
       const tramites = tramitesRes.data?.data || [];
-      const allPagos: any[] = [];
       for (const t of tramites) {
         try {
           const pagosRes = await api.get(`/financiero/pagos/tramite/${t.id}`);
           const pagos = Array.isArray(pagosRes.data) ? pagosRes.data : [];
-          pagos.forEach((p: any) => allPagos.push({ ...p, tramite: t }));
+          pagos.forEach((p: any) => allPagos.push({ ...p, tramite: t, origen: 'tramite' }));
         } catch {}
       }
+
+      // Pagos de solicitudes
+      try {
+        const solRes = await api.get('/solicitudes?page=1&limit=100');
+        const solicitudes = solRes.data?.data || solRes.data || [];
+        for (const sol of solicitudes) {
+          if (sol.mercadopagoPreferenceId || sol.costo) {
+            allPagos.push({
+              id: sol.id + '-sol',
+              monto: sol.costo || 100,
+              concepto: `Solicitud INM - ${(sol.tipoTramite || '').replace(/_/g, ' ')}`,
+              estatusPago: sol.estatus === 'pagada' ? 'aprobado' : sol.estatus === 'cancelada' ? 'cancelado' : 'pendiente',
+              tipoPago: 'pago_unico',
+              createdAt: sol.createdAt,
+              tramiteId: sol.id,
+              origen: 'solicitud',
+              solicitud: sol,
+              tramite: {
+                numeroPieza: sol.numeroPieza,
+                datosFormulario: sol.datosFormulario,
+              },
+            });
+          }
+        }
+      } catch {}
+
       return allPagos.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     },
     staleTime: 30000,
@@ -167,9 +195,12 @@ export default function FinancieroPage() {
                       <DollarSign className="h-5 w-5 text-amber-500" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-white">{pago.tramite?.cliente?.nombreCompleto || pago.tramite?.datosFormulario?.nombre || '—'}</p>
+                      <p className="text-sm font-semibold text-white">{pago.tramite?.cliente?.nombreCompleto || pago.tramite?.datosFormulario?.nombre || pago.solicitud?.datosFormulario?.nombre || '—'}</p>
                       <p className="text-xs text-white/70">{pago.concepto} • {pago.createdAt?.slice(0, 10)}</p>
-                      <p className="text-[10px] text-white/70">{pago.tramite?.numeroPieza || pago.tramiteId?.slice(0, 8)}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-[10px] text-white/70">{pago.tramite?.numeroPieza || pago.tramiteId?.slice(0, 8)}</p>
+                        {pago.origen === 'solicitud' && <span className="text-[9px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-1.5 py-0.5 rounded">Solicitud $100</span>}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 shrink-0">

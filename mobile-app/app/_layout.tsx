@@ -9,8 +9,10 @@ import { storage } from '@/lib/storage';
 
 export default function RootLayout() {
   useEffect(() => {
-    // Registrar push notifications si el usuario está logueado
+    // Pedir permisos de notificaciones SIEMPRE al abrir la app (no solo si está logueado)
     async function initPush() {
+      await registerForPushNotifications();
+      // Si tiene token, también registrar en backend
       const token = await storage.getItem('access_token');
       if (token) {
         await registerForPushNotifications();
