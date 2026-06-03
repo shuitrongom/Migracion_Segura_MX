@@ -298,7 +298,7 @@ export default function SolicitudNuevaScreen() {
   const tipoInfo = TIPOS_TRAMITE.find(t => t.value === tipoTramite);
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={{ flex: 1 }}>
           <ScrollView
             style={styles.container}
