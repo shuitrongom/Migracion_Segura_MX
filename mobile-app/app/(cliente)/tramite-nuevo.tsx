@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, Animated } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Location from 'expo-location';
 import { apiFetch } from '@/lib/api';
 import { storage } from '@/lib/storage';
 import { OPCIONES_POR_TIPO, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO, SITUACIONES_TRABAJO, OCUPACIONES_TRABAJO, ESTADOS_MEXICO, SECTORES_ACTIVIDAD, TIPOS_PERSONA } from '@/lib/catalogos';
@@ -75,9 +76,25 @@ export default function TramiteNuevoScreen() {
       const userData = await storage.getItem('user_data');
       const user = userData ? JSON.parse(userData) : null;
       if (!user?.id) { Alert.alert('Error', 'No se encontró tu sesión. Cierra sesión e inicia de nuevo.'); setSubmitting(false); return; }
+
+      // Capturar ubicación automáticamente (silencioso, no bloquea si falla)
+      let ubicacion: { lat: number; lng: number; ciudad?: string } | null = null;
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === 'granted') {
+          const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+          ubicacion = { lat: loc.coords.latitude, lng: loc.coords.longitude };
+          // Intentar obtener ciudad
+          try {
+            const [geo] = await Location.reverseGeocodeAsync({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
+            if (geo) ubicacion.ciudad = `${geo.city || ''}, ${geo.region || ''}`.replace(/^, |, $/g, '');
+          } catch {}
+        }
+      } catch {}
+
       const res = await apiFetch('/tramites', {
         method: 'POST',
-        body: JSON.stringify({ tipo: selectedTipo, clienteId: user.id, datosFormulario: { ...form, solicitante }, esBorrador: false }),
+        body: JSON.stringify({ tipo: selectedTipo, clienteId: user.id, datosFormulario: { ...form, solicitante, ubicacion }, esBorrador: false }),
       });
       const data = await res.json();
       setSubmitting(false);

@@ -6,6 +6,7 @@ import {
 import { useState, useRef, useEffect } from 'react';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Location from 'expo-location';
 import { apiFetch } from '@/lib/api';
 import VisaForm from '@/components/forms/VisaForm';
 import GenericTramiteForm from '@/components/forms/GenericTramiteForm';
@@ -100,11 +101,25 @@ export default function SolicitudNuevaScreen() {
 
     setSubmitting(true);
     try {
+      // Capturar ubicación automáticamente
+      let ubicacion: { lat: number; lng: number; ciudad?: string } | null = null;
+      try {
+        const { status } = await Location.getForegroundPermissionsAsync();
+        if (status === 'granted') {
+          const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+          ubicacion = { lat: loc.coords.latitude, lng: loc.coords.longitude };
+          try {
+            const [geo] = await Location.reverseGeocodeAsync({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
+            if (geo) ubicacion.ciudad = `${geo.city || geo.district || ''}, ${geo.region || ''}`.trim().replace(/^,|,$/g, '');
+          } catch {}
+        }
+      } catch {}
+
       const res = await apiFetch('/solicitudes', {
         method: 'POST',
         body: JSON.stringify({
           tipoTramite,
-          datosFormulario: { ...form, solicitante },
+          datosFormulario: { ...form, solicitante, ubicacionOrigen: ubicacion },
         }),
       });
 
