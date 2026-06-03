@@ -229,7 +229,30 @@ export class SolicitudesService {
       skip: (page - 1) * limit,
       take: limit,
     });
-    return new PaginatedResponseDto(data, total, page, limit);
+
+    // Enriquecer con datos de beneficiario y usuario
+    const enriched = await Promise.all(data.map(async (sol) => {
+      const result: any = { ...sol };
+      // Obtener beneficiario si existe
+      if (sol.beneficiarioId) {
+        const benef = await this.solicitudRepository.manager.query(
+          `SELECT id, nombre, apellidos, parentesco, nacionalidad FROM beneficiarios WHERE id = $1 AND deleted_at IS NULL LIMIT 1`,
+          [sol.beneficiarioId],
+        ).catch(() => []);
+        if (benef?.[0]) result.beneficiario = benef[0];
+      }
+      // Obtener datos de la cuenta (usuario)
+      if (sol.userId) {
+        const user = await this.solicitudRepository.manager.query(
+          `SELECT full_name as "fullName", email FROM users WHERE id = $1 LIMIT 1`,
+          [sol.userId],
+        ).catch(() => []);
+        if (user?.[0]) result.user = user[0];
+      }
+      return result;
+    }));
+
+    return new PaginatedResponseDto(enriched as any, total, page, limit);
   }
 
   /**

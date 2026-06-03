@@ -60,6 +60,10 @@ interface Solicitud {
   documentoUrl?: string;
   createdAt: string;
   fechaPago?: string;
+  beneficiarioId?: string;
+  beneficiario?: { id: string; nombre: string; apellidos: string; parentesco: string; nacionalidad?: string };
+  userId?: string;
+  user?: { fullName: string; email: string };
 }
 
 const ESTATUS_BADGE: Record<string, { label: string; className: string }> = {
@@ -191,7 +195,12 @@ export default function SolicitudesPage() {
   });
 
   const formatDate = (d: string) => new Date(d).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
-  const getNombre = (s: Solicitud) => `${s.datosFormulario?.nombre || ''} ${s.datosFormulario?.apellidos || ''}`.trim() || '—';
+  const getNombre = (s: Solicitud) => {
+    // Si tiene beneficiario, usar su nombre
+    if (s.beneficiario) return `${s.beneficiario.nombre} ${s.beneficiario.apellidos}`.trim();
+    return `${s.datosFormulario?.nombre || ''} ${s.datosFormulario?.apellidos || ''}`.trim() || '—';
+  };
+  const getCuenta = (s: Solicitud) => s.user?.email || s.datosFormulario?.solicitanteEmail || '';
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -292,6 +301,9 @@ export default function SolicitudesPage() {
                           <span className="text-[10px] text-white/70 ml-2">📍 {sol.datosFormulario.ubicacionOrigen.ciudad}</span>
                         )}
                       </p>
+                      {getCuenta(sol) && (
+                        <p className="text-[10px] text-white/40 mt-0.5">Cuenta: {getCuenta(sol)}{sol.beneficiario?.parentesco && sol.beneficiario.parentesco !== 'yo_mismo' ? ` · Relación: ${sol.beneficiario.parentesco}` : ''}</p>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
