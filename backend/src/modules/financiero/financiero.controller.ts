@@ -152,20 +152,23 @@ export class FinancieroController {
     if (body.type === 'payment' && body.data?.id) {
       try {
         const payment = await this.mercadoPagoService.getPayment(body.data.id.toString());
-        if (payment.status === 'approved' && payment.externalReference) {
-          const refId = payment.externalReference;
+        const refId = payment.externalReference;
+        if (!refId) return { received: true };
 
-          // Intentar confirmar como pago de trámite
+        if (payment.status === 'approved') {
+          // Confirmar pago de trámite
           await this.financieroService.procesarPagoAprobado(
             payment.id?.toString() || '',
             refId,
             payment.amount || 0,
             payment.paymentMethod || '',
           );
+          // Confirmar pago de solicitud
+          try { await this.solicitudesService.confirmarPago(refId, payment.id?.toString()); } catch {}
 
-          // Intentar confirmar como pago de solicitud
+        } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
           try {
-            await this.solicitudesService.confirmarPago(refId, payment.id?.toString());
+            await this.financieroService.notificarPagoRechazado(refId, payment.status);
           } catch {}
         }
       } catch {}

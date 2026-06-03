@@ -224,6 +224,52 @@ export class FinancieroService {
   }
 
   /**
+   * Notificar al cliente cuando su pago fue rechazado o cancelado
+   */
+  async notificarPagoRechazado(refId: string, status: string): Promise<void> {
+    try {
+      const tramite = await this.pagoRepository.manager.query(
+        `SELECT t.id, t.cliente_id, c.user_id FROM tramites t
+         LEFT JOIN clientes c ON c.id = t.cliente_id
+         WHERE t.id = $1 LIMIT 1`,
+        [refId],
+      );
+      const userId = tramite?.[0]?.user_id;
+      if (userId) {
+        const msg =
+          status === 'rejected'
+            ? 'Tu pago fue rechazado. Puedes intentarlo de nuevo con el mismo link.'
+            : 'Tu pago fue cancelado.';
+        await this.notificacionesService
+          .sendNotification({
+            destinatarioId: userId,
+            tipo: TipoNotificacion.PAGO_PENDIENTE,
+            canal: CanalNotificacion.PUSH,
+            titulo: status === 'rejected' ? '❌ Pago rechazado' : '🚫 Pago cancelado',
+            contenido: msg,
+            metadata: { tramiteId: refId, status },
+          })
+          .catch(() => {});
+      }
+    } catch {}
+  }
+
+  /**
+   * Obtener userId a partir del ID de un trámite o solicitud
+   */
+  async getUserIdByTramiteOrSolicitud(refId: string): Promise<string | null> {
+    try {
+      const result = await this.pagoRepository.manager.query(
+        `SELECT c.user_id FROM tramites t LEFT JOIN clientes c ON c.id = t.cliente_id WHERE t.id = $1 LIMIT 1`,
+        [refId],
+      );
+      return result?.[0]?.user_id || null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
    * Cancelar pagos vencidos (más de 15 días sin pagar)
    * Se ejecuta periódicamente o al consultar
    */
