@@ -68,9 +68,7 @@ export default function ClienteLayout() {
       <Tabs.Screen name="solicitud-nueva" options={{ href: null }} />
       <Tabs.Screen name="tramite-nuevo" options={{ href: null }} />
       <Tabs.Screen name="beneficiarios" options={{ href: null }} />
-      <Tabs.Screen name="mapa-inm" options={{ href: null }} />
       <Tabs.Screen name="chat" options={{ href: null }} />
-      <Tabs.Screen name="evaluar-tramite" options={{ href: null }} />
       <Tabs.Screen name="pago-resultado" options={{ href: null }} />
       <Tabs.Screen name="subir-documento" options={{ href: null }} />
     </Tabs>
