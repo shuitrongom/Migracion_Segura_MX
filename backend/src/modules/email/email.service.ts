@@ -16,21 +16,145 @@ export class EmailService {
     this.fromName = this.configService.get<string>('EMAIL_FROM_NAME') || 'Migración Segura MX';
   }
 
+  // ─── Shared Template Builder ───────────────────────────────────────────────────
+
+  /**
+   * Template base para emails al CLIENTE (tema claro, warm & profesional)
+   */
+  private buildClientTemplate(params: { title: string; body: string; footerText?: string }): string {
+    const { title, body, footerText } = params;
+    return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title}</title>
+</head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#f8f4ee;-webkit-font-smoothing:antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;margin:0 auto;padding:48px 20px;">
+    <tr><td>
+      <!-- Header con logo y gradiente -->
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:linear-gradient(135deg,#2C1810 0%,#4A2C1A 100%);border-radius:16px 16px 0 0;padding:36px 32px;">
+        <tr><td align="center">
+          <table role="presentation" cellspacing="0" cellpadding="0"><tr>
+            <td style="width:40px;height:40px;background:#C4A265;border-radius:10px;text-align:center;vertical-align:middle;">
+              <span style="color:#2C1810;font-size:18px;font-weight:800;">M</span>
+            </td>
+            <td style="padding-left:12px;">
+              <h1 style="color:#C4A265;margin:0;font-size:22px;font-weight:700;letter-spacing:0.5px;">MIGRACIÓN SEGURA MX</h1>
+            </td>
+          </tr></table>
+          <p style="color:#d4c5b0;margin:8px 0 0;font-size:13px;letter-spacing:0.3px;">Tu trámite migratorio en buenas manos</p>
+        </td></tr>
+      </table>
+
+      <!-- Cuerpo del email -->
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#ffffff;padding:40px 36px;border-left:1px solid #e8dfd3;border-right:1px solid #e8dfd3;">
+        <tr><td>
+          ${body}
+        </td></tr>
+      </table>
+
+      <!-- Footer -->
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#faf7f2;border-radius:0 0 16px 16px;padding:24px 32px;border:1px solid #e8dfd3;border-top:none;">
+        <tr><td align="center">
+          ${footerText ? `<p style="color:#6B5B4F;font-size:12px;margin:0 0 8px;">${footerText}</p>` : ''}
+          <p style="color:#9a8e84;font-size:11px;margin:0;">© ${new Date().getFullYear()} Migración Segura MX · Todos los derechos reservados</p>
+          <p style="color:#bbb;font-size:10px;margin:6px 0 0;">Este es un correo automático. Por favor no respondas a este mensaje.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+  }
+
+  /**
+   * Template base para emails al ADMIN (tema oscuro, moderno & premium)
+   */
+  private buildAdminTemplate(params: { title: string; body: string }): string {
+    const { title, body } = params;
+    return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title}</title>
+</head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#0a0a0a;-webkit-font-smoothing:antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;margin:0 auto;padding:48px 20px;">
+    <tr><td>
+      <!-- Header premium oscuro -->
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:linear-gradient(135deg,#1a1a1a 0%,#2a2014 50%,#1a1a1a 100%);border-radius:16px 16px 0 0;padding:36px 32px;border:1px solid #333;border-bottom:none;">
+        <tr><td align="center">
+          <table role="presentation" cellspacing="0" cellpadding="0"><tr>
+            <td style="width:44px;height:44px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:12px;text-align:center;vertical-align:middle;">
+              <span style="color:#fff;font-size:20px;font-weight:800;">M</span>
+            </td>
+            <td style="padding-left:14px;">
+              <h1 style="color:#f59e0b;margin:0;font-size:22px;font-weight:700;letter-spacing:0.5px;">MIGRACIÓN SEGURA MX</h1>
+              <p style="color:rgba(255,255,255,0.4);margin:2px 0 0;font-size:11px;letter-spacing:1px;text-transform:uppercase;">Panel de Administración</p>
+            </td>
+          </tr></table>
+        </td></tr>
+      </table>
+
+      <!-- Cuerpo del email -->
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#141414;padding:40px 36px;border-left:1px solid #333;border-right:1px solid #333;">
+        <tr><td>
+          ${body}
+        </td></tr>
+      </table>
+
+      <!-- Footer oscuro -->
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#0f0f0f;border-radius:0 0 16px 16px;padding:24px 32px;border:1px solid #333;border-top:none;">
+        <tr><td align="center">
+          <p style="color:rgba(255,255,255,0.3);font-size:11px;margin:0;">© ${new Date().getFullYear()} Migración Segura MX · admin.migracionseguramx.com</p>
+          <p style="color:rgba(255,255,255,0.2);font-size:10px;margin:6px 0 0;">Notificación automática del sistema</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+  }
+
+  // ─── Email Methods ─────────────────────────────────────────────────────────────
+
   /**
    * Enviar código de verificación por email
    */
-  async sendVerificationCodeEmail(params: {
-    to: string;
-    code: string;
-  }): Promise<void> {
+  async sendVerificationCodeEmail(params: { to: string; code: string }): Promise<void> {
     const { to, code } = params;
+
+    const body = `
+      <h2 style="color:#2C1810;margin:0 0 8px;font-size:22px;font-weight:700;">Verifica tu cuenta</h2>
+      <p style="color:#6B5B4F;font-size:14px;margin:0 0 28px;line-height:1.6;">Ingresa el siguiente código en la app para verificar tu identidad:</p>
+
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 28px;">
+        <tr><td align="center">
+          <table role="presentation" cellspacing="0" cellpadding="0" style="background:linear-gradient(135deg,#fef9f0,#fdf2e0);border:2px solid #C4A265;border-radius:16px;padding:28px 48px;">
+            <tr><td align="center">
+              <p style="color:#6B5B4F;font-size:11px;text-transform:uppercase;letter-spacing:2px;font-weight:600;margin:0 0 8px;">Tu código</p>
+              <span style="font-size:38px;font-weight:800;color:#2C1810;letter-spacing:10px;font-family:'Courier New',monospace;">${code}</span>
+            </td></tr>
+          </table>
+        </td></tr>
+      </table>
+
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#fef9f0;border-radius:12px;padding:16px 20px;margin:0 0 20px;">
+        <tr><td>
+          <p style="color:#92700c;font-size:13px;margin:0;line-height:1.5;">⏱️ Este código expira en <strong>15 minutos</strong>. Si no lo solicitaste, ignora este correo.</p>
+        </td></tr>
+      </table>
+    `;
 
     try {
       await this.resend.emails.send({
         from: `${this.fromName} <${this.fromEmail}>`,
         to: [to],
         subject: `Tu código de verificación: ${code} — Migración Segura MX`,
-        html: `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;font-family:-apple-system,sans-serif;background:#f5f0e8;"><table width="100%" style="max-width:600px;margin:0 auto;padding:40px 20px;"><tr><td><table width="100%" style="background:#2C1810;border-radius:12px 12px 0 0;padding:24px;"><tr><td align="center"><h1 style="color:#C4A265;margin:0;font-size:20px;">MIGRACIÓN SEGURA MX</h1></td></tr></table><table width="100%" style="background:#fff;padding:32px;"><tr><td><h2 style="color:#2C1810;font-size:18px;margin:0 0 16px;">Verifica tu cuenta</h2><p style="color:#4a4a4a;font-size:14px;line-height:1.6;">Tu código de verificación es:</p><table width="100%" style="margin:20px 0;"><tr><td align="center"><div style="background:#f8f5f0;border:2px solid #C4A265;border-radius:12px;padding:20px 40px;display:inline-block;"><span style="font-size:32px;font-weight:700;color:#2C1810;letter-spacing:8px;">${code}</span></div></td></tr></table><p style="color:#4a4a4a;font-size:14px;">Este código expira en <strong>15 minutos</strong>.</p><p style="color:#888;font-size:12px;margin-top:20px;">Si no solicitaste este código, ignora este correo.</p></td></tr></table><table width="100%" style="background:#f8f5f0;border-radius:0 0 12px 12px;padding:20px;"><tr><td align="center"><p style="color:#6B5B4F;font-size:11px;margin:0;">© ${new Date().getFullYear()} Migración Segura MX</p></td></tr></table></td></tr></table></body></html>`,
+        html: this.buildClientTemplate({ title: 'Código de Verificación', body }),
       });
       this.logger.log(`Código de verificación enviado a ${to}`);
     } catch (error) {
@@ -43,12 +167,30 @@ export class EmailService {
    */
   async sendPasswordResetEmail(params: { to: string; resetUrl: string }): Promise<void> {
     const { to, resetUrl } = params;
+
+    const body = `
+      <h2 style="color:#2C1810;margin:0 0 8px;font-size:22px;font-weight:700;">Recuperar contraseña</h2>
+      <p style="color:#6B5B4F;font-size:14px;margin:0 0 28px;line-height:1.6;">Recibimos una solicitud para restablecer tu contraseña. Haz clic en el botón para crear una nueva:</p>
+
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 28px;">
+        <tr><td align="center">
+          <a href="${resetUrl}" style="display:inline-block;background:linear-gradient(135deg,#2C1810,#4A2C1A);color:#ffffff;text-decoration:none;padding:16px 40px;border-radius:12px;font-size:15px;font-weight:600;box-shadow:0 4px 12px rgba(44,24,16,0.3);">🔑 Restablecer contraseña</a>
+        </td></tr>
+      </table>
+
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#fef9f0;border-radius:12px;padding:16px 20px;margin:0 0 20px;">
+        <tr><td>
+          <p style="color:#92700c;font-size:13px;margin:0;line-height:1.5;">⏱️ Este enlace expira en <strong>30 minutos</strong>. Si no solicitaste este cambio, ignora este correo.</p>
+        </td></tr>
+      </table>
+    `;
+
     try {
       await this.resend.emails.send({
         from: `${this.fromName} <${this.fromEmail}>`,
         to: [to],
         subject: 'Recuperar contraseña — Migración Segura MX',
-        html: `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;font-family:-apple-system,sans-serif;background:#f5f0e8;"><table width="100%" style="max-width:600px;margin:0 auto;padding:40px 20px;"><tr><td><table width="100%" style="background:#2C1810;border-radius:12px 12px 0 0;padding:24px;"><tr><td align="center"><h1 style="color:#C4A265;margin:0;font-size:20px;">MIGRACIÓN SEGURA MX</h1></td></tr></table><table width="100%" style="background:#fff;padding:32px;"><tr><td><h2 style="color:#2C1810;font-size:18px;margin:0 0 16px;">Recuperar contraseña</h2><p style="color:#4a4a4a;font-size:14px;line-height:1.6;">Recibimos una solicitud para restablecer tu contraseña. Haz clic en el botón para crear una nueva:</p><table width="100%" style="margin:24px 0;"><tr><td align="center"><a href="${resetUrl}" style="display:inline-block;background:#2C1810;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:600;">Restablecer contraseña</a></td></tr></table><p style="color:#4a4a4a;font-size:14px;">Este enlace expira en <strong>30 minutos</strong>.</p><p style="color:#888;font-size:12px;margin-top:20px;">Si no solicitaste este cambio, ignora este correo. Tu contraseña no será modificada.</p></td></tr></table><table width="100%" style="background:#f8f5f0;border-radius:0 0 12px 12px;padding:20px;"><tr><td align="center"><p style="color:#6B5B4F;font-size:11px;margin:0;">© ${new Date().getFullYear()} Migración Segura MX</p></td></tr></table></td></tr></table></body></html>`,
+        html: this.buildClientTemplate({ title: 'Recuperar Contraseña', body }),
       });
       this.logger.log(`Email de reset enviado a ${to}`);
     } catch (error) {
@@ -67,17 +209,44 @@ export class EmailService {
   }): Promise<void> {
     const { to, fullName, password, loginUrl } = params;
 
+    const body = `
+      <h2 style="color:#2C1810;margin:0 0 8px;font-size:22px;font-weight:700;">¡Bienvenido/a, ${fullName}!</h2>
+      <p style="color:#6B5B4F;font-size:14px;margin:0 0 28px;line-height:1.6;">Se te ha dado acceso como <strong>Asesor</strong> en la plataforma. A continuación tus credenciales:</p>
+
+      <!-- Credentials Card -->
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:linear-gradient(135deg,#fef9f0,#fdf2e0);border:1px solid #e8dfd3;border-radius:16px;padding:28px;margin:0 0 28px;">
+        <tr><td>
+          <p style="color:#6B5B4F;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin:0 0 6px;">📧 Correo electrónico</p>
+          <p style="color:#2C1810;font-size:16px;margin:0 0 20px;font-weight:600;">${to}</p>
+          <p style="color:#6B5B4F;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin:0 0 6px;">🔐 Contraseña temporal</p>
+          <p style="color:#2C1810;font-size:18px;margin:0;font-weight:700;font-family:'Courier New',monospace;background:#fff;padding:12px 16px;border-radius:8px;border:1px solid #e8dfd3;">${password}</p>
+        </td></tr>
+      </table>
+
+      <!-- CTA -->
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 28px;">
+        <tr><td align="center">
+          <a href="${loginUrl}" style="display:inline-block;background:linear-gradient(135deg,#2C1810,#4A2C1A);color:#ffffff;text-decoration:none;padding:16px 40px;border-radius:12px;font-size:15px;font-weight:600;box-shadow:0 4px 12px rgba(44,24,16,0.3);">Iniciar Sesión →</a>
+        </td></tr>
+      </table>
+
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#fef9f0;border-radius:12px;padding:16px 20px;">
+        <tr><td>
+          <p style="color:#92700c;font-size:13px;margin:0;line-height:1.5;">⚠️ Te recomendamos cambiar tu contraseña después del primer inicio de sesión.</p>
+        </td></tr>
+      </table>
+    `;
+
     try {
       await this.resend.emails.send({
         from: `${this.fromName} <${this.fromEmail}>`,
         to: [to],
         subject: 'Bienvenido al equipo — Tus credenciales de acceso',
-        html: this.buildAsesorWelcomeHtml({ fullName, email: to, password, loginUrl }),
+        html: this.buildClientTemplate({ title: 'Bienvenido', body }),
       });
       this.logger.log(`Email de bienvenida enviado a ${to}`);
     } catch (error) {
       this.logger.error(`Error enviando email a ${to}:`, error);
-      // No lanzamos error para no bloquear la creación del asesor
     }
   }
 
@@ -91,35 +260,34 @@ export class EmailService {
   }): Promise<void> {
     const { to, nombreExtranjero, requisitos } = params;
 
-    const requisitosHtml = requisitos.map((r, i) => `<tr><td style="padding: 8px 12px; border-bottom: 1px solid #e8dfd3; font-size: 14px; color: #2C1810;"><strong>${i + 1}.</strong> ${r}</td></tr>`).join('');
+    const requisitosHtml = requisitos.map((r, i) =>
+      `<tr><td style="padding:14px 16px;border-bottom:1px solid #f0ebe3;font-size:14px;color:#2C1810;line-height:1.5;">
+        <span style="display:inline-block;width:24px;height:24px;background:#C4A265;color:#fff;border-radius:50%;text-align:center;line-height:24px;font-size:12px;font-weight:700;margin-right:10px;">${i + 1}</span>
+        ${r}
+      </td></tr>`
+    ).join('');
+
+    const body = `
+      <h2 style="color:#2C1810;margin:0 0 8px;font-size:22px;font-weight:700;">Requisitos de tu trámite</h2>
+      <p style="color:#6B5B4F;font-size:14px;margin:0 0 8px;line-height:1.6;">Hola <strong>${nombreExtranjero}</strong>,</p>
+      <p style="color:#6B5B4F;font-size:14px;margin:0 0 28px;line-height:1.6;">Para continuar con tu trámite migratorio, necesitas reunir los siguientes documentos:</p>
+
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e8dfd3;border-radius:12px;overflow:hidden;margin:0 0 28px;">
+        <tr><td style="background:linear-gradient(135deg,#2C1810,#4A2C1A);padding:14px 16px;">
+          <p style="font-size:12px;font-weight:600;color:#C4A265;text-transform:uppercase;letter-spacing:1.5px;margin:0;">📋 Documentos requeridos</p>
+        </td></tr>
+        ${requisitosHtml}
+      </table>
+
+      <p style="color:#6B5B4F;font-size:14px;line-height:1.6;margin:0 0 8px;">Una vez que tengas todo listo, puedes subirlos directamente en la app o entregarlos a tu gestor.</p>
+    `;
 
     try {
       await this.resend.emails.send({
         from: `${this.fromName} <${this.fromEmail}>`,
         to: [to],
         subject: 'Requisitos para tu trámite migratorio — Migración Segura MX',
-        html: `
-<!DOCTYPE html>
-<html lang="es">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background-color:#f5f0e8;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;margin:0 auto;padding:40px 20px;">
-<tr><td>
-<table role="presentation" width="100%" style="background-color:#2C1810;border-radius:12px 12px 0 0;padding:24px;"><tr><td align="center"><h1 style="color:#C4A265;margin:0;font-size:20px;">MIGRACIÓN SEGURA MX</h1></td></tr></table>
-<table role="presentation" width="100%" style="background-color:#fff;padding:32px;">
-<tr><td>
-<h2 style="color:#2C1810;margin:0 0 16px;font-size:18px;">Hola ${nombreExtranjero},</h2>
-<p style="color:#4a4a4a;font-size:14px;line-height:1.6;">Para continuar con tu trámite migratorio, necesitas reunir los siguientes documentos:</p>
-<table role="presentation" width="100%" style="margin:20px 0;border:1px solid #e8dfd3;border-radius:8px;overflow:hidden;">
-<tr><td style="background:#f8f5f0;padding:10px 12px;font-size:12px;font-weight:600;color:#6B5B4F;text-transform:uppercase;">Documentos requeridos</td></tr>
-${requisitosHtml}
-</table>
-<p style="color:#4a4a4a;font-size:14px;line-height:1.6;">Una vez que tengas todos los documentos listos, puedes entregarlos a tu gestor o subirlos directamente en la plataforma.</p>
-<p style="color:#888;font-size:12px;margin-top:20px;">Si tienes dudas, contacta a tu gestor asignado.</p>
-</td></tr></table>
-<table role="presentation" width="100%" style="background-color:#f8f5f0;border-radius:0 0 12px 12px;padding:20px;"><tr><td align="center"><p style="color:#6B5B4F;font-size:11px;margin:0;">© ${new Date().getFullYear()} Migración Segura MX</p></td></tr></table>
-</td></tr></table>
-</body></html>`,
+        html: this.buildClientTemplate({ title: 'Requisitos', body, footerText: 'Si tienes dudas, contacta a tu gestor asignado.' }),
       });
       this.logger.log(`Requisitos enviados a ${to}`);
     } catch (error) {
@@ -140,108 +308,57 @@ ${requisitosHtml}
   }): Promise<void> {
     const { to, nombreExtranjero, tipoCita, fecha, hora, modalidad } = params;
     const tipoLabel = tipoCita === 'inm' ? 'Cita en el INM' : 'Entrevista con tu Gestor';
-    const modalidadLabel = modalidad === 'videollamada' ? 'Videollamada' : 'Presencial';
+    const modalidadLabel = modalidad === 'videollamada' ? '💻 Videollamada' : '🏢 Presencial';
+    const tipoIcon = tipoCita === 'inm' ? '🏛️' : '👤';
+
+    const body = `
+      <h2 style="color:#2C1810;margin:0 0 8px;font-size:22px;font-weight:700;">Recordatorio de Cita</h2>
+      <p style="color:#6B5B4F;font-size:14px;margin:0 0 28px;line-height:1.6;">Hola <strong>${nombreExtranjero}</strong>, te recordamos que tienes una cita en <strong style="color:#C4A265;">2 días</strong>:</p>
+
+      <!-- Appointment Card -->
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:linear-gradient(135deg,#fef9f0,#fdf2e0);border:1px solid #e8dfd3;border-radius:16px;padding:28px;margin:0 0 28px;">
+        <tr><td>
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+            <tr>
+              <td style="padding-bottom:16px;border-bottom:1px solid #e8dfd3;">
+                <p style="color:#6B5B4F;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin:0 0 4px;">Tipo de cita</p>
+                <p style="color:#2C1810;font-size:17px;font-weight:600;margin:0;">${tipoIcon} ${tipoLabel}</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:16px 0;border-bottom:1px solid #e8dfd3;">
+                <p style="color:#6B5B4F;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin:0 0 4px;">Fecha y hora</p>
+                <p style="color:#2C1810;font-size:17px;font-weight:600;margin:0;">📅 ${fecha} · ⏰ ${hora}</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding-top:16px;">
+                <p style="color:#6B5B4F;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin:0 0 4px;">Modalidad</p>
+                <p style="color:#2C1810;font-size:17px;font-weight:600;margin:0;">${modalidadLabel}</p>
+              </td>
+            </tr>
+          </table>
+        </td></tr>
+      </table>
+
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#fef9f0;border-radius:12px;padding:16px 20px;">
+        <tr><td>
+          <p style="color:#92700c;font-size:13px;margin:0;line-height:1.5;">📄 Asegúrate de tener tus documentos listos. Si necesitas reagendar, contacta a tu gestor.</p>
+        </td></tr>
+      </table>
+    `;
 
     try {
       await this.resend.emails.send({
         from: `${this.fromName} <${this.fromEmail}>`,
         to: [to],
         subject: `Recordatorio: ${tipoLabel} el ${fecha} — Migración Segura MX`,
-        html: `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;font-family:-apple-system,sans-serif;background:#f5f0e8;"><table width="100%" style="max-width:600px;margin:0 auto;padding:40px 20px;"><tr><td><table width="100%" style="background:#2C1810;border-radius:12px 12px 0 0;padding:24px;"><tr><td align="center"><h1 style="color:#C4A265;margin:0;font-size:20px;">MIGRACIÓN SEGURA MX</h1></td></tr></table><table width="100%" style="background:#fff;padding:32px;"><tr><td><h2 style="color:#2C1810;font-size:18px;">Recordatorio de Cita</h2><p style="color:#4a4a4a;font-size:14px;">Hola ${nombreExtranjero}, te recordamos que tienes una cita en <strong>2 días</strong>:</p><table width="100%" style="margin:20px 0;background:#f8f5f0;border:1px solid #e8dfd3;border-radius:8px;padding:20px;"><tr><td><p style="font-size:12px;color:#6B5B4F;text-transform:uppercase;font-weight:600;margin:0 0 4px;">Tipo</p><p style="font-size:16px;color:#2C1810;margin:0 0 12px;">${tipoLabel}</p><p style="font-size:12px;color:#6B5B4F;text-transform:uppercase;font-weight:600;margin:0 0 4px;">Fecha y hora</p><p style="font-size:16px;color:#2C1810;margin:0 0 12px;">${fecha} a las ${hora}</p><p style="font-size:12px;color:#6B5B4F;text-transform:uppercase;font-weight:600;margin:0 0 4px;">Modalidad</p><p style="font-size:16px;color:#2C1810;margin:0;">${modalidadLabel}</p></td></tr></table><p style="color:#4a4a4a;font-size:14px;">Asegúrate de tener tus documentos listos. Si necesitas reagendar, contacta a tu gestor.</p></td></tr></table><table width="100%" style="background:#f8f5f0;border-radius:0 0 12px 12px;padding:20px;"><tr><td align="center"><p style="color:#6B5B4F;font-size:11px;margin:0;">© ${new Date().getFullYear()} Migración Segura MX</p></td></tr></table></td></tr></table></body></html>`,
+        html: this.buildClientTemplate({ title: 'Recordatorio de Cita', body }),
       });
       this.logger.log(`Recordatorio de cita enviado a ${to}`);
     } catch (error) {
       this.logger.error(`Error enviando recordatorio a ${to}:`, error);
     }
-  }
-
-  private buildAsesorWelcomeHtml(params: {
-    fullName: string;
-    email: string;
-    password: string;
-    loginUrl: string;
-  }): string {
-    const { fullName, email, password, loginUrl } = params;
-
-    return `
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f0e8;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-    <tr>
-      <td>
-        <!-- Header -->
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #2C1810; border-radius: 12px 12px 0 0; padding: 32px;">
-          <tr>
-            <td align="center">
-              <h1 style="color: #C4A265; margin: 0; font-size: 24px; font-weight: 700;">MIGRACIÓN SEGURA MX</h1>
-              <p style="color: #d4c5b0; margin: 8px 0 0; font-size: 14px;">Panel de Gestión</p>
-            </td>
-          </tr>
-        </table>
-
-        <!-- Body -->
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #ffffff; padding: 40px 32px;">
-          <tr>
-            <td>
-              <h2 style="color: #2C1810; margin: 0 0 16px; font-size: 20px;">¡Bienvenido/a, ${fullName}!</h2>
-              <p style="color: #4a4a4a; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
-                Se te ha dado acceso como <strong>Asesor</strong> en la plataforma de Migración Segura MX. A continuación encontrarás tus credenciales de acceso:
-              </p>
-
-              <!-- Credentials Box -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f8f5f0; border: 1px solid #e8dfd3; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
-                <tr>
-                  <td>
-                    <p style="color: #6B5B4F; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px; font-weight: 600;">Correo electrónico</p>
-                    <p style="color: #2C1810; font-size: 16px; margin: 0 0 16px; font-weight: 500;">${email}</p>
-                    <p style="color: #6B5B4F; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px; font-weight: 600;">Contraseña temporal</p>
-                    <p style="color: #2C1810; font-size: 16px; margin: 0; font-weight: 500; font-family: monospace; background: #fff; padding: 8px 12px; border-radius: 4px; border: 1px solid #e8dfd3;">${password}</p>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- CTA Button -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 24px;">
-                <tr>
-                  <td align="center">
-                    <a href="${loginUrl}" style="display: inline-block; background-color: #2C1810; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600;">Iniciar Sesión</a>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="color: #4a4a4a; font-size: 14px; line-height: 1.6; margin: 0 0 8px;">
-                <strong>Importante:</strong> Te recomendamos cambiar tu contraseña después del primer inicio de sesión.
-              </p>
-              <p style="color: #888; font-size: 13px; line-height: 1.5; margin: 0;">
-                Si no solicitaste esta cuenta, puedes ignorar este correo.
-              </p>
-            </td>
-          </tr>
-        </table>
-
-        <!-- Footer -->
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f8f5f0; border-radius: 0 0 12px 12px; padding: 24px 32px;">
-          <tr>
-            <td align="center">
-              <p style="color: #6B5B4F; font-size: 12px; margin: 0;">
-                © ${new Date().getFullYear()} Migración Segura MX. Todos los derechos reservados.
-              </p>
-              <p style="color: #999; font-size: 11px; margin: 8px 0 0;">
-                Este es un correo automático, por favor no respondas a este mensaje.
-              </p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
   }
 
   /**
@@ -255,12 +372,39 @@ ${requisitosHtml}
   }): Promise<void> {
     const adminEmail = 'admin@migracionseguramx.com';
     const { subject, event, details, extraInfo } = params;
+
+    const body = `
+      <!-- Event badge -->
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 24px;">
+        <tr><td>
+          <span style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:6px 14px;border-radius:20px;">Notificación</span>
+        </td></tr>
+      </table>
+
+      <h2 style="color:#ffffff;margin:0 0 12px;font-size:22px;font-weight:700;line-height:1.3;">${event}</h2>
+      <p style="color:rgba(255,255,255,0.75);font-size:15px;margin:0 0 28px;line-height:1.7;">${details}</p>
+
+      ${extraInfo ? `
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#1e1e1e;border:1px solid #3a3a3a;border-radius:12px;padding:20px;margin:0 0 28px;">
+        <tr><td>
+          <p style="color:rgba(255,255,255,0.6);font-size:13px;margin:0;line-height:1.6;font-family:'Courier New',monospace;">${extraInfo}</p>
+        </td></tr>
+      </table>` : ''}
+
+      <!-- CTA -->
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 20px;">
+        <tr><td align="center">
+          <a href="https://admin.migracionseguramx.com" style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;text-decoration:none;padding:14px 36px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(245,158,11,0.3);">Abrir Panel de Admin →</a>
+        </td></tr>
+      </table>
+    `;
+
     try {
       await this.resend.emails.send({
         from: `${this.fromName} <${this.fromEmail}>`,
         to: adminEmail,
         subject: `[Admin] ${subject}`,
-        html: `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;font-family:-apple-system,sans-serif;background:#0a0a0a;"><table width="100%" style="max-width:600px;margin:0 auto;padding:40px 20px;"><tr><td><table width="100%" style="background:#171717;border-radius:12px 12px 0 0;padding:24px;border:1px solid #3a3a3a;border-bottom:none;"><tr><td align="center"><h1 style="color:#f59e0b;margin:0;font-size:20px;">MIGRACIÓN SEGURA MX</h1><p style="color:rgba(255,255,255,0.5);font-size:12px;margin:4px 0 0;">Panel de Administración</p></td></tr></table><table width="100%" style="background:#171717;padding:32px;border:1px solid #3a3a3a;border-top:none;border-bottom:none;"><tr><td><h2 style="color:#ffffff;font-size:18px;margin:0 0 8px;">${event}</h2><p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.6;">${details}</p>${extraInfo ? `<table width="100%" style="margin:16px 0;background:#1a1a1a;border:1px solid #3a3a3a;border-radius:8px;padding:16px;"><tr><td><p style="font-size:13px;color:rgba(255,255,255,0.6);margin:0;">${extraInfo}</p></td></tr></table>` : ''}<p style="color:rgba(255,255,255,0.4);font-size:12px;margin:20px 0 0;">Revisa el panel de administración para más detalles.</p></td></tr></table><table width="100%" style="background:#0f0f0f;border-radius:0 0 12px 12px;padding:16px;border:1px solid #3a3a3a;border-top:none;"><tr><td align="center"><p style="color:rgba(255,255,255,0.3);font-size:11px;margin:0;">© ${new Date().getFullYear()} Migración Segura MX · admin.migracionseguramx.com</p></td></tr></table></td></tr></table></body></html>`,
+        html: this.buildAdminTemplate({ title: subject, body }),
       });
       this.logger.log(`Notificación admin enviada: ${subject}`);
     } catch (error) {
