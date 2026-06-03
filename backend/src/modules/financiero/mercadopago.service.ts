@@ -41,8 +41,10 @@ export class MercadoPagoService {
             },
           ],
           payer: {
-            name: params.clienteNombre,
-            email: params.email,
+            name: params.clienteNombre || 'Extranjero',
+            email: params.email && params.email.includes('@') && !params.email.includes('pendiente') 
+              ? params.email 
+              : 'pagador@migracionseguramx.com',
           },
           payment_methods: {
             excluded_payment_types: [],
