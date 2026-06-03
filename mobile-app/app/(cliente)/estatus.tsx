@@ -275,10 +275,32 @@ export default function EstatusScreen() {
                     </TouchableOpacity>
                   )}
 
-                  {/* Pagada */}
+                  {/* Pagada — mostrar pieza, contraseña y link descarga */}
                   {item.estatus === 'pagada' && (
-                    <View style={styles.paidBadge}>
-                      <Text style={styles.paidText}>✅ Solicitud pagada el {item.fechaPago?.slice(0, 10)}</Text>
+                    <View style={{ gap: 8 }}>
+                      <View style={styles.paidBadge}>
+                        <Text style={styles.paidText}>✅ Solicitud pagada el {item.fechaPago?.slice(0, 10)}</Text>
+                      </View>
+                      {item.numeroPieza && (
+                        <View style={styles.inmDataBox}>
+                          <Text style={styles.inmDataLabel}>📋 Número de Pieza</Text>
+                          <Text style={styles.inmDataValue}>{item.numeroPieza}</Text>
+                        </View>
+                      )}
+                      {item.contrasenaINM && (
+                        <View style={styles.inmDataBox}>
+                          <Text style={styles.inmDataLabel}>🔑 Contraseña INM</Text>
+                          <Text style={styles.inmDataValue}>{item.contrasenaINM}</Text>
+                        </View>
+                      )}
+                      {item.documentoUrl && (
+                        <TouchableOpacity
+                          onPress={() => Linking.openURL(item.documentoUrl)}
+                          style={styles.downloadBtn}
+                        >
+                          <Text style={styles.downloadBtnText}>📄 Descargar / Ver solicitud PDF</Text>
+                        </TouchableOpacity>
+                      )}
                     </View>
                   )}
                 </View>
@@ -318,6 +340,8 @@ const styles = StyleSheet.create({
   payButtonText: { color: '#ffffff', fontSize: 14, fontWeight: '600' },
   paidBadge: { backgroundColor: '#27AE6015', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12, marginTop: 8 },
   paidText: { color: '#27AE60', fontSize: 12, fontWeight: '500' },
+  downloadBtn: { backgroundColor: 'rgba(245,158,11,0.1)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)', borderRadius: 10, paddingVertical: 12, alignItems: 'center', marginTop: 4 },
+  downloadBtnText: { color: '#f59e0b', fontSize: 14, fontWeight: '600' },
   inmDataBox: { backgroundColor: 'rgba(245,158,11,0.06)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)', borderRadius: 10, padding: 12, marginTop: 10 },
   inmDataLabel: { fontSize: 10, color: 'rgba(255,255,255,0.5)', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: 0.5 },
   inmDataValue: { fontSize: 18, fontWeight: '700', color: '#f59e0b', fontFamily: 'monospace', marginTop: 4 },
