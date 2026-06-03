@@ -54,6 +54,7 @@ export class SolicitudesService {
     const solicitud = this.solicitudRepository.create({
       clienteId,
       userId,
+      beneficiarioId: dto.beneficiarioId || null,
       tipoTramite: dto.tipoTramite,
       datosFormulario: dto.datosFormulario,
       estatus: EstatusSolicitud.PENDIENTE_REVISION,

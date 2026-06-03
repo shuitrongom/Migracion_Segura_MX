@@ -15,4 +15,9 @@ export class CreateSolicitudDto {
   @IsOptional()
   @IsUUID()
   clienteId?: string;
+
+  @ApiPropertyOptional({ description: 'ID del beneficiario (extranjero) para quien se hace la solicitud' })
+  @IsOptional()
+  @IsUUID()
+  beneficiarioId?: string;
 }

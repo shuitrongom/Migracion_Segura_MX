@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, Animated } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
+import { router, useLocalSearchParams } from 'expo-router';
 import * as Location from 'expo-location';
 import { apiFetch } from '@/lib/api';
 import { storage } from '@/lib/storage';
@@ -21,12 +22,21 @@ const TRAMITES_INM = [
 ];
 
 export default function TramiteNuevoScreen() {
+  const params = useLocalSearchParams<{ beneficiarioId?: string; beneficiarioNombre?: string }>();
   const [step, setStep] = useState<'select' | 'form' | 'success'>('select');
   const [selectedTipo, setSelectedTipo] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [beneficiarioId, setBeneficiarioId] = useState<string | null>(params.beneficiarioId || null);
+  const [beneficiarioNombre, setBeneficiarioNombre] = useState(params.beneficiarioNombre || '');
+  const [beneficiarios, setBeneficiarios] = useState<any[]>([]);
+  const [loadingBenef, setLoadingBenef] = useState(true);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
+
+  useEffect(() => {
+    loadBeneficiarios();
+  }, []);
 
   useEffect(() => {
     Animated.parallel([
@@ -34,6 +44,38 @@ export default function TramiteNuevoScreen() {
       Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
     ]).start();
   }, [step]);
+
+  const loadBeneficiarios = async () => {
+    try {
+      const res = await apiFetch('/beneficiarios/mis-beneficiarios');
+      if (res.ok) {
+        const data = await res.json();
+        setBeneficiarios(Array.isArray(data) ? data : []);
+      }
+    } catch {}
+    setLoadingBenef(false);
+  };
+
+  const selectBenef = (b: any) => {
+    setBeneficiarioId(b.id);
+    setBeneficiarioNombre(`${b.nombre} ${b.apellidos}`);
+    setForm(prev => ({
+      ...prev,
+      nombre: b.nombre || '',
+      apellidos: b.apellidos || '',
+      sexo: b.sexo || '',
+      fechaNacimiento: b.fechaNacimiento || '',
+      nacionalidad: b.nacionalidad || '',
+      estadoCivil: b.estadoCivil || '',
+      paisNacimiento: b.paisNacimiento || '',
+      curpExtranjero: b.curp || '',
+      documentoIdentificacion: b.tipoDocumento || '',
+      numeroDocumento: b.numeroDocumento || '',
+      paisExpedicion: b.paisExpedicion || '',
+      solicitanteEmail: b.email || '',
+      solicitanteEmailConfirmacion: b.email || '',
+    }));
+  };
 
   const [form, setForm] = useState({
     propositoViaje: '', especificaTramite: '', curpExtranjero: '',
@@ -94,7 +136,7 @@ export default function TramiteNuevoScreen() {
 
       const res = await apiFetch('/tramites', {
         method: 'POST',
-        body: JSON.stringify({ tipo: selectedTipo, clienteId: user.id, datosFormulario: { ...form, solicitante, ubicacion }, esBorrador: false }),
+        body: JSON.stringify({ tipo: selectedTipo, clienteId: user.id, beneficiarioId: beneficiarioId || undefined, datosFormulario: { ...form, solicitante, ubicacion }, esBorrador: false }),
       });
       const data = await res.json();
       setSubmitting(false);
@@ -170,8 +212,59 @@ export default function TramiteNuevoScreen() {
     <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={{ flex: 1 }}>
       <ScrollView style={styles.container} contentContainerStyle={{ padding: 16, paddingTop: 56 }}>
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+          <TouchableOpacity onPress={() => router.back()} style={{ marginBottom: 12 }}>
+            <Text style={{ color: '#f59e0b', fontSize: 14, fontWeight: '500' }}>← Volver</Text>
+          </TouchableOpacity>
           <Text style={styles.pageTitle}>Iniciar trámite</Text>
           <Text style={styles.pageDesc}>Selecciona el tipo de trámite migratorio que necesitas</Text>
+
+          {/* Seleccionar beneficiario */}
+          <View style={{ marginBottom: 20, marginTop: 8 }}>
+            <Text style={{ fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>¿Para quién es el trámite?</Text>
+            {beneficiarioId ? (
+              <View style={{ backgroundColor: 'rgba(245,158,11,0.08)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)', borderRadius: 12, padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <Text style={{ fontSize: 20 }}>👤</Text>
+                  <Text style={{ color: '#fff', fontSize: 15, fontWeight: '600' }}>{beneficiarioNombre}</Text>
+                </View>
+                <TouchableOpacity onPress={() => { setBeneficiarioId(null); setBeneficiarioNombre(''); }}>
+                  <Text style={{ color: '#f59e0b', fontSize: 12 }}>Cambiar</Text>
+                </TouchableOpacity>
+              </View>
+            ) : loadingBenef ? (
+              <ActivityIndicator color="#f59e0b" />
+            ) : beneficiarios.length === 0 ? (
+              <TouchableOpacity
+                style={{ borderWidth: 2, borderColor: '#f59e0b', borderStyle: 'dashed', borderRadius: 12, padding: 16, alignItems: 'center' }}
+                onPress={() => router.push({ pathname: '/(cliente)/beneficiarios', params: { selectMode: 'true', redirect: '/(cliente)/tramite-nuevo' } })}
+              >
+                <Text style={{ color: '#f59e0b', fontSize: 14, fontWeight: '600' }}>➕ Registrar extranjero primero</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 4 }}>Registra a la persona para quien harás el trámite</Text>
+              </TouchableOpacity>
+            ) : (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {beneficiarios.map((b: any) => (
+                  <TouchableOpacity
+                    key={b.id}
+                    style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: 12, marginRight: 8, minWidth: 120, alignItems: 'center' }}
+                    onPress={() => selectBenef(b)}
+                  >
+                    <Text style={{ fontSize: 22, marginBottom: 4 }}>👤</Text>
+                    <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600' }}>{b.nombre}</Text>
+                    <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>{b.apellidos}</Text>
+                  </TouchableOpacity>
+                ))}
+                <TouchableOpacity
+                  style={{ backgroundColor: 'rgba(245,158,11,0.06)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)', borderRadius: 12, padding: 12, marginRight: 8, minWidth: 90, alignItems: 'center', justifyContent: 'center' }}
+                  onPress={() => router.push({ pathname: '/(cliente)/beneficiarios', params: { selectMode: 'true', redirect: '/(cliente)/tramite-nuevo' } })}
+                >
+                  <Text style={{ fontSize: 18 }}>➕</Text>
+                  <Text style={{ color: '#f59e0b', fontSize: 11, fontWeight: '600', marginTop: 4 }}>Nuevo</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            )}
+          </View>
+
           {TRAMITES_INM.map((tipo) => (
             <TouchableOpacity key={tipo.key} style={styles.tipoCard} onPress={() => { setSelectedTipo(tipo.key); setStep('form'); }}>
               <View style={styles.tipoIcon}><Text style={{ fontSize: 20 }}>{tipo.icon}</Text></View>

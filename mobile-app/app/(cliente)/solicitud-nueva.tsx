@@ -4,7 +4,7 @@ import {
   Keyboard, Animated,
 } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import { apiFetch } from '@/lib/api';
@@ -48,9 +48,14 @@ const EMPTY_SOLICITANTE: Record<string, string> = {
 };
 
 export default function SolicitudNuevaScreen() {
+  const params = useLocalSearchParams<{ beneficiarioId?: string; beneficiarioNombre?: string }>();
   const [step, setStep] = useState<0 | 1 | 2>(0); // 0=tipo, 1=form, 2=confirmacion
   const [tipoTramite, setTipoTramite] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [beneficiarioId, setBeneficiarioId] = useState<string | null>(params.beneficiarioId || null);
+  const [beneficiarioNombre, setBeneficiarioNombre] = useState(params.beneficiarioNombre || '');
+  const [beneficiarios, setBeneficiarios] = useState<any[]>([]);
+  const [loadingBeneficiarios, setLoadingBeneficiarios] = useState(true);
 
   const [form, setForm] = useState<Record<string, string>>({ ...EMPTY_FORM });
   const updateForm = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
@@ -62,6 +67,10 @@ export default function SolicitudNuevaScreen() {
   const slideAnim = useRef(new Animated.Value(30)).current;
 
   useEffect(() => {
+    loadBeneficiarios();
+  }, []);
+
+  useEffect(() => {
     fadeAnim.setValue(0);
     slideAnim.setValue(30);
     Animated.parallel([
@@ -69,6 +78,39 @@ export default function SolicitudNuevaScreen() {
       Animated.timing(slideAnim, { toValue: 0, duration: 500, useNativeDriver: true }),
     ]).start();
   }, [step]);
+
+  const loadBeneficiarios = async () => {
+    try {
+      const res = await apiFetch('/beneficiarios/mis-beneficiarios');
+      if (res.ok) {
+        const data = await res.json();
+        setBeneficiarios(Array.isArray(data) ? data : []);
+      }
+    } catch {}
+    setLoadingBeneficiarios(false);
+  };
+
+  const selectBeneficiario = (b: any) => {
+    setBeneficiarioId(b.id);
+    setBeneficiarioNombre(`${b.nombre} ${b.apellidos}`);
+    // Pre-llenar formulario con datos del beneficiario
+    setForm(prev => ({
+      ...prev,
+      nombre: b.nombre || '',
+      apellidos: b.apellidos || '',
+      sexo: b.sexo || '',
+      fechaNacimiento: b.fechaNacimiento || '',
+      nacionalidad: b.nacionalidad || '',
+      estadoCivil: b.estadoCivil || '',
+      paisNacimiento: b.paisNacimiento || '',
+      curpExtranjero: b.curp || '',
+      documentoIdentificacion: b.tipoDocumento || '',
+      numeroDocumento: b.numeroDocumento || '',
+      paisExpedicion: b.paisExpedicion || '',
+      solicitanteEmail: b.email || '',
+      solicitanteEmailConfirmacion: b.email || '',
+    }));
+  };
 
   const resetForm = () => {
     setForm({ ...EMPTY_FORM });
@@ -119,6 +161,7 @@ export default function SolicitudNuevaScreen() {
         method: 'POST',
         body: JSON.stringify({
           tipoTramite,
+          beneficiarioId: beneficiarioId || undefined,
           datosFormulario: { ...form, solicitante, ubicacionOrigen: ubicacion },
         }),
       });
@@ -157,6 +200,53 @@ export default function SolicitudNuevaScreen() {
               <Text style={styles.costoLabel}>COSTO DEL SERVICIO</Text>
               <Text style={styles.costoValue}>$100 MXN</Text>
               <Text style={styles.costoNote}>Se genera el cobro una vez que tu solicitud sea procesada por el gestor</Text>
+            </View>
+
+            {/* Seleccionar beneficiario */}
+            <View style={{ marginBottom: 20 }}>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>¿Para quién es la solicitud?</Text>
+              {beneficiarioId ? (
+                <View style={{ backgroundColor: 'rgba(245,158,11,0.08)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)', borderRadius: 12, padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <Text style={{ fontSize: 20 }}>👤</Text>
+                    <Text style={{ color: '#fff', fontSize: 15, fontWeight: '600' }}>{beneficiarioNombre}</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => { setBeneficiarioId(null); setBeneficiarioNombre(''); }}>
+                    <Text style={{ color: '#f59e0b', fontSize: 12 }}>Cambiar</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : loadingBeneficiarios ? (
+                <ActivityIndicator color="#f59e0b" />
+              ) : beneficiarios.length === 0 ? (
+                <TouchableOpacity
+                  style={{ borderWidth: 2, borderColor: '#f59e0b', borderStyle: 'dashed', borderRadius: 12, padding: 16, alignItems: 'center' }}
+                  onPress={() => router.push({ pathname: '/(cliente)/beneficiarios', params: { selectMode: 'true', redirect: '/(cliente)/solicitud-nueva' } })}
+                >
+                  <Text style={{ color: '#f59e0b', fontSize: 14, fontWeight: '600' }}>➕ Registrar extranjero primero</Text>
+                  <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 4 }}>Necesitas registrar a la persona para quien harás la solicitud</Text>
+                </TouchableOpacity>
+              ) : (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -4 }}>
+                  {beneficiarios.map((b: any) => (
+                    <TouchableOpacity
+                      key={b.id}
+                      style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: 12, marginHorizontal: 4, minWidth: 130, alignItems: 'center' }}
+                      onPress={() => selectBeneficiario(b)}
+                    >
+                      <Text style={{ fontSize: 24, marginBottom: 4 }}>👤</Text>
+                      <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600' }}>{b.nombre}</Text>
+                      <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>{b.apellidos}</Text>
+                    </TouchableOpacity>
+                  ))}
+                  <TouchableOpacity
+                    style={{ backgroundColor: 'rgba(245,158,11,0.06)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)', borderRadius: 12, padding: 12, marginHorizontal: 4, minWidth: 100, alignItems: 'center', justifyContent: 'center' }}
+                    onPress={() => router.push({ pathname: '/(cliente)/beneficiarios', params: { selectMode: 'true', redirect: '/(cliente)/solicitud-nueva' } })}
+                  >
+                    <Text style={{ fontSize: 20 }}>➕</Text>
+                    <Text style={{ color: '#f59e0b', fontSize: 11, fontWeight: '600', marginTop: 4 }}>Nuevo</Text>
+                  </TouchableOpacity>
+                </ScrollView>
+              )}
             </View>
 
             {TIPOS_TRAMITE.map((tipo) => (
