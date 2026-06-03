@@ -19,6 +19,7 @@ import { PaginationDto, PaginatedResponseDto } from '../../common/dto/pagination
 import { UsersService } from '../users/users.service';
 import { ActivityLogService } from '../users/activity-log.service';
 import { NotificacionesService } from '../notificaciones/notificaciones.service';
+import { EmailService } from '../email/email.service';
 import { TipoNotificacion, CanalNotificacion } from '../../common/enums';
 
 @Injectable()
@@ -35,6 +36,7 @@ export class TramitesService {
     private readonly usersService: UsersService,
     private readonly activityLogService: ActivityLogService,
     private readonly notificacionesService: NotificacionesService,
+    private readonly emailService: EmailService,
   ) {}
 
   /**
@@ -138,6 +140,17 @@ export class TramitesService {
         metadata: { tramiteId: saved.id, tipo: saved.tipo },
       }).catch(() => {}); // No bloquear si falla la notificación
     }
+
+    // Notificar al admin por email
+    try {
+      const nombreExtranjeroEmail = `${datosFormulario?.nombre || ''} ${datosFormulario?.apellidos || ''}`.trim();
+      await this.emailService.sendAdminNotificationEmail({
+        subject: `Nuevo trámite: ${dto.tipo?.replace(/_/g, ' ')}`,
+        event: '🆕 Nuevo trámite creado desde la app',
+        details: `El extranjero ${nombreExtranjeroEmail || 'Sin nombre'} ha iniciado un trámite de ${(dto.tipo || '').replace(/_/g, ' ')}.`,
+        extraInfo: `Pieza: ${saved.numeroPieza || 'Pendiente'} · Tipo: ${dto.tipo}`,
+      });
+    } catch {}
 
     return this.findOneOrFail(saved.id);
   }

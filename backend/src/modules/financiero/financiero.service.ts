@@ -9,6 +9,7 @@ import { CreatePagoDto } from './dto/create-pago.dto';
 import { PaginatedResponseDto } from '../../common/dto/pagination.dto';
 import { MetodoPago, CanalNotificacion, TipoNotificacion } from '../../common/enums';
 import { NotificacionesService } from '../notificaciones/notificaciones.service';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class FinancieroService {
@@ -19,6 +20,7 @@ export class FinancieroService {
     private readonly acuerdoPagoRepository: Repository<AcuerdoPago>,
     private readonly mercadoPagoService: MercadoPagoService,
     private readonly notificacionesService: NotificacionesService,
+    private readonly emailService: EmailService,
   ) {}
 
   /**
@@ -220,6 +222,16 @@ export class FinancieroService {
           }).catch(() => {});
         }
       }
+    } catch {}
+
+    // Notificar al admin por email
+    try {
+      await this.emailService.sendAdminNotificationEmail({
+        subject: `Pago confirmado: $${amount} MXN`,
+        event: '💰 Pago confirmado vía Mercado Pago',
+        details: `Se confirmó un pago de $${amount} MXN para el trámite ${tramiteId}.`,
+        extraInfo: `ID Pago MP: ${mercadopagoPaymentId} · Método: ${paymentMethod}`,
+      });
     } catch {}
   }
 

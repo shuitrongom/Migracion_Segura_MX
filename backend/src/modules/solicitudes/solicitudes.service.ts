@@ -65,6 +65,16 @@ export class SolicitudesService {
     // Notificar al admin (push + email)
     await this.notificarAdminNuevaSolicitud(saved);
 
+    // Email admin
+    const nombre = this.getNombreExtranjero(saved);
+    const tipo = (saved.tipoTramite || '').replace(/_/g, ' ');
+    await this.emailService.sendAdminNotificationEmail({
+      subject: `Nueva solicitud: ${tipo}`,
+      event: '📋 Nueva solicitud de generación',
+      details: `${nombre} solicita generación de: ${tipo}.`,
+      extraInfo: `Costo: $${saved.costo} MXN · Revisar en panel de Solicitudes`,
+    }).catch(() => {});
+
     return saved;
   }
 
@@ -164,6 +174,14 @@ export class SolicitudesService {
         metadata: { solicitudId: saved.id },
       }).catch(() => {});
     }
+
+    // Email admin - pago de solicitud confirmado
+    await this.emailService.sendAdminNotificationEmail({
+      subject: `Solicitud pagada: $${solicitud.costo} MXN`,
+      event: '✅ Pago de solicitud confirmado',
+      details: `El extranjero ${this.getNombreExtranjero(solicitud)} pagó $${solicitud.costo} MXN por su solicitud.`,
+      extraInfo: `Pieza: ${solicitud.numeroPieza || 'N/A'} · Tipo: ${(solicitud.tipoTramite || '').replace(/_/g, ' ')}`,
+    }).catch(() => {});
 
     // Enviar PDF por email al extranjero
     const emailExtranjero = this.getEmailExtranjero(solicitud);

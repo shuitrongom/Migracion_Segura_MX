@@ -243,4 +243,28 @@ ${requisitosHtml}
 </body>
 </html>`;
   }
+
+  /**
+   * Notificar al admin por email de eventos importantes
+   */
+  async sendAdminNotificationEmail(params: {
+    subject: string;
+    event: string;
+    details: string;
+    extraInfo?: string;
+  }): Promise<void> {
+    const adminEmail = 'admin@migracionseguramx.com';
+    const { subject, event, details, extraInfo } = params;
+    try {
+      await this.resend.emails.send({
+        from: `${this.fromName} <${this.fromEmail}>`,
+        to: adminEmail,
+        subject: `[Admin] ${subject}`,
+        html: `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;font-family:-apple-system,sans-serif;background:#0a0a0a;"><table width="100%" style="max-width:600px;margin:0 auto;padding:40px 20px;"><tr><td><table width="100%" style="background:#171717;border-radius:12px 12px 0 0;padding:24px;border:1px solid #3a3a3a;border-bottom:none;"><tr><td align="center"><h1 style="color:#f59e0b;margin:0;font-size:20px;">MIGRACIÓN SEGURA MX</h1><p style="color:rgba(255,255,255,0.5);font-size:12px;margin:4px 0 0;">Panel de Administración</p></td></tr></table><table width="100%" style="background:#171717;padding:32px;border:1px solid #3a3a3a;border-top:none;border-bottom:none;"><tr><td><h2 style="color:#ffffff;font-size:18px;margin:0 0 8px;">${event}</h2><p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.6;">${details}</p>${extraInfo ? `<table width="100%" style="margin:16px 0;background:#1a1a1a;border:1px solid #3a3a3a;border-radius:8px;padding:16px;"><tr><td><p style="font-size:13px;color:rgba(255,255,255,0.6);margin:0;">${extraInfo}</p></td></tr></table>` : ''}<p style="color:rgba(255,255,255,0.4);font-size:12px;margin:20px 0 0;">Revisa el panel de administración para más detalles.</p></td></tr></table><table width="100%" style="background:#0f0f0f;border-radius:0 0 12px 12px;padding:16px;border:1px solid #3a3a3a;border-top:none;"><tr><td align="center"><p style="color:rgba(255,255,255,0.3);font-size:11px;margin:0;">© ${new Date().getFullYear()} Migración Segura MX · admin.migracionseguramx.com</p></td></tr></table></td></tr></table></body></html>`,
+      });
+      this.logger.log(`Notificación admin enviada: ${subject}`);
+    } catch (error) {
+      this.logger.error(`Error enviando notificación admin:`, error);
+    }
+  }
 }
