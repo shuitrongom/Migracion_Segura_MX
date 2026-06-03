@@ -77,6 +77,7 @@ export default function ExpedienteDigitalPage() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [filtroTipo, setFiltroTipo] = useState<'todos' | 'tramites' | 'solicitudes'>('todos');
   const [expandedCliente, setExpandedCliente] = useState<string | null>(null);
   const [clienteTramites, setClienteTramites] = useState<Record<string, TramiteInfo[]>>({});
   const [loadingDocs, setLoadingDocs] = useState<string | null>(null);
@@ -248,21 +249,34 @@ export default function ExpedienteDigitalPage() {
         </div>
       </div>
 
-      {/* Búsqueda */}
+      {/* Búsqueda y filtros */}
       <div className="dark-card-static p-5 hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 mb-4">
           <div className="p-2 rounded-lg bg-amber-500/10"><Filter className="h-4 w-4 text-amber-600" /></div>
           <h2 className="text-lg font-bold text-white">Buscar extranjero</h2>
         </div>
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
-          <input
-            type="text"
-            placeholder="Buscar por nombre o email..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 border border-[#3a3a3a] rounded-xl text-sm bg-[#222222] text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-          />
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
+            <input
+              type="text"
+              placeholder="Buscar por nombre o email..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 border border-[#3a3a3a] rounded-xl text-sm bg-[#222222] text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => setFiltroTipo('todos')} className={`px-4 py-2.5 rounded-xl text-xs font-semibold transition-all ${filtroTipo === 'todos' ? 'bg-amber-500 text-white' : 'bg-[#222222] text-white/70 border border-[#3a3a3a] hover:border-amber-500/50'}`}>
+              Todos
+            </button>
+            <button onClick={() => setFiltroTipo('tramites')} className={`px-4 py-2.5 rounded-xl text-xs font-semibold transition-all ${filtroTipo === 'tramites' ? 'bg-amber-500 text-white' : 'bg-[#222222] text-white/70 border border-[#3a3a3a] hover:border-amber-500/50'}`}>
+              🗂️ Trámites
+            </button>
+            <button onClick={() => setFiltroTipo('solicitudes')} className={`px-4 py-2.5 rounded-xl text-xs font-semibold transition-all ${filtroTipo === 'solicitudes' ? 'bg-amber-500 text-white' : 'bg-[#222222] text-white/70 border border-[#3a3a3a] hover:border-amber-500/50'}`}>
+              📋 Solicitudes
+            </button>
+          </div>
         </div>
       </div>
 
@@ -293,7 +307,13 @@ export default function ExpedienteDigitalPage() {
         ) : (
           filteredClientes.map(cliente => {
             const isExpanded = expandedCliente === cliente.id;
-            const tramites = clienteTramites[cliente.id] || [];
+            const allTramitesForCliente = clienteTramites[cliente.id] || [];
+            // Aplicar filtro de tipo
+            const tramites = filtroTipo === 'todos' 
+              ? allTramitesForCliente 
+              : filtroTipo === 'solicitudes' 
+                ? allTramitesForCliente.filter(t => t.tipo.startsWith('solicitud_'))
+                : allTramitesForCliente.filter(t => !t.tipo.startsWith('solicitud_'));
             const totalDocs = tramites.reduce((sum, t) => sum + t.docs.length, 0);
             const isLoadingThisClient = loadingDocs === cliente.id;
 
