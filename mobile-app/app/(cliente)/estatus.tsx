@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, To
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { apiFetch } from '@/lib/api';
+import { storage } from '@/lib/storage';
 
 const estatusConfig: Record<string, { color: string; label: string; icon: string; step: number }> = {
   borrador: { color: '#9CA3AF', label: 'Borrador', icon: '📝', step: 1 },
@@ -314,11 +315,26 @@ export default function EstatusScreen() {
                       {/* Botón descargar PDF */}
                       <TouchableOpacity
                         style={{ marginTop: 10, backgroundColor: 'rgba(245,158,11,0.1)', borderRadius: 12, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)' }}
-                        onPress={() => {
+                        onPress={async () => {
                           if (item.documentoUrl) {
-                            Linking.openURL(item.documentoUrl);
+                            try {
+                              // Obtener signed URL temporal del backend
+                              const res = await apiFetch(`/solicitudes/${item.id}/documento-url`);
+                              if (res.ok) {
+                                const data = await res.json();
+                                if (data.url) {
+                                  Linking.openURL(data.url);
+                                  return;
+                                }
+                              }
+                              // Fallback: abrir directamente el endpoint de descarga
+                              const token = await storage.getItem('access_token');
+                              Linking.openURL(`https://api.migracionseguramx.com/api/v1/solicitudes/${item.id}/documento`);
+                            } catch {
+                              Alert.alert('Error', 'No se pudo obtener el documento. Intenta de nuevo.');
+                            }
                           } else {
-                            Alert.alert('PDF', 'Tu solicitud será enviada por correo y notificación. Si ya la recibiste, revisa tu correo o pestaña de documentos.');
+                            Alert.alert('PDF no disponible', 'Tu solicitud aún no tiene documento adjunto. Recibirás una notificación cuando esté listo.');
                           }
                         }}
                       >

@@ -7,6 +7,7 @@ import { SolicitudesService } from './solicitudes.service';
 import { SolicitudesController } from './solicitudes.controller';
 import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 import { FinancieroModule } from '../financiero/financiero.module';
+import { StorageService } from '../../common/services/storage.service';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { FinancieroModule } from '../financiero/financiero.module';
     forwardRef(() => FinancieroModule),
   ],
   controllers: [SolicitudesController],
-  providers: [SolicitudesService],
+  providers: [SolicitudesService, StorageService],
   exports: [SolicitudesService],
 })
 export class SolicitudesModule {}
