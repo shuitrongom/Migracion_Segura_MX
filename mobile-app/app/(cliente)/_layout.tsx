@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { HomeIcon, FileEditIcon, StatusIcon, SearchIcon, FolderIcon, UserIcon } from '@/components/TabIcons';
+import { HomeIcon, StatusIcon, SearchIcon, BellIcon, UserIcon } from '@/components/TabIcons';
 
 export default function ClienteLayout() {
   const insets = useSafeAreaInsets();
@@ -37,17 +37,17 @@ export default function ClienteLayout() {
         }}
       />
       <Tabs.Screen
-        name="tramite-nuevo"
+        name="estatus"
         options={{
-          tabBarLabel: 'Trámite',
-          tabBarIcon: ({ color }) => <FileEditIcon color={color} size={22} />,
+          tabBarLabel: 'Seguimiento',
+          tabBarIcon: ({ color }) => <StatusIcon color={color} size={22} />,
         }}
       />
       <Tabs.Screen
-        name="estatus"
+        name="documentos"
         options={{
-          tabBarLabel: 'Estatus',
-          tabBarIcon: ({ color }) => <StatusIcon color={color} size={22} />,
+          tabBarLabel: 'Avisos',
+          tabBarIcon: ({ color }) => <BellIcon color={color} size={22} />,
         }}
       />
       <Tabs.Screen
@@ -58,43 +58,20 @@ export default function ClienteLayout() {
         }}
       />
       <Tabs.Screen
-        name="documentos"
-        options={{
-          tabBarLabel: 'Docs',
-          tabBarIcon: ({ color }) => <FolderIcon color={color} size={22} />,
-        }}
-      />
-      <Tabs.Screen
         name="perfil"
         options={{
           tabBarLabel: 'Perfil',
           tabBarIcon: ({ color }) => <UserIcon color={color} size={22} />,
         }}
       />
-      <Tabs.Screen
-        name="solicitud-nueva"
-        options={{ href: null }}
-      />
-      <Tabs.Screen
-        name="mapa-inm"
-        options={{ href: null }}
-      />
-      <Tabs.Screen
-        name="chat"
-        options={{ href: null }}
-      />
-      <Tabs.Screen
-        name="evaluar-tramite"
-        options={{ href: null }}
-      />
-      <Tabs.Screen
-        name="pago-resultado"
-        options={{ href: null }}
-      />
-      <Tabs.Screen
-        name="subir-documento"
-        options={{ href: null }}
-      />
+      {/* Hidden screens - navigated to programmatically */}
+      <Tabs.Screen name="solicitud-nueva" options={{ href: null }} />
+      <Tabs.Screen name="tramite-nuevo" options={{ href: null }} />
+      <Tabs.Screen name="mapa-inm" options={{ href: null }} />
+      <Tabs.Screen name="chat" options={{ href: null }} />
+      <Tabs.Screen name="evaluar-tramite" options={{ href: null }} />
+      <Tabs.Screen name="pago-resultado" options={{ href: null }} />
+      <Tabs.Screen name="subir-documento" options={{ href: null }} />
     </Tabs>
   );
 }
