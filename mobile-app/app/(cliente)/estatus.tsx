@@ -158,10 +158,18 @@ export default function EstatusScreen() {
           </View>
         )}
 
+        {/* Contraseña INM */}
+        {item.contrasenaTramite && (
+          <View style={styles.inmDataBox}>
+            <Text style={styles.inmDataLabel}>🔑 Clave INM</Text>
+            <Text style={styles.inmDataValue}>{item.contrasenaTramite}</Text>
+          </View>
+        )}
+
         {/* NUT */}
         {(item.nut || item.datosFormulario?.nut) && (
           <View style={styles.inmDataBox}>
-            <Text style={styles.inmDataLabel}>🔑 NUT</Text>
+            <Text style={styles.inmDataLabel}>🏛️ NUT</Text>
             <Text style={styles.inmDataValue}>{item.nut || item.datosFormulario?.nut}</Text>
           </View>
         )}
