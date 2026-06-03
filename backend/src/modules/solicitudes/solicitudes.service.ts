@@ -308,14 +308,7 @@ export class SolicitudesService {
         contenido: `${nombre} solicita generación de: ${tipo}. Revisa y procesa en el panel.`,
         metadata: { solicitudId: solicitud.id, tipoTramite: solicitud.tipoTramite },
       }).catch(() => {});
-
-      // Email al admin
-      if (admins[0].email) {
-        await this.emailService.sendVerificationCodeEmail({
-          to: admins[0].email,
-          code: `NUEVA SOLICITUD: ${nombre} - ${tipo}`,
-        }).catch(() => {});
-      }
+      // Solo notificación push al admin - sin email de verificación
     }
   }
 }

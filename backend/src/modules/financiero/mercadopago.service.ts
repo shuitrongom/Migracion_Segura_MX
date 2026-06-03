@@ -52,9 +52,9 @@ export class MercadoPagoService {
             installments: 12,
           },
           back_urls: {
-            success: `https://admin.migracionseguramx.com/tramites/${params.tramiteId}?pago=exitoso`,
-            failure: `https://admin.migracionseguramx.com/tramites/${params.tramiteId}?pago=fallido`,
-            pending: `https://admin.migracionseguramx.com/tramites/${params.tramiteId}?pago=pendiente`,
+            success: `migracion-segura://pago/exitoso?tramiteId=${params.tramiteId}`,
+            failure: `migracion-segura://pago/fallido?tramiteId=${params.tramiteId}`,
+            pending: `migracion-segura://pago/pendiente?tramiteId=${params.tramiteId}`,
           },
           auto_return: 'approved',
           external_reference: params.tramiteId,

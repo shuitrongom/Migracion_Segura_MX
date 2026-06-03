@@ -88,6 +88,10 @@ export default function ClienteLayout() {
         options={{ href: null }}
       />
       <Tabs.Screen
+        name="pago-resultado"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
         name="subir-documento"
         options={{ href: null }}
       />
