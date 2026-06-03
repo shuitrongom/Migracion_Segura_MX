@@ -330,7 +330,8 @@ export default function SolicitudesPage() {
 
           {/* Body */}
           <div className="flex flex-1 overflow-hidden">
-            {/* ── Left panel: Ficha del extranjero (1/3) ── */}
+            {/* ── Left panel: Ficha del extranjero (solo visible cuando NO es pendiente_pago/pagada) ── */}
+            {selectedSolicitud.estatus !== 'pendiente_pago' && selectedSolicitud.estatus !== 'pagada' && (
             <div className="w-1/3 border-r border-[#262626] overflow-y-auto p-4 bg-[#0f0f0f]">
               <h3 className="text-xs font-semibold text-white/70 uppercase mb-3">Ficha del Extranjero</h3>
               <p className="text-[10px] text-blue-400 mb-4 bg-blue-500/10 border border-blue-500/20 rounded-lg p-2">
@@ -458,38 +459,75 @@ export default function SolicitudesPage() {
                 );
               })()}
             </div>
+            )}
 
             {/* ── Right panel: iframe INM (solo para pendiente_revision/en_proceso) o pantalla de pago ── */}
             <div className="flex-1 flex flex-col overflow-hidden">
 
               {/* Pantalla de pago - cuando ya se procesó */}
               {(selectedSolicitud.estatus === 'pendiente_pago' || selectedSolicitud.estatus === 'pagada') ? (
-                <div className="flex-1 flex flex-col justify-center items-center p-8 gap-6">
+                <div className="flex-1 flex flex-col justify-center items-center p-12 relative overflow-hidden">
+                  {/* Background decoration */}
+                  <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
+                    <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-amber-600/5 rounded-full blur-3xl" />
+                  </div>
+
                   {selectedSolicitud.estatus === 'pendiente_pago' && (
-                    <>
-                      <div className="text-center">
-                        <div className="text-5xl mb-4">💳</div>
-                        <h3 className="text-xl font-bold text-white mb-2">Esperando pago del extranjero</h3>
-                        <p className="text-sm text-white/70">La solicitud fue procesada. El extranjero debe pagar $100 MXN.</p>
+                    <div className="relative z-10 w-full max-w-lg flex flex-col items-center gap-8">
+                      {/* Animated icon */}
+                      <div className="relative">
+                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30 flex items-center justify-center animate-pulse">
+                          <Clock className="h-10 w-10 text-amber-400" />
+                        </div>
+                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center">
+                          <DollarSign className="h-3 w-3 text-white" />
+                        </div>
                       </div>
-                      <div className="w-full max-w-md p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 space-y-2">
-                        <p className="text-xs text-white/70 uppercase font-semibold">Pieza INM</p>
-                        <p className="text-lg font-mono font-bold text-amber-400">{selectedSolicitud.numeroPieza || '—'}</p>
+
+                      {/* Title */}
+                      <div className="text-center space-y-2">
+                        <h3 className="text-2xl font-bold text-white">Esperando pago</h3>
+                        <p className="text-sm text-white/60">El extranjero debe realizar el pago de <span className="text-amber-400 font-semibold">$100 MXN</span> para completar el trámite</p>
                       </div>
-                      {selectedSolicitud.mercadopagoInitPoint && (
-                        <div className="w-full max-w-md space-y-3">
-                          <div className="p-3 rounded-xl bg-[#1a1a1a] border border-[#3a3a3a]">
-                            <p className="text-xs text-white/70 mb-1">Link de pago Mercado Pago:</p>
-                            <p className="text-xs font-mono text-amber-400 break-all">{selectedSolicitud.mercadopagoInitPoint}</p>
+
+                      {/* Info card */}
+                      <div className="w-full rounded-2xl bg-[#141414] border border-[#2a2a2a] overflow-hidden">
+                        <div className="px-6 py-4 border-b border-[#2a2a2a] bg-[#1a1a1a]">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-[10px] text-white/50 uppercase tracking-wider font-medium">Número de Pieza INM</p>
+                              <p className="text-xl font-mono font-bold text-amber-400 mt-1">{selectedSolicitud.numeroPieza || '—'}</p>
+                            </div>
+                            <div className="px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20">
+                              <p className="text-[10px] font-semibold text-orange-400 uppercase">Pendiente</p>
+                            </div>
                           </div>
+                        </div>
+                        <div className="px-6 py-4 space-y-3">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-white/50">Cliente</span>
+                            <span className="text-white font-medium">{getNombre(selectedSolicitud)}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-white/50">Trámite</span>
+                            <span className="text-white font-medium">{TIPO_LABELS[selectedSolicitud.tipoTramite] || selectedSolicitud.tipoTramite}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-white/50">Monto</span>
+                            <span className="text-amber-400 font-bold">$100 MXN</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="w-full space-y-3">
+                        {selectedSolicitud.mercadopagoInitPoint && (
                           <a href={selectedSolicitud.mercadopagoInitPoint} target="_blank" rel="noopener noreferrer"
-                            className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl text-sm font-semibold hover:from-amber-600 hover:to-amber-700 shadow-lg transition-all">
+                            className="flex items-center justify-center gap-2 w-full px-5 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl text-sm font-semibold hover:from-amber-600 hover:to-amber-700 shadow-lg shadow-amber-500/20 transition-all hover:shadow-amber-500/30 hover:scale-[1.01]">
                             <ExternalLink className="h-4 w-4" /> Ver link de pago
                           </a>
-                        </div>
-                      )}
-                      {/* Reenviar link de pago */}
-                      <div className="w-full max-w-md space-y-2">
+                        )}
                         <button
                           onClick={async () => {
                             if (!selectedSolicitud) return;
@@ -499,20 +537,63 @@ export default function SolicitudesPage() {
                               fetchSolicitudes();
                             } catch { toast.error('Error al reenviar'); }
                           }}
-                          className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-amber-500/30 text-amber-400 rounded-xl text-sm font-medium hover:bg-amber-500/10 transition-all">
+                          className="flex items-center justify-center gap-2 w-full px-5 py-3 border border-[#3a3a3a] text-white/80 rounded-xl text-sm font-medium hover:bg-[#1a1a1a] hover:border-amber-500/30 hover:text-amber-400 transition-all">
                           <Send className="h-4 w-4" /> Reenviar link de pago al extranjero
                         </button>
                       </div>
-                    </>
+                    </div>
                   )}
+
                   {selectedSolicitud.estatus === 'pagada' && (
-                    <div className="text-center space-y-4">
-                      <div className="text-5xl">🎉</div>
-                      <h3 className="text-xl font-bold text-emerald-400">Solicitud pagada y completada</h3>
-                      <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                        <p className="text-sm text-white/70">Pagada el {selectedSolicitud.fechaPago ? formatDate(selectedSolicitud.fechaPago) : '—'}</p>
-                        <p className="text-sm text-white/70">Pieza: <span className="font-mono text-amber-400">{selectedSolicitud.numeroPieza}</span></p>
+                    <div className="relative z-10 w-full max-w-lg flex flex-col items-center gap-8">
+                      {/* Success icon */}
+                      <div className="relative">
+                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-500/20 to-green-500/20 border border-emerald-500/30 flex items-center justify-center">
+                          <CheckCircle className="h-12 w-12 text-emerald-400" />
+                        </div>
                       </div>
+
+                      {/* Title */}
+                      <div className="text-center space-y-2">
+                        <h3 className="text-2xl font-bold text-emerald-400">Pago completado</h3>
+                        <p className="text-sm text-white/60">El trámite fue pagado exitosamente y se ha completado el proceso</p>
+                      </div>
+
+                      {/* Info card */}
+                      <div className="w-full rounded-2xl bg-[#141414] border border-[#2a2a2a] overflow-hidden">
+                        <div className="px-6 py-4 border-b border-[#2a2a2a] bg-[#1a1a1a]">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-[10px] text-white/50 uppercase tracking-wider font-medium">Número de Pieza INM</p>
+                              <p className="text-xl font-mono font-bold text-amber-400 mt-1">{selectedSolicitud.numeroPieza || '—'}</p>
+                            </div>
+                            <div className="px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                              <p className="text-[10px] font-semibold text-emerald-400 uppercase">Pagada</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="px-6 py-4 space-y-3">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-white/50">Cliente</span>
+                            <span className="text-white font-medium">{getNombre(selectedSolicitud)}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-white/50">Trámite</span>
+                            <span className="text-white font-medium">{TIPO_LABELS[selectedSolicitud.tipoTramite] || selectedSolicitud.tipoTramite}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-white/50">Fecha de pago</span>
+                            <span className="text-emerald-400 font-medium">{selectedSolicitud.fechaPago ? formatDate(selectedSolicitud.fechaPago) : '—'}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Close action */}
+                      <button
+                        onClick={closeModal}
+                        className="flex items-center justify-center gap-2 w-full max-w-xs px-5 py-3 border border-[#3a3a3a] text-white/70 rounded-xl text-sm font-medium hover:bg-[#1a1a1a] hover:text-white transition-all">
+                        Cerrar
+                      </button>
                     </div>
                   )}
                 </div>
