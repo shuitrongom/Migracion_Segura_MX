@@ -332,7 +332,7 @@ export class DocumentosService {
         );
         if (cliente?.[0]?.user_id) {
           await this.notificacionesService.sendNotification({
-            destinatarioId: cliente[0].userId,
+            destinatarioId: cliente[0].user_id,
             tipo: TipoNotificacion.DOCUMENTO_RECHAZADO,
             canal: CanalNotificacion.PUSH,
             titulo: '❌ Documento rechazado',
