@@ -90,17 +90,17 @@ export default function MisTramitesScreen() {
               </LinearGradient>
               <Text style={styles.actionLabel}>Trámite completo</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/(cliente)/beneficiarios')} activeOpacity={0.8}>
+              <LinearGradient colors={['rgba(34,197,94,0.12)', 'rgba(34,197,94,0.03)']} style={styles.actionIconBg}>
+                <Text style={{ fontSize: 22 }}>👥</Text>
+              </LinearGradient>
+              <Text style={styles.actionLabel}>Mis extranjeros</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/(cliente)/consulta')} activeOpacity={0.8}>
               <LinearGradient colors={['rgba(59,130,246,0.12)', 'rgba(59,130,246,0.03)']} style={styles.actionIconBg}>
                 <Text style={{ fontSize: 22 }}>🔍</Text>
               </LinearGradient>
               <Text style={styles.actionLabel}>Consultar trámite</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/(cliente)/documentos')} activeOpacity={0.8}>
-              <LinearGradient colors={['rgba(34,197,94,0.12)', 'rgba(34,197,94,0.03)']} style={styles.actionIconBg}>
-                <Text style={{ fontSize: 22 }}>📂</Text>
-              </LinearGradient>
-              <Text style={styles.actionLabel}>Mis documentos</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionCard} onPress={() => {
               const { Alert } = require('react-native');

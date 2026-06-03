@@ -29,6 +29,7 @@ import { HealthModule } from './modules/health/health.module';
 import { EmailModule } from './modules/email/email.module';
 import { SolicitudesModule } from './modules/solicitudes/solicitudes.module';
 import { ChatModule } from './modules/chat/chat.module';
+import { BeneficiariosModule } from './modules/beneficiarios/beneficiarios.module';
 
 @Module({
   imports: [
@@ -102,6 +103,7 @@ import { ChatModule } from './modules/chat/chat.module';
     AutomatizacionesModule,
     SolicitudesModule,
     ChatModule,
+    BeneficiariosModule,
   ],
   providers: [
     // Guard global: Rate Limiting

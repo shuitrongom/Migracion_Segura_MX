@@ -67,6 +67,7 @@ export default function ClienteLayout() {
       {/* Hidden screens - navigated to programmatically */}
       <Tabs.Screen name="solicitud-nueva" options={{ href: null }} />
       <Tabs.Screen name="tramite-nuevo" options={{ href: null }} />
+      <Tabs.Screen name="beneficiarios" options={{ href: null }} />
       <Tabs.Screen name="mapa-inm" options={{ href: null }} />
       <Tabs.Screen name="chat" options={{ href: null }} />
       <Tabs.Screen name="evaluar-tramite" options={{ href: null }} />

@@ -3,6 +3,7 @@ import { Entity, Column, ManyToOne, JoinColumn, OneToMany, Index } from 'typeorm
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { Cliente } from '../../clientes/entities/cliente.entity';
 import { User } from '../../users/entities/user.entity';
+import { Beneficiario } from '../../beneficiarios/entities/beneficiario.entity';
 import { TipoTramite, EstatusTramite } from '../../../common/enums';
 import { EtapaTramite } from './etapa-tramite.entity';
 
@@ -15,6 +16,15 @@ export class Tramite extends BaseEntity {
   @ManyToOne(() => Cliente)
   @JoinColumn({ name: 'cliente_id' })
   cliente: Cliente;
+
+  /** Beneficiario (extranjero) a quien se le realiza el trámite */
+  @Column({ name: 'beneficiario_id', type: 'uuid', nullable: true })
+  @Index()
+  beneficiarioId: string | null;
+
+  @ManyToOne(() => Beneficiario, { nullable: true })
+  @JoinColumn({ name: 'beneficiario_id' })
+  beneficiario: Beneficiario | null;
 
   @Column({ type: 'enum', enum: TipoTramite })
   tipo: TipoTramite;

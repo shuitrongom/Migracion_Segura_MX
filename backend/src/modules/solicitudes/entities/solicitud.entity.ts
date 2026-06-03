@@ -19,6 +19,10 @@ export class Solicitud {
   @Column({ type: 'uuid', nullable: true })
   userId: string;
 
+  /** Beneficiario (extranjero) a quien se le genera la solicitud */
+  @Column({ name: 'beneficiario_id', type: 'uuid', nullable: true })
+  beneficiarioId: string | null;
+
   @Column({ type: 'varchar', length: 100 })
   tipoTramite: string;
 
