@@ -86,6 +86,18 @@ export class SolicitudesController {
   }
 
   /**
+   * Reenviar link de pago al extranjero
+   */
+  @Patch(':id/reenviar-pago')
+  @ApiBearerAuth()
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Reenviar notificación push con link de pago al extranjero' })
+  @ApiParam({ name: 'id', description: 'UUID de la solicitud' })
+  reenviarPago(@Param('id', ParseUUIDPipe) id: string) {
+    return this.solicitudesService.reenviarLinkPago(id);
+  }
+
+  /**
    * Confirmar pago manualmente (admin) o via webhook
    */
   @Patch(':id/confirmar-pago')

@@ -478,11 +478,7 @@ export default function SolicitudesPage() {
                           onClick={async () => {
                             if (!selectedSolicitud) return;
                             try {
-                              await api.patch(`/solicitudes/${selectedSolicitud.id}/procesar`, {
-                                numeroPieza: selectedSolicitud.numeroPieza || '',
-                                contrasenaINM: selectedSolicitud.numeroPieza || '',
-                                reenviar: true,
-                              });
+                              await api.patch(`/solicitudes/${selectedSolicitud.id}/reenviar-pago`);
                               toast.success('Link de pago reenviado al extranjero');
                               fetchSolicitudes();
                             } catch { toast.error('Error al reenviar'); }

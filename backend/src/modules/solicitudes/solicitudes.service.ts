@@ -227,6 +227,31 @@ export class SolicitudesService {
   }
 
   /**
+   * Reenviar link de pago al extranjero via push notification
+   */
+  async reenviarLinkPago(solicitudId: string): Promise<{ ok: boolean }> {
+    const solicitud = await this.findOneOrFail(solicitudId);
+
+    if (!solicitud.mercadopagoInitPoint) {
+      throw new BadRequestException('Esta solicitud no tiene un link de pago generado');
+    }
+
+    // Reenviar push notification al extranjero
+    if (solicitud.userId) {
+      await this.notificacionesService.sendNotification({
+        destinatarioId: solicitud.userId,
+        tipo: TipoNotificacion.PAGO_PENDIENTE,
+        canal: CanalNotificacion.PUSH,
+        titulo: '💰 Recordatorio de pago — $100 MXN',
+        contenido: `Tu solicitud está lista. Paga $100 MXN para recibir tu documento. Pieza: ${solicitud.numeroPieza || ''}`,
+        metadata: { solicitudId: solicitud.id, initPoint: solicitud.mercadopagoInitPoint },
+      }).catch(() => {});
+    }
+
+    return { ok: true };
+  }
+
+  /**
    * Obtener costo configurado (desde BD o variable de entorno)
    */
   async getCostoSolicitud(): Promise<number> {
