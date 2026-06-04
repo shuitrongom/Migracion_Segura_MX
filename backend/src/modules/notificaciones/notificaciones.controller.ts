@@ -62,6 +62,24 @@ export class NotificacionesController {
   }
 
   /**
+   * Admin: enviar push a cualquier usuario por su ID
+   */
+  @Post('test-push/:userId')
+  @Roles(UserRole.ADMINISTRADOR)
+  @ApiOperation({ summary: 'Enviar push de prueba a un usuario específico (admin)' })
+  async testPushToUser(@Param('userId', ParseUUIDPipe) userId: string) {
+    await this.notificacionesService.sendNotification({
+      destinatarioId: userId,
+      tipo: 'test' as any,
+      canal: 'push' as any,
+      titulo: '🔔 Notificación de prueba',
+      contenido: 'Esta es una notificación de prueba enviada desde el panel de administración.',
+      metadata: { test: 'true', timestamp: new Date().toISOString() },
+    });
+    return { message: `Push enviada al usuario ${userId}` };
+  }
+
+  /**
    * Enviar lista de requisitos por correo al extranjero
    */
   @Post('enviar-requisitos')
