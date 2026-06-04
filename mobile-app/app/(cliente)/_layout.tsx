@@ -1,20 +1,41 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Tabs } from 'expo-router';
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
+import * as Notifications from 'expo-notifications';
 import { HomeIcon, StatusIcon, SearchIcon, BellIcon, UserIcon } from '@/components/TabIcons';
 import { apiFetch } from '@/lib/api';
+import { registerForPushNotifications, addNotificationReceivedListener } from '@/lib/notifications';
 
 export default function ClienteLayout() {
   const insets = useSafeAreaInsets();
   const bottomPadding = Platform.OS === 'android' ? Math.max(insets.bottom, 10) : insets.bottom;
+  const notifListener = useRef<any>();
 
-  // Capturar geolocalización cuando el usuario está logueado
   useEffect(() => {
+    // ─── Push Notifications (registrar token DESPUÉS del login) ──────────────────
+    async function initPush() {
+      const token = await registerForPushNotifications();
+      if (token) {
+        console.log('[PUSH] Token registrado:', token.slice(0, 30) + '...');
+      } else {
+        console.log('[PUSH] No se pudo obtener token');
+      }
+    }
+    initPush();
+
+    // Listener para notificaciones recibidas cuando la app está ABIERTA
+    notifListener.current = addNotificationReceivedListener((notification) => {
+      const { title, body } = notification.request.content;
+      console.log('[PUSH] Notificación recibida en foreground:', title);
+      // La notificación se muestra automáticamente gracias al NotificationHandler
+      // pero además actualizamos el badge visual
+    });
+
+    // ─── Geolocalización ─────────────────────────────────────────────────────────
     async function captureLocation() {
       try {
-        // Pedir permiso explícitamente
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
           console.log('[GEO] Permiso de ubicación denegado');
@@ -31,7 +52,6 @@ export default function ClienteLayout() {
           if (geo) ciudad = `${geo.city || geo.district || ''}, ${geo.region || ''}`.trim().replace(/^,|,$/g, '');
         } catch {}
 
-        // Enviar al backend
         await apiFetch('/clientes/ubicacion', {
           method: 'POST',
           body: JSON.stringify({
@@ -41,12 +61,16 @@ export default function ClienteLayout() {
             platform: Platform.OS,
           }),
         });
-        console.log('[GEO] Ubicación enviada:', ciudad, loc.coords.latitude, loc.coords.longitude);
+        console.log('[GEO] Ubicación enviada:', ciudad);
       } catch (err) {
-        console.log('[GEO] Error capturando ubicación:', err);
+        console.log('[GEO] Error:', err);
       }
     }
     captureLocation();
+
+    return () => {
+      if (notifListener.current) notifListener.current.remove();
+    };
   }, []);
 
   return (

@@ -12,11 +12,8 @@ export default function RootLayout() {
   const appState = useRef(AppState.currentState);
 
   useEffect(() => {
-    // ─── Push Notifications ─────────────────────────────────────────────────────
-    async function initPush() {
-      await registerForPushNotifications();
-    }
-    initPush();
+    // Pedir permisos de notificación (solo permisos, no registra token en backend)
+    Notifications.requestPermissionsAsync().catch(() => {});
 
     // Resetear badge cuando la app se abre
     resetBadgeCount();
