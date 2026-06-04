@@ -62,10 +62,11 @@ interface TimelineEvent {
   createdAt: string;
 }
 
-type TabKey = 'tramites' | 'documentos' | 'citas' | 'actividad';
+type TabKey = 'tramites' | 'solicitudes' | 'documentos' | 'citas' | 'actividad';
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'tramites', label: 'Trámites' },
+  { key: 'solicitudes', label: 'Solicitudes' },
   { key: 'documentos', label: 'Documentos' },
   { key: 'citas', label: 'Citas' },
   { key: 'actividad', label: 'Actividad' },
@@ -108,6 +109,7 @@ export default function ClienteDetailPage() {
 
   const [cliente, setCliente] = useState<ClienteDetail | null>(null);
   const [tramites, setTramites] = useState<TramiteResumen[]>([]);
+  const [solicitudes, setSolicitudes] = useState<any[]>([]);
   const [documentos, setDocumentos] = useState<DocumentoItem[]>([]);
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -149,6 +151,21 @@ export default function ClienteDetailPage() {
           (t) => t.clienteId === clienteId
         );
         setTramites(clienteTramites);
+
+        // Fetch solicitudes del cliente
+        const solicitudesRes = await api.get('/solicitudes', { params: { page: 1, limit: 50 } });
+        const allSolicitudes = solicitudesRes.data?.data || [];
+        const clienteSolicitudes = allSolicitudes.filter(
+          (s: any) => s.clienteId === clienteId
+        );
+        setSolicitudes(clienteSolicitudes);
+
+        // Auto-seleccionar tab según lo que tenga
+        if (clienteTramites.length > 0) {
+          setActiveTab('tramites');
+        } else if (clienteSolicitudes.length > 0) {
+          setActiveTab('solicitudes');
+        }
       } catch {
         setError('Error al cargar los datos del cliente');
       } finally {
@@ -160,26 +177,48 @@ export default function ClienteDetailPage() {
 
   // Fetch documents when tab changes to documentos
   const fetchDocumentos = useCallback(async () => {
-    if (tramites.length === 0) {
-      setDocumentos([]);
-      return;
-    }
     try {
       const allDocs: DocumentoItem[] = [];
+      // Documentos de trámites
       for (const tramite of tramites) {
         try {
           const res = await api.get(`/documentos/tramite/${tramite.id}`);
           const docs: DocumentoItem[] = res.data?.data || res.data || [];
           allDocs.push(...docs);
-        } catch {
-          // Skip if no documents for this tramite
-        }
+        } catch {}
       }
+      // Documentos de solicitudes (PDF generado)
+      for (const sol of solicitudes) {
+        if (sol.documentoUrl) {
+          allDocs.push({
+            id: sol.id,
+            nombre: `Solicitud INM - ${(sol.tipoTramite || '').replace(/_/g, ' ')}`,
+            categoria: 'solicitud',
+            estatus: 'recibido',
+            createdAt: sol.createdAt,
+          });
+        }
+        // También buscar en tabla documentos por tramiteId = solicitud.id
+        try {
+          const res = await api.get(`/documentos/tramite/${sol.id}`);
+          const docs: DocumentoItem[] = res.data?.data || res.data || [];
+          allDocs.push(...docs);
+        } catch {}
+      }
+      // Documentos del cliente (expediente general)
+      try {
+        const res = await api.get('/documentos', { params: { clienteId } });
+        const docs: DocumentoItem[] = res.data?.data || res.data || [];
+        // Evitar duplicados
+        for (const doc of docs) {
+          if (!allDocs.find(d => d.id === doc.id)) allDocs.push(doc);
+        }
+      } catch {}
       setDocumentos(allDocs);
     } catch {
       setDocumentos([]);
     }
-  }, [tramites]);
+  }, [tramites, solicitudes, clienteId]);
 
   // Fetch timeline when tab changes to actividad
   const fetchTimeline = useCallback(async () => {
@@ -644,6 +683,53 @@ export default function ClienteDetailPage() {
                         </div>
                       </Link>
                     ))
+                  )}
+                </div>
+              )}
+
+              {/* Documentos Tab */}
+              {activeTab === 'solicitudes' && (
+                <div className="space-y-3">
+                  {solicitudes.length === 0 ? (
+                    <div className="text-center py-12">
+                      <FileText className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+                      <p className="text-sm text-white/70">
+                        Este extranjero no tiene solicitudes registradas.
+                      </p>
+                    </div>
+                  ) : (
+                    solicitudes.map((sol: any) => {
+                      const nombre = `${sol.datosFormulario?.nombre || ''} ${sol.datosFormulario?.apellidos || ''}`.trim();
+                      const tipo = (sol.tipoTramite || '').replace(/_/g, ' ');
+                      const estatusCfg: Record<string, { label: string; cls: string }> = {
+                        pendiente_revision: { label: 'Pendiente revisión', cls: 'bg-amber-500/10 text-amber-400' },
+                        en_proceso: { label: 'En proceso', cls: 'bg-blue-500/10 text-blue-400' },
+                        pendiente_pago: { label: 'Pendiente pago', cls: 'bg-orange-500/10 text-orange-400' },
+                        pagada: { label: 'Pagada', cls: 'bg-emerald-500/10 text-emerald-400' },
+                        cancelada: { label: 'Cancelada', cls: 'bg-red-500/10 text-red-400' },
+                      };
+                      const est = estatusCfg[sol.estatus] || { label: sol.estatus, cls: 'bg-[#1a1a1a] text-white/70' };
+                      return (
+                        <div key={sol.id} className="p-4 border border-[#3a3a3a] rounded-xl hover:border-amber-500/30 bg-[#1a1a1a] hover:bg-[#222222] transition-all">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm font-semibold text-white">{tipo}</p>
+                              {nombre && <p className="text-xs text-white/50 mt-0.5">Extranjero: {nombre}</p>}
+                              <p className="text-xs text-white/50 mt-0.5">{formatDate(sol.createdAt)}</p>
+                              {sol.numeroPieza && (
+                                <p className="text-xs text-amber-400 font-mono mt-1">Pieza: {sol.numeroPieza}</p>
+                              )}
+                            </div>
+                            <div className="text-right space-y-1">
+                              <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${est.cls}`}>
+                                {est.label}
+                              </span>
+                              <p className="text-xs text-white/40">${sol.costo} MXN</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
                   )}
                 </div>
               )}
