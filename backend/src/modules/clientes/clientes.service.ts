@@ -353,13 +353,13 @@ export class ClientesService {
     // También incluir ubicaciones de solicitudes (datosFormulario->ubicacionOrigen)
     const solicitudLocations = await this.clienteRepository.manager.query(
       `SELECT
-        datos_formulario->'ubicacionOrigen'->>'ciudad' as ciudad,
-        (datos_formulario->'ubicacionOrigen'->>'lat')::float as lat,
-        (datos_formulario->'ubicacionOrigen'->>'lng')::float as lng,
+        "datosFormulario"->'ubicacionOrigen'->>'ciudad' as ciudad,
+        ("datosFormulario"->'ubicacionOrigen'->>'lat')::float as lat,
+        ("datosFormulario"->'ubicacionOrigen'->>'lng')::float as lng,
         COUNT(*) as cantidad
        FROM solicitudes
-       WHERE datos_formulario->'ubicacionOrigen' IS NOT NULL
-       AND datos_formulario->'ubicacionOrigen'->>'ciudad' IS NOT NULL
+       WHERE "datosFormulario"->'ubicacionOrigen' IS NOT NULL
+       AND "datosFormulario"->'ubicacionOrigen'->>'ciudad' IS NOT NULL
        GROUP BY ciudad, lat, lng
        ORDER BY cantidad DESC
        LIMIT 50`,
