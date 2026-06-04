@@ -34,6 +34,14 @@ export default function ReportesPage() {
     },
   });
 
+  const solicitudesQuery = useQuery({
+    queryKey: ['reportes', 'solicitudes'],
+    queryFn: async () => {
+      const res = await api.get('/solicitudes?page=1&limit=200');
+      return res.data;
+    },
+  });
+
   const clientesQuery = useQuery({
     queryKey: ['reportes', 'clientes'],
     queryFn: async () => {
@@ -43,14 +51,34 @@ export default function ReportesPage() {
   });
 
   const tramites = tramitesQuery.data?.data || [];
+  const solicitudes = solicitudesQuery.data?.data || [];
   const clientes = clientesQuery.data?.data || [];
   const reporte = reporteQuery.data;
+
+  // Calcular ingresos por solicitudes pagadas en el mes seleccionado
+  const solicitudesPagadasMes = solicitudes.filter((s: any) => {
+    if (s.estatus !== 'pagada' || !s.fechaPago) return false;
+    const fecha = new Date(s.fechaPago);
+    return fecha.getMonth() + 1 === mes && fecha.getFullYear() === anio;
+  });
+  const ingresosSolicitudes = solicitudesPagadasMes.reduce((sum: number, s: any) => sum + (parseFloat(s.costo) || 100), 0);
+  const totalIngresosMes = (reporte?.totalIngresos || 0) + ingresosSolicitudes;
+  const totalPagosMes = (reporte?.totalPagos || 0) + solicitudesPagadasMes.length;
+
+  // Contar solicitudes por estatus
+  const solicitudesActivas = solicitudes.filter((s: any) => !['cancelada'].includes(s.estatus));
+  const solicitudesPagadas = solicitudes.filter((s: any) => s.estatus === 'pagada');
 
   const estatusCounts: Record<string, number> = {};
   tramites.forEach((t: any) => { estatusCounts[t.estatus] = (estatusCounts[t.estatus] || 0) + 1; });
 
   const tipoCounts: Record<string, number> = {};
   tramites.forEach((t: any) => { tipoCounts[t.tipo] = (tipoCounts[t.tipo] || 0) + 1; });
+  // Agregar solicitudes al conteo por tipo
+  solicitudes.forEach((s: any) => {
+    const tipo = `solicitud_${s.tipoTramite || 'generacion'}`;
+    tipoCounts[tipo] = (tipoCounts[tipo] || 0) + 1;
+  });
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -98,7 +126,7 @@ export default function ReportesPage() {
                 <FileText className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-white">{tramites.length}</p>
+            <p className="text-3xl font-bold text-white">{tramites.length + solicitudes.length}</p>
           </div>
         </div>
         <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
@@ -122,7 +150,7 @@ export default function ReportesPage() {
                 <TrendingUp className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-white">{estatusCounts['aprobado'] || 0}</p>
+            <p className="text-3xl font-bold text-white">{(estatusCounts['aprobado'] || 0) + solicitudesPagadas.length}</p>
           </div>
         </div>
         <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
@@ -134,7 +162,7 @@ export default function ReportesPage() {
                 <Calendar className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-white">{(estatusCounts['recibido'] || 0) + (estatusCounts['en_revision'] || 0) + (estatusCounts['en_espera_resolucion'] || 0)}</p>
+            <p className="text-3xl font-bold text-white">{(estatusCounts['recibido'] || 0) + (estatusCounts['en_revision'] || 0) + (estatusCounts['en_espera_resolucion'] || 0) + solicitudes.filter((s: any) => ['pendiente_revision', 'en_proceso', 'pendiente_pago'].includes(s.estatus)).length}</p>
           </div>
         </div>
       </div>
@@ -159,8 +187,11 @@ export default function ReportesPage() {
           </div>
           {reporteQuery.isLoading ? <Skeleton className="h-32 w-full" /> : (
             <div>
-              <p className="text-4xl font-bold text-white mb-4">{formatCurrency(reporte?.totalIngresos || 0)}</p>
-              <p className="text-sm text-white/70">{reporte?.totalPagos || 0} pagos en {MESES[mes - 1]} {anio}</p>
+              <p className="text-4xl font-bold text-white mb-4">{formatCurrency(totalIngresosMes)}</p>
+              <p className="text-sm text-white/70">{totalPagosMes} pagos en {MESES[mes - 1]} {anio}</p>
+              {ingresosSolicitudes > 0 && (
+                <p className="text-xs text-amber-400 mt-1">Incluye ${ingresosSolicitudes} MXN de {solicitudesPagadasMes.length} solicitud(es)</p>
+              )}
               {reporte?.porMetodo?.length > 0 && (
                 <div className="mt-5 space-y-3">
                   {reporte.porMetodo.map((m: any) => (

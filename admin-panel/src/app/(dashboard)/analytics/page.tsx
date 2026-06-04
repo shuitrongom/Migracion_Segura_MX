@@ -69,11 +69,18 @@ export default function AnalyticsPage() {
       const tramitesRes = await api.get('/tramites', { params: { page: 1, limit: 100 } });
       const tramites = tramitesRes.data?.data || [];
 
+      // Fetch solicitudes
+      let solicitudes: any[] = [];
+      try {
+        const solRes = await api.get('/solicitudes', { params: { page: 1, limit: 200 } });
+        solicitudes = solRes.data?.data || [];
+      } catch {}
+
       // Fetch clientes
       const clientesRes = await api.get('/clientes', { params: { page: 1, limit: 100 } });
       const totalClientes = clientesRes.data?.meta?.total || clientesRes.data?.data?.length || 0;
 
-      // Fetch monthly revenue for last 6 months
+      // Fetch monthly revenue for last 6 months + agregar solicitudes pagadas
       const now = new Date();
       const revenuePromises = [];
       for (let i = 5; i >= 0; i--) {
@@ -88,17 +95,30 @@ export default function AnalyticsPage() {
 
       const revenueChartData: RevenueData[] = revenueResults.map((res, idx) => {
         const date = new Date(now.getFullYear(), now.getMonth() - (5 - idx), 1);
+        const mes = date.getMonth() + 1;
+        const anio = date.getFullYear();
+        // Sumar ingresos de solicitudes pagadas en ese mes
+        const solPagadasMes = solicitudes.filter((s: any) => {
+          if (s.estatus !== 'pagada' || !s.fechaPago) return false;
+          const f = new Date(s.fechaPago);
+          return f.getMonth() + 1 === mes && f.getFullYear() === anio;
+        });
+        const ingresosSol = solPagadasMes.reduce((sum: number, s: any) => sum + (parseFloat(s.costo) || 100), 0);
         return {
           month: MONTHS[date.getMonth()],
-          ingresos: res.data?.totalIngresos || 0,
+          ingresos: (res.data?.totalIngresos || 0) + ingresosSol,
         };
       });
       setRevenueData(revenueChartData);
 
-      // Tramite type distribution
+      // Tramite type distribution (incluir solicitudes)
       const typeCounts: Record<string, number> = {};
       tramites.forEach((t: any) => {
         const tipo = (t.tipo || 'otro').replace(/_/g, ' ');
+        typeCounts[tipo] = (typeCounts[tipo] || 0) + 1;
+      });
+      solicitudes.forEach((s: any) => {
+        const tipo = `solicitud ${(s.tipoTramite || '').replace(/_/g, ' ')}`;
         typeCounts[tipo] = (typeCounts[tipo] || 0) + 1;
       });
       const typeData: TramiteTypeData[] = Object.entries(typeCounts)
@@ -106,12 +126,16 @@ export default function AnalyticsPage() {
         .sort((a, b) => b.cantidad - a.cantidad);
       setTramiteTypes(typeData);
 
-      // Conversion funnel
+      // Conversion funnel (incluir solicitudes)
       const statusCounts: Record<string, number> = {};
       tramites.forEach((t: any) => {
         statusCounts[t.estatus] = (statusCounts[t.estatus] || 0) + 1;
       });
-      const totalTramites = tramites.length;
+      solicitudes.forEach((s: any) => {
+        const mapped = s.estatus === 'pagada' ? 'aprobado' : s.estatus === 'pendiente_revision' ? 'recibido' : s.estatus === 'pendiente_pago' ? 'en_revision' : s.estatus;
+        statusCounts[mapped] = (statusCounts[mapped] || 0) + 1;
+      });
+      const totalTramites = tramites.length + solicitudes.length;
       const borradorCount = statusCounts['borrador'] || 0;
       const recibidoCount = statusCounts['recibido'] || 0;
       const enRevisionCount = statusCounts['en_revision'] || 0;
