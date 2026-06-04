@@ -72,7 +72,7 @@ export default function AnalyticsPage() {
       // Fetch solicitudes
       let solicitudes: any[] = [];
       try {
-        const solRes = await api.get('/solicitudes', { params: { page: 1, limit: 200 } });
+        const solRes = await api.get('/solicitudes', { params: { page: 1, limit: 100 } });
         solicitudes = solRes.data?.data || [];
       } catch {}
 

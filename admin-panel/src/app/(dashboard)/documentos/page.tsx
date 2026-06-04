@@ -42,15 +42,15 @@ export default function ExpedienteDigitalPage() {
       setLoading(true);
 
       // Traer solicitudes (siempre existen si el extranjero usó la app)
-      const solRes = await api.get('/solicitudes', { params: { page: 1, limit: 200 } });
+      const solRes = await api.get('/solicitudes', { params: { page: 1, limit: 100 } });
       const solicitudes = solRes.data?.data || [];
 
       // Traer trámites
-      const tramRes = await api.get('/tramites', { params: { page: 1, limit: 200 } });
+      const tramRes = await api.get('/tramites', { params: { page: 1, limit: 100 } });
       const tramites = tramRes.data?.data || [];
 
       // Traer clientes
-      const cliRes = await api.get('/clientes', { params: { page: 1, limit: 200 } });
+      const cliRes = await api.get('/clientes', { params: { page: 1, limit: 100 } });
       const clientes = cliRes.data?.data || [];
 
       // Agrupar por clienteId
