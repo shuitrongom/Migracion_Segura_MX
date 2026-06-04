@@ -136,6 +136,17 @@ export default function ExpedienteDigitalPage() {
         for (const sol of allSolicitudes) {
           if (!sol.clienteId) continue;
           const docs = docsByTramite[sol.id] || [];
+          // Si la solicitud tiene documentoUrl, agregar como doc virtual
+          if (sol.documentoUrl && docs.length === 0) {
+            docs.push({
+              id: `sol-${sol.id}`,
+              nombre: `Solicitud INM - ${(sol.tipoTramite || '').replace(/_/g, ' ')}`,
+              categoria: 'solicitud',
+              estatus: sol.estatus === 'pagada' ? 'aprobado' : 'recibido',
+              createdAt: sol.createdAt,
+              tramiteId: sol.id,
+            });
+          }
           if (docs.length === 0) continue;
           if (!tramitesByCliente[sol.clienteId]) tramitesByCliente[sol.clienteId] = [];
           tramitesByCliente[sol.clienteId].push({
