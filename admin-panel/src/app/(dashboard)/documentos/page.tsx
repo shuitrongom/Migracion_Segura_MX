@@ -95,13 +95,23 @@ export default function ExpedienteDigitalPage() {
       const data = res.data?.data || res.data || [];
       const allClientes: Cliente[] = Array.isArray(data) ? data : [];
       
-      // Obtener trámites de todos los clientes
+      // Obtener trámites
       const tramitesRes = await api.get('/tramites', { params: { page: 1, limit: 200 } });
       const allTramites = tramitesRes.data?.data || tramitesRes.data || [];
       
+      // Obtener solicitudes
+      let allSolicitudes: any[] = [];
+      try {
+        const solRes = await api.get('/solicitudes', { params: { page: 1, limit: 200 } });
+        allSolicitudes = solRes.data?.data || solRes.data || [];
+      } catch {}
+
       // Obtener todos los documentos
-      const docsRes = await api.get('/documentos');
-      const allDocs: DocItem[] = docsRes.data?.data || docsRes.data || [];
+      let allDocs: DocItem[] = [];
+      try {
+        const docsRes = await api.get('/documentos');
+        allDocs = docsRes.data?.data || docsRes.data || [];
+      } catch {}
       
       // Agrupar docs por tramiteId
       const docsByTramite: Record<string, DocItem[]> = {};
@@ -112,57 +122,58 @@ export default function ExpedienteDigitalPage() {
         }
       }
 
-      // Agrupar trámites por clienteId con sus docs
+      // Construir expediente por cliente
       const tramitesByCliente: Record<string, TramiteInfo[]> = {};
+
+      // Trámites completos con documentos
       for (const t of allTramites) {
         if (!t.clienteId) continue;
         const docs = docsByTramite[t.id] || [];
-        if (docs.length === 0) continue;
         if (!tramitesByCliente[t.clienteId]) tramitesByCliente[t.clienteId] = [];
-        tramitesByCliente[t.clienteId].push({
-          id: t.id,
-          tipo: t.tipo,
-          numeroPieza: t.numeroPieza,
-          estatus: t.estatus,
-          createdAt: t.createdAt,
-          docs,
+        if (docs.length > 0) {
+          tramitesByCliente[t.clienteId].push({
+            id: t.id, tipo: t.tipo, numeroPieza: t.numeroPieza,
+            estatus: t.estatus, createdAt: t.createdAt, docs,
+          });
+        }
+      }
+
+      // Solicitudes (siempre mostrar si existen, con o sin docs)
+      for (const sol of allSolicitudes) {
+        if (!sol.clienteId) continue;
+        if (!tramitesByCliente[sol.clienteId]) tramitesByCliente[sol.clienteId] = [];
+        const docs = docsByTramite[sol.id] || [];
+        // Si tiene documentoUrl, crear doc virtual
+        if (sol.documentoUrl && !docs.find((d: any) => d.id === `sol-${sol.id}`)) {
+          docs.push({
+            id: `sol-${sol.id}`,
+            nombre: `Solicitud INM - ${(sol.tipoTramite || '').replace(/_/g, ' ')}`,
+            categoria: 'solicitud',
+            estatus: sol.estatus === 'pagada' ? 'aprobado' : 'recibido',
+            createdAt: sol.createdAt,
+            tramiteId: sol.id,
+          });
+        }
+        // Siempre agregar la solicitud (aunque no tenga docs — para que aparezca el extranjero)
+        tramitesByCliente[sol.clienteId].push({
+          id: sol.id,
+          tipo: `solicitud_${sol.tipoTramite || 'generacion'}`,
+          numeroPieza: sol.numeroPieza,
+          estatus: sol.estatus,
+          createdAt: sol.createdAt,
+          docs: docs.length > 0 ? docs : [{
+            id: `placeholder-${sol.id}`,
+            nombre: `Solicitud ${(sol.tipoTramite || '').replace(/_/g, ' ')} — ${sol.estatus?.replace(/_/g, ' ')}`,
+            categoria: 'solicitud',
+            estatus: sol.estatus || 'pendiente',
+            createdAt: sol.createdAt,
+          }],
         });
       }
 
-      // También agregar solicitudes con documentos
-      try {
-        const solRes = await api.get('/solicitudes', { params: { page: 1, limit: 200 } });
-        const allSolicitudes = solRes.data?.data || solRes.data || [];
-        for (const sol of allSolicitudes) {
-          if (!sol.clienteId) continue;
-          const docs = docsByTramite[sol.id] || [];
-          // Si la solicitud tiene documentoUrl, agregar como doc virtual
-          if (sol.documentoUrl && docs.length === 0) {
-            docs.push({
-              id: `sol-${sol.id}`,
-              nombre: `Solicitud INM - ${(sol.tipoTramite || '').replace(/_/g, ' ')}`,
-              categoria: 'solicitud',
-              estatus: sol.estatus === 'pagada' ? 'aprobado' : 'recibido',
-              createdAt: sol.createdAt,
-              tramiteId: sol.id,
-            });
-          }
-          if (docs.length === 0) continue;
-          if (!tramitesByCliente[sol.clienteId]) tramitesByCliente[sol.clienteId] = [];
-          tramitesByCliente[sol.clienteId].push({
-            id: sol.id,
-            tipo: `solicitud_${sol.tipoTramite || 'generacion'}`,
-            numeroPieza: sol.numeroPieza,
-            estatus: sol.estatus,
-            createdAt: sol.createdAt,
-            docs,
-          });
-        }
-      } catch {}
-
-      // Solo clientes que tienen trámites con documentos
-      const clientesConDocs = allClientes.filter(c => tramitesByCliente[c.id]?.length > 0);
-      setClientes(clientesConDocs);
+      // Mostrar todos los clientes que tienen al menos 1 trámite o solicitud
+      const clientesConExpediente = allClientes.filter(c => tramitesByCliente[c.id]?.length > 0);
+      setClientes(clientesConExpediente);
       setClienteTramites(tramitesByCliente);
     } catch {
       setClientes([]);
