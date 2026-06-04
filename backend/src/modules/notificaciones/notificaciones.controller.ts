@@ -15,7 +15,7 @@ import { NotificacionesService } from './notificaciones.service';
 import { EmailService } from '../email/email.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { UserRole } from '../../common/enums';
+import { UserRole, TipoNotificacion, CanalNotificacion } from '../../common/enums';
 
 @ApiTags('Notificaciones')
 @ApiBearerAuth()
@@ -52,8 +52,8 @@ export class NotificacionesController {
     const userId = req.user.id;
     await this.notificacionesService.sendNotification({
       destinatarioId: userId,
-      tipo: 'test' as any,
-      canal: 'push' as any,
+      tipo: TipoNotificacion.CAMBIO_ESTATUS,
+      canal: CanalNotificacion.PUSH,
       titulo: '🔔 Push de prueba',
       contenido: 'Si ves esto en tu barra de notificaciones, las push funcionan correctamente.',
       metadata: { test: 'true', timestamp: new Date().toISOString() },
@@ -70,8 +70,8 @@ export class NotificacionesController {
   async testPushToUser(@Param('userId', ParseUUIDPipe) userId: string) {
     await this.notificacionesService.sendNotification({
       destinatarioId: userId,
-      tipo: 'test' as any,
-      canal: 'push' as any,
+      tipo: TipoNotificacion.CAMBIO_ESTATUS,
+      canal: CanalNotificacion.PUSH,
       titulo: '🔔 Notificación de prueba',
       contenido: 'Esta es una notificación de prueba enviada desde el panel de administración.',
       metadata: { test: 'true', timestamp: new Date().toISOString() },
