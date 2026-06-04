@@ -8,9 +8,10 @@ import { DocumentosController } from './documentos.controller';
 import { StorageService } from '../../common/services/storage.service';
 import { EncryptionService } from '../../common/services/encryption.service';
 import { NotificacionesModule } from '../notificaciones/notificaciones.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Documento, Expediente]), NotificacionesModule],
+  imports: [TypeOrmModule.forFeature([Documento, Expediente]), NotificacionesModule, EmailModule],
   controllers: [DocumentosController],
   providers: [DocumentosService, StorageService, EncryptionService],
   exports: [DocumentosService],

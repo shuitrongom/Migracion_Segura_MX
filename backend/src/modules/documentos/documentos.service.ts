@@ -15,6 +15,7 @@ import { EncryptionService } from '../../common/services/encryption.service';
 import { EstatusDocumento, TipoNotificacion, CanalNotificacion } from '../../common/enums';
 import { ActivityLogService } from '../users/activity-log.service';
 import { NotificacionesService } from '../notificaciones/notificaciones.service';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class DocumentosService {
@@ -29,6 +30,7 @@ export class DocumentosService {
     private readonly encryptionService: EncryptionService,
     private readonly activityLogService: ActivityLogService,
     private readonly notificacionesService: NotificacionesService,
+    private readonly emailService: EmailService,
   ) {}
 
   /**
@@ -188,6 +190,19 @@ export class DocumentosService {
           metadata: { documentoId: saved.id, tramiteId: dto.tramiteId },
         }).catch(() => {});
       }
+
+      // Email al admin
+      const uploaderData = await this.documentoRepository.manager.query(
+        `SELECT full_name, email FROM users WHERE id = $1 LIMIT 1`, [usuarioId]
+      ).catch(() => []);
+      const uploaderName = uploaderData?.[0]?.full_name || 'Un extranjero';
+
+      await this.emailService.sendAdminNotificationEmail({
+        subject: `Documento subido: ${dto.nombre}`,
+        event: '📎 Nuevo documento subido',
+        details: `${uploaderName} subió el documento "${dto.nombre}" (${categoria}) para revisión.`,
+        extraInfo: dto.tramiteId ? `Trámite: ${dto.tramiteId}` : undefined,
+      }).catch(() => {});
     } catch {}
 
     return saved;
