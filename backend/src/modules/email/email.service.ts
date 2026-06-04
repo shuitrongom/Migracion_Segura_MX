@@ -71,6 +71,7 @@ export class EmailService {
 
   /**
    * Template base para emails al ADMIN (tema oscuro, moderno & premium)
+   * Usa colores hex sólidos para compatibilidad con Outlook/Gmail/Apple Mail
    */
   private buildAdminTemplate(params: { title: string; body: string }): string {
     const { title, body } = params;
@@ -81,36 +82,36 @@ export class EmailService {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
 </head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#0a0a0a;-webkit-font-smoothing:antialiased;">
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#1a1a1a;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;margin:0 auto;padding:48px 20px;">
     <tr><td>
-      <!-- Header premium oscuro -->
-      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:linear-gradient(135deg,#1a1a1a 0%,#2a2014 50%,#1a1a1a 100%);border-radius:16px 16px 0 0;padding:36px 32px;border:1px solid #333;border-bottom:none;">
+      <!-- Header -->
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#222222;border-radius:16px 16px 0 0;padding:36px 32px;border:1px solid #444444;border-bottom:none;">
         <tr><td align="center">
           <table role="presentation" cellspacing="0" cellpadding="0"><tr>
-            <td style="width:44px;height:44px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:12px;text-align:center;vertical-align:middle;">
-              <span style="color:#fff;font-size:20px;font-weight:800;">M</span>
+            <td style="width:44px;height:44px;background-color:#f59e0b;border-radius:12px;text-align:center;vertical-align:middle;">
+              <span style="color:#ffffff;font-size:20px;font-weight:800;">M</span>
             </td>
             <td style="padding-left:14px;">
               <h1 style="color:#f59e0b;margin:0;font-size:22px;font-weight:700;letter-spacing:0.5px;">MIGRACIÓN SEGURA MX</h1>
-              <p style="color:rgba(255,255,255,0.4);margin:2px 0 0;font-size:11px;letter-spacing:1px;text-transform:uppercase;">Panel de Administración</p>
+              <p style="color:#999999;margin:2px 0 0;font-size:11px;letter-spacing:1px;text-transform:uppercase;">Panel de Administración</p>
             </td>
           </tr></table>
         </td></tr>
       </table>
 
       <!-- Cuerpo del email -->
-      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#141414;padding:40px 36px;border-left:1px solid #333;border-right:1px solid #333;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#2a2a2a;padding:40px 36px;border-left:1px solid #444444;border-right:1px solid #444444;">
         <tr><td>
           ${body}
         </td></tr>
       </table>
 
-      <!-- Footer oscuro -->
-      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#0f0f0f;border-radius:0 0 16px 16px;padding:24px 32px;border:1px solid #333;border-top:none;">
+      <!-- Footer -->
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#222222;border-radius:0 0 16px 16px;padding:24px 32px;border:1px solid #444444;border-top:none;">
         <tr><td align="center">
-          <p style="color:rgba(255,255,255,0.3);font-size:11px;margin:0;">© ${new Date().getFullYear()} Migración Segura MX · admin.migracionseguramx.com</p>
-          <p style="color:rgba(255,255,255,0.2);font-size:10px;margin:6px 0 0;">Notificación automática del sistema</p>
+          <p style="color:#888888;font-size:11px;margin:0;">© ${new Date().getFullYear()} Migración Segura MX · admin.migracionseguramx.com</p>
+          <p style="color:#666666;font-size:10px;margin:6px 0 0;">Notificación automática del sistema</p>
         </td></tr>
       </table>
     </td></tr>
@@ -377,24 +378,24 @@ export class EmailService {
       <!-- Event badge -->
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 24px;">
         <tr><td>
-          <span style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:6px 14px;border-radius:20px;">Notificación</span>
+          <span style="display:inline-block;background-color:#f59e0b;color:#ffffff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:6px 14px;border-radius:20px;">Notificación</span>
         </td></tr>
       </table>
 
       <h2 style="color:#ffffff;margin:0 0 12px;font-size:22px;font-weight:700;line-height:1.3;">${event}</h2>
-      <p style="color:rgba(255,255,255,0.75);font-size:15px;margin:0 0 28px;line-height:1.7;">${details}</p>
+      <p style="color:#cccccc;font-size:15px;margin:0 0 28px;line-height:1.7;">${details}</p>
 
       ${extraInfo ? `
-      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#1e1e1e;border:1px solid #3a3a3a;border-radius:12px;padding:20px;margin:0 0 28px;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#333333;border:1px solid #555555;border-radius:12px;padding:20px;margin:0 0 28px;">
         <tr><td>
-          <p style="color:rgba(255,255,255,0.6);font-size:13px;margin:0;line-height:1.6;font-family:'Courier New',monospace;">${extraInfo}</p>
+          <p style="color:#eeeeee;font-size:13px;margin:0;line-height:1.6;font-family:'Courier New',monospace;">${extraInfo}</p>
         </td></tr>
       </table>` : ''}
 
       <!-- CTA -->
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 20px;">
         <tr><td align="center">
-          <a href="https://admin.migracionseguramx.com" style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;text-decoration:none;padding:14px 36px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(245,158,11,0.3);">Abrir Panel de Admin →</a>
+          <a href="https://admin.migracionseguramx.com" style="display:inline-block;background-color:#f59e0b;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:12px;font-size:14px;font-weight:600;">Abrir Panel de Admin →</a>
         </td></tr>
       </table>
     `;
