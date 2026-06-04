@@ -28,7 +28,10 @@ export default function NotificacionesPage() {
 
   const markRead = useMutation({
     mutationFn: (id: string) => api.patch(`/notificaciones/${id}/read`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notificaciones'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notificaciones'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
   });
 
   const notificaciones = notifQuery.data || [];
