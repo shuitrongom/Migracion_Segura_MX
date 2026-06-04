@@ -40,7 +40,25 @@ export class NotificacionesController {
        ON CONFLICT (user_id) DO UPDATE SET push_token = $2, platform = $3, updated_at = NOW()`,
       [userId, dto.pushToken, dto.platform],
     );
-    return { message: 'Dispositivo registrado para notificaciones push' };
+    return { message: 'Dispositivo registrado para notificaciones push', token: dto.pushToken.slice(0, 30) + '...' };
+  }
+
+  /**
+   * Enviar push de prueba al usuario autenticado (para debug)
+   */
+  @Post('test-push')
+  @ApiOperation({ summary: 'Enviar push de prueba a mi dispositivo' })
+  async testPush(@Request() req: any) {
+    const userId = req.user.id;
+    await this.notificacionesService.sendNotification({
+      destinatarioId: userId,
+      tipo: 'test' as any,
+      canal: 'push' as any,
+      titulo: '🔔 Push de prueba',
+      contenido: 'Si ves esto en tu barra de notificaciones, las push funcionan correctamente.',
+      metadata: { test: 'true', timestamp: new Date().toISOString() },
+    });
+    return { message: 'Push de prueba enviada. Revisa tu dispositivo.' };
   }
 
   /**

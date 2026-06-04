@@ -43,19 +43,20 @@ export class PushService implements OnModuleInit {
     body: string;
     data?: Record<string, string>;
   }): Promise<boolean> {
-    if (!this.initialized) {
-      this.logger.warn('Firebase no inicializado, no se puede enviar push');
-      return false;
-    }
-
     const { token, title, body, data } = params;
 
-    // Si es un Expo Push Token, usar Expo Push API
+    // Si es un Expo Push Token, usar Expo Push API (NO requiere Firebase)
     if (token.startsWith('ExponentPushToken') || token.startsWith('ExpoPushToken')) {
       return this.sendExpoPush({ token, title, body, data });
     }
 
-    // Si es un FCM token, usar Firebase directamente
+    // Si es un FCM token, necesita Firebase inicializado
+    if (!this.initialized) {
+      this.logger.warn('Firebase no inicializado, no se puede enviar push FCM');
+      return false;
+    }
+
+    // Enviar via Firebase Cloud Messaging
     try {
       await admin.messaging().send({
         token,
@@ -66,19 +67,21 @@ export class PushService implements OnModuleInit {
           notification: {
             channelId: 'default',
             color: '#f59e0b',
+            sound: 'default',
           },
         },
       });
-      this.logger.log(`Push enviado a ${token.slice(0, 20)}...`);
+      this.logger.log(`FCM push enviado a ${token.slice(0, 20)}...`);
       return true;
     } catch (error: any) {
-      this.logger.error(`Error enviando push: ${error.message}`);
+      this.logger.error(`Error enviando FCM push: ${error.message}`);
       return false;
     }
   }
 
   /**
    * Enviar via Expo Push API (para tokens ExponentPushToken)
+   * Funciona independientemente de Firebase — usa el servicio de Expo directamente
    */
   private async sendExpoPush(params: {
     token: string;
@@ -89,6 +92,19 @@ export class PushService implements OnModuleInit {
     const { token, title, body, data } = params;
 
     try {
+      const payload = {
+        to: token,
+        title,
+        body,
+        sound: 'default',
+        priority: 'high',
+        badge: 1,
+        data: data || {},
+        channelId: 'default',
+      };
+
+      this.logger.log(`[Expo Push] Enviando a ${token.slice(0, 35)}... | Título: "${title}"`);
+
       const response = await fetch('https://exp.host/--/api/v2/push/send', {
         method: 'POST',
         headers: {
@@ -96,29 +112,25 @@ export class PushService implements OnModuleInit {
           'Accept': 'application/json',
           'Accept-Encoding': 'gzip, deflate',
         },
-        body: JSON.stringify({
-          to: token,
-          title,
-          body,
-          sound: 'default',
-          priority: 'high',
-          badge: 1,
-          data: data || {},
-          channelId: 'default',
-          _displayInForeground: true,
-        }),
+        body: JSON.stringify(payload),
       });
 
+      const responseData = await response.json().catch(() => ({}));
+
       if (response.ok) {
-        this.logger.log(`Expo push enviado a ${token.slice(0, 30)}...`);
+        // Verificar si Expo reporta error en el ticket
+        if (responseData?.data?.status === 'error') {
+          this.logger.error(`[Expo Push] Error en ticket: ${responseData.data.message} | Details: ${JSON.stringify(responseData.data.details)}`);
+          return false;
+        }
+        this.logger.log(`[Expo Push] ✅ Enviado exitosamente a ${token.slice(0, 35)}...`);
         return true;
       }
 
-      const errorData = await response.json();
-      this.logger.error(`Error Expo push: ${JSON.stringify(errorData)}`);
+      this.logger.error(`[Expo Push] ❌ HTTP ${response.status}: ${JSON.stringify(responseData)}`);
       return false;
     } catch (error: any) {
-      this.logger.error(`Error enviando Expo push: ${error.message}`);
+      this.logger.error(`[Expo Push] ❌ Exception: ${error.message}`);
       return false;
     }
   }
