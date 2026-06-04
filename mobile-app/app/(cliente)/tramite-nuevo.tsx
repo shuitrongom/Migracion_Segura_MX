@@ -38,6 +38,25 @@ export default function TramiteNuevoScreen() {
     loadBeneficiarios();
   }, []);
 
+  // Escuchar cuando se regresa de la pantalla de beneficiarios con uno seleccionado
+  useEffect(() => {
+    if (params.beneficiarioId && params.beneficiarioId !== beneficiarioId) {
+      setBeneficiarioId(params.beneficiarioId);
+      setBeneficiarioNombre(params.beneficiarioNombre || '');
+      fetchBeneficiario(params.beneficiarioId);
+    }
+  }, [params.beneficiarioId]);
+
+  const fetchBeneficiario = async (id: string) => {
+    try {
+      const res = await apiFetch(`/beneficiarios/mis-beneficiarios/${id}`);
+      if (res.ok) {
+        const b = await res.json();
+        selectBenef(b);
+      }
+    } catch {}
+  };
+
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),

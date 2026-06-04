@@ -104,9 +104,8 @@ export default function BeneficiariosScreen() {
 
   const handleSelect = (beneficiario: Beneficiario) => {
     if (selectMode) {
-      // Retornar a la pantalla de creación de trámite/solicitud con el beneficiario seleccionado
       const redirect = params.redirect || '/(cliente)/solicitud-nueva';
-      router.replace({
+      router.navigate({
         pathname: redirect as any,
         params: { beneficiarioId: beneficiario.id, beneficiarioNombre: `${beneficiario.nombre} ${beneficiario.apellidos}` },
       });

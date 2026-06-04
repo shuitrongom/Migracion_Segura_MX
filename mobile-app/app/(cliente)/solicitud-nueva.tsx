@@ -70,6 +70,26 @@ export default function SolicitudNuevaScreen() {
     loadBeneficiarios();
   }, []);
 
+  // Escuchar cuando se regresa de la pantalla de beneficiarios con uno seleccionado
+  useEffect(() => {
+    if (params.beneficiarioId && params.beneficiarioId !== beneficiarioId) {
+      setBeneficiarioId(params.beneficiarioId);
+      setBeneficiarioNombre(params.beneficiarioNombre || '');
+      // Fetch del beneficiario para pre-llenar datos
+      fetchBeneficiario(params.beneficiarioId);
+    }
+  }, [params.beneficiarioId]);
+
+  const fetchBeneficiario = async (id: string) => {
+    try {
+      const res = await apiFetch(`/beneficiarios/mis-beneficiarios/${id}`);
+      if (res.ok) {
+        const b = await res.json();
+        selectBeneficiario(b);
+      }
+    } catch {}
+  };
+
   useEffect(() => {
     fadeAnim.setValue(0);
     slideAnim.setValue(30);
