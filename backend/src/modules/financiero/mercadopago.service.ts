@@ -42,10 +42,6 @@ export class MercadoPagoService {
           ],
           payer: {
             name: params.clienteNombre || 'Extranjero',
-            // No pre-llenar email para que el usuario lo ingrese manualmente al pagar sin cuenta
-            ...(params.email && params.email.includes('@') && !params.email.includes('pendiente') && !params.email.includes('gmail') && !params.email.includes('testuser')
-              ? { email: params.email }
-              : {}),
           },
           payment_methods: {
             excluded_payment_types: [],
