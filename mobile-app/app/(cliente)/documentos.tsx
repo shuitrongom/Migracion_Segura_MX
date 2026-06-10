@@ -3,8 +3,10 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { apiFetch } from '@/lib/api';
+import { useTheme } from '@/lib/theme';
 
 export default function NotificacionesScreen() {
+  const { colors } = useTheme();
   const [notificaciones, setNotificaciones] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [hasTramiteActivo, setHasTramiteActivo] = useState(false);
@@ -62,13 +64,13 @@ export default function NotificacionesScreen() {
   };
 
   if (loading) return (
-    <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.loadingContainer}>
+    <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={styles.loadingContainer}>
       <ActivityIndicator size="large" color="#f59e0b" />
     </LinearGradient>
   );
 
   return (
-    <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.container}>
+    <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={styles.container}>
       <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
         <View style={styles.header}>
           <View style={styles.headerRow}>

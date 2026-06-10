@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { apiFetch } from '@/lib/api';
 import { storage } from '@/lib/storage';
+import { useTheme } from '@/lib/theme';
 
 const estatusConfig: Record<string, { color: string; label: string; icon: string; step: number }> = {
   borrador: { color: '#9CA3AF', label: 'Borrador', icon: '📝', step: 1 },
@@ -20,6 +21,7 @@ const estatusConfig: Record<string, { color: string; label: string; icon: string
 const STEPS = ['Recibido', 'En revisión', 'En espera', 'Resuelto', 'Entregado', 'Completado'];
 
 export default function EstatusScreen() {
+  const { colors } = useTheme();
   const [tramites, setTramites] = useState<any[]>([]);
   const [solicitudes, setSolicitudes] = useState<any[]>([]);
   const [pagos, setPagos] = useState<Record<string, any[]>>({});
@@ -82,7 +84,7 @@ export default function EstatusScreen() {
   const onRefresh = useCallback(async () => { setRefreshing(true); await loadData(); }, []);
 
   if (loading) return (
-    <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.loadingContainer}>
+    <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={styles.loadingContainer}>
       <ActivityIndicator size="large" color="#f59e0b" />
     </LinearGradient>
   );
@@ -189,7 +191,7 @@ export default function EstatusScreen() {
   };
 
   return (
-    <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.container}>
+    <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={styles.container}>
       <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
         <View style={styles.header}>
           <Text style={styles.title}>Estatus de trámites</Text>

@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { apiFetch } from '@/lib/api';
 import { storage } from '@/lib/storage';
 import { WHATSAPP_URL } from '@/lib/config';
+import { useTheme } from '@/lib/theme';
 
 const { width } = Dimensions.get('window');
 
@@ -18,6 +19,7 @@ const estatusLabels: Record<string, string> = {
 };
 
 export default function MisTramitesScreen() {
+  const { colors } = useTheme();
   const [user, setUser] = useState<any>(null);
   const [tramites, setTramites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,14 +51,14 @@ export default function MisTramitesScreen() {
 
   if (loading) return (
     <View style={styles.loadingContainer}>
-      <LinearGradient colors={['#0a0a0a', '#1c1917', '#0a0a0a']} style={StyleSheet.absoluteFill} />
-      <ActivityIndicator size="large" color="#f59e0b" />
+      <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientStart]} style={StyleSheet.absoluteFill} />
+      <ActivityIndicator size="large" color={colors.accent} />
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={StyleSheet.absoluteFill} />
+      <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={StyleSheet.absoluteFill} />
       <ScrollView showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#f59e0b" />}>
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
 

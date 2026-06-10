@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { apiFetch } from '@/lib/api';
+import { useTheme } from '@/lib/theme';
 
 const PARENTESCOS = [
   { value: 'yo_mismo', label: 'Yo mismo' },
@@ -31,6 +32,7 @@ interface Beneficiario {
 }
 
 export default function BeneficiariosScreen() {
+  const { colors } = useTheme();
   const params = useLocalSearchParams<{ selectMode?: string; redirect?: string }>();
   const selectMode = params.selectMode === 'true';
 
@@ -132,13 +134,13 @@ export default function BeneficiariosScreen() {
   };
 
   if (loading) return (
-    <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.loadingContainer}>
+    <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={styles.loadingContainer}>
       <ActivityIndicator size="large" color="#f59e0b" />
     </LinearGradient>
   );
 
   return (
-    <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.container}>
+    <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>

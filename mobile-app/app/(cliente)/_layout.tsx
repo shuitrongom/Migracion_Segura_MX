@@ -6,12 +6,14 @@ import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import { HomeIcon, StatusIcon, SearchIcon, BellIcon, UserIcon } from '@/components/TabIcons';
 import { apiFetch } from '@/lib/api';
+import { useTheme } from '@/lib/theme';
 import { registerForPushNotifications, addNotificationReceivedListener } from '@/lib/notifications';
 
 export default function ClienteLayout() {
   const insets = useSafeAreaInsets();
   const bottomPadding = Platform.OS === 'android' ? Math.max(insets.bottom, 10) : insets.bottom;
   const notifListener = useRef<any>();
+  const { colors, mode } = useTheme();
 
   useEffect(() => {
     // ─── Push Notifications (registrar token DESPUÉS del login) ──────────────────
@@ -77,18 +79,18 @@ export default function ClienteLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#f59e0b',
-        tabBarInactiveTintColor: 'rgba(255,255,255,0.4)',
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
-          backgroundColor: '#0a0a0a',
+          backgroundColor: mode === 'dark' ? '#0a0a0a' : '#ffffff',
           borderTopWidth: 1,
-          borderTopColor: '#1a1a1a',
+          borderTopColor: colors.border,
           paddingTop: 8,
           paddingBottom: bottomPadding + 6,
           height: 62 + bottomPadding,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.5,
+          shadowOpacity: mode === 'dark' ? 0.5 : 0.1,
           shadowRadius: 8,
           elevation: 8,
         },

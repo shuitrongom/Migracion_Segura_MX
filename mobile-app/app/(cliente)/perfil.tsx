@@ -5,12 +5,14 @@ import { router } from 'expo-router';
 import { storage } from '@/lib/storage';
 import { WHATSAPP_URL } from '@/lib/config';
 import { isBiometricAvailable, isBiometricEnabled, setBiometricEnabled, getBiometricType } from '@/lib/biometrics';
+import { useTheme } from '@/lib/theme';
 
 export default function ClientePerfilScreen() {
   const [user, setUser] = useState<any>(null);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [biometricOn, setBiometricOn] = useState(false);
   const [biometricLabel, setBiometricLabel] = useState('Biometría');
+  const { colors, mode, toggle: toggleTheme } = useTheme();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -55,34 +57,36 @@ export default function ClientePerfilScreen() {
   };
 
   return (
-    <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={{ flex: 1 }}>
+    <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={{ flex: 1 }}>
       <Animated.ScrollView style={[styles.container, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]} contentContainerStyle={{ paddingTop: 56 }}>
-        <View style={styles.profileCard}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{(user?.fullName || user?.email || '?').charAt(0).toUpperCase()}</Text>
+        <View style={[styles.profileCard, { backgroundColor: colors.bgCard, borderColor: colors.border }]}>
+          <View style={[styles.avatar, { backgroundColor: colors.accentLight, borderColor: colors.accent }]}>
+            <Text style={[styles.avatarText, { color: colors.accent }]}>{(user?.fullName || user?.email || '?').charAt(0).toUpperCase()}</Text>
           </View>
-          <Text style={styles.name}>{user?.fullName || 'Sin nombre'}</Text>
-          <Text style={styles.email}>{user?.email}</Text>
+          <Text style={[styles.name, { color: colors.text }]}>{user?.fullName || 'Sin nombre'}</Text>
+          <Text style={[styles.email, { color: colors.textMuted }]}>{user?.email}</Text>
         </View>
 
-        <View style={styles.menu}>
-          <TouchableOpacity style={styles.menuItem} onPress={() => Linking.openURL(WHATSAPP_URL)}>
-            <Text style={styles.menuText}>💬 Contactar asesor por WhatsApp</Text>
+        <View style={[styles.menu, { backgroundColor: colors.bgCard, borderColor: colors.border }]}>
+          {/* Theme Toggle */}
+          <View style={[styles.menuItem, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomColor: colors.borderLight }]}>
+            <Text style={[styles.menuText, { color: colors.text }]}>{mode === 'dark' ? '🌙' : '☀️'} Modo {mode === 'dark' ? 'oscuro' : 'claro'}</Text>
+            <Switch value={mode === 'light'} onValueChange={toggleTheme} trackColor={{ true: '#f59e0b', false: '#333' }} thumbColor="#FFFFFF" />
+          </View>
+          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.borderLight }]} onPress={() => Linking.openURL(WHATSAPP_URL)}>
+            <Text style={[styles.menuText, { color: colors.text }]}>💬 Contactar asesor por WhatsApp</Text>
           </TouchableOpacity>
           {biometricAvailable && (
-            <View style={[styles.menuItem, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
-              <Text style={styles.menuText}>🔒 Bloqueo con {biometricLabel}</Text>
-              <Switch value={biometricOn} onValueChange={toggleBiometric} trackColor={{ true: '#f59e0b' }} thumbColor="#FFFFFF" />
+            <View style={[styles.menuItem, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomColor: colors.borderLight }]}>
+              <Text style={[styles.menuText, { color: colors.text }]}>🔒 Bloqueo con {biometricLabel}</Text>
+              <Switch value={biometricOn} onValueChange={toggleBiometric} trackColor={{ true: '#f59e0b', false: '#333' }} thumbColor="#FFFFFF" />
             </View>
           )}
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuText}>🔔 Notificaciones</Text>
+          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.borderLight }]}>
+            <Text style={[styles.menuText, { color: colors.text }]}>🔔 Notificaciones</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuText}>🔒 Cambiar contraseña</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuText}>📋 Términos y condiciones</Text>
+          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.borderLight }]}>
+            <Text style={[styles.menuText, { color: colors.text }]}>📋 Términos y condiciones</Text>
           </TouchableOpacity>
         </View>
 
@@ -90,7 +94,7 @@ export default function ClientePerfilScreen() {
           <Text style={styles.logoutText}>Cerrar sesión</Text>
         </TouchableOpacity>
 
-        <Text style={styles.version}>Migración Segura MX v0.1.0</Text>
+        <Text style={[styles.version, { color: colors.textMuted }]}>Migración Segura MX v1.1.0</Text>
       </Animated.ScrollView>
     </LinearGradient>
   );

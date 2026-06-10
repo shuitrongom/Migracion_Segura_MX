@@ -6,12 +6,17 @@ import { router } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import BiometricLock from '@/components/BiometricLock';
 import { registerForPushNotifications, resetBadgeCount, addNotificationResponseListener } from '@/lib/notifications';
+import { useTheme } from '@/lib/theme';
 
 export default function RootLayout() {
   const responseListener = useRef<any>();
   const appState = useRef(AppState.currentState);
+  const initTheme = useTheme(s => s.init);
 
   useEffect(() => {
+    // Inicializar tema guardado
+    initTheme();
+
     // Pedir permisos de notificación (solo permisos, no registra token en backend)
     Notifications.requestPermissionsAsync().catch(() => {});
 
