@@ -8,6 +8,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import { apiFetch } from '@/lib/api';
+import { useTheme } from '@/lib/theme';
 import VisaForm from '@/components/forms/VisaForm';
 import GenericTramiteForm from '@/components/forms/GenericTramiteForm';
 
@@ -49,6 +50,7 @@ const EMPTY_SOLICITANTE: Record<string, string> = {
 
 export default function SolicitudNuevaScreen() {
   const params = useLocalSearchParams<{ beneficiarioId?: string; beneficiarioNombre?: string }>();
+  const { colors } = useTheme();
   const [step, setStep] = useState<0 | 1 | 2>(0); // 0=tipo, 1=form, 2=confirmacion
   const [tipoTramite, setTipoTramite] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -202,7 +204,7 @@ export default function SolicitudNuevaScreen() {
   // ─── Paso 0: Seleccionar tipo ───────────────────────────────────────────────
   if (step === 0) {
     return (
-      <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={{ flex: 1 }}>
+      <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={{ flex: 1 }}>
         <ScrollView style={styles.container} contentContainerStyle={{ padding: 20, paddingTop: 56, paddingBottom: 40 }}>
           <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -211,8 +213,8 @@ export default function SolicitudNuevaScreen() {
 
             <View style={styles.headerSection}>
               <Text style={styles.headerEmoji}>📄</Text>
-              <Text style={styles.headerTitle}>Solicitud y Escritos</Text>
-              <Text style={styles.headerSub}>Selecciona el tipo de trámite que necesitas</Text>
+              <Text style={[styles.headerTitle, { color: colors.text }]}>Solicitud y Escritos</Text>
+              <Text style={[styles.headerSub, { color: colors.textMuted }]}>Selecciona el tipo de trámite que necesitas</Text>
             </View>
 
             {/* Costo info */}
@@ -278,8 +280,8 @@ export default function SolicitudNuevaScreen() {
               >
                 <View style={styles.tipoIcon}><Text style={{ fontSize: 22 }}>{tipo.icon}</Text></View>
                 <View style={styles.tipoInfo}>
-                  <Text style={styles.tipoLabel}>{tipo.label}</Text>
-                  <Text style={styles.tipoDesc} numberOfLines={2}>{tipo.descripcion}</Text>
+                  <Text style={[styles.tipoLabel, { color: colors.text }]}>{tipo.label}</Text>
+                  <Text style={[styles.tipoDesc, { color: colors.textMuted }]} numberOfLines={2}>{tipo.descripcion}</Text>
                 </View>
                 <Text style={{ fontSize: 22, color: '#f59e0b' }}>›</Text>
               </TouchableOpacity>
@@ -293,12 +295,12 @@ export default function SolicitudNuevaScreen() {
   // ─── Paso 2: Confirmación ────────────────────────────────────────────────────
   if (step === 2) {
     return (
-      <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.successContainer}>
+      <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={styles.successContainer}>
         <Animated.View style={{ alignItems: 'center', opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
           <View style={styles.successIconContainer}>
             <Text style={{ fontSize: 56 }}>✅</Text>
           </View>
-          <Text style={styles.successTitle}>¡Solicitud enviada!</Text>
+          <Text style={[styles.successTitle, { color: colors.text }]}>¡Solicitud enviada!</Text>
           <Text style={styles.successText}>
             Tu solicitud fue recibida exitosamente.{'\n\n'}
             En breve tu gestor la procesará en el INM y te enviará los requisitos.{'\n\n'}
@@ -319,7 +321,7 @@ export default function SolicitudNuevaScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={{ flex: 1 }}>
+        <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={{ flex: 1 }}>
           <ScrollView
             style={styles.container}
             contentContainerStyle={{ padding: 16, paddingTop: 56, paddingBottom: 40 }}
@@ -332,8 +334,8 @@ export default function SolicitudNuevaScreen() {
               <Text style={styles.backText}>← Cambiar tipo</Text>
             </TouchableOpacity>
 
-            <Text style={styles.formTitle}>{tipoInfo?.label}</Text>
-            <Text style={styles.formDesc}>Llena la información conforme a tu pasaporte o documento de identidad.</Text>
+            <Text style={[styles.formTitle, { color: colors.text }]}>{tipoInfo?.label}</Text>
+            <Text style={[styles.formDesc, { color: colors.textMuted }]}>Llena la información conforme a tu pasaporte o documento de identidad.</Text>
 
             {/* Costo destacado arriba del form */}
             <View style={styles.costoInfoSmall}>
@@ -390,8 +392,8 @@ const styles = StyleSheet.create({
 
   headerSection: { alignItems: 'center', marginBottom: 20 },
   headerEmoji: { fontSize: 40, marginBottom: 8 },
-  headerTitle: { fontSize: 24, fontWeight: '800', color: '#ffffff', letterSpacing: 0.5 },
-  headerSub: { fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4, textAlign: 'center' },
+  headerTitle: { fontSize: 24, fontWeight: '800', letterSpacing: 0.5 },
+  headerSub: { fontSize: 13, marginTop: 4, textAlign: 'center' },
 
   costoInfo: {
     backgroundColor: 'rgba(245,158,11,0.08)', borderRadius: 14, padding: 16,
@@ -420,11 +422,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.06)', justifyContent: 'center', alignItems: 'center',
   },
   tipoInfo: { flex: 1 },
-  tipoLabel: { fontSize: 14, fontWeight: '600', color: '#ffffff' },
-  tipoDesc: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2, lineHeight: 16 },
+  tipoLabel: { fontSize: 14, fontWeight: '600' },
+  tipoDesc: { fontSize: 12, marginTop: 2, lineHeight: 16 },
 
-  formTitle: { fontSize: 18, fontWeight: '700', color: '#ffffff', marginBottom: 4 },
-  formDesc: { fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 16, lineHeight: 18 },
+  formTitle: { fontSize: 18, fontWeight: '700', marginBottom: 4 },
+  formDesc: { fontSize: 13, marginBottom: 16, lineHeight: 18 },
 
   submitBtnWrapper: {
     borderRadius: 14, overflow: 'hidden', marginTop: 24,
@@ -445,9 +447,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center',
     marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)',
   },
-  successTitle: { fontSize: 22, fontWeight: '700', color: '#ffffff', marginTop: 16, marginBottom: 8 },
+  successTitle: { fontSize: 22, fontWeight: '700', marginTop: 16, marginBottom: 8 },
   successText: {
-    fontSize: 14, color: 'rgba(255,255,255,0.5)',
+    fontSize: 14,
     textAlign: 'center', lineHeight: 22, marginBottom: 24,
   },
   successBtn: {

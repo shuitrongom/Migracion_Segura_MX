@@ -146,10 +146,10 @@ export default function BeneficiariosScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.backText}>← Volver</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>
+        <Text style={[styles.title, { color: colors.text }]}>
           {selectMode ? '¿Para quién es el trámite?' : 'Mis Beneficiarios'}
         </Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.subtitle, { color: colors.textMuted }]}>
           {selectMode ? 'Selecciona o registra un nuevo extranjero' : 'Extranjeros registrados en tu cuenta'}
         </Text>
       </View>
@@ -164,7 +164,7 @@ export default function BeneficiariosScreen() {
       {beneficiarios.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={{ fontSize: 48 }}>👤</Text>
-          <Text style={styles.emptyTitle}>Sin beneficiarios</Text>
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>Sin beneficiarios</Text>
           <Text style={styles.emptyText}>Agrega a las personas para quienes harás trámites migratorios.</Text>
         </View>
       ) : (
@@ -186,7 +186,7 @@ export default function BeneficiariosScreen() {
                     <Text style={{ fontSize: 20 }}>👤</Text>
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.cardName}>{item.nombre} {item.apellidos}</Text>
+                    <Text style={[styles.cardName, { color: colors.text }]}>{item.nombre} {item.apellidos}</Text>
                     <View style={styles.tagRow}>
                       <View style={styles.tag}>
                         <Text style={styles.tagText}>{parentescoLabel}</Text>
@@ -220,10 +220,10 @@ export default function BeneficiariosScreen() {
       <Modal visible={showForm} animationType="slide" transparent>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
+            <View style={[styles.modalContent, { backgroundColor: colors.bgModal }]}>
               <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 40 }}>
-              <Text style={styles.modalTitle}>Nuevo beneficiario</Text>
-              <Text style={styles.modalSubtitle}>Datos del extranjero</Text>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Nuevo beneficiario</Text>
+              <Text style={[styles.modalSubtitle, { color: colors.textMuted }]}>Datos del extranjero</Text>
 
               <Text style={styles.fieldLabel}>Nombre(s) *</Text>
               <TextInput style={styles.input} value={nombre} onChangeText={setNombre} placeholder="Juan" placeholderTextColor="#666" />
@@ -291,8 +291,8 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: 16, marginBottom: 16 },
   backBtn: { marginBottom: 8 },
   backText: { color: '#f59e0b', fontSize: 14, fontWeight: '500' },
-  title: { fontSize: 22, fontWeight: '700', color: '#fff' },
-  subtitle: { fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 4 },
+  title: { fontSize: 22, fontWeight: '700' },
+  subtitle: { fontSize: 13, marginTop: 4 },
 
   addBtn: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, padding: 16, borderRadius: 14, borderWidth: 2, borderColor: '#f59e0b', borderStyle: 'dashed', backgroundColor: 'rgba(245,158,11,0.05)', gap: 12, marginBottom: 16 },
   addBtnText: { color: '#f59e0b', fontSize: 15, fontWeight: '600' },
@@ -300,23 +300,23 @@ const styles = StyleSheet.create({
   card: { backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 14, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
   cardRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(245,158,11,0.1)', justifyContent: 'center', alignItems: 'center' },
-  cardName: { fontSize: 16, fontWeight: '600', color: '#fff' },
+  cardName: { fontSize: 16, fontWeight: '600' },
   cardSub: { fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4, fontFamily: 'monospace' },
   tagRow: { flexDirection: 'row', gap: 6, marginTop: 4 },
   tag: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: 'rgba(245,158,11,0.1)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)' },
   tagText: { fontSize: 10, fontWeight: '600', color: '#f59e0b' },
 
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, gap: 12 },
-  emptyTitle: { fontSize: 18, fontWeight: '600', color: '#fff' },
+  emptyTitle: { fontSize: 18, fontWeight: '600' },
   emptyText: { fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center' },
 
   // Modal
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#141414', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '90%' },
-  modalTitle: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 4 },
-  modalSubtitle: { fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 20 },
-  fieldLabel: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.6)', marginBottom: 6, marginTop: 12 },
-  input: { backgroundColor: '#1e1e1e', borderWidth: 1, borderColor: '#333', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: '#fff' },
+  modalContent: { borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '90%' },
+  modalTitle: { fontSize: 20, fontWeight: '700', marginBottom: 4 },
+  modalSubtitle: { fontSize: 13, marginBottom: 20 },
+  fieldLabel: { fontSize: 12, fontWeight: '600', marginBottom: 6, marginTop: 12 },
+  input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15 },
   parentescoRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 },
   parentescoChip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#333', backgroundColor: '#1e1e1e' },
   parentescoChipActive: { borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)' },
