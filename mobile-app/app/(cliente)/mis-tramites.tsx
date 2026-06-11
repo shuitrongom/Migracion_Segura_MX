@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator, Animated, Linking, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator, Animated, Linking, Modal, Alert } from 'react-native';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -6,8 +6,6 @@ import { apiFetch } from '@/lib/api';
 import { storage } from '@/lib/storage';
 import { WHATSAPP_URL } from '@/lib/config';
 import { useTheme } from '@/lib/theme';
-
-const { width } = Dimensions.get('window');
 
 const estatusColors: Record<string, string> = {
   borrador: '#6b7280', recibido: '#3b82f6', en_revision: '#f59e0b',
@@ -24,6 +22,7 @@ export default function MisTramitesScreen() {
   const [tramites, setTramites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showWelcomePopup, setShowWelcomePopup] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
@@ -40,6 +39,12 @@ export default function MisTramitesScreen() {
   const loadData = async () => {
     const userData = await storage.getItem('user_data');
     if (userData) setUser(JSON.parse(userData));
+    // Mostrar popup de bienvenida solo la primera vez de esta sesión
+    const popupShown = await storage.getItem('welcome_popup_shown');
+    if (!popupShown) {
+      setShowWelcomePopup(true);
+      await storage.setItem('welcome_popup_shown', 'true');
+    }
     try {
       const res = await apiFetch('/tramites?page=1&limit=50');
       if (res.ok) { const data = await res.json(); setTramites(data.data || []); }
@@ -59,6 +64,30 @@ export default function MisTramitesScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={StyleSheet.absoluteFill} />
+
+      {/* Pop-up de bienvenida - Contactar asesor */}
+      <Modal visible={showWelcomePopup} animationType="fade" transparent>
+        <View style={styles.popupOverlay}>
+          <View style={styles.popupCard}>
+            <Text style={styles.popupEmoji}>💬</Text>
+            <Text style={styles.popupTitle}>¡Bienvenido a Migración Segura MX!</Text>
+            <Text style={styles.popupText}>
+              ¿Tienes dudas sobre la aplicación o sobre tu trámite?{'\n\n'}
+              Ve al botón de <Text style={{ color: '#f59e0b', fontWeight: '700' }}>Contactar asesor</Text> para mayor información y asistencia personalizada.
+            </Text>
+            <TouchableOpacity
+              style={styles.popupBtn}
+              onPress={() => setShowWelcomePopup(false)}
+              activeOpacity={0.85}
+            >
+              <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.popupBtnGradient}>
+                <Text style={styles.popupBtnText}>Entendido</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <ScrollView showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#f59e0b" />}>
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
 
@@ -84,13 +113,13 @@ export default function MisTramitesScreen() {
               <LinearGradient colors={['rgba(245,158,11,0.12)', 'rgba(245,158,11,0.03)']} style={styles.actionIconBg}>
                 <Text style={{ fontSize: 22 }}>📝</Text>
               </LinearGradient>
-              <Text style={styles.actionLabel}>Generar Solicitud</Text>
+              <Text style={styles.actionLabel}>Solicitud y Escritos</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/(cliente)/tramite-nuevo')} activeOpacity={0.8}>
               <LinearGradient colors={['rgba(168,85,247,0.12)', 'rgba(168,85,247,0.03)']} style={styles.actionIconBg}>
                 <Text style={{ fontSize: 22 }}>📄</Text>
               </LinearGradient>
-              <Text style={styles.actionLabel}>Trámite completo</Text>
+              <Text style={styles.actionLabel}>Trámite</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/(cliente)/beneficiarios')} activeOpacity={0.8}>
               <LinearGradient colors={['rgba(34,197,94,0.12)', 'rgba(34,197,94,0.03)']} style={styles.actionIconBg}>
@@ -105,7 +134,6 @@ export default function MisTramitesScreen() {
               <Text style={styles.actionLabel}>Consultar trámite</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionCard} onPress={() => {
-              const { Alert } = require('react-native');
               Alert.alert('Contactar asesor', '¿Cómo deseas comunicarte?', [
                 { text: 'Chat en la app', onPress: () => router.push('/(cliente)/chat') },
                 { text: 'WhatsApp', onPress: () => Linking.openURL(WHATSAPP_URL) },
@@ -196,4 +224,14 @@ const styles = StyleSheet.create({
   badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10 },
   badgeText: { fontSize: 10, fontWeight: '600' },
   tramiteFecha: { fontSize: 11, color: 'rgba(255,255,255,0.3)', paddingLeft: 48 },
+
+  // Pop-up de bienvenida
+  popupOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.75)', justifyContent: 'center', alignItems: 'center', padding: 24 },
+  popupCard: { backgroundColor: '#1a1a1a', borderRadius: 24, padding: 28, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)', maxWidth: 340, width: '100%' },
+  popupEmoji: { fontSize: 48, marginBottom: 12 },
+  popupTitle: { fontSize: 18, fontWeight: '700', color: '#ffffff', textAlign: 'center', marginBottom: 12 },
+  popupText: { fontSize: 14, color: 'rgba(255,255,255,0.6)', textAlign: 'center', lineHeight: 22, marginBottom: 20 },
+  popupBtn: { borderRadius: 14, overflow: 'hidden', width: '100%' },
+  popupBtnGradient: { paddingVertical: 14, alignItems: 'center' },
+  popupBtnText: { color: '#ffffff', fontSize: 15, fontWeight: '700' },
 });

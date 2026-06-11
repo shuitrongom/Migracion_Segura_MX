@@ -179,7 +179,6 @@ export default function BeneficiariosScreen() {
               <TouchableOpacity
                 style={styles.card}
                 onPress={() => selectMode ? handleSelect(item) : null}
-                onLongPress={() => handleDelete(item.id, `${item.nombre} ${item.apellidos}`)}
                 activeOpacity={selectMode ? 0.7 : 1}
               >
                 <View style={styles.cardRow}>
@@ -201,6 +200,15 @@ export default function BeneficiariosScreen() {
                     {item.curp && <Text style={styles.cardSub}>CURP: {item.curp}</Text>}
                   </View>
                   {selectMode && <Text style={{ color: '#f59e0b', fontSize: 20 }}>→</Text>}
+                  {!selectMode && (
+                    <TouchableOpacity
+                      onPress={() => handleDelete(item.id, `${item.nombre} ${item.apellidos}`)}
+                      style={{ padding: 8, borderRadius: 8, backgroundColor: 'rgba(239,68,68,0.1)' }}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <Text style={{ fontSize: 16 }}>🗑️</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               </TouchableOpacity>
             );

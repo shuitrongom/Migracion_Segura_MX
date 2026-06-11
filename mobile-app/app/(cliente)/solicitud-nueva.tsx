@@ -156,7 +156,7 @@ export default function SolicitudNuevaScreen() {
       Alert.alert('Error', 'Ingresa tu correo electrónico');
       return;
     }
-    if (form.solicitanteEmail !== form.solicitanteEmailConfirmacion) {
+    if (form.solicitanteEmailConfirmacion.trim() && form.solicitanteEmail !== form.solicitanteEmailConfirmacion) {
       Alert.alert('Error', 'Los correos no coinciden');
       return;
     }
@@ -211,15 +211,15 @@ export default function SolicitudNuevaScreen() {
 
             <View style={styles.headerSection}>
               <Text style={styles.headerEmoji}>📄</Text>
-              <Text style={styles.headerTitle}>Generar Solicitud</Text>
+              <Text style={styles.headerTitle}>Solicitud y Escritos</Text>
               <Text style={styles.headerSub}>Selecciona el tipo de trámite que necesitas</Text>
             </View>
 
             {/* Costo info */}
             <View style={styles.costoInfo}>
-              <Text style={styles.costoLabel}>COSTO DEL SERVICIO</Text>
-              <Text style={styles.costoValue}>$100 MXN</Text>
-              <Text style={styles.costoNote}>Se genera el cobro una vez que tu solicitud sea procesada por el gestor</Text>
+              <Text style={styles.costoLabel}>COSTO POR DOCUMENTO</Text>
+              <Text style={styles.costoValue}>$100 MXN c/u</Text>
+              <Text style={styles.costoNote}>Solicitud: $100 · Escrito: $100 · Cada documento adicional: $100</Text>
             </View>
 
             {/* Seleccionar beneficiario */}
@@ -337,9 +337,9 @@ export default function SolicitudNuevaScreen() {
 
             {/* Costo destacado arriba del form */}
             <View style={styles.costoInfoSmall}>
-              <Text style={styles.costoLabelSmall}>💰 Costo del servicio: </Text>
-              <Text style={styles.costoValueSmall}>$100 MXN</Text>
-              <Text style={styles.costoNoteSmall}> — Se cobra al procesar tu solicitud</Text>
+              <Text style={styles.costoLabelSmall}>💰 Costo por documento: </Text>
+              <Text style={styles.costoValueSmall}>$100 MXN c/u</Text>
+              <Text style={styles.costoNoteSmall}> — Solicitud + Escritos se cobran por separado</Text>
             </View>
 
             {/* Formulario específico por tipo */}
@@ -375,7 +375,7 @@ export default function SolicitudNuevaScreen() {
             </TouchableOpacity>
 
             <Text style={styles.disclaimer}>
-              Al enviar, un gestor revisará tu información, la cargará en el INM y te enviará el cobro de $100 MXN.
+              Al enviar, un gestor revisará tu información. Costo: $100 MXN por solicitud y $100 MXN por cada escrito adicional.
             </Text>
           </ScrollView>
         </LinearGradient>

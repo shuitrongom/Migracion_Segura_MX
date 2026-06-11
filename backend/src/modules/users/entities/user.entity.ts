@@ -87,4 +87,8 @@ export class User extends BaseEntity {
   // ---- Preferencias de notificación (Req 6.6) ----
   @Column({ name: 'notification_preferences', type: 'jsonb', nullable: true })
   notificationPreferences: Record<string, boolean> | null;
+
+  // ---- Datos adicionales del gestor (CURP, pasaporte, etc.) ----
+  @Column({ type: 'jsonb', nullable: true })
+  metadata: any;
 }

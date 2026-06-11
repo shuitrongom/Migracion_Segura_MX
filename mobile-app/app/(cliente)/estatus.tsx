@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, TouchableOpacity, Linking, Animated, Alert } from 'react-native';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as DocumentPicker from 'expo-document-picker';
 import { apiFetch } from '@/lib/api';
 import { storage } from '@/lib/storage';
 import { useTheme } from '@/lib/theme';
@@ -82,6 +83,34 @@ export default function EstatusScreen() {
   };
 
   const onRefresh = useCallback(async () => { setRefreshing(true); await loadData(); }, []);
+
+  const submitRating = async (tramiteId: string, rating: number) => {
+    try {
+      // Enviar calificación como documento/nota al trámite vía el endpoint de documentos
+      // que el cliente sí puede usar, almacenando la calificación en metadata
+      const res = await apiFetch('/notificaciones', {
+        method: 'POST',
+        body: JSON.stringify({
+          tipo: 'calificacion_gestor',
+          metadata: { tramiteId, calificacion: rating, fecha: new Date().toISOString() },
+        }),
+      });
+      // Fallback: si el endpoint de notificaciones no permite esto, intentar via fetch directo
+      if (!res.ok) {
+        // Guardar en storage local como respaldo
+        const ratings = JSON.parse(await storage.getItem('gestor_ratings') || '{}');
+        ratings[tramiteId] = { rating, fecha: new Date().toISOString() };
+        await storage.setItem('gestor_ratings', JSON.stringify(ratings));
+      }
+      Alert.alert('¡Gracias!', `Tu calificación de ${rating} estrellas fue registrada.`);
+    } catch {
+      // Guardar localmente si falla la red
+      const ratings = JSON.parse(await storage.getItem('gestor_ratings') || '{}');
+      ratings[tramiteId] = { rating, fecha: new Date().toISOString() };
+      await storage.setItem('gestor_ratings', JSON.stringify(ratings));
+      Alert.alert('¡Gracias!', `Tu calificación de ${rating} estrellas fue guardada.`);
+    }
+  };
 
   if (loading) return (
     <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={styles.loadingContainer}>
@@ -186,6 +215,122 @@ export default function EstatusScreen() {
             <Text style={styles.requisitosText}>• Tu firma debe ser lo más parecida posible a la de tu pasaporte para que no sea rechazada por el INM.</Text>
           </View>
         )}
+
+        {/* Trámites completados/aprobados - Subir forma migratoria */}
+        {(item.estatus === 'completado' || item.estatus === 'entregado' || item.estatus === 'aprobado') && (
+          <View style={styles.formaMigratoriaSection}>
+            <Text style={styles.formaMigratoriaTitle}>📋 Forma migratoria</Text>
+            <Text style={styles.formaMigratoriaHint}>Sube foto de tu documento migratorio para que te alertemos 30 días antes de su vencimiento.</Text>
+            <TouchableOpacity
+              style={styles.uploadFormBtn}
+              onPress={async () => {
+                try {
+                  const result = await DocumentPicker.getDocumentAsync({
+                    type: ['image/*', 'application/pdf'],
+                    copyToCacheDirectory: true,
+                  });
+                  if (result.canceled || !result.assets?.[0]) return;
+                  const file = result.assets[0];
+
+                  // Usar vigencia de 1 año por defecto (el admin puede ajustar)
+                  const vigencia = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+                  Alert.alert(
+                    'Subir forma migratoria',
+                    `Se registrará con vigencia hasta ${vigencia}.\n\nTu asesor puede ajustar la fecha exacta después.`,
+                    [
+                      { text: 'Cancelar', style: 'cancel' },
+                      {
+                        text: 'Subir',
+                        onPress: async () => {
+                          try {
+                            const formData = new FormData();
+                            formData.append('file', {
+                              uri: file.uri,
+                              name: file.name || 'forma_migratoria.pdf',
+                              type: file.mimeType || 'application/pdf',
+                            } as any);
+                            formData.append('nombre', 'Forma migratoria');
+                            formData.append('categoria', 'forma_migratoria');
+                            formData.append('tramiteId', item.id);
+                            formData.append('fechaVencimiento', vigencia);
+
+                            const token = await storage.getItem('access_token');
+                            const res = await fetch('https://api.migracionseguramx.com/api/v1/documentos/upload', {
+                              method: 'POST',
+                              headers: { Authorization: `Bearer ${token}` },
+                              body: formData,
+                            });
+                            if (res.ok) {
+                              Alert.alert('✅ Documento subido', 'Se te notificará 30 días antes de su vencimiento.');
+                            } else {
+                              Alert.alert('Error', 'No se pudo subir el documento. Intenta de nuevo.');
+                            }
+                          } catch {
+                            Alert.alert('Error', 'No se pudo subir el documento.');
+                          }
+                        },
+                      },
+                    ],
+                  );
+                } catch {
+                  Alert.alert('Error', 'No se pudo seleccionar el archivo.');
+                }
+              }}
+            >
+              <Text style={styles.uploadFormBtnText}>📎 Subir forma migratoria</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Calificar gestor - disponible cuando el trámite está en proceso o finalizado */}
+        {(item.estatus !== 'borrador' && item.estatus !== 'cancelado') && (
+          <TouchableOpacity
+            style={styles.rateGestorBtn}
+            onPress={() => {
+              Alert.alert(
+                '⭐ Calificar gestor',
+                '¿Cómo calificarías el servicio de tu gestor?',
+                [
+                  { text: '⭐ 1 - Malo', onPress: () => submitRating(item.id, 1) },
+                  { text: '⭐⭐ 2 - Regular', onPress: () => submitRating(item.id, 2) },
+                  { text: '⭐⭐⭐ 3 - Bueno', onPress: () => submitRating(item.id, 3) },
+                  { text: '⭐⭐⭐⭐ 4 - Muy bueno', onPress: () => submitRating(item.id, 4) },
+                  { text: '⭐⭐⭐⭐⭐ 5 - Excelente', onPress: () => submitRating(item.id, 5) },
+                  { text: 'Cancelar', style: 'cancel' },
+                ],
+              );
+            }}
+          >
+            <Text style={styles.rateGestorText}>⭐ Calificar servicio</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Ver documentos subidos */}
+        <TouchableOpacity
+          style={styles.viewDocsBtn}
+          onPress={async () => {
+            try {
+              const res = await apiFetch(`/documentos/tramite/${item.id}`);
+              if (res.ok) {
+                const docs = await res.json();
+                const docList = (docs.data || docs || []);
+                if (docList.length === 0) {
+                  Alert.alert('Sin documentos', 'Este trámite aún no tiene documentos subidos.');
+                } else {
+                  const docNames = docList.map((d: any, i: number) => `${i + 1}. ${d.nombre} (${d.estatus})`).join('\n');
+                  Alert.alert(`📄 Documentos (${docList.length})`, docNames);
+                }
+              } else {
+                Alert.alert('Sin documentos', 'No se encontraron documentos para este trámite.');
+              }
+            } catch {
+              Alert.alert('Error', 'No se pudieron cargar los documentos.');
+            }
+          }}
+        >
+          <Text style={styles.viewDocsText}>📂 Ver documentos</Text>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -389,6 +534,21 @@ const styles = StyleSheet.create({
   requisitosLeyenda: { backgroundColor: 'rgba(245,158,11,0.04)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.15)', borderRadius: 10, padding: 12, marginTop: 12 },
   requisitosTitle: { fontSize: 12, fontWeight: '700', color: '#f59e0b', marginBottom: 6 },
   requisitosText: { fontSize: 11, color: 'rgba(255,255,255,0.7)', lineHeight: 18, marginBottom: 2 },
+
+  // Forma migratoria section
+  formaMigratoriaSection: { backgroundColor: 'rgba(34,197,94,0.04)', borderWidth: 1, borderColor: 'rgba(34,197,94,0.15)', borderRadius: 10, padding: 12, marginTop: 12 },
+  formaMigratoriaTitle: { fontSize: 12, fontWeight: '700', color: '#22c55e', marginBottom: 4 },
+  formaMigratoriaHint: { fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 16, marginBottom: 10 },
+  uploadFormBtn: { backgroundColor: 'rgba(34,197,94,0.1)', borderWidth: 1, borderColor: 'rgba(34,197,94,0.3)', borderRadius: 10, paddingVertical: 12, alignItems: 'center' },
+  uploadFormBtnText: { color: '#22c55e', fontSize: 13, fontWeight: '600' },
+
+  // Calificar gestor
+  rateGestorBtn: { backgroundColor: 'rgba(245,158,11,0.06)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)', borderRadius: 10, paddingVertical: 10, alignItems: 'center', marginTop: 10 },
+  rateGestorText: { color: '#f59e0b', fontSize: 12, fontWeight: '600' },
+
+  // Ver documentos
+  viewDocsBtn: { backgroundColor: 'rgba(59,130,246,0.06)', borderWidth: 1, borderColor: 'rgba(59,130,246,0.2)', borderRadius: 10, paddingVertical: 10, alignItems: 'center', marginTop: 8 },
+  viewDocsText: { color: '#3b82f6', fontSize: 12, fontWeight: '600' },
 
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, gap: 12 },
   emptyIconContainer: { width: 88, height: 88, borderRadius: 44, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },

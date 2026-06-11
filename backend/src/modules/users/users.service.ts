@@ -336,4 +336,21 @@ export class UsersService {
 
     return { profilePhotoUrl: result.url };
   }
+
+  /**
+   * Actualizar metadata del gestor (CURP, pasaporte, nacionalidad, dirección, etc.)
+   * Estos datos se usan para auto-rellenar solicitudes INM cuando el cliente lo permite
+   */
+  async updateMetadata(id: string, metadata: Record<string, unknown>): Promise<{ metadata: Record<string, unknown> }> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    // Merge con metadata existente
+    user.metadata = { ...(user.metadata || {}), ...metadata };
+    await this.userRepository.save(user);
+
+    return { metadata: user.metadata };
+  }
 }

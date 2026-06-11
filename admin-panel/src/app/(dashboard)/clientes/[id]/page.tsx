@@ -457,7 +457,7 @@ export default function ClienteDetailPage() {
                       type="email"
                       value={emailValue}
                       onChange={(e) => setEmailValue(e.target.value)}
-                      className="flex-1 px-2.5 py-1.5 border border-[#333333] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                      className="flex-1 px-2.5 py-1.5 border border-[#333333] bg-[#222222] text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                       autoFocus
                     />
                     <button
@@ -512,7 +512,7 @@ export default function ClienteDetailPage() {
                       type="tel"
                       value={telefonoValue}
                       onChange={(e) => setTelefonoValue(e.target.value)}
-                      className="flex-1 px-2.5 py-1.5 border border-[#333333] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                      className="flex-1 px-2.5 py-1.5 border border-[#333333] bg-[#222222] text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                       autoFocus
                     />
                     <button

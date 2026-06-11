@@ -70,4 +70,19 @@ export class UsersController {
   ) {
     return this.usersService.uploadProfilePhoto(id, file);
   }
+
+  /**
+   * Actualizar metadata del gestor (CURP, pasaporte, nacionalidad, etc.)
+   * Estos datos se usan para auto-rellenar solicitudes INM
+   */
+  @Post(':id/metadata')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Actualizar datos adicionales del gestor (CURP, pasaporte, etc.)' })
+  @ApiParam({ name: 'id', description: 'UUID del usuario' })
+  async updateMetadata(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: Record<string, unknown>,
+  ) {
+    return this.usersService.updateMetadata(id, body);
+  }
 }

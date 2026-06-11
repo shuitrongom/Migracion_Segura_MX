@@ -39,6 +39,7 @@ export default function AdminTramitesScreen() {
 
   const loadTramites = async () => {
     try {
+      // El backend filtra automáticamente por asesorId si el usuario es gestor/asesor
       const res = await apiFetch('/tramites?page=1&limit=50');
       if (res.ok) { const data = await res.json(); setTramites(data.data || []); }
     } catch {}

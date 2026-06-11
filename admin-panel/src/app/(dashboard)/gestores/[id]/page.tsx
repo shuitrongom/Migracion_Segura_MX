@@ -163,6 +163,48 @@ export default function GestorDetailPage() {
               </div>
             </div>
           </div>
+
+          {/* Datos para solicitudes INM */}
+          {isAdmin && (
+            <div className="dark-card-static mt-4 p-5">
+              <p className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3">🔑 Datos para solicitudes INM</p>
+              <p className="text-[11px] text-white/50 mb-3">Estos datos se usan para auto-rellenar solicitudes ante el INM cuando el cliente lo autoriza.</p>
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                const form = e.target as HTMLFormElement;
+                const data = {
+                  curp: (form.elements.namedItem('curp') as HTMLInputElement)?.value || '',
+                  nacionalidad: (form.elements.namedItem('nacionalidad') as HTMLInputElement)?.value || '',
+                  numeroPasaporte: (form.elements.namedItem('numeroPasaporte') as HTMLInputElement)?.value || '',
+                  direccion: (form.elements.namedItem('direccion') as HTMLInputElement)?.value || '',
+                };
+                try {
+                  await api.post(`/users/${gestorId}/metadata`, data);
+                  toast.success('Datos del gestor actualizados');
+                } catch { toast.error('Error al guardar'); }
+              }} className="space-y-3">
+                <div>
+                  <label className="block text-[10px] font-semibold text-white/60 mb-1">CURP</label>
+                  <input name="curp" type="text" className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#222222] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30" placeholder="18 caracteres" maxLength={18} />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-white/60 mb-1">Nacionalidad</label>
+                  <input name="nacionalidad" type="text" className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#222222] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30" placeholder="Mexicana" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-white/60 mb-1">Número de pasaporte</label>
+                  <input name="numeroPasaporte" type="text" className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#222222] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30" placeholder="G12345678" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-white/60 mb-1">Dirección</label>
+                  <input name="direccion" type="text" className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#222222] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30" placeholder="Calle, Col., Ciudad" />
+                </div>
+                <button type="submit" className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-semibold transition-colors">
+                  Guardar datos
+                </button>
+              </form>
+            </div>
+          )}
         </div>
 
         {/* Tabs */}

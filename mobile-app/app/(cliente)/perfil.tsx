@@ -50,6 +50,7 @@ export default function ClientePerfilScreen() {
         onPress: async () => {
           await storage.deleteItem('access_token');
           await storage.deleteItem('user_data');
+          await storage.deleteItem('welcome_popup_shown');
           router.replace('/(auth)/login');
         },
       },

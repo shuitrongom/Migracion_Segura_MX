@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Tabs } from 'expo-router';
 import { Platform, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,8 +14,31 @@ export default function ClienteLayout() {
   const bottomPadding = Platform.OS === 'android' ? Math.max(insets.bottom, 10) : insets.bottom;
   const notifListener = useRef<any>();
   const { colors, mode } = useTheme();
+  const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
+    // Cargar conteo de pendientes para badge en Seguimiento
+    async function loadPendingCount() {
+      try {
+        const [tramitesRes, solicitudesRes] = await Promise.all([
+          apiFetch('/tramites?page=1&limit=50'),
+          apiFetch('/solicitudes/mis-solicitudes'),
+        ]);
+        let count = 0;
+        if (tramitesRes.ok) {
+          const data = await tramitesRes.json();
+          const tramites = data.data || [];
+          // Contar trámites con pagos pendientes o estatus que requiera atención
+          count += tramites.filter((t: any) => t.estatus === 'en_revision' || t.estatus === 'recibido').length;
+        }
+        if (solicitudesRes.ok) {
+          const solicitudes = await solicitudesRes.json();
+          count += (Array.isArray(solicitudes) ? solicitudes : []).filter((s: any) => s.estatus === 'pendiente_pago').length;
+        }
+        setPendingCount(count);
+      } catch {}
+    }
+    loadPendingCount();
     // ─── Push Notifications (registrar token DESPUÉS del login) ──────────────────
     async function initPush() {
       const token = await registerForPushNotifications();
@@ -109,6 +132,8 @@ export default function ClienteLayout() {
         options={{
           tabBarLabel: 'Seguimiento',
           tabBarIcon: ({ color }) => <StatusIcon color={color} size={22} />,
+          tabBarBadge: pendingCount > 0 ? pendingCount : undefined,
+          tabBarBadgeStyle: { backgroundColor: '#ef4444', fontSize: 10, minWidth: 18, height: 18, lineHeight: 18 },
         }}
       />
       <Tabs.Screen
