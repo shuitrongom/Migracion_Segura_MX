@@ -5,6 +5,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import * as Location from 'expo-location';
 import { apiFetch } from '@/lib/api';
 import { storage } from '@/lib/storage';
+import { useTheme } from '@/lib/theme';
 import { OPCIONES_POR_TIPO, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO, SITUACIONES_TRABAJO, OCUPACIONES_TRABAJO, ESTADOS_MEXICO, SECTORES_ACTIVIDAD, TIPOS_PERSONA } from '@/lib/catalogos';
 import FormSelect from '@/components/FormSelect';
 import FormDatePicker from '@/components/FormDatePicker';
@@ -22,6 +23,7 @@ const TRAMITES_INM = [
 ];
 
 export default function TramiteNuevoScreen() {
+  const { colors } = useTheme();
   const params = useLocalSearchParams<{ beneficiarioId?: string; beneficiarioNombre?: string }>();
   const [step, setStep] = useState<'select' | 'form' | 'success'>('select');
   const [selectedTipo, setSelectedTipo] = useState('');
@@ -166,13 +168,13 @@ export default function TramiteNuevoScreen() {
 
   if (step === 'success') {
     return (
-      <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.successContainer}>
+      <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={styles.successContainer}>
         <Animated.View style={{ alignItems: 'center', opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
           <View style={styles.successIconContainer}>
             <Text style={{ fontSize: 56 }}>✅</Text>
           </View>
-          <Text style={styles.successTitle}>¡Trámite enviado!</Text>
-          <Text style={styles.successText}>Tu solicitud ha sido recibida. Un gestor la revisará y te contactará pronto.</Text>
+          <Text style={[styles.successTitle, { color: colors.text }]}>¡Trámite enviado!</Text>
+          <Text style={[styles.successText, { color: colors.textMuted }]}>Tu solicitud ha sido recibida. Un gestor la revisará y te contactará pronto.</Text>
           <TouchableOpacity onPress={() => { setStep('select'); setForm({ propositoViaje:'',especificaTramite:'',curpExtranjero:'',nombre:'',apellidos:'',sexo:'',fechaNacimiento:'',nacionalidad:'',estadoCivil:'',paisNacimiento:'',estadoProvinciaNacimiento:'',documentoIdentificacion:'',numeroDocumento:'',paisExpedicion:'',fechaExpedicion:'',fechaVencimiento:'',domCodigoPostal:'',domEstado:'',domMunicipio:'',domColonia:'',domCalle:'',domNumeroExterior:'',domNumeroInterior:'',domLada:'',domTelefonoFijo:'',actividadPrincipal:'',sectorTrabajo:'',situacionTrabajo:'',ocupacionTrabajo:'',expulsadoMexico:'',antecedentesPenales:'',empleadorTipoPersona:'',empleadorRfc:'',empleadorNumeroExpediente:'',solicitanteEmail:'',solicitanteEmailConfirmacion:'',comentarios:'' }); }}>
             <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.successBtn}>
               <Text style={styles.successBtnText}>Volver al inicio</Text>
@@ -194,7 +196,7 @@ export default function TramiteNuevoScreen() {
 
     return (
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-          <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={{ flex: 1 }}>
+          <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={{ flex: 1 }}>
             <ScrollView
               style={styles.container}
               contentContainerStyle={{ padding: 16, paddingTop: 56, paddingBottom: 40 }}
@@ -204,8 +206,8 @@ export default function TramiteNuevoScreen() {
               nestedScrollEnabled={true}
             >
               <TouchableOpacity onPress={() => { setStep('select'); setForm({ propositoViaje:'',especificaTramite:'',curpExtranjero:'',nombre:'',apellidos:'',sexo:'',fechaNacimiento:'',nacionalidad:'',estadoCivil:'',paisNacimiento:'',estadoProvinciaNacimiento:'',documentoIdentificacion:'',numeroDocumento:'',paisExpedicion:'',fechaExpedicion:'',fechaVencimiento:'',domCodigoPostal:'',domEstado:'',domMunicipio:'',domColonia:'',domCalle:'',domNumeroExterior:'',domNumeroInterior:'',domLada:'',domTelefonoFijo:'',actividadPrincipal:'',sectorTrabajo:'',situacionTrabajo:'',ocupacionTrabajo:'',expulsadoMexico:'',antecedentesPenales:'',empleadorTipoPersona:'',empleadorRfc:'',empleadorNumeroExpediente:'',solicitanteEmail:'',solicitanteEmailConfirmacion:'',comentarios:'' }); setSolicitante({ tipoPersona:'',curp:'',rfc:'',nombre:'',apellidos:'',nacionalidad:'',tipoDocumento:'',numeroDocumento:'',vinculoParentesco:'',codigoPostal:'',estado:'',municipio:'',colonia:'',calle:'',numeroExterior:'',numeroInterior:'',lada:'',telefonoFijo:'',moralRfc:'',moralRazonSocial:'',moralSector:'',moralGiroComercial:'',moralCodigoPostal:'',moralEstado:'',moralMunicipio:'',moralColonia:'',moralCalle:'',moralNumeroExterior:'',moralNumeroInterior:'',moralLada:'',moralTelefonoFijo:'',moralNumeroActa:'',moralFechaActa:'' }); }} style={styles.backBtn}><Text style={styles.backText}>← Volver</Text></TouchableOpacity>
-              <Text style={styles.formTitle}>{tipoInfo?.nombre}</Text>
-              <Text style={styles.formDesc}>Completa tus datos conforme a tu pasaporte o documento de identidad.</Text>
+              <Text style={[styles.formTitle, { color: colors.text }]}>{tipoInfo?.nombre}</Text>
+              <Text style={[styles.formDesc, { color: colors.textMuted }]}>Completa tus datos conforme a tu pasaporte o documento de identidad.</Text>
 
               {/* Formulario específico por tipo */}
               {selectedTipo === 'visa' ? (
@@ -219,7 +221,7 @@ export default function TramiteNuevoScreen() {
                   <Text style={styles.submitText}>{submitting ? 'Enviando...' : 'Enviar solicitud'}</Text>
                 </LinearGradient>
               </TouchableOpacity>
-              <Text style={styles.disclaimer}>Al enviar, un gestor revisará tu información y te contactará para continuar.</Text>
+              <Text style={[styles.disclaimer, { color: colors.textMuted }]}>Al enviar, un gestor revisará tu información y te contactará para continuar.</Text>
             </ScrollView>
           </LinearGradient>
       </KeyboardAvoidingView>
@@ -228,14 +230,14 @@ export default function TramiteNuevoScreen() {
 
   // Seleccionar tipo
   return (
-    <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={{ flex: 1 }}>
+    <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={{ flex: 1 }}>
       <ScrollView style={styles.container} contentContainerStyle={{ padding: 16, paddingTop: 56 }}>
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
           <TouchableOpacity onPress={() => router.back()} style={{ marginBottom: 12 }}>
             <Text style={{ color: '#f59e0b', fontSize: 14, fontWeight: '500' }}>← Volver</Text>
           </TouchableOpacity>
-          <Text style={styles.pageTitle}>Iniciar trámite</Text>
-          <Text style={styles.pageDesc}>Selecciona el tipo de trámite migratorio que necesitas</Text>
+          <Text style={[styles.pageTitle, { color: colors.text }]}>Iniciar trámite</Text>
+          <Text style={[styles.pageDesc, { color: colors.textMuted }]}>Selecciona el tipo de trámite migratorio que necesitas</Text>
 
           {/* Seleccionar beneficiario */}
           <View style={{ marginBottom: 20, marginTop: 8 }}>
@@ -288,8 +290,8 @@ export default function TramiteNuevoScreen() {
             <TouchableOpacity key={tipo.key} style={styles.tipoCard} onPress={() => { setSelectedTipo(tipo.key); setStep('form'); }}>
               <View style={styles.tipoIcon}><Text style={{ fontSize: 20 }}>{tipo.icon}</Text></View>
               <View style={styles.tipoInfo}>
-                <Text style={styles.tipoLabel}>{tipo.nombre}</Text>
-                <Text style={styles.tipoDesc} numberOfLines={2}>{tipo.descripcion}</Text>
+                <Text style={[styles.tipoLabel, { color: colors.text }]}>{tipo.nombre}</Text>
+                <Text style={[styles.tipoDesc, { color: colors.textMuted }]} numberOfLines={2}>{tipo.descripcion}</Text>
               </View>
               <Text style={{ fontSize: 22, color: '#f59e0b' }}>›</Text>
             </TouchableOpacity>
@@ -303,17 +305,17 @@ export default function TramiteNuevoScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  pageTitle: { fontSize: 22, fontWeight: '700', color: '#ffffff', marginBottom: 4 },
-  pageDesc: { fontSize: 14, color: 'rgba(255,255,255,0.5)', marginBottom: 20, lineHeight: 20 },
+  pageTitle: { fontSize: 22, fontWeight: '700', marginBottom: 4 },
+  pageDesc: { fontSize: 14, marginBottom: 20, lineHeight: 20 },
   tipoCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: 16, marginBottom: 10, gap: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
   tipoIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.06)', justifyContent: 'center', alignItems: 'center' },
   tipoInfo: { flex: 1 },
-  tipoLabel: { fontSize: 14, fontWeight: '600', color: '#ffffff' },
-  tipoDesc: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2, lineHeight: 16 },
+  tipoLabel: { fontSize: 14, fontWeight: '600' },
+  tipoDesc: { fontSize: 12, marginTop: 2, lineHeight: 16 },
   backBtn: { marginBottom: 12 },
   backText: { fontSize: 15, color: '#f59e0b', fontWeight: '600' },
-  formTitle: { fontSize: 18, fontWeight: '700', color: '#ffffff' },
-  formDesc: { fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 4, marginBottom: 16, lineHeight: 18 },
+  formTitle: { fontSize: 18, fontWeight: '700' },
+  formDesc: { fontSize: 13, marginTop: 4, marginBottom: 16, lineHeight: 18 },
   sectionTitle: { fontSize: 15, fontWeight: '700', color: '#ffffff', marginTop: 20, marginBottom: 12, paddingBottom: 8, borderBottomWidth: 2, borderBottomColor: '#f59e0b' },
   fieldContainer: { marginBottom: 14 },
   fieldLabel: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.6)', marginBottom: 5 },
@@ -321,11 +323,11 @@ const styles = StyleSheet.create({
   requiredNote: { fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 16 },
   submitBtn: { borderRadius: 14, paddingVertical: 16, alignItems: 'center', marginTop: 24, shadowColor: '#f59e0b', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6 },
   submitText: { color: '#ffffff', fontSize: 16, fontWeight: '700' },
-  disclaimer: { fontSize: 11, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: 12, lineHeight: 16, marginBottom: 20 },
+  disclaimer: { fontSize: 11, textAlign: 'center', marginTop: 12, lineHeight: 16, marginBottom: 20 },
   successContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
   successIconContainer: { width: 100, height: 100, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center', marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  successTitle: { fontSize: 22, fontWeight: '700', color: '#ffffff', marginTop: 16, marginBottom: 8 },
-  successText: { fontSize: 14, color: 'rgba(255,255,255,0.5)', textAlign: 'center', lineHeight: 22, marginBottom: 24 },
+  successTitle: { fontSize: 22, fontWeight: '700', marginTop: 16, marginBottom: 8 },
+  successText: { fontSize: 14, textAlign: 'center', lineHeight: 22, marginBottom: 24 },
   successBtn: { borderRadius: 12, paddingVertical: 14, paddingHorizontal: 32, shadowColor: '#f59e0b', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6 },
   successBtnText: { color: '#ffffff', fontSize: 15, fontWeight: '600' },
 });

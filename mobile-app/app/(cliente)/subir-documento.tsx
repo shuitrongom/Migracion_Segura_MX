@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { apiFetch } from '@/lib/api';
 import { storage } from '@/lib/storage';
+import { useTheme } from '@/lib/theme';
 
 type TipoDocumento = 'ine' | 'residencia' | 'pasaporte' | 'documento';
 
@@ -21,6 +22,7 @@ const TIPOS_DOCUMENTO: { value: TipoDocumento; label: string; icon: string; desc
 ];
 
 export default function SubirDocumentoScreen() {
+  const { colors } = useTheme();
   const [tipoSeleccionado, setTipoSeleccionado] = useState<TipoDocumento | null>(null);
   const [images, setImages] = useState<CapturedImage[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -173,7 +175,7 @@ export default function SubirDocumentoScreen() {
 
   const renderTipoSelector = () => (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>¿Qué tipo de documento vas a subir?</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>¿Qué tipo de documento vas a subir?</Text>
       <View style={styles.tiposGrid}>
         {TIPOS_DOCUMENTO.map(tipo => (
           <TouchableOpacity
@@ -183,7 +185,7 @@ export default function SubirDocumentoScreen() {
             activeOpacity={0.7}
           >
             <Text style={styles.tipoIcon}>{tipo.icon}</Text>
-            <Text style={styles.tipoLabel}>{tipo.label}</Text>
+            <Text style={[styles.tipoLabel, { color: colors.text }]}>{tipo.label}</Text>
             <Text style={styles.tipoDesc}>{tipo.description}</Text>
           </TouchableOpacity>
         ))}
@@ -198,8 +200,8 @@ export default function SubirDocumentoScreen() {
 
     return (
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Capturar imágenes</Text>
-        <Text style={styles.sectionSubtitle}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Capturar imágenes</Text>
+        <Text style={[styles.sectionSubtitle, { color: colors.textMuted }]}>
           {tipoSeleccionado === 'ine' || tipoSeleccionado === 'residencia'
             ? 'Necesitas capturar frente y reverso del documento'
             : tipoSeleccionado === 'pasaporte'
@@ -232,7 +234,7 @@ export default function SubirDocumentoScreen() {
                   activeOpacity={0.7}
                 >
                   <Text style={styles.captureBtnIcon}>{captured ? '✅' : '📷'}</Text>
-                  <Text style={[styles.captureBtnText, captured && styles.captureBtnTextDone]}>
+                  <Text style={[styles.captureBtnText, captured && styles.captureBtnTextDone, !captured && { color: colors.text }]}>
                     {captured ? `${capture.label} ✓` : `Tomar foto: ${capture.label}`}
                   </Text>
                 </TouchableOpacity>
@@ -274,15 +276,15 @@ export default function SubirDocumentoScreen() {
 
   const renderPreview = () => (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Vista previa</Text>
-      <Text style={styles.sectionSubtitle}>Revisa que las imágenes sean legibles antes de enviar</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Vista previa</Text>
+      <Text style={[styles.sectionSubtitle, { color: colors.textMuted }]}>Revisa que las imágenes sean legibles antes de enviar</Text>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.previewScroll}>
         {images.map((img, index) => (
           <View key={index} style={styles.previewCard}>
             <Image source={{ uri: img.uri }} style={styles.previewImage} resizeMode="cover" />
             <View style={styles.previewCardFooter}>
-              <Text style={styles.previewLabel}>{img.label}</Text>
+              <Text style={[styles.previewLabel, { color: colors.text }]}>{img.label}</Text>
               <TouchableOpacity onPress={() => handleRemoveImage(index)}>
                 <Text style={styles.removeBtn}>✕</Text>
               </TouchableOpacity>
@@ -315,8 +317,8 @@ export default function SubirDocumentoScreen() {
   );
 
   return (
-    <View style={styles.container}>
-      <LinearGradient colors={['#0a0a0a', '#171717']} style={styles.gradient}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <LinearGradient colors={[colors.gradientStart, colors.gradientMid]} style={styles.gradient}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Header */}
           <View style={styles.header}>
@@ -324,8 +326,8 @@ export default function SubirDocumentoScreen() {
               <Text style={styles.headerBackText}>←</Text>
             </TouchableOpacity>
             <View>
-              <Text style={styles.headerTitle}>Subir documento</Text>
-              <Text style={styles.headerSubtitle}>Captura y envía tus documentos</Text>
+              <Text style={[styles.headerTitle, { color: colors.text }]}>Subir documento</Text>
+              <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>Captura y envía tus documentos</Text>
             </View>
           </View>
 
@@ -339,17 +341,17 @@ export default function SubirDocumentoScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1 },
   gradient: { flex: 1 },
   scrollContent: { padding: 20, paddingBottom: 40 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 24, paddingTop: Platform.OS === 'ios' ? 50 : 20 },
   headerBack: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#171717', borderWidth: 1, borderColor: '#3a3a3a', alignItems: 'center', justifyContent: 'center' },
   headerBackText: { fontSize: 18, color: '#fff' },
-  headerTitle: { fontSize: 22, fontWeight: '700', color: '#fff' },
-  headerSubtitle: { fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
+  headerTitle: { fontSize: 22, fontWeight: '700' },
+  headerSubtitle: { fontSize: 13, marginTop: 2 },
   section: { marginBottom: 24 },
-  sectionTitle: { fontSize: 17, fontWeight: '700', color: '#fff', marginBottom: 6 },
-  sectionSubtitle: { fontSize: 13, color: 'rgba(255,255,255,0.6)', marginBottom: 16 },
+  sectionTitle: { fontSize: 17, fontWeight: '700', marginBottom: 6 },
+  sectionSubtitle: { fontSize: 13, marginBottom: 16 },
   tiposGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   tipoCard: {
     width: '47%',
@@ -362,7 +364,7 @@ const styles = StyleSheet.create({
   },
   tipoCardSelected: { borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.08)' },
   tipoIcon: { fontSize: 32, marginBottom: 8 },
-  tipoLabel: { fontSize: 14, fontWeight: '700', color: '#fff', marginBottom: 4 },
+  tipoLabel: { fontSize: 14, fontWeight: '700', marginBottom: 4 },
   tipoDesc: { fontSize: 11, color: 'rgba(255,255,255,0.5)', textAlign: 'center' },
   guideContainer: { alignItems: 'center', marginVertical: 20 },
   guideOverlay: {
@@ -394,7 +396,7 @@ const styles = StyleSheet.create({
   },
   captureBtnDone: { borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.05)' },
   captureBtnIcon: { fontSize: 20 },
-  captureBtnText: { fontSize: 14, fontWeight: '600', color: '#fff' },
+  captureBtnText: { fontSize: 14, fontWeight: '600' },
   captureBtnTextDone: { color: '#22c55e' },
   galleryBtn: {
     flexDirection: 'row',
@@ -429,7 +431,7 @@ const styles = StyleSheet.create({
   },
   previewImage: { width: '100%', height: 140 },
   previewCardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 10 },
-  previewLabel: { fontSize: 12, fontWeight: '600', color: '#fff' },
+  previewLabel: { fontSize: 12, fontWeight: '600' },
   removeBtn: { fontSize: 16, color: '#ef4444', fontWeight: '700', padding: 4 },
   uploadBtn: {
     backgroundColor: '#f59e0b',

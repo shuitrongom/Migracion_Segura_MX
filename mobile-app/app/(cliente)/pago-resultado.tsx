@@ -2,8 +2,10 @@
 import { useEffect, useRef } from 'react';
 import { useLocalSearchParams, router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '@/lib/theme';
 
 export default function PagoResultadoScreen() {
+  const { colors } = useTheme();
   const params = useLocalSearchParams<{ status: string; resultado: string; tramiteId: string }>();
   // Soportar tanto "status" (nuevo) como "resultado" (legacy deep link)
   const status = params.status || params.resultado || 'desconocido';
@@ -84,22 +86,22 @@ export default function PagoResultadoScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <LinearGradient colors={['#0a0a0a', '#0f0f0f']} style={StyleSheet.absoluteFill} />
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={StyleSheet.absoluteFill} />
 
       <Animated.View style={[styles.content, { opacity: opacityAnim, transform: [{ scale: scaleAnim }] }]}>
         <View style={[styles.iconContainer, { backgroundColor: cfg.bg }]}>
           <Text style={styles.icon}>{cfg.icon}</Text>
         </View>
 
-        <Text style={styles.title}>{cfg.title}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{cfg.title}</Text>
         <Text style={[styles.subtitle, { color: cfg.color }]}>{cfg.subtitle}</Text>
-        <Text style={styles.message}>{cfg.message}</Text>
+        <Text style={[styles.message, { color: colors.textMuted }]}>{cfg.message}</Text>
 
         {cfg.infoItems && (
           <View style={styles.infoBox}>
             {cfg.infoItems.map((item, i) => (
-              <Text key={i} style={styles.infoText}>{item}</Text>
+              <Text key={i} style={[styles.infoText, { color: colors.textMuted }]}>{item}</Text>
             ))}
           </View>
         )}
@@ -114,7 +116,7 @@ export default function PagoResultadoScreen() {
 
         {status === 'fallido' && (
           <TouchableOpacity style={styles.retryBtn} onPress={() => router.back()}>
-            <Text style={styles.retryText}>← Regresar</Text>
+            <Text style={[styles.retryText, { color: colors.textMuted }]}>← Regresar</Text>
           </TouchableOpacity>
         )}
 
@@ -122,7 +124,7 @@ export default function PagoResultadoScreen() {
           style={styles.retryBtn}
           onPress={() => router.replace('/(cliente)/mis-tramites')}
         >
-          <Text style={styles.retryText}>Ir al inicio</Text>
+          <Text style={[styles.retryText, { color: colors.textMuted }]}>Ir al inicio</Text>
         </TouchableOpacity>
       </Animated.View>
     </View>
@@ -130,17 +132,17 @@ export default function PagoResultadoScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a', justifyContent: 'center', alignItems: 'center' },
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   content: { alignItems: 'center', padding: 32, maxWidth: 360, width: '100%' },
   iconContainer: { width: 100, height: 100, borderRadius: 50, justifyContent: 'center', alignItems: 'center', marginBottom: 24 },
   icon: { fontSize: 52 },
-  title: { fontSize: 26, fontWeight: '800', color: '#fff', textAlign: 'center', marginBottom: 8 },
+  title: { fontSize: 26, fontWeight: '800', textAlign: 'center', marginBottom: 8 },
   subtitle: { fontSize: 16, fontWeight: '600', textAlign: 'center', marginBottom: 16 },
-  message: { fontSize: 14, color: 'rgba(255,255,255,0.5)', textAlign: 'center', lineHeight: 22, marginBottom: 24 },
+  message: { fontSize: 14, textAlign: 'center', lineHeight: 22, marginBottom: 24 },
   infoBox: { width: '100%', gap: 8, marginBottom: 24 },
-  infoText: { fontSize: 13, color: 'rgba(255,255,255,0.45)', paddingLeft: 4 },
+  infoText: { fontSize: 13, paddingLeft: 4 },
   btn: { width: '100%', paddingVertical: 16, borderRadius: 14, borderWidth: 1.5, alignItems: 'center', marginBottom: 12 },
   btnText: { fontSize: 16, fontWeight: '700' },
   retryBtn: { paddingVertical: 10, paddingHorizontal: 20 },
-  retryText: { fontSize: 14, color: 'rgba(255,255,255,0.4)' },
+  retryText: { fontSize: 14 },
 });

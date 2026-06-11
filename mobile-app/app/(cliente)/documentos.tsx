@@ -74,7 +74,7 @@ export default function NotificacionesScreen() {
       <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
         <View style={styles.header}>
           <View style={styles.headerRow}>
-            <Text style={styles.title}>Notificaciones</Text>
+            <Text style={[styles.title, { color: colors.text }]}>Notificaciones</Text>
             {unreadCount > 0 && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>{unreadCount}</Text>
@@ -94,8 +94,8 @@ export default function NotificacionesScreen() {
         <TouchableOpacity style={styles.uploadBtn} onPress={() => router.push('/(cliente)/subir-documento')}>
           <Text style={{ fontSize: 20 }}>📤</Text>
           <View style={{ flex: 1 }}>
-            <Text style={styles.uploadText}>Subir documento requerido</Text>
-            <Text style={styles.uploadHint}>Tu gestor te solicitó documentos</Text>
+            <Text style={[styles.uploadText, { color: colors.text }]}>Subir documento requerido</Text>
+            <Text style={[styles.uploadHint, { color: colors.textMuted }]}>Tu gestor te solicitó documentos</Text>
           </View>
           <Text style={{ color: '#f59e0b', fontSize: 18 }}>→</Text>
         </TouchableOpacity>
@@ -107,8 +107,8 @@ export default function NotificacionesScreen() {
           <View style={styles.emptyIconContainer}>
             <Text style={{ fontSize: 40 }}>🔔</Text>
           </View>
-          <Text style={styles.emptyTitle}>Sin notificaciones</Text>
-          <Text style={styles.emptyText}>Aquí recibirás avisos sobre tus trámites, pagos y documentos.</Text>
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>Sin notificaciones</Text>
+          <Text style={[styles.emptyText, { color: colors.textMuted }]}>Aquí recibirás avisos sobre tus trámites, pagos y documentos.</Text>
         </View>
       ) : (
         <FlatList
@@ -122,11 +122,11 @@ export default function NotificacionesScreen() {
               onPress={() => markAsRead(item.id)}
             >
               <View style={styles.notifHeader}>
-                <Text style={styles.notifTitle}>{item.titulo}</Text>
+                <Text style={[styles.notifTitle, { color: colors.text }]}>{item.titulo}</Text>
                 {!item.leida && <View style={styles.unreadDot} />}
               </View>
-              <Text style={styles.notifContent}>{item.contenido}</Text>
-              <Text style={styles.notifDate}>{item.createdAt?.slice(0, 10)} · {item.createdAt?.slice(11, 16)}</Text>
+              <Text style={[styles.notifContent, { color: colors.textMuted }]}>{item.contenido}</Text>
+              <Text style={[styles.notifDate, { color: colors.textMuted }]}>{item.createdAt?.slice(0, 10)} · {item.createdAt?.slice(11, 16)}</Text>
             </TouchableOpacity>
           )}
         />
@@ -140,27 +140,27 @@ const styles = StyleSheet.create({
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   header: { paddingHorizontal: 16, marginBottom: 16 },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  title: { fontSize: 22, fontWeight: '700', color: '#ffffff' },
+  title: { fontSize: 22, fontWeight: '700' },
   badge: { backgroundColor: '#f59e0b', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 3 },
   badgeText: { color: '#fff', fontSize: 12, fontWeight: '700' },
   markAllBtn: { marginTop: 6 },
   markAllText: { color: '#f59e0b', fontSize: 12, fontWeight: '500' },
 
   uploadBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(245,158,11,0.06)', marginHorizontal: 16, borderRadius: 12, padding: 14, gap: 12, borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)', marginBottom: 16 },
-  uploadText: { fontSize: 14, fontWeight: '600', color: '#ffffff' },
-  uploadHint: { fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 },
+  uploadText: { fontSize: 14, fontWeight: '600' },
+  uploadHint: { fontSize: 11, marginTop: 2 },
 
   list: { paddingHorizontal: 16, paddingBottom: 20 },
   notifCard: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
   notifUnread: { borderLeftWidth: 3, borderLeftColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.03)' },
   notifHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  notifTitle: { fontSize: 14, fontWeight: '600', color: '#ffffff', flex: 1 },
+  notifTitle: { fontSize: 14, fontWeight: '600', flex: 1 },
   unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#f59e0b' },
-  notifContent: { fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 18 },
-  notifDate: { fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 6 },
+  notifContent: { fontSize: 13, lineHeight: 18 },
+  notifDate: { fontSize: 11, marginTop: 6 },
 
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, gap: 10 },
   emptyIconContainer: { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  emptyTitle: { fontSize: 16, fontWeight: '600', color: '#ffffff' },
-  emptyText: { fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', lineHeight: 20 },
+  emptyTitle: { fontSize: 16, fontWeight: '600' },
+  emptyText: { fontSize: 13, textAlign: 'center', lineHeight: 20 },
 });

@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { storage } from '@/lib/storage';
 import { connectChat, sendMessage, getHistory, getSocket, markMessagesRead } from '@/lib/chat';
+import { useTheme } from '@/lib/theme';
 
 interface Message {
   id: string;
@@ -23,6 +24,7 @@ export default function ChatScreen() {
   const [connected, setConnected] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const { colors } = useTheme();
 
   useEffect(() => {
     initChat();
@@ -129,15 +131,15 @@ export default function ChatScreen() {
 
   if (loading) {
     return (
-      <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.loadingContainer}>
+      <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#f59e0b" />
-        <Text style={styles.loadingText}>Conectando chat...</Text>
+        <Text style={[styles.loadingText, { color: colors.textMuted }]}>Conectando chat...</Text>
       </LinearGradient>
     );
   }
 
   return (
-    <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={styles.container}>
+    <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={styles.container}>
       {/* Header */}
       <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
         <View style={styles.headerLeft}>
@@ -145,10 +147,10 @@ export default function ChatScreen() {
             <Text style={styles.avatarText}>G</Text>
           </View>
           <View>
-            <Text style={styles.headerName}>Tu Gestor</Text>
+            <Text style={[styles.headerName, { color: colors.text }]}>Tu Gestor</Text>
             <View style={styles.statusRow}>
               <View style={[styles.statusDot, connected && styles.statusOnline]} />
-              <Text style={styles.statusText}>{connected ? 'En línea' : 'Conectando...'}</Text>
+              <Text style={[styles.statusText, { color: colors.textMuted }]}>{connected ? 'En línea' : 'Conectando...'}</Text>
             </View>
           </View>
         </View>
@@ -168,8 +170,8 @@ export default function ChatScreen() {
               <View style={styles.emptyChatIcon}>
                 <Text style={{ fontSize: 40 }}>💬</Text>
               </View>
-              <Text style={styles.emptyChatTitle}>Inicia la conversación</Text>
-              <Text style={styles.emptyChatText}>Escribe un mensaje a tu gestor para resolver dudas sobre tu trámite</Text>
+              <Text style={[styles.emptyChatTitle, { color: colors.text }]}>Inicia la conversación</Text>
+              <Text style={[styles.emptyChatText, { color: colors.textMuted }]}>Escribe un mensaje a tu gestor para resolver dudas sobre tu trámite</Text>
             </View>
           }
         />
@@ -209,18 +211,18 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
-  loadingText: { fontSize: 14, color: 'rgba(255,255,255,0.4)' },
+  loadingText: { fontSize: 14 },
 
   // Header
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 56, paddingBottom: 16, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   avatarSmall: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(245,158,11,0.15)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)', justifyContent: 'center', alignItems: 'center' },
   avatarText: { color: '#f59e0b', fontSize: 16, fontWeight: '700' },
-  headerName: { fontSize: 16, fontWeight: '700', color: '#ffffff' },
+  headerName: { fontSize: 16, fontWeight: '700' },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
   statusDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.3)' },
   statusOnline: { backgroundColor: '#22c55e' },
-  statusText: { fontSize: 11, color: 'rgba(255,255,255,0.4)' },
+  statusText: { fontSize: 11 },
 
   // Messages
   messagesList: { paddingHorizontal: 16, paddingVertical: 12, flexGrow: 1 },
@@ -241,8 +243,8 @@ const styles = StyleSheet.create({
   // Empty
   emptyChat: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 80 },
   emptyChatIcon: { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
-  emptyChatTitle: { fontSize: 16, fontWeight: '600', color: '#ffffff', marginBottom: 4 },
-  emptyChatText: { fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', lineHeight: 20, paddingHorizontal: 32 },
+  emptyChatTitle: { fontSize: 16, fontWeight: '600', marginBottom: 4 },
+  emptyChatText: { fontSize: 13, textAlign: 'center', lineHeight: 20, paddingHorizontal: 32 },
 
   // Input
   inputContainer: { paddingHorizontal: 12, paddingVertical: 10, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)' },
