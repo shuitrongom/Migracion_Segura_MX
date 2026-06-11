@@ -105,7 +105,7 @@ export default function ClienteLayout() {
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
-          backgroundColor: mode === 'dark' ? '#0a0a0a' : '#ffffff',
+          backgroundColor: colors.bg,
           borderTopWidth: 1,
           borderTopColor: colors.border,
           paddingTop: 8,

@@ -17,7 +17,7 @@ const estatusLabels: Record<string, string> = {
 };
 
 export default function MisTramitesScreen() {
-  const { colors } = useTheme();
+  const { colors, mode } = useTheme();
   const [user, setUser] = useState<any>(null);
   const [tramites, setTramites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,16 +62,16 @@ export default function MisTramitesScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
       <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={StyleSheet.absoluteFill} />
 
       {/* Pop-up de bienvenida - Contactar asesor */}
       <Modal visible={showWelcomePopup} animationType="fade" transparent>
         <View style={styles.popupOverlay}>
-          <View style={styles.popupCard}>
+          <View style={[styles.popupCard, { backgroundColor: colors.bgModal }]}>
             <Text style={styles.popupEmoji}>💬</Text>
-            <Text style={styles.popupTitle}>¡Bienvenido a Migración Segura MX!</Text>
-            <Text style={styles.popupText}>
+            <Text style={[styles.popupTitle, { color: colors.text }]}>¡Bienvenido a Migración Segura MX!</Text>
+            <Text style={[styles.popupText, { color: colors.textSecondary }]}>
               ¿Tienes dudas sobre la aplicación o sobre tu trámite?{'\n\n'}
               Ve al botón de <Text style={{ color: '#f59e0b', fontWeight: '700' }}>Contactar asesor</Text> para mayor información y asistencia personalizada.
             </Text>
@@ -92,48 +92,48 @@ export default function MisTramitesScreen() {
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
 
           {/* Header */}
-          <LinearGradient colors={['rgba(245,158,11,0.1)', 'transparent']} style={styles.headerGradient}>
+          <LinearGradient colors={[mode === 'dark' ? 'rgba(245,158,11,0.1)' : 'rgba(245,158,11,0.06)', 'transparent']} style={styles.headerGradient}>
             <View style={styles.headerTop}>
               <View>
-                <Text style={styles.brand}>MIGRACIÓN <Text style={styles.brandAccent}>SEGURA</Text></Text>
-                <Text style={styles.brandSub}>MX · CLIENTE</Text>
+                <Text style={[styles.brand, { color: colors.text }]}>MIGRACIÓN <Text style={styles.brandAccent}>SEGURA</Text></Text>
+                <Text style={[styles.brandSub, { color: colors.textMuted }]}>MX · CLIENTE</Text>
               </View>
               <View style={styles.versionBadge}>
                 <View style={styles.versionDot} />
                 <Text style={styles.versionText}>ACTIVO</Text>
               </View>
             </View>
-            <Text style={styles.welcome}>¡Bienvenido{user?.fullName ? `, ${user.fullName.split(' ')[0]}` : ''}!</Text>
-            <Text style={styles.welcomeSub}>Gestiona tu trámite migratorio de forma segura.</Text>
+            <Text style={[styles.welcome, { color: colors.text }]}>¡Bienvenido{user?.fullName ? `, ${user.fullName.split(' ')[0]}` : ''}!</Text>
+            <Text style={[styles.welcomeSub, { color: colors.textMuted }]}>Gestiona tu trámite migratorio de forma segura.</Text>
           </LinearGradient>
 
           {/* Acciones principales */}
           <View style={styles.actionsGrid}>
-            <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/(cliente)/solicitud-nueva')} activeOpacity={0.8}>
+            <TouchableOpacity style={[styles.actionCard, { backgroundColor: colors.bgCard, borderColor: colors.borderLight }]} onPress={() => router.push('/(cliente)/solicitud-nueva')} activeOpacity={0.8}>
               <LinearGradient colors={['rgba(245,158,11,0.12)', 'rgba(245,158,11,0.03)']} style={styles.actionIconBg}>
                 <Text style={{ fontSize: 22 }}>📝</Text>
               </LinearGradient>
-              <Text style={styles.actionLabel}>Solicitud y Escritos</Text>
+              <Text style={[styles.actionLabel, { color: colors.textSecondary }]}>Solicitud y Escritos</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/(cliente)/tramite-nuevo')} activeOpacity={0.8}>
+            <TouchableOpacity style={[styles.actionCard, { backgroundColor: colors.bgCard, borderColor: colors.borderLight }]} onPress={() => router.push('/(cliente)/tramite-nuevo')} activeOpacity={0.8}>
               <LinearGradient colors={['rgba(168,85,247,0.12)', 'rgba(168,85,247,0.03)']} style={styles.actionIconBg}>
                 <Text style={{ fontSize: 22 }}>📄</Text>
               </LinearGradient>
-              <Text style={styles.actionLabel}>Trámite</Text>
+              <Text style={[styles.actionLabel, { color: colors.textSecondary }]}>Trámite</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/(cliente)/beneficiarios')} activeOpacity={0.8}>
+            <TouchableOpacity style={[styles.actionCard, { backgroundColor: colors.bgCard, borderColor: colors.borderLight }]} onPress={() => router.push('/(cliente)/beneficiarios')} activeOpacity={0.8}>
               <LinearGradient colors={['rgba(34,197,94,0.12)', 'rgba(34,197,94,0.03)']} style={styles.actionIconBg}>
                 <Text style={{ fontSize: 22 }}>👥</Text>
               </LinearGradient>
-              <Text style={styles.actionLabel}>Mis extranjeros</Text>
+              <Text style={[styles.actionLabel, { color: colors.textSecondary }]}>Mis extranjeros</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/(cliente)/consulta')} activeOpacity={0.8}>
+            <TouchableOpacity style={[styles.actionCard, { backgroundColor: colors.bgCard, borderColor: colors.borderLight }]} onPress={() => router.push('/(cliente)/consulta')} activeOpacity={0.8}>
               <LinearGradient colors={['rgba(59,130,246,0.12)', 'rgba(59,130,246,0.03)']} style={styles.actionIconBg}>
                 <Text style={{ fontSize: 22 }}>🔍</Text>
               </LinearGradient>
-              <Text style={styles.actionLabel}>Consultar trámite</Text>
+              <Text style={[styles.actionLabel, { color: colors.textSecondary }]}>Consultar trámite</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionCard} onPress={() => {
+            <TouchableOpacity style={[styles.actionCard, { backgroundColor: colors.bgCard, borderColor: colors.borderLight }]} onPress={() => {
               Alert.alert('Contactar asesor', '¿Cómo deseas comunicarte?', [
                 { text: 'Chat en la app', onPress: () => router.push('/(cliente)/chat') },
                 { text: 'WhatsApp', onPress: () => Linking.openURL(WHATSAPP_URL) },
@@ -143,30 +143,30 @@ export default function MisTramitesScreen() {
               <LinearGradient colors={['rgba(37,211,102,0.12)', 'rgba(37,211,102,0.03)']} style={styles.actionIconBg}>
                 <Text style={{ fontSize: 22 }}>💬</Text>
               </LinearGradient>
-              <Text style={styles.actionLabel}>Contactar asesor</Text>
+              <Text style={[styles.actionLabel, { color: colors.textSecondary }]}>Contactar asesor</Text>
             </TouchableOpacity>
           </View>
 
           {/* Mis trámites */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Mis trámites</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Mis trámites</Text>
             {tramites.length === 0 ? (
-              <View style={styles.emptyCard}>
+              <View style={[styles.emptyCard, { backgroundColor: colors.bgCard, borderColor: colors.borderLight }]}>
                 <View style={styles.emptyIcon}>
                   <Text style={{ fontSize: 32 }}>📋</Text>
                 </View>
-                <Text style={styles.emptyText}>No tienes trámites activos aún</Text>
-                <Text style={styles.emptyHint}>Inicia uno desde "Iniciar trámite"</Text>
+                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No tienes trámites activos aún</Text>
+                <Text style={[styles.emptyHint, { color: colors.textMuted }]}>Inicia uno desde "Iniciar trámite"</Text>
               </View>
             ) : (
               tramites.map((tramite) => (
-                <View key={tramite.id} style={styles.tramiteCard}>
+                <View key={tramite.id} style={[styles.tramiteCard, { backgroundColor: colors.bgCard, borderColor: colors.borderLight }]}>
                   <View style={styles.tramiteHeader}>
                     <View style={styles.tramiteIconBg}>
                       <Text style={{ fontSize: 14 }}>📄</Text>
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.tramiteTipo}>{(tramite.tipo || '').replace(/_/g, ' ')}</Text>
+                      <Text style={[styles.tramiteTipo, { color: colors.text }]}>{(tramite.tipo || '').replace(/_/g, ' ')}</Text>
                       {tramite.numeroPieza && <Text style={styles.tramitePieza}>#{tramite.numeroPieza}</Text>}
                     </View>
                     <View style={[styles.badge, { backgroundColor: (estatusColors[tramite.estatus] || '#6b7280') + '20' }]}>
@@ -175,7 +175,7 @@ export default function MisTramitesScreen() {
                       </Text>
                     </View>
                   </View>
-                  <Text style={styles.tramiteFecha}>Creado: {tramite.createdAt?.slice(0, 10)}</Text>
+                  <Text style={[styles.tramiteFecha, { color: colors.textMuted }]}>Creado: {tramite.createdAt?.slice(0, 10)}</Text>
                 </View>
               ))
             )}
@@ -189,48 +189,48 @@ export default function MisTramitesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0a0a' },
+  container: { flex: 1 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 
   headerGradient: { paddingTop: 56, paddingBottom: 24, paddingHorizontal: 20 },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 },
-  brand: { fontSize: 18, fontWeight: '800', color: '#ffffff', letterSpacing: 0.5 },
+  brand: { fontSize: 18, fontWeight: '800', letterSpacing: 0.5 },
   brandAccent: { color: '#f59e0b' },
-  brandSub: { fontSize: 11, color: 'rgba(255,255,255,0.3)', fontWeight: '600', letterSpacing: 1, marginTop: 2 },
+  brandSub: { fontSize: 11, fontWeight: '600', letterSpacing: 1, marginTop: 2 },
   versionBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(34,197,94,0.1)', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 5, borderWidth: 1, borderColor: 'rgba(34,197,94,0.2)' },
   versionDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#22c55e' },
   versionText: { fontSize: 9, color: '#22c55e', fontWeight: '700', letterSpacing: 0.5 },
-  welcome: { fontSize: 22, fontWeight: '700', color: '#ffffff', marginBottom: 4 },
-  welcomeSub: { fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 20 },
+  welcome: { fontSize: 22, fontWeight: '700', marginBottom: 4 },
+  welcomeSub: { fontSize: 14, lineHeight: 20 },
 
   actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, gap: 10, marginBottom: 16 },
-  actionCard: { width: '47%', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: 18, alignItems: 'center', gap: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  actionCard: { width: '47%', borderRadius: 16, padding: 18, alignItems: 'center', gap: 12, borderWidth: 1 },
   actionIconBg: { width: 48, height: 48, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-  actionLabel: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.7)', textAlign: 'center' },
+  actionLabel: { fontSize: 12, fontWeight: '600', textAlign: 'center' },
 
   section: { paddingHorizontal: 16, marginTop: 8 },
-  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#ffffff', marginBottom: 12 },
+  sectionTitle: { fontSize: 15, fontWeight: '700', marginBottom: 12 },
 
-  emptyCard: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 20, padding: 32, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  emptyCard: { borderRadius: 20, padding: 32, alignItems: 'center', borderWidth: 1 },
   emptyIcon: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(245,158,11,0.1)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
-  emptyText: { fontSize: 14, color: 'rgba(255,255,255,0.5)', fontWeight: '500' },
-  emptyHint: { fontSize: 12, color: 'rgba(255,255,255,0.25)', marginTop: 4 },
+  emptyText: { fontSize: 14, fontWeight: '500' },
+  emptyHint: { fontSize: 12, marginTop: 4 },
 
-  tramiteCard: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: 16, marginBottom: 10, gap: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  tramiteCard: { borderRadius: 16, padding: 16, marginBottom: 10, gap: 8, borderWidth: 1 },
   tramiteHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   tramiteIconBg: { width: 36, height: 36, borderRadius: 10, backgroundColor: 'rgba(245,158,11,0.1)', justifyContent: 'center', alignItems: 'center' },
-  tramiteTipo: { fontSize: 14, fontWeight: '600', color: '#ffffff', textTransform: 'capitalize' },
+  tramiteTipo: { fontSize: 14, fontWeight: '600', textTransform: 'capitalize' },
   tramitePieza: { fontSize: 11, color: '#f59e0b', fontWeight: '500', marginTop: 2 },
   badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10 },
   badgeText: { fontSize: 10, fontWeight: '600' },
-  tramiteFecha: { fontSize: 11, color: 'rgba(255,255,255,0.3)', paddingLeft: 48 },
+  tramiteFecha: { fontSize: 11, paddingLeft: 48 },
 
   // Pop-up de bienvenida
   popupOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.75)', justifyContent: 'center', alignItems: 'center', padding: 24 },
-  popupCard: { backgroundColor: '#1a1a1a', borderRadius: 24, padding: 28, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)', maxWidth: 340, width: '100%' },
+  popupCard: { borderRadius: 24, padding: 28, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)', maxWidth: 340, width: '100%' },
   popupEmoji: { fontSize: 48, marginBottom: 12 },
-  popupTitle: { fontSize: 18, fontWeight: '700', color: '#ffffff', textAlign: 'center', marginBottom: 12 },
-  popupText: { fontSize: 14, color: 'rgba(255,255,255,0.6)', textAlign: 'center', lineHeight: 22, marginBottom: 20 },
+  popupTitle: { fontSize: 18, fontWeight: '700', textAlign: 'center', marginBottom: 12 },
+  popupText: { fontSize: 14, textAlign: 'center', lineHeight: 22, marginBottom: 20 },
   popupBtn: { borderRadius: 14, overflow: 'hidden', width: '100%' },
   popupBtnGradient: { paddingVertical: 14, alignItems: 'center' },
   popupBtnText: { color: '#ffffff', fontSize: 15, fontWeight: '700' },

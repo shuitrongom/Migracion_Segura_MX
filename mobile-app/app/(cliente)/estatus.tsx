@@ -22,7 +22,7 @@ const estatusConfig: Record<string, { color: string; label: string; icon: string
 const STEPS = ['Recibido', 'En revisión', 'En espera', 'Resuelto', 'Entregado', 'Completado'];
 
 export default function EstatusScreen() {
-  const { colors } = useTheme();
+  const { colors, mode } = useTheme();
   const [tramites, setTramites] = useState<any[]>([]);
   const [solicitudes, setSolicitudes] = useState<any[]>([]);
   const [pagos, setPagos] = useState<Record<string, any[]>>({});
@@ -123,7 +123,7 @@ export default function EstatusScreen() {
     const currentStep = config.step;
 
     return (
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: colors.bgCard, borderColor: colors.borderLight }]}>
         {/* Header */}
         <View style={styles.cardHeader}>
           <View style={[styles.statusBadge, { backgroundColor: config.color + '15' }]}>
@@ -131,12 +131,12 @@ export default function EstatusScreen() {
             <Text style={[styles.statusText, { color: config.color }]}>{config.label}</Text>
           </View>
           {item.numeroPieza && (
-            <Text style={styles.pieceNumber}>#{item.numeroPieza}</Text>
+            <Text style={[styles.pieceNumber, { color: colors.textMuted }]}>#{item.numeroPieza}</Text>
           )}
         </View>
 
         {/* Tipo de trámite */}
-        <Text style={styles.tramiteType}>{(item.tipo || '').replace(/_/g, ' ')}</Text>
+        <Text style={[styles.tramiteType, { color: colors.text }]}>{(item.tipo || '').replace(/_/g, ' ')}</Text>
 
         {/* Timeline de progreso */}
         <View style={styles.timeline}>
@@ -147,21 +147,21 @@ export default function EstatusScreen() {
               <View key={step} style={styles.timelineStep}>
                 <View style={[
                   styles.timelineDot,
+                  { backgroundColor: colors.borderLight },
                   isCompleted && { backgroundColor: '#27AE60' },
                   isCurrent && { backgroundColor: config.color, transform: [{ scale: 1.3 }] },
-                  !isCompleted && !isCurrent && { backgroundColor: 'rgba(255,255,255,0.1)' },
                 ]} />
                 {index < STEPS.length - 1 && (
-                  <View style={[styles.timelineLine, isCompleted && { backgroundColor: '#27AE60' }]} />
+                  <View style={[styles.timelineLine, { backgroundColor: isCompleted ? '#27AE60' : colors.borderLight }]} />
                 )}
-                <Text style={[styles.timelineLabel, isCurrent && { color: config.color, fontWeight: '600' }]}>{step}</Text>
+                <Text style={[styles.timelineLabel, { color: colors.textMuted }, isCurrent && { color: config.color, fontWeight: '600' }]}>{step}</Text>
               </View>
             );
           })}
         </View>
 
         {/* Fecha */}
-        <Text style={styles.date}>Iniciado: {item.createdAt?.slice(0, 10)}</Text>
+        <Text style={[styles.date, { color: colors.textMuted }]}>Iniciado: {item.createdAt?.slice(0, 10)}</Text>
 
         {/* Pagos pendientes */}
         {pagos[item.id]?.filter((p: any) => p.estatusPago === 'pendiente' && p.mercadopagoInitPoint).map((pago: any) => (
@@ -185,7 +185,7 @@ export default function EstatusScreen() {
         {/* Pieza INM */}
         {item.numeroPieza && !item.numeroPieza.startsWith('MSX-') && (
           <View style={styles.inmDataBox}>
-            <Text style={styles.inmDataLabel}>📋 Pieza INM</Text>
+            <Text style={[styles.inmDataLabel, { color: colors.textMuted }]}>📋 Pieza INM</Text>
             <Text style={styles.inmDataValue}>{item.numeroPieza}</Text>
           </View>
         )}
@@ -193,7 +193,7 @@ export default function EstatusScreen() {
         {/* Contraseña INM */}
         {item.contrasenaTramite && (
           <View style={styles.inmDataBox}>
-            <Text style={styles.inmDataLabel}>🔑 Clave INM</Text>
+            <Text style={[styles.inmDataLabel, { color: colors.textMuted }]}>🔑 Clave INM</Text>
             <Text style={styles.inmDataValue}>{item.contrasenaTramite}</Text>
           </View>
         )}
@@ -201,7 +201,7 @@ export default function EstatusScreen() {
         {/* NUT */}
         {(item.nut || item.datosFormulario?.nut) && (
           <View style={styles.inmDataBox}>
-            <Text style={styles.inmDataLabel}>🏛️ NUT</Text>
+            <Text style={[styles.inmDataLabel, { color: colors.textMuted }]}>🏛️ NUT</Text>
             <Text style={styles.inmDataValue}>{item.nut || item.datosFormulario?.nut}</Text>
           </View>
         )}
@@ -210,9 +210,9 @@ export default function EstatusScreen() {
         {(item.estatus === 'en_revision' || item.estatus === 'recibido') && (
           <View style={styles.requisitosLeyenda}>
             <Text style={styles.requisitosTitle}>📄 Importante sobre tus documentos:</Text>
-            <Text style={styles.requisitosText}>• Entrega todos los requisitos en original y copia.</Text>
-            <Text style={styles.requisitosText}>• La solicitud debe estar firmada.</Text>
-            <Text style={styles.requisitosText}>• Tu firma debe ser lo más parecida posible a la de tu pasaporte para que no sea rechazada por el INM.</Text>
+            <Text style={[styles.requisitosText, { color: colors.textSecondary }]}>• Entrega todos los requisitos en original y copia.</Text>
+            <Text style={[styles.requisitosText, { color: colors.textSecondary }]}>• La solicitud debe estar firmada.</Text>
+            <Text style={[styles.requisitosText, { color: colors.textSecondary }]}>• Tu firma debe ser lo más parecida posible a la de tu pasaporte para que no sea rechazada por el INM.</Text>
           </View>
         )}
 
@@ -220,7 +220,7 @@ export default function EstatusScreen() {
         {(item.estatus === 'completado' || item.estatus === 'entregado' || item.estatus === 'aprobado') && (
           <View style={styles.formaMigratoriaSection}>
             <Text style={styles.formaMigratoriaTitle}>📋 Forma migratoria</Text>
-            <Text style={styles.formaMigratoriaHint}>Sube foto de tu documento migratorio para que te alertemos 30 días antes de su vencimiento.</Text>
+            <Text style={[styles.formaMigratoriaHint, { color: colors.textMuted }]}>Sube foto de tu documento migratorio para que te alertemos 30 días antes de su vencimiento.</Text>
             <TouchableOpacity
               style={styles.uploadFormBtn}
               onPress={async () => {
@@ -339,26 +339,26 @@ export default function EstatusScreen() {
     <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={styles.container}>
       <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
         <View style={styles.header}>
-          <Text style={styles.title}>Estatus de trámites</Text>
-          <Text style={styles.subtitle}>Sigue el progreso de tus solicitudes</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Estatus de trámites</Text>
+          <Text style={[styles.subtitle, { color: colors.textMuted }]}>Sigue el progreso de tus solicitudes</Text>
         </View>
       </Animated.View>
 
       {/* Tab switcher */}
       <View style={styles.tabRow}>
         <TouchableOpacity
-          style={[styles.tabBtn, activeTab === 'tramites' && styles.tabBtnActive]}
+          style={[styles.tabBtn, { borderColor: colors.border }, activeTab === 'tramites' && styles.tabBtnActive]}
           onPress={() => setActiveTab('tramites')}
         >
-          <Text style={[styles.tabText, activeTab === 'tramites' && styles.tabTextActive]}>
+          <Text style={[styles.tabText, { color: colors.textMuted }, activeTab === 'tramites' && styles.tabTextActive]}>
             Trámites {Object.values(pagos).flat().filter((p: any) => p.estatusPago === 'pendiente' && p.mercadopagoInitPoint).length > 0 ? '🔴' : ''}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tabBtn, activeTab === 'solicitudes' && styles.tabBtnActive]}
+          style={[styles.tabBtn, { borderColor: colors.border }, activeTab === 'solicitudes' && styles.tabBtnActive]}
           onPress={() => setActiveTab('solicitudes')}
         >
-          <Text style={[styles.tabText, activeTab === 'solicitudes' && styles.tabTextActive]}>
+          <Text style={[styles.tabText, { color: colors.textMuted }, activeTab === 'solicitudes' && styles.tabTextActive]}>
             Solicitudes {solicitudes.filter(s => s.estatus === 'pendiente_pago').length > 0 ? `🔴` : ''}
           </Text>
         </TouchableOpacity>
@@ -369,8 +369,8 @@ export default function EstatusScreen() {
           <View style={styles.emptyIconContainer}>
             <Text style={{ fontSize: 48 }}>📋</Text>
           </View>
-          <Text style={styles.emptyTitle}>Sin trámites</Text>
-          <Text style={styles.emptyText}>Cuando inicies un trámite, aquí verás su progreso en tiempo real</Text>
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>Sin trámites</Text>
+          <Text style={[styles.emptyText, { color: colors.textMuted }]}>Cuando inicies un trámite, aquí verás su progreso en tiempo real</Text>
         </View>
       ) : (
         <FlatList
@@ -386,8 +386,8 @@ export default function EstatusScreen() {
         solicitudes.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyIcon}>📄</Text>
-            <Text style={styles.emptyTitle}>Sin solicitudes</Text>
-            <Text style={styles.emptyText}>Aquí verás tus solicitudes de generación de documentos INM.</Text>
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>Sin solicitudes</Text>
+            <Text style={[styles.emptyText, { color: colors.textMuted }]}>Aquí verás tus solicitudes de generación de documentos INM.</Text>
           </View>
         ) : (
           <FlatList
@@ -503,24 +503,24 @@ const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 56 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   header: { paddingHorizontal: 16, marginBottom: 16 },
-  title: { fontSize: 22, fontWeight: '700', color: '#ffffff' },
-  subtitle: { fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 4 },
+  title: { fontSize: 22, fontWeight: '700' },
+  subtitle: { fontSize: 13, marginTop: 4 },
   list: { paddingHorizontal: 16, paddingBottom: 20 },
 
-  card: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: 18, marginBottom: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  card: { borderRadius: 16, padding: 18, marginBottom: 14, borderWidth: 1 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   statusBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
   statusText: { fontSize: 13, fontWeight: '600' },
-  pieceNumber: { fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' },
-  tramiteType: { fontSize: 16, fontWeight: '600', color: '#ffffff', textTransform: 'capitalize', marginBottom: 16 },
+  pieceNumber: { fontSize: 12, fontFamily: 'monospace' },
+  tramiteType: { fontSize: 16, fontWeight: '600', textTransform: 'capitalize', marginBottom: 16 },
 
   timeline: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 },
   timelineStep: { alignItems: 'center', flex: 1 },
-  timelineDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.1)', marginBottom: 6 },
-  timelineLine: { position: 'absolute', top: 5, left: '50%', right: '-50%', height: 2, backgroundColor: 'rgba(255,255,255,0.08)' },
-  timelineLabel: { fontSize: 10, color: 'rgba(255,255,255,0.4)', textAlign: 'center' },
+  timelineDot: { width: 12, height: 12, borderRadius: 6, marginBottom: 6 },
+  timelineLine: { position: 'absolute', top: 5, left: '50%', right: '-50%', height: 2 },
+  timelineLabel: { fontSize: 10, textAlign: 'center' },
 
-  date: { fontSize: 11, color: 'rgba(255,255,255,0.4)' },
+  date: { fontSize: 11 },
 
   payButton: { borderRadius: 10, paddingVertical: 12, paddingHorizontal: 16, marginTop: 10, alignItems: 'center', shadowColor: '#f59e0b', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6 },
   payButtonText: { color: '#ffffff', fontSize: 14, fontWeight: '600' },
@@ -529,16 +529,16 @@ const styles = StyleSheet.create({
   downloadBtn: { backgroundColor: 'rgba(245,158,11,0.1)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)', borderRadius: 10, paddingVertical: 12, alignItems: 'center', marginTop: 4 },
   downloadBtnText: { color: '#f59e0b', fontSize: 14, fontWeight: '600' },
   inmDataBox: { backgroundColor: 'rgba(245,158,11,0.06)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)', borderRadius: 10, padding: 12, marginTop: 10 },
-  inmDataLabel: { fontSize: 10, color: 'rgba(255,255,255,0.5)', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: 0.5 },
+  inmDataLabel: { fontSize: 10, fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: 0.5 },
   inmDataValue: { fontSize: 18, fontWeight: '700', color: '#f59e0b', fontFamily: 'monospace', marginTop: 4 },
   requisitosLeyenda: { backgroundColor: 'rgba(245,158,11,0.04)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.15)', borderRadius: 10, padding: 12, marginTop: 12 },
   requisitosTitle: { fontSize: 12, fontWeight: '700', color: '#f59e0b', marginBottom: 6 },
-  requisitosText: { fontSize: 11, color: 'rgba(255,255,255,0.7)', lineHeight: 18, marginBottom: 2 },
+  requisitosText: { fontSize: 11, lineHeight: 18, marginBottom: 2 },
 
   // Forma migratoria section
   formaMigratoriaSection: { backgroundColor: 'rgba(34,197,94,0.04)', borderWidth: 1, borderColor: 'rgba(34,197,94,0.15)', borderRadius: 10, padding: 12, marginTop: 12 },
   formaMigratoriaTitle: { fontSize: 12, fontWeight: '700', color: '#22c55e', marginBottom: 4 },
-  formaMigratoriaHint: { fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 16, marginBottom: 10 },
+  formaMigratoriaHint: { fontSize: 11, lineHeight: 16, marginBottom: 10 },
   uploadFormBtn: { backgroundColor: 'rgba(34,197,94,0.1)', borderWidth: 1, borderColor: 'rgba(34,197,94,0.3)', borderRadius: 10, paddingVertical: 12, alignItems: 'center' },
   uploadFormBtnText: { color: '#22c55e', fontSize: 13, fontWeight: '600' },
 
@@ -551,14 +551,14 @@ const styles = StyleSheet.create({
   viewDocsText: { color: '#3b82f6', fontSize: 12, fontWeight: '600' },
 
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, gap: 12 },
-  emptyIconContainer: { width: 88, height: 88, borderRadius: 44, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  emptyIconContainer: { width: 88, height: 88, borderRadius: 44, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
   emptyIcon: { fontSize: 48 },
-  emptyTitle: { fontSize: 18, fontWeight: '600', color: '#ffffff' },
-  emptyText: { fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', lineHeight: 20 },
+  emptyTitle: { fontSize: 18, fontWeight: '600' },
+  emptyText: { fontSize: 13, textAlign: 'center', lineHeight: 20 },
 
   tabRow: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, marginBottom: 8 },
-  tabBtn: { flex: 1, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', alignItems: 'center' },
+  tabBtn: { flex: 1, paddingVertical: 10, borderRadius: 12, borderWidth: 1, alignItems: 'center' },
   tabBtnActive: { borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)' },
-  tabText: { fontSize: 14, fontWeight: '600', color: 'rgba(255,255,255,0.5)' },
+  tabText: { fontSize: 14, fontWeight: '600' },
   tabTextActive: { color: '#f59e0b' },
 });
