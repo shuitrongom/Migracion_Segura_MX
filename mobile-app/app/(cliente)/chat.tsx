@@ -15,14 +15,6 @@ interface Message {
   read: boolean;
   createdAt: string;
 }
-  id: string;
-  senderId: string;
-  receiverId: string;
-  content: string;
-  type: string;
-  read: boolean;
-  createdAt: string;
-}
 
 export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
