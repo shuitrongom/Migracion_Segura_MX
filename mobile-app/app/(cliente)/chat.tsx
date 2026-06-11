@@ -15,6 +15,14 @@ interface Message {
   read: boolean;
   createdAt: string;
 }
+  id: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  type: string;
+  read: boolean;
+  createdAt: string;
+}
 
 export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -28,23 +36,11 @@ export default function ChatScreen() {
   const [error, setError] = useState<string | null>(null);
   const flatListRef = useRef<FlatList>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const socketRef = useRef<any>(null);
   const { colors, mode } = useTheme();
 
   useEffect(() => {
     initChat();
     Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }).start();
-
-    return () => {
-      // Limpiar socket al salir
-      if (socketRef.current) {
-        socketRef.current.off('connect');
-        socketRef.current.off('disconnect');
-        socketRef.current.off('newMessage');
-        socketRef.current.off('messageSent');
-        socketRef.current.off('history');
-      }
-    };
   }, []);
 
   const initChat = async () => {
@@ -59,8 +55,6 @@ export default function ChatScreen() {
       setUserId(user.id);
 
       // Obtener asesor asignado desde los trámites
-      const token = await storage.getItem('access_token');
-      let targetId = '';
       let targetName = 'Tu Asesor';
 
       try {
@@ -69,93 +63,63 @@ export default function ChatScreen() {
           const data = await res.json();
           const tramite = data?.data?.find((t: any) => t.asesorId);
           if (tramite?.asesorId) {
-            targetId = tramite.asesorId;
+            setAsesorId(tramite.asesorId);
             targetName = tramite.asesor?.fullName || 'Tu Asesor';
           }
         }
       } catch {}
 
-      // Si no hay asesor asignado, buscar admin
-      if (!targetId) {
-        try {
-          const res = await apiFetch('/users/asesores');
-          if (res.ok) {
-            const asesores = await res.json();
-            if (asesores?.length > 0) {
-              targetId = asesores[0].id;
-              targetName = asesores[0].fullName || 'Asesor';
-            }
-          }
-        } catch {}
-      }
-
-      if (!targetId) {
-        setAsesorName('Soporte');
-        setError(null);
-        setLoading(false);
-        return;
-      }
-
-      setAsesorId(targetId);
       setAsesorName(targetName);
 
-      // Intentar conectar socket con timeout
+      // Cargar tickets existentes del usuario como historial de chat
       try {
-        const { connectChat, getHistory, markMessagesRead, sendMessage: socketSend } = await import('@/lib/chat');
-        const socket = connectChat(user.id);
-        socketRef.current = socket;
-
-        // Timeout de 8 segundos para la conexión
-        const timeout = setTimeout(() => {
-          if (loading) {
-            setLoading(false);
-            setConnected(false);
+        const res = await apiFetch('/soporte/tickets?page=1&limit=10');
+        if (res.ok) {
+          const data = await res.json();
+          const tickets = data?.data || [];
+          // Convertir mensajes de tickets a formato de chat
+          const allMessages: Message[] = [];
+          for (const ticket of tickets) {
+            try {
+              const ticketRes = await apiFetch(`/soporte/tickets/${ticket.id}`);
+              if (ticketRes.ok) {
+                const ticketData = await ticketRes.json();
+                // Agregar descripción como primer mensaje
+                allMessages.push({
+                  id: `desc-${ticket.id}`,
+                  senderId: ticket.clienteId || user.id,
+                  receiverId: 'asesor',
+                  content: ticketData.descripcion || ticket.asunto,
+                  type: 'text',
+                  read: true,
+                  createdAt: ticket.createdAt,
+                });
+                // Agregar respuestas
+                if (ticketData.mensajes) {
+                  for (const msg of ticketData.mensajes) {
+                    allMessages.push({
+                      id: msg.id,
+                      senderId: msg.autorId,
+                      receiverId: msg.autorId === user.id ? 'asesor' : user.id,
+                      content: msg.contenido,
+                      type: 'text',
+                      read: true,
+                      createdAt: msg.createdAt,
+                    });
+                  }
+                }
+              }
+            } catch {}
           }
-        }, 8000);
+          // Ordenar por fecha
+          allMessages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+          setMessages(allMessages);
+        }
+      } catch {}
 
-        socket.on('connect', () => {
-          setConnected(true);
-          clearTimeout(timeout);
-          getHistory(user.id, targetId);
-        });
-
-        socket.on('disconnect', () => setConnected(false));
-
-        socket.on('newMessage', (msg: Message) => {
-          setMessages(prev => [...prev, msg]);
-          if (msg.receiverId === user.id) {
-            markMessagesRead([msg.id]);
-          }
-          setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
-        });
-
-        socket.on('messageSent', (msg: Message) => {
-          setMessages(prev => {
-            if (prev.find(m => m.id === msg.id)) return prev;
-            return [...prev, msg];
-          });
-          setSending(false);
-          setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
-        });
-
-        socket.on('history', (history: Message[]) => {
-          setMessages(Array.isArray(history) ? history : []);
-          setLoading(false);
-          clearTimeout(timeout);
-          setTimeout(() => flatListRef.current?.scrollToEnd({ animated: false }), 200);
-        });
-
-        // Si después de 8s no hay history, mostrar la pantalla vacía
-        setTimeout(() => {
-          setLoading(false);
-        }, 8000);
-
-      } catch (socketErr) {
-        // Socket no disponible — fallback a modo sin chat en tiempo real
-        console.log('[CHAT] Socket no disponible, modo offline');
-        setLoading(false);
-        setConnected(false);
-      }
+      setConnected(true);
+      setLoading(false);
+      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: false }), 300);
     } catch (err) {
       setError('Error al inicializar el chat.');
       setLoading(false);
@@ -173,7 +137,7 @@ export default function ChatScreen() {
     const tempMsg: Message = {
       id: `temp-${Date.now()}`,
       senderId: userId,
-      receiverId: asesorId || 'admin',
+      receiverId: asesorId || 'asesor',
       content: messageText,
       type: 'text',
       read: false,
@@ -182,31 +146,20 @@ export default function ChatScreen() {
     setMessages(prev => [...prev, tempMsg]);
     setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
 
-    // Enviar via socket si está conectado
-    if (connected && socketRef.current) {
-      try {
-        const { sendMessage: socketSend } = await import('@/lib/chat');
-        socketSend({
-          senderId: userId,
-          receiverId: asesorId || 'admin',
-          content: messageText,
-        });
-      } catch {
-        setSending(false);
+    // Enviar como ticket de soporte (el admin lo ve en panel web → Soporte)
+    try {
+      const res = await apiFetch('/soporte/tickets', {
+        method: 'POST',
+        body: JSON.stringify({
+          asunto: `Mensaje de chat - ${new Date().toLocaleDateString('es-MX')}`,
+          descripcion: messageText,
+        }),
+      });
+      if (res.ok) {
+        // Mensaje enviado exitosamente como ticket
       }
-    } else {
-      // Fallback: enviar como notificación/mensaje via API REST
-      try {
-        await apiFetch('/notificaciones', {
-          method: 'POST',
-          body: JSON.stringify({
-            tipo: 'mensaje_chat',
-            metadata: { mensaje: messageText, destinatarioId: asesorId, fecha: new Date().toISOString() },
-          }),
-        });
-      } catch {}
-      setSending(false);
-    }
+    } catch {}
+    setSending(false);
   };
 
   const formatTime = (dateStr: string) => {

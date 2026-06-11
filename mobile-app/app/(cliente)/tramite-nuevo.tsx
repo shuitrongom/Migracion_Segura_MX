@@ -6,6 +6,7 @@ import * as Location from 'expo-location';
 import { apiFetch } from '@/lib/api';
 import { storage } from '@/lib/storage';
 import { useTheme } from '@/lib/theme';
+import DocumentUploadStep from '@/components/DocumentUploadStep';
 import { OPCIONES_POR_TIPO, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO, SITUACIONES_TRABAJO, OCUPACIONES_TRABAJO, ESTADOS_MEXICO, SECTORES_ACTIVIDAD, TIPOS_PERSONA } from '@/lib/catalogos';
 import FormSelect from '@/components/FormSelect';
 import FormDatePicker from '@/components/FormDatePicker';
@@ -25,7 +26,7 @@ const TRAMITES_INM = [
 export default function TramiteNuevoScreen() {
   const { colors } = useTheme();
   const params = useLocalSearchParams<{ beneficiarioId?: string; beneficiarioNombre?: string }>();
-  const [step, setStep] = useState<'select' | 'form' | 'success'>('select');
+  const [step, setStep] = useState<'select' | 'form' | 'docs' | 'success'>('select');
   const [selectedTipo, setSelectedTipo] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [beneficiarioId, setBeneficiarioId] = useState<string | null>(params.beneficiarioId || null);
@@ -130,24 +131,25 @@ export default function TramiteNuevoScreen() {
   const handleSubmit = async () => {
     if (selectedTipo !== 'constancia_empleador' && (!form.nombre.trim() || !form.apellidos.trim())) { Alert.alert('Error', 'Nombre y apellidos son obligatorios'); return; }
     if (!form.propositoViaje) { Alert.alert('Error', 'Selecciona qué deseas hacer'); return; }
-    if (!form.nacionalidad) { Alert.alert('Error', 'Selecciona tu nacionalidad'); return; }
     if (!form.solicitanteEmail.trim()) { Alert.alert('Error', 'Ingresa tu correo electrónico'); return; }
     if (form.solicitanteEmail !== form.solicitanteEmailConfirmacion) { Alert.alert('Error', 'Los correos no coinciden'); return; }
+    // Ir al paso de documentos
+    setStep('docs');
+  };
 
+  const handleDocumentsComplete = async (docs: any[]) => {
     setSubmitting(true);
     try {
       const userData = await storage.getItem('user_data');
       const user = userData ? JSON.parse(userData) : null;
-      if (!user?.id) { Alert.alert('Error', 'No se encontró tu sesión. Cierra sesión e inicia de nuevo.'); setSubmitting(false); return; }
+      if (!user?.id) { Alert.alert('Error', 'No se encontró tu sesión.'); setSubmitting(false); return; }
 
-      // Capturar ubicación automáticamente (silencioso, no bloquea si falla)
       let ubicacion: { lat: number; lng: number; ciudad?: string } | null = null;
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status === 'granted') {
           const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
           ubicacion = { lat: loc.coords.latitude, lng: loc.coords.longitude };
-          // Intentar obtener ciudad
           try {
             const [geo] = await Location.reverseGeocodeAsync({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
             if (geo) ubicacion.ciudad = `${geo.city || ''}, ${geo.region || ''}`.replace(/^, |, $/g, '');
@@ -155,16 +157,52 @@ export default function TramiteNuevoScreen() {
         }
       } catch {}
 
+      // 1. Crear trámite
       const res = await apiFetch('/tramites', {
         method: 'POST',
         body: JSON.stringify({ tipo: selectedTipo, clienteId: user.id, beneficiarioId: beneficiarioId || undefined, datosFormulario: { ...form, solicitante, ubicacion }, esBorrador: false }),
       });
       const data = await res.json();
+      if (!res.ok) { Alert.alert('Error', Array.isArray(data.message) ? data.message.join('\n') : (data.message || 'Error')); setSubmitting(false); return; }
+
+      // 2. Subir documentos
+      const token = await storage.getItem('access_token');
+      for (const doc of docs) {
+        try {
+          const formData = new FormData();
+          formData.append('file', {
+            uri: doc.uri,
+            name: `${doc.label}_${doc.side || 'doc'}_${Date.now()}.jpg`,
+            type: 'image/jpeg',
+          } as any);
+          formData.append('nombre', `${doc.label}${doc.side ? ' - ' + doc.side : ''}`);
+          formData.append('categoria', doc.label.toLowerCase().includes('pasaporte') ? 'pasaporte' : doc.label.toLowerCase().includes('residencia') ? 'identificacion' : 'comprobante');
+          if (data.id) formData.append('tramiteId', data.id);
+
+          await fetch('https://api.migracionseguramx.com/api/v1/documentos/upload', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+          });
+        } catch {}
+      }
+
       setSubmitting(false);
-      if (res.ok) { setStep('success'); }
-      else { Alert.alert('Error', Array.isArray(data.message) ? data.message.join('\n') : (data.message || 'Error')); }
+      setStep('success');
     } catch { setSubmitting(false); Alert.alert('Error', 'No se pudo enviar'); }
   };
+
+  if (step === 'docs') {
+    return (
+      <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={{ flex: 1, paddingTop: 56 }}>
+        <DocumentUploadStep
+          onComplete={handleDocumentsComplete}
+          onSkip={() => handleDocumentsComplete([])}
+          uploading={submitting}
+        />
+      </LinearGradient>
+    );
+  }
 
   if (step === 'success') {
     return (

@@ -9,6 +9,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import { apiFetch } from '@/lib/api';
 import { useTheme } from '@/lib/theme';
+import { storage } from '@/lib/storage';
+import DocumentUploadStep from '@/components/DocumentUploadStep';
 import VisaForm from '@/components/forms/VisaForm';
 import GenericTramiteForm from '@/components/forms/GenericTramiteForm';
 
@@ -51,7 +53,7 @@ const EMPTY_SOLICITANTE: Record<string, string> = {
 export default function SolicitudNuevaScreen() {
   const params = useLocalSearchParams<{ beneficiarioId?: string; beneficiarioNombre?: string }>();
   const { colors } = useTheme();
-  const [step, setStep] = useState<0 | 1 | 2>(0); // 0=tipo, 1=form, 2=confirmacion
+  const [step, setStep] = useState<0 | 1 | 1.5 | 2>(0); // 0=tipo, 1=form, 1.5=documentos, 2=confirmacion
   const [tipoTramite, setTipoTramite] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [beneficiarioId, setBeneficiarioId] = useState<string | null>(params.beneficiarioId || null);
@@ -146,14 +148,7 @@ export default function SolicitudNuevaScreen() {
   };
 
   const handleSubmit = async () => {
-    // Validar según tipo de trámite
-    if (tipoTramite !== 'constancia_empleador') {
-      // Para todos los trámites excepto CIE, nombre y apellidos son obligatorios
-      if (!form.nombre.trim() || !form.apellidos.trim()) {
-        Alert.alert('Error', 'Nombre y apellidos son obligatorios');
-        return;
-      }
-    }
+    // Validar según tipo de trámite — campos NO obligatorios, solo email requerido
     if (!form.solicitanteEmail.trim()) {
       Alert.alert('Error', 'Ingresa tu correo electrónico');
       return;
@@ -162,7 +157,11 @@ export default function SolicitudNuevaScreen() {
       Alert.alert('Error', 'Los correos no coinciden');
       return;
     }
+    // Ir al paso de documentos
+    setStep(1.5 as any);
+  };
 
+  const handleDocumentsComplete = async (docs: any[]) => {
     setSubmitting(true);
     try {
       // Capturar ubicación automáticamente
@@ -179,6 +178,7 @@ export default function SolicitudNuevaScreen() {
         }
       } catch {}
 
+      // 1. Enviar solicitud
       const res = await apiFetch('/solicitudes', {
         method: 'POST',
         body: JSON.stringify({
@@ -189,11 +189,35 @@ export default function SolicitudNuevaScreen() {
       });
 
       const data = await res.json().catch(() => ({}));
-      if (res.ok) {
-        setStep(2);
-      } else {
+      if (!res.ok) {
         Alert.alert('Error', Array.isArray(data.message) ? data.message.join('\n') : (data.message || 'No se pudo enviar la solicitud'));
+        setSubmitting(false);
+        return;
       }
+
+      // 2. Subir documentos
+      const token = await storage.getItem('access_token');
+      for (const doc of docs) {
+        try {
+          const formData = new FormData();
+          formData.append('file', {
+            uri: doc.uri,
+            name: `${doc.label}_${doc.side || 'doc'}_${Date.now()}.jpg`,
+            type: 'image/jpeg',
+          } as any);
+          formData.append('nombre', `${doc.label}${doc.side ? ' - ' + doc.side : ''}`);
+          formData.append('categoria', doc.label.toLowerCase().includes('pasaporte') ? 'pasaporte' : doc.label.toLowerCase().includes('residencia') ? 'identificacion' : 'comprobante');
+          if (data.id) formData.append('tramiteId', data.id);
+
+          await fetch('https://api.migracionseguramx.com/api/v1/documentos/upload', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+          });
+        } catch {}
+      }
+
+      setStep(2);
     } catch {
       Alert.alert('Error', 'No se pudo conectar al servidor');
     } finally {
@@ -288,6 +312,19 @@ export default function SolicitudNuevaScreen() {
             ))}
           </Animated.View>
         </ScrollView>
+      </LinearGradient>
+    );
+  }
+
+  // ─── Paso 1.5: Subir documentos ───────────────────────────────────────────
+  if (step === 1.5) {
+    return (
+      <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={{ flex: 1, paddingTop: 56 }}>
+        <DocumentUploadStep
+          onComplete={handleDocumentsComplete}
+          onSkip={() => handleDocumentsComplete([])}
+          uploading={submitting}
+        />
       </LinearGradient>
     );
   }

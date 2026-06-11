@@ -22,7 +22,7 @@ export default function MisTramitesScreen() {
   const [tramites, setTramites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [showWelcomePopup, setShowWelcomePopup] = useState(false);
+  const [showWelcomePopup, setShowWelcomePopup] = useState(true); // Siempre mostrar al entrar
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
@@ -39,12 +39,6 @@ export default function MisTramitesScreen() {
   const loadData = async () => {
     const userData = await storage.getItem('user_data');
     if (userData) setUser(JSON.parse(userData));
-    // Mostrar popup de bienvenida solo la primera vez de esta sesión
-    const popupShown = await storage.getItem('welcome_popup_shown');
-    if (!popupShown) {
-      setShowWelcomePopup(true);
-      await storage.setItem('welcome_popup_shown', 'true');
-    }
     try {
       const res = await apiFetch('/tramites?page=1&limit=50');
       if (res.ok) { const data = await res.json(); setTramites(data.data || []); }
