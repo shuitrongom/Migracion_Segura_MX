@@ -16,16 +16,18 @@ interface BiometricLockProps {
 export default function BiometricLock({ children }: BiometricLockProps) {
   const [locked, setLocked] = useState(false);
   const [biometricType, setBiometricType] = useState('Biometría');
+  const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
-    // Solo activar después de un delay para no crashear al inicio
-    const timer = setTimeout(() => checkLock(), 1000);
+    // Marcar como listo después de 2 segundos (no bloquear en el arranque inicial)
+    const timer = setTimeout(() => setAppReady(true), 2000);
     const subscription = AppState.addEventListener('change', handleAppStateChange);
     return () => { clearTimeout(timer); subscription.remove(); };
   }, []);
 
   const handleAppStateChange = (nextState: AppStateStatus) => {
-    if (nextState === 'active') {
+    // Solo verificar bloqueo cuando la app VUELVE del background
+    if (nextState === 'active' && appReady) {
       checkLock();
     }
   };
@@ -34,21 +36,25 @@ export default function BiometricLock({ children }: BiometricLockProps) {
     try {
       if (!LocalAuthentication) return;
 
+      // Solo bloquear si el usuario ACTIVÓ la biometría desde su perfil
+      const biometricEnabled = await storage.getItem('biometric_enabled');
+      if (biometricEnabled !== 'true') return;
+
       // Solo bloquear si el usuario está logueado
       const token = await storage.getItem('access_token');
       if (!token) return;
 
-      // Verificar si biometría está disponible
+      // Verificar si biometría está disponible en el hardware
       const compatible = await LocalAuthentication.hasHardwareAsync();
       if (!compatible) return;
       const enrolled = await LocalAuthentication.isEnrolledAsync();
       if (!enrolled) return;
 
-      // Verificar timeout
+      // Verificar timeout — si se autenticó hace menos de 2 min, no pedir de nuevo
       const lastAuth = await storage.getItem('biometric_last_auth');
       if (lastAuth) {
         const elapsed = Date.now() - parseInt(lastAuth, 10);
-        if (elapsed < LOCK_TIMEOUT_MS) return; // Aún no expira
+        if (elapsed < LOCK_TIMEOUT_MS) return;
       }
 
       // Obtener tipo de biometría
@@ -69,7 +75,6 @@ export default function BiometricLock({ children }: BiometricLockProps) {
         setLocked(false);
       }
     } catch {
-      // Si falla, no bloquear
       setLocked(false);
     }
   };

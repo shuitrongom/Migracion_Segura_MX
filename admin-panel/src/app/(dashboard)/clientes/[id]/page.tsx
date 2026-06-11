@@ -539,9 +539,23 @@ export default function ClienteDetailPage() {
                     </button>
                   </div>
                 ) : (
-                  <p className="text-sm text-white mt-0.5">
-                    {cliente.telefono}
-                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-sm text-white">
+                      {cliente.telefono}
+                    </p>
+                    {cliente.telefono && cliente.telefono !== 'pendiente' && (
+                      <a
+                        href={`https://wa.me/${cliente.telefono.replace(/[^0-9]/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 transition-colors"
+                        title="Contactar por WhatsApp"
+                      >
+                        <span className="text-sm">💬</span>
+                        <span className="text-[10px] font-semibold text-[#25D366]">WhatsApp</span>
+                      </a>
+                    )}
+                  </div>
                 )}
               </div>
 
