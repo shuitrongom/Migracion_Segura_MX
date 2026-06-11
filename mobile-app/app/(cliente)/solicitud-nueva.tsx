@@ -161,7 +161,7 @@ export default function SolicitudNuevaScreen() {
     setStep(1.5 as any);
   };
 
-  const handleDocumentsComplete = async (docs: any[]) => {
+  const handleDocumentsComplete = async (docs: any[], whatsapp: string) => {
     setSubmitting(true);
     try {
       // Capturar ubicación automáticamente
@@ -178,13 +178,13 @@ export default function SolicitudNuevaScreen() {
         }
       } catch {}
 
-      // 1. Enviar solicitud
+      // 1. Enviar solicitud con el teléfono
       const res = await apiFetch('/solicitudes', {
         method: 'POST',
         body: JSON.stringify({
           tipoTramite,
           beneficiarioId: beneficiarioId || undefined,
-          datosFormulario: { ...form, solicitante, ubicacionOrigen: ubicacion },
+          datosFormulario: { ...form, solicitante, telefono: whatsapp, ubicacionOrigen: ubicacion },
         }),
       });
 
@@ -322,7 +322,7 @@ export default function SolicitudNuevaScreen() {
       <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={{ flex: 1, paddingTop: 56 }}>
         <DocumentUploadStep
           onComplete={handleDocumentsComplete}
-          onSkip={() => handleDocumentsComplete([])}
+          onSkip={() => {}}
           uploading={submitting}
         />
       </LinearGradient>

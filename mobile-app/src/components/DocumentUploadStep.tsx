@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, ActivityIndicator, Platform, TextInput } from 'react-native';
 import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,7 +12,7 @@ interface CapturedDoc {
 }
 
 interface DocumentUploadStepProps {
-  onComplete: (docs: CapturedDoc[]) => void;
+  onComplete: (docs: CapturedDoc[], whatsapp: string) => void;
   onSkip?: () => void;
   uploading?: boolean;
 }
@@ -23,6 +23,7 @@ export default function DocumentUploadStep({ onComplete, onSkip, uploading }: Do
   const [residenciaFrente, setResidenciaFrente] = useState<CapturedDoc | null>(null);
   const [residenciaReverso, setResidenciaReverso] = useState<CapturedDoc | null>(null);
   const [comprobante, setComprobante] = useState<CapturedDoc | null>(null);
+  const [whatsappNumber, setWhatsappNumber] = useState('');
 
   const capturePhoto = async (label: string, aspect: [number, number] = [4, 3]): Promise<string | null> => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -78,11 +79,17 @@ export default function DocumentUploadStep({ onComplete, onSkip, uploading }: Do
       Alert.alert('Pasaporte obligatorio', 'Necesitas subir la foto de tu pasaporte para continuar.');
       return;
     }
+    const cleanNumber = whatsappNumber.replace(/\D/g, '');
+    if (cleanNumber.length !== 10) {
+      Alert.alert('WhatsApp obligatorio', 'Ingresa tu número de WhatsApp a 10 dígitos para que tu asesor pueda contactarte.');
+      return;
+    }
+    const fullWhatsapp = `+52${cleanNumber}`;
     const docs: CapturedDoc[] = [pasaporte];
     if (residenciaFrente) docs.push(residenciaFrente);
     if (residenciaReverso) docs.push(residenciaReverso);
     if (comprobante) docs.push(comprobante);
-    onComplete(docs);
+    onComplete(docs, fullWhatsapp);
   };
 
   const renderDocCard = (
@@ -130,6 +137,37 @@ export default function DocumentUploadStep({ onComplete, onSkip, uploading }: Do
         <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>
           Captura fotos claras de tus documentos.{'\n'}Coloca cada documento sobre una superficie plana con buena iluminación.
         </Text>
+      </View>
+
+      {/* WhatsApp - OBLIGATORIO */}
+      <View style={[styles.docCard, { backgroundColor: colors.bgCard, borderColor: whatsappNumber.replace(/\D/g, '').length === 10 ? '#25D366' : colors.border }]}>
+        <View style={styles.docCardHeader}>
+          <Text style={{ fontSize: 28 }}>📱</Text>
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={[styles.docTitle, { color: colors.text }]}>WhatsApp para contacto</Text>
+              <View style={styles.requiredBadge}><Text style={styles.requiredText}>Obligatorio</Text></View>
+            </View>
+            <Text style={[styles.docSubtitle, { color: colors.textMuted }]}>Tu asesor te contactará por este número</Text>
+          </View>
+        </View>
+        <View style={styles.whatsappInputRow}>
+          <View style={styles.ladaBox}>
+            <Text style={[styles.ladaText, { color: colors.text }]}>🇲🇽 +52</Text>
+          </View>
+          <TextInput
+            style={[styles.whatsappInput, { backgroundColor: colors.bgInput, borderColor: colors.border, color: colors.text }]}
+            value={whatsappNumber}
+            onChangeText={(t) => setWhatsappNumber(t.replace(/\D/g, '').slice(0, 10))}
+            placeholder="55 1234 5678"
+            placeholderTextColor={colors.textMuted}
+            keyboardType="number-pad"
+            maxLength={10}
+          />
+        </View>
+        {whatsappNumber.replace(/\D/g, '').length === 10 && (
+          <Text style={{ fontSize: 11, color: '#25D366', fontWeight: '600', marginTop: 4 }}>✓ Número válido: +52{whatsappNumber}</Text>
+        )}
       </View>
 
       {/* Pasaporte - OBLIGATORIO */}
@@ -188,7 +226,14 @@ export default function DocumentUploadStep({ onComplete, onSkip, uploading }: Do
       </TouchableOpacity>
 
       {onSkip && (
-        <TouchableOpacity onPress={onSkip} style={styles.skipBtn}>
+        <TouchableOpacity onPress={() => {
+          const cleanNumber = whatsappNumber.replace(/\D/g, '');
+          if (cleanNumber.length !== 10) {
+            Alert.alert('WhatsApp obligatorio', 'Ingresa tu número de WhatsApp a 10 dígitos para que tu asesor pueda contactarte.');
+            return;
+          }
+          onComplete([], `+52${cleanNumber}`);
+        }} style={styles.skipBtn}>
           <Text style={[styles.skipText, { color: colors.textMuted }]}>Subir documentos después →</Text>
         </TouchableOpacity>
       )}
@@ -224,4 +269,8 @@ const styles = StyleSheet.create({
   skipBtn: { marginTop: 12, paddingVertical: 14, alignItems: 'center' },
   skipText: { fontSize: 14, fontWeight: '500' },
   disclaimer: { fontSize: 11, textAlign: 'center', lineHeight: 16, marginTop: 16 },
+  whatsappInputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  ladaBox: { paddingHorizontal: 12, paddingVertical: 12, borderRadius: 10, borderWidth: 1.5, borderColor: '#25D366', backgroundColor: 'rgba(37,211,102,0.06)' },
+  ladaText: { fontSize: 14, fontWeight: '600' },
+  whatsappInput: { flex: 1, borderWidth: 1.5, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, fontWeight: '500', letterSpacing: 1 },
 });

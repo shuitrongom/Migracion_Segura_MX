@@ -137,7 +137,7 @@ export default function TramiteNuevoScreen() {
     setStep('docs');
   };
 
-  const handleDocumentsComplete = async (docs: any[]) => {
+  const handleDocumentsComplete = async (docs: any[], whatsapp: string) => {
     setSubmitting(true);
     try {
       const userData = await storage.getItem('user_data');
@@ -160,7 +160,7 @@ export default function TramiteNuevoScreen() {
       // 1. Crear trámite
       const res = await apiFetch('/tramites', {
         method: 'POST',
-        body: JSON.stringify({ tipo: selectedTipo, clienteId: user.id, beneficiarioId: beneficiarioId || undefined, datosFormulario: { ...form, solicitante, ubicacion }, esBorrador: false }),
+        body: JSON.stringify({ tipo: selectedTipo, clienteId: user.id, beneficiarioId: beneficiarioId || undefined, datosFormulario: { ...form, solicitante, telefono: whatsapp, ubicacion }, esBorrador: false }),
       });
       const data = await res.json();
       if (!res.ok) { Alert.alert('Error', Array.isArray(data.message) ? data.message.join('\n') : (data.message || 'Error')); setSubmitting(false); return; }
@@ -197,7 +197,7 @@ export default function TramiteNuevoScreen() {
       <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={{ flex: 1, paddingTop: 56 }}>
         <DocumentUploadStep
           onComplete={handleDocumentsComplete}
-          onSkip={() => handleDocumentsComplete([])}
+          onSkip={() => {}}
           uploading={submitting}
         />
       </LinearGradient>
