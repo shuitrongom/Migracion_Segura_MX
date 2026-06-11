@@ -165,7 +165,7 @@ export default function BeneficiariosScreen() {
         <View style={styles.emptyState}>
           <Text style={{ fontSize: 48 }}>👤</Text>
           <Text style={[styles.emptyTitle, { color: colors.text }]}>Sin beneficiarios</Text>
-          <Text style={styles.emptyText}>Agrega a las personas para quienes harás trámites migratorios.</Text>
+          <Text style={[styles.emptyText, { color: colors.textMuted }]}>Agrega a las personas para quienes harás trámites migratorios.</Text>
         </View>
       ) : (
         <FlatList
@@ -177,7 +177,7 @@ export default function BeneficiariosScreen() {
             const parentescoLabel = PARENTESCOS.find(p => p.value === item.parentesco)?.label || item.parentesco;
             return (
               <TouchableOpacity
-                style={styles.card}
+                style={[styles.card, { backgroundColor: colors.bgCard, borderColor: colors.border }]}
                 onPress={() => selectMode ? handleSelect(item) : null}
                 activeOpacity={selectMode ? 0.7 : 1}
               >
@@ -192,12 +192,12 @@ export default function BeneficiariosScreen() {
                         <Text style={styles.tagText}>{parentescoLabel}</Text>
                       </View>
                       {item.nacionalidad && (
-                        <View style={[styles.tag, { backgroundColor: 'rgba(59,130,246,0.1)', borderColor: 'rgba(59,130,246,0.2)' }]}>
-                          <Text style={[styles.tagText, { color: '#3b82f6' }]}>{item.nacionalidad}</Text>
+                        <View style={[styles.tag, { backgroundColor: 'rgba(59,130,246,0.1)', borderColor: 'rgba(59,130,246,0.25)' }]}>
+                          <Text style={[styles.tagText, { color: '#2563eb' }]}>{item.nacionalidad}</Text>
                         </View>
                       )}
                     </View>
-                    {item.curp && <Text style={styles.cardSub}>CURP: {item.curp}</Text>}
+                    {item.curp && <Text style={[styles.cardSub, { color: colors.textMuted }]}>CURP: {item.curp}</Text>}
                   </View>
                   {selectMode && <Text style={{ color: '#f59e0b', fontSize: 20 }}>→</Text>}
                   {!selectMode && (
@@ -225,21 +225,21 @@ export default function BeneficiariosScreen() {
               <Text style={[styles.modalTitle, { color: colors.text }]}>Nuevo beneficiario</Text>
               <Text style={[styles.modalSubtitle, { color: colors.textMuted }]}>Datos del extranjero</Text>
 
-              <Text style={styles.fieldLabel}>Nombre(s) *</Text>
-              <TextInput style={styles.input} value={nombre} onChangeText={setNombre} placeholder="Juan" placeholderTextColor="#666" />
+              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Nombre(s) *</Text>
+              <TextInput style={[styles.input, { backgroundColor: colors.bgInput, borderColor: colors.border, color: colors.text }]} value={nombre} onChangeText={setNombre} placeholder="Juan" placeholderTextColor={colors.textMuted} />
 
-              <Text style={styles.fieldLabel}>Apellidos *</Text>
-              <TextInput style={styles.input} value={apellidos} onChangeText={setApellidos} placeholder="Pérez López" placeholderTextColor="#666" />
+              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Apellidos *</Text>
+              <TextInput style={[styles.input, { backgroundColor: colors.bgInput, borderColor: colors.border, color: colors.text }]} value={apellidos} onChangeText={setApellidos} placeholder="Pérez López" placeholderTextColor={colors.textMuted} />
 
-              <Text style={styles.fieldLabel}>Parentesco / Relación</Text>
+              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Parentesco / Relación</Text>
               <View style={styles.parentescoRow}>
                 {PARENTESCOS.slice(0, 4).map(p => (
                   <TouchableOpacity
                     key={p.value}
-                    style={[styles.parentescoChip, parentesco === p.value && styles.parentescoChipActive]}
+                    style={[styles.parentescoChip, { backgroundColor: colors.bgInput, borderColor: colors.border }, parentesco === p.value && styles.parentescoChipActive]}
                     onPress={() => setParentesco(p.value)}
                   >
-                    <Text style={[styles.parentescoChipText, parentesco === p.value && styles.parentescoChipTextActive]}>{p.label}</Text>
+                    <Text style={[styles.parentescoChipText, { color: colors.textSecondary }, parentesco === p.value && styles.parentescoChipTextActive]}>{p.label}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -247,25 +247,25 @@ export default function BeneficiariosScreen() {
                 {PARENTESCOS.slice(4).map(p => (
                   <TouchableOpacity
                     key={p.value}
-                    style={[styles.parentescoChip, parentesco === p.value && styles.parentescoChipActive]}
+                    style={[styles.parentescoChip, { backgroundColor: colors.bgInput, borderColor: colors.border }, parentesco === p.value && styles.parentescoChipActive]}
                     onPress={() => setParentesco(p.value)}
                   >
-                    <Text style={[styles.parentescoChipText, parentesco === p.value && styles.parentescoChipTextActive]}>{p.label}</Text>
+                    <Text style={[styles.parentescoChipText, { color: colors.textSecondary }, parentesco === p.value && styles.parentescoChipTextActive]}>{p.label}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
 
-              <Text style={styles.fieldLabel}>Nacionalidad</Text>
-              <TextInput style={styles.input} value={nacionalidad} onChangeText={setNacionalidad} placeholder="Colombiana" placeholderTextColor="#666" />
+              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Nacionalidad</Text>
+              <TextInput style={[styles.input, { backgroundColor: colors.bgInput, borderColor: colors.border, color: colors.text }]} value={nacionalidad} onChangeText={setNacionalidad} placeholder="Colombiana" placeholderTextColor={colors.textMuted} />
 
-              <Text style={styles.fieldLabel}>CURP (si tiene)</Text>
-              <TextInput style={styles.input} value={curp} onChangeText={t => setCurp(t.toUpperCase())} placeholder="CURP del extranjero" placeholderTextColor="#666" autoCapitalize="characters" />
+              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>CURP (si tiene)</Text>
+              <TextInput style={[styles.input, { backgroundColor: colors.bgInput, borderColor: colors.border, color: colors.text }]} value={curp} onChangeText={t => setCurp(t.toUpperCase())} placeholder="CURP del extranjero" placeholderTextColor={colors.textMuted} autoCapitalize="characters" />
 
-              <Text style={styles.fieldLabel}>Email</Text>
-              <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="correo@ejemplo.com" placeholderTextColor="#666" keyboardType="email-address" />
+              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Email</Text>
+              <TextInput style={[styles.input, { backgroundColor: colors.bgInput, borderColor: colors.border, color: colors.text }]} value={email} onChangeText={setEmail} placeholder="correo@ejemplo.com" placeholderTextColor={colors.textMuted} keyboardType="email-address" />
 
-              <Text style={styles.fieldLabel}>Teléfono</Text>
-              <TextInput style={styles.input} value={telefono} onChangeText={setTelefono} placeholder="+52 55 1234 5678" placeholderTextColor="#666" keyboardType="phone-pad" />
+              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Teléfono</Text>
+              <TextInput style={[styles.input, { backgroundColor: colors.bgInput, borderColor: colors.border, color: colors.text }]} value={telefono} onChangeText={setTelefono} placeholder="+52 55 1234 5678" placeholderTextColor={colors.textMuted} keyboardType="phone-pad" />
 
               {/* Botones */}
               <TouchableOpacity style={styles.saveBtn} onPress={handleCreate} disabled={saving}>
@@ -274,7 +274,7 @@ export default function BeneficiariosScreen() {
                 </LinearGradient>
               </TouchableOpacity>
               <TouchableOpacity style={styles.cancelBtn} onPress={() => { resetForm(); setShowForm(false); }}>
-                <Text style={styles.cancelBtnText}>Cancelar</Text>
+                <Text style={[styles.cancelBtnText, { color: colors.textSecondary }]}>Cancelar</Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
@@ -297,34 +297,34 @@ const styles = StyleSheet.create({
   addBtn: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, padding: 16, borderRadius: 14, borderWidth: 2, borderColor: '#f59e0b', borderStyle: 'dashed', backgroundColor: 'rgba(245,158,11,0.05)', gap: 12, marginBottom: 16 },
   addBtnText: { color: '#f59e0b', fontSize: 15, fontWeight: '600' },
 
-  card: { backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 14, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
+  card: { borderRadius: 14, padding: 16, marginBottom: 10, borderWidth: 1.5 },
   cardRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(245,158,11,0.1)', justifyContent: 'center', alignItems: 'center' },
   cardName: { fontSize: 16, fontWeight: '600' },
-  cardSub: { fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4, fontFamily: 'monospace' },
+  cardSub: { fontSize: 11, marginTop: 4, fontFamily: 'monospace' },
   tagRow: { flexDirection: 'row', gap: 6, marginTop: 4 },
-  tag: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: 'rgba(245,158,11,0.1)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)' },
-  tagText: { fontSize: 10, fontWeight: '600', color: '#f59e0b' },
+  tag: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: 'rgba(245,158,11,0.1)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.25)' },
+  tagText: { fontSize: 10, fontWeight: '600', color: '#d97706' },
 
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, gap: 12 },
   emptyTitle: { fontSize: 18, fontWeight: '600' },
-  emptyText: { fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center' },
+  emptyText: { fontSize: 13, textAlign: 'center' },
 
   // Modal
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'flex-end' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
   modalContent: { borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '90%' },
   modalTitle: { fontSize: 20, fontWeight: '700', marginBottom: 4 },
   modalSubtitle: { fontSize: 13, marginBottom: 20 },
   fieldLabel: { fontSize: 12, fontWeight: '600', marginBottom: 6, marginTop: 12 },
-  input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15 },
+  input: { borderWidth: 1.5, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 13, fontSize: 15 },
   parentescoRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 },
-  parentescoChip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#333', backgroundColor: '#1e1e1e' },
-  parentescoChipActive: { borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)' },
-  parentescoChipText: { fontSize: 12, color: 'rgba(255,255,255,0.5)', fontWeight: '500' },
-  parentescoChipTextActive: { color: '#f59e0b' },
-  saveBtn: { marginTop: 24, borderRadius: 12, overflow: 'hidden' },
+  parentescoChip: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: 20, borderWidth: 1.5 },
+  parentescoChipActive: { borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.12)' },
+  parentescoChipText: { fontSize: 12, fontWeight: '500' },
+  parentescoChipTextActive: { color: '#f59e0b', fontWeight: '700' },
+  saveBtn: { marginTop: 24, borderRadius: 14, overflow: 'hidden' },
   saveBtnGradient: { paddingVertical: 16, alignItems: 'center' },
   saveBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
-  cancelBtn: { marginTop: 12, paddingVertical: 14, alignItems: 'center' },
-  cancelBtnText: { color: 'rgba(255,255,255,0.5)', fontSize: 14, fontWeight: '500' },
+  cancelBtn: { marginTop: 12, paddingVertical: 14, alignItems: 'center', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(0,0,0,0.1)' },
+  cancelBtnText: { fontSize: 14, fontWeight: '600' },
 });
