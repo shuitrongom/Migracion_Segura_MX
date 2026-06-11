@@ -53,7 +53,7 @@ const EMPTY_SOLICITANTE: Record<string, string> = {
 export default function SolicitudNuevaScreen() {
   const params = useLocalSearchParams<{ beneficiarioId?: string; beneficiarioNombre?: string }>();
   const { colors } = useTheme();
-  const [step, setStep] = useState<0 | 1 | 1.5 | 2>(0); // 0=tipo, 1=form, 1.5=documentos, 2=confirmacion
+  const [step, setStep] = useState<'tipo' | 'form' | 'docs' | 'success'>('tipo'); // tipo=seleccionar, form=formulario, docs=documentos, success=confirmacion
   const [tipoTramite, setTipoTramite] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [beneficiarioId, setBeneficiarioId] = useState<string | null>(params.beneficiarioId || null);
@@ -144,7 +144,7 @@ export default function SolicitudNuevaScreen() {
   const handleSelectTipo = (value: string) => {
     setTipoTramite(value);
     resetForm();
-    setStep(1);
+    setStep('form');
   };
 
   const handleSubmit = async () => {
@@ -158,7 +158,7 @@ export default function SolicitudNuevaScreen() {
       return;
     }
     // Ir al paso de documentos
-    setStep(1.5 as any);
+    setStep('docs');
   };
 
   const handleDocumentsComplete = async (docs: any[], whatsapp: string) => {
@@ -217,7 +217,7 @@ export default function SolicitudNuevaScreen() {
         } catch {}
       }
 
-      setStep(2);
+      setStep('success');
     } catch {
       Alert.alert('Error', 'No se pudo conectar al servidor');
     } finally {
@@ -226,7 +226,7 @@ export default function SolicitudNuevaScreen() {
   };
 
   // ─── Paso 0: Seleccionar tipo ───────────────────────────────────────────────
-  if (step === 0) {
+  if (step === 'tipo') {
     return (
       <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={{ flex: 1 }}>
         <ScrollView style={styles.container} contentContainerStyle={{ padding: 20, paddingTop: 56, paddingBottom: 40 }}>
@@ -317,7 +317,7 @@ export default function SolicitudNuevaScreen() {
   }
 
   // ─── Paso 1.5: Subir documentos ───────────────────────────────────────────
-  if (step === 1.5) {
+  if (step === 'docs') {
     return (
       <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={{ flex: 1, paddingTop: 56 }}>
         <DocumentUploadStep
@@ -330,7 +330,7 @@ export default function SolicitudNuevaScreen() {
   }
 
   // ─── Paso 2: Confirmación ────────────────────────────────────────────────────
-  if (step === 2) {
+  if (step === 'success') {
     return (
       <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={styles.successContainer}>
         <Animated.View style={{ alignItems: 'center', opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
@@ -367,7 +367,7 @@ export default function SolicitudNuevaScreen() {
             bounces={true}
             nestedScrollEnabled={true}
           >
-            <TouchableOpacity onPress={() => setStep(0)} style={styles.backBtn}>
+            <TouchableOpacity onPress={() => setStep('tipo')} style={styles.backBtn}>
               <Text style={styles.backText}>← Cambiar tipo</Text>
             </TouchableOpacity>
 
