@@ -33,6 +33,13 @@ export default function ChatScreen() {
   useEffect(() => {
     initChat();
     Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }).start();
+
+    // Polling cada 5 segundos para recibir respuestas nuevas
+    const interval = setInterval(() => {
+      refreshMessages();
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const initChat = async () => {
@@ -116,6 +123,58 @@ export default function ChatScreen() {
       setError('Error al inicializar el chat.');
       setLoading(false);
     }
+  };
+
+  const refreshMessages = async () => {
+    try {
+      const userData = await storage.getItem('user_data');
+      if (!userData) return;
+      const user = JSON.parse(userData);
+
+      const res = await apiFetch('/soporte/tickets?page=1&limit=10');
+      if (!res.ok) return;
+      const data = await res.json();
+      const tickets = data?.data || [];
+
+      const allMessages: Message[] = [];
+      for (const ticket of tickets) {
+        try {
+          const ticketRes = await apiFetch(`/soporte/tickets/${ticket.id}`);
+          if (ticketRes.ok) {
+            const ticketData = await ticketRes.json();
+            allMessages.push({
+              id: `desc-${ticket.id}`,
+              senderId: ticket.clienteId || user.id,
+              receiverId: 'asesor',
+              content: ticketData.descripcion || ticket.asunto,
+              type: 'text',
+              read: true,
+              createdAt: ticket.createdAt,
+            });
+            if (ticketData.mensajes) {
+              for (const msg of ticketData.mensajes) {
+                allMessages.push({
+                  id: msg.id,
+                  senderId: msg.autorId,
+                  receiverId: msg.autorId === user.id ? 'asesor' : user.id,
+                  content: msg.contenido,
+                  type: 'text',
+                  read: true,
+                  createdAt: msg.createdAt,
+                });
+              }
+            }
+          }
+        } catch {}
+      }
+      allMessages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+      // Solo actualizar si hay mensajes nuevos
+      if (allMessages.length > messages.length) {
+        setMessages(allMessages);
+        setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 200);
+      }
+    } catch {}
   };
 
   const handleSend = async () => {

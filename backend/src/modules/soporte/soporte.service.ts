@@ -7,7 +7,8 @@ import { MensajeTicket } from './entities/mensaje-ticket.entity';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { CreateMensajeDto } from './dto/create-mensaje.dto';
 import { PaginatedResponseDto } from '../../common/dto/pagination.dto';
-import { EstatusTicket, UserRole } from '../../common/enums';
+import { EstatusTicket, UserRole, TipoNotificacion, CanalNotificacion } from '../../common/enums';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 
 @Injectable()
 export class SoporteService {
@@ -16,6 +17,7 @@ export class SoporteService {
     private readonly ticketRepository: Repository<Ticket>,
     @InjectRepository(MensajeTicket)
     private readonly mensajeRepository: Repository<MensajeTicket>,
+    private readonly notificacionesService: NotificacionesService,
   ) {}
 
   /**
@@ -44,7 +46,37 @@ export class SoporteService {
       estatus: EstatusTicket.ABIERTO,
     });
 
-    return this.ticketRepository.save(ticket);
+    const saved = await this.ticketRepository.save(ticket);
+
+    // Notificar al admin/asesor que llegó un mensaje nuevo
+    try {
+      if (asesorId) {
+        await this.notificacionesService.sendNotification({
+          destinatarioId: asesorId,
+          tipo: TipoNotificacion.MENSAJE_ASESOR,
+          canal: CanalNotificacion.PUSH,
+          titulo: '💬 Nuevo mensaje de extranjero',
+          contenido: dto.descripcion.slice(0, 100),
+          metadata: { ticketId: saved.id },
+        });
+      }
+      // También notificar al admin principal
+      const admins = await this.ticketRepository.query(
+        `SELECT id FROM users WHERE role = 'administrador' AND deleted_at IS NULL LIMIT 1`
+      );
+      if (admins?.[0]?.id && admins[0].id !== asesorId) {
+        await this.notificacionesService.sendNotification({
+          destinatarioId: admins[0].id,
+          tipo: TipoNotificacion.MENSAJE_ASESOR,
+          canal: CanalNotificacion.PUSH,
+          titulo: '💬 Nuevo mensaje de extranjero',
+          contenido: dto.descripcion.slice(0, 100),
+          metadata: { ticketId: saved.id },
+        });
+      }
+    } catch {}
+
+    return saved;
   }
 
   /**
@@ -132,7 +164,37 @@ export class SoporteService {
       contenido: dto.contenido,
     });
 
-    return this.mensajeRepository.save(mensaje);
+    const saved = await this.mensajeRepository.save(mensaje);
+
+    // Notificar a la otra parte que hay una respuesta nueva
+    try {
+      if (role !== UserRole.CLIENTE) {
+        // Admin/asesor respondió → notificar al extranjero
+        await this.notificacionesService.sendNotification({
+          destinatarioId: ticket.clienteId,
+          tipo: TipoNotificacion.MENSAJE_ASESOR,
+          canal: CanalNotificacion.PUSH,
+          titulo: '💬 Tu asesor te respondió',
+          contenido: dto.contenido.slice(0, 100),
+          metadata: { ticketId },
+        });
+      } else {
+        // Extranjero respondió → notificar al asesor/admin
+        const targetId = ticket.asesorId;
+        if (targetId) {
+          await this.notificacionesService.sendNotification({
+            destinatarioId: targetId,
+            tipo: TipoNotificacion.MENSAJE_ASESOR,
+            canal: CanalNotificacion.PUSH,
+            titulo: '💬 Nuevo mensaje del extranjero',
+            contenido: dto.contenido.slice(0, 100),
+            metadata: { ticketId },
+          });
+        }
+      }
+    } catch {}
+
+    return saved;
   }
 
   /**

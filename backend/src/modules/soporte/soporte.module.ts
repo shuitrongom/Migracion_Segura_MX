@@ -5,9 +5,13 @@ import { Ticket } from './entities/ticket.entity';
 import { MensajeTicket } from './entities/mensaje-ticket.entity';
 import { SoporteService } from './soporte.service';
 import { SoporteController } from './soporte.controller';
+import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Ticket, MensajeTicket])],
+  imports: [
+    TypeOrmModule.forFeature([Ticket, MensajeTicket]),
+    NotificacionesModule,
+  ],
   controllers: [SoporteController],
   providers: [SoporteService],
   exports: [SoporteService],
