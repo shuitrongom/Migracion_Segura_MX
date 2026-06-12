@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, AppState, AppStateStatus } from 'react-native';
 import { storage } from '@/lib/storage';
 
@@ -16,21 +16,20 @@ interface BiometricLockProps {
 export default function BiometricLock({ children }: BiometricLockProps) {
   const [locked, setLocked] = useState(false);
   const [biometricType, setBiometricType] = useState('Biometría');
-  const [appReady, setAppReady] = useState(false);
+  const initialLoadRef = useRef(false);
 
   useEffect(() => {
-    // Marcar como listo después de 2 segundos (no bloquear en el arranque inicial)
-    const timer = setTimeout(() => setAppReady(true), 2000);
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    // Dar 3 segundos para que la app cargue antes de activar el bloqueo
+    const timer = setTimeout(() => { initialLoadRef.current = true; }, 3000);
+
+    const subscription = AppState.addEventListener('change', (nextState: AppStateStatus) => {
+      if (nextState === 'active' && initialLoadRef.current) {
+        checkLock();
+      }
+    });
+
     return () => { clearTimeout(timer); subscription.remove(); };
   }, []);
-
-  const handleAppStateChange = (nextState: AppStateStatus) => {
-    // Solo verificar bloqueo cuando la app VUELVE del background
-    if (nextState === 'active' && appReady) {
-      checkLock();
-    }
-  };
 
   const checkLock = async () => {
     try {
