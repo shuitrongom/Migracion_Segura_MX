@@ -26,6 +26,7 @@ export default function ChatScreen() {
   const [sending, setSending] = useState(false);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeTicketId, setActiveTicketId] = useState<string | null>(null);
   const flatListRef = useRef<FlatList>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const { colors, mode } = useTheme();
@@ -76,6 +77,13 @@ export default function ChatScreen() {
         if (res.ok) {
           const data = await res.json();
           const tickets = data?.data || [];
+
+          // Buscar ticket abierto o en_atencion para seguir usándolo
+          const openTicket = tickets.find((t: any) => t.estatus === 'abierto' || t.estatus === 'en_atencion');
+          if (openTicket) {
+            setActiveTicketId(openTicket.id);
+          }
+
           // Convertir mensajes de tickets a formato de chat
           const allMessages: Message[] = [];
           for (const ticket of tickets) {
@@ -197,17 +205,26 @@ export default function ChatScreen() {
     setMessages(prev => [...prev, tempMsg]);
     setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
 
-    // Enviar como ticket de soporte (el admin lo ve en panel web → Soporte)
     try {
-      const res = await apiFetch('/soporte/tickets', {
-        method: 'POST',
-        body: JSON.stringify({
-          asunto: `Mensaje de chat - ${new Date().toLocaleDateString('es-MX')}`,
-          descripcion: messageText,
-        }),
-      });
-      if (res.ok) {
-        // Mensaje enviado exitosamente como ticket
+      if (activeTicketId) {
+        // Ya hay un ticket abierto → enviar como mensaje dentro de ese ticket
+        await apiFetch(`/soporte/tickets/${activeTicketId}/mensajes`, {
+          method: 'POST',
+          body: JSON.stringify({ contenido: messageText }),
+        });
+      } else {
+        // No hay ticket abierto → crear uno nuevo
+        const res = await apiFetch('/soporte/tickets', {
+          method: 'POST',
+          body: JSON.stringify({
+            asunto: `Chat - ${new Date().toLocaleDateString('es-MX')}`,
+            descripcion: messageText,
+          }),
+        });
+        if (res.ok) {
+          const ticket = await res.json();
+          setActiveTicketId(ticket.id);
+        }
       }
     } catch {}
     setSending(false);
