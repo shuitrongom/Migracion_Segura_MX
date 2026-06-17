@@ -54,6 +54,20 @@ export default function GestoresPage() {
       });
       toast.success('Gestor creado. Se envió email con sus credenciales.');
       if (response.data?.whatsappUrl) window.open(response.data.whatsappUrl, '_blank');
+
+      // Guardar datos adicionales (CURP, RFC, dirección) como metadata del gestor
+      if (response.data?.id && (formData.curp || formData.rfc || formData.direccion || formData.sexo || formData.fechaNacimiento)) {
+        try {
+          await api.post(`/users/${response.data.id}/metadata`, {
+            curp: formData.curp || undefined,
+            rfc: formData.rfc || undefined,
+            direccion: formData.direccion || undefined,
+            sexo: formData.sexo || undefined,
+            fechaNacimiento: formData.fechaNacimiento || undefined,
+          });
+        } catch {}
+      }
+
       setShowModal(false);
       setFormData({ fullName: '', email: '', phone: '', password: '', sexo: '', fechaNacimiento: '', curp: '', rfc: '', direccion: '' });
       setShowPassword(false);
