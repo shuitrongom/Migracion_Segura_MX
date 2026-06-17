@@ -267,6 +267,67 @@ export default function TramiteDetailPage() {
 
           {/* Pieza INM + NUT */}
           <DatosINMSection tramiteId={tramiteId} tramite={tramite} estatus={estatus} />
+
+          {/* Datos del promovente/extranjero */}
+          {tramite?.datosFormulario && (
+            <div className="dark-card-static p-6">
+              <h3 className="text-sm font-semibold text-white mb-4">📋 Datos del promovente</h3>
+              <div className="space-y-2">
+                {tramite.datosFormulario.nombre && (
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-white/50 uppercase">Nombre</span>
+                    <span className="text-sm text-white font-medium">{String(tramite.datosFormulario.nombre)} {String(tramite.datosFormulario.apellidos || '')}</span>
+                  </div>
+                )}
+                {tramite.datosFormulario.nacionalidad && (
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-white/50 uppercase">Nacionalidad</span>
+                    <span className="text-sm text-white">{String(tramite.datosFormulario.nacionalidad)}</span>
+                  </div>
+                )}
+                {tramite.datosFormulario.documentoIdentificacion && (
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-white/50 uppercase">Documento</span>
+                    <span className="text-sm text-white">{String(tramite.datosFormulario.documentoIdentificacion)}</span>
+                  </div>
+                )}
+                {tramite.datosFormulario.numeroDocumento && (
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-white/50 uppercase">Nº Documento</span>
+                    <span className="text-sm text-white font-mono">{String(tramite.datosFormulario.numeroDocumento)}</span>
+                  </div>
+                )}
+                {tramite.datosFormulario.curpExtranjero && (
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-white/50 uppercase">CURP</span>
+                    <span className="text-sm text-white font-mono">{String(tramite.datosFormulario.curpExtranjero)}</span>
+                  </div>
+                )}
+                {(tramite.datosFormulario.domCalle || tramite.datosFormulario.domColonia) && (
+                  <div>
+                    <span className="text-[10px] text-white/50 uppercase">Domicilio</span>
+                    <p className="text-sm text-white mt-0.5">
+                      {[tramite.datosFormulario.domCalle, tramite.datosFormulario.domNumeroExterior, tramite.datosFormulario.domColonia, tramite.datosFormulario.domMunicipio, tramite.datosFormulario.domEstado, tramite.datosFormulario.domCodigoPostal].filter(Boolean).join(', ')}
+                    </p>
+                  </div>
+                )}
+                {tramite.datosFormulario.telefono && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] text-white/50 uppercase">WhatsApp</span>
+                    <a href={`https://wa.me/${String(tramite.datosFormulario.telefono).replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 text-[10px] font-semibold text-[#25D366]">
+                      💬 {String(tramite.datosFormulario.telefono)}
+                    </a>
+                  </div>
+                )}
+                {tramite.datosFormulario.solicitanteEmail && (
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-white/50 uppercase">Email</span>
+                    <span className="text-sm text-white">{String(tramite.datosFormulario.solicitanteEmail)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

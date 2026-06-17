@@ -168,6 +168,16 @@ export class AuthService {
     // Reset intentos fallidos y actualizar último login
     await this.usersService.resetFailedAttempts(user.id);
 
+    // Auto-vincular cliente: si hay un registro en clientes con este email pero sin user_id correcto, vincularlo
+    if (user.role === 'cliente') {
+      try {
+        await this.usersService['userRepository'].manager.query(
+          `UPDATE clientes SET user_id = $1 WHERE email = $2 AND (user_id IS NULL OR user_id != $1)`,
+          [user.id, user.email],
+        );
+      } catch {}
+    }
+
     const tokens = await this.generateTokens(user.id, user.email, user.role);
 
     return {

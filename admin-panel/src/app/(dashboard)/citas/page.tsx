@@ -308,7 +308,32 @@ export default function CitasPage() {
                     <span className={`inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg ${cita.modalidad === 'videollamada' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
                       {cita.modalidad === 'videollamada' ? <><Video className="h-3 w-3" /> Video</> : <><Building2 className="h-3 w-3" /> Oficina</>}
                     </span>
-                    {cita.notas && <p className="text-xs text-white/70 max-w-[150px] truncate hidden lg:block">{cita.notas}</p>}
+                    {cita.estatus !== 'completada' && cita.estatus !== 'cancelada' && (
+                      <div className="flex gap-1">
+                        <button
+                          onClick={async () => {
+                            try {
+                              await api.patch(`/citas/${cita.id}`, { estatus: 'completada' });
+                              toast.success('Cita marcada como atendida');
+                              fetchCitas();
+                            } catch { toast.error('Error al actualizar'); }
+                          }}
+                          className="px-2 py-1 text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors"
+                          title="Marcar como atendida"
+                        >✓ Atendida</button>
+                        <button
+                          onClick={async () => {
+                            try {
+                              await api.patch(`/citas/${cita.id}`, { estatus: 'cancelada' });
+                              toast.success('Cita cancelada');
+                              fetchCitas();
+                            } catch { toast.error('Error al actualizar'); }
+                          }}
+                          className="px-2 py-1 text-[10px] font-semibold bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-colors"
+                          title="Cancelar cita"
+                        >✕</button>
+                      </div>
+                    )}
                   </div>
                 </div>
               );

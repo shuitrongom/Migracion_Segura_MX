@@ -243,19 +243,19 @@ export default function SolicitudNuevaScreen() {
 
             {/* Costo info */}
             <View style={styles.costoInfo}>
-              <Text style={styles.costoLabel}>COSTO POR DOCUMENTO</Text>
+              <Text style={[styles.costoLabel, { color: colors.textMuted }]}>COSTO POR DOCUMENTO</Text>
               <Text style={styles.costoValue}>$100 MXN c/u</Text>
-              <Text style={styles.costoNote}>Solicitud: $100 · Escrito: $100 · Cada documento adicional: $100</Text>
+              <Text style={[styles.costoNote, { color: colors.textMuted }]}>Solicitud: $100 · Escrito: $100 · Cada documento adicional: $100</Text>
             </View>
 
             {/* Seleccionar beneficiario */}
             <View style={{ marginBottom: 20 }}>
-              <Text style={{ fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>¿Para quién es la solicitud?</Text>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>¿Para quién es la solicitud?</Text>
               {beneficiarioId ? (
                 <View style={{ backgroundColor: 'rgba(245,158,11,0.08)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)', borderRadius: 12, padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                     <Text style={{ fontSize: 20 }}>👤</Text>
-                    <Text style={{ color: '#fff', fontSize: 15, fontWeight: '600' }}>{beneficiarioNombre}</Text>
+                    <Text style={{ color: colors.text, fontSize: 15, fontWeight: '600' }}>{beneficiarioNombre}</Text>
                   </View>
                   <TouchableOpacity onPress={() => { setBeneficiarioId(null); setBeneficiarioNombre(''); }}>
                     <Text style={{ color: '#f59e0b', fontSize: 12 }}>Cambiar</Text>
@@ -269,19 +269,19 @@ export default function SolicitudNuevaScreen() {
                   onPress={() => router.push({ pathname: '/(cliente)/beneficiarios', params: { selectMode: 'true', redirect: '/(cliente)/solicitud-nueva' } })}
                 >
                   <Text style={{ color: '#f59e0b', fontSize: 14, fontWeight: '600' }}>➕ Registrar extranjero primero</Text>
-                  <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 4 }}>Necesitas registrar a la persona para quien harás la solicitud</Text>
+                  <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: 4 }}>Necesitas registrar a la persona para quien harás la solicitud</Text>
                 </TouchableOpacity>
               ) : (
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -4 }}>
                   {beneficiarios.map((b: any) => (
                     <TouchableOpacity
                       key={b.id}
-                      style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: 12, marginHorizontal: 4, minWidth: 130, alignItems: 'center' }}
+                      style={{ backgroundColor: colors.bgCard, borderWidth: 1, borderColor: colors.border, borderRadius: 12, padding: 12, marginHorizontal: 4, minWidth: 130, alignItems: 'center' }}
                       onPress={() => selectBeneficiario(b)}
                     >
                       <Text style={{ fontSize: 24, marginBottom: 4 }}>👤</Text>
-                      <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600' }}>{b.nombre}</Text>
-                      <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>{b.apellidos}</Text>
+                      <Text style={{ color: colors.text, fontSize: 13, fontWeight: '600' }}>{b.nombre}</Text>
+                      <Text style={{ color: colors.textMuted, fontSize: 11 }}>{b.apellidos}</Text>
                     </TouchableOpacity>
                   ))}
                   <TouchableOpacity
@@ -298,11 +298,11 @@ export default function SolicitudNuevaScreen() {
             {TIPOS_TRAMITE.map((tipo) => (
               <TouchableOpacity
                 key={tipo.value}
-                style={styles.tipoCard}
+                style={[styles.tipoCard, { backgroundColor: colors.bgCard, borderColor: colors.borderLight }]}
                 onPress={() => handleSelectTipo(tipo.value)}
                 activeOpacity={0.8}
               >
-                <View style={styles.tipoIcon}><Text style={{ fontSize: 22 }}>{tipo.icon}</Text></View>
+                <View style={[styles.tipoIcon, { backgroundColor: colors.bgCard }]}><Text style={{ fontSize: 22 }}>{tipo.icon}</Text></View>
                 <View style={styles.tipoInfo}>
                   <Text style={[styles.tipoLabel, { color: colors.text }]}>{tipo.label}</Text>
                   <Text style={[styles.tipoDesc, { color: colors.textMuted }]} numberOfLines={2}>{tipo.descripcion}</Text>
@@ -376,9 +376,9 @@ export default function SolicitudNuevaScreen() {
 
             {/* Costo destacado arriba del form */}
             <View style={styles.costoInfoSmall}>
-              <Text style={styles.costoLabelSmall}>💰 Costo por documento: </Text>
+              <Text style={[styles.costoLabelSmall, { color: colors.textMuted }]}>💰 Costo por documento: </Text>
               <Text style={styles.costoValueSmall}>$100 MXN c/u</Text>
-              <Text style={styles.costoNoteSmall}> — Solicitud + Escritos se cobran por separado</Text>
+              <Text style={[styles.costoNoteSmall, { color: colors.textMuted }]}> — Solicitud + Escritos se cobran por separado</Text>
             </View>
 
             {/* Formulario específico por tipo */}
@@ -436,27 +436,27 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(245,158,11,0.08)', borderRadius: 14, padding: 16,
     alignItems: 'center', marginBottom: 20, borderWidth: 1, borderColor: 'rgba(245,158,11,0.25)',
   },
-  costoLabel: { fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: '600', letterSpacing: 1.5 },
+  costoLabel: { fontSize: 10, fontWeight: '600', letterSpacing: 1.5 },
   costoValue: { fontSize: 30, fontWeight: '800', color: '#f59e0b', marginVertical: 4 },
-  costoNote: { fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center' },
+  costoNote: { fontSize: 11, textAlign: 'center' },
 
   costoInfoSmall: {
     flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',
     backgroundColor: 'rgba(245,158,11,0.07)', borderRadius: 10, padding: 12,
     marginBottom: 16, borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)',
   },
-  costoLabelSmall: { fontSize: 12, color: 'rgba(255,255,255,0.5)', fontWeight: '500' },
+  costoLabelSmall: { fontSize: 12, fontWeight: '500' },
   costoValueSmall: { fontSize: 14, fontWeight: '800', color: '#f59e0b' },
-  costoNoteSmall: { fontSize: 11, color: 'rgba(255,255,255,0.35)' },
+  costoNoteSmall: { fontSize: 11 },
 
   tipoCard: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: 16,
-    marginBottom: 10, gap: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)',
+    borderRadius: 16, padding: 16,
+    marginBottom: 10, gap: 14, borderWidth: 1,
   },
   tipoIcon: {
     width: 46, height: 46, borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.06)', justifyContent: 'center', alignItems: 'center',
+    justifyContent: 'center', alignItems: 'center',
   },
   tipoInfo: { flex: 1 },
   tipoLabel: { fontSize: 14, fontWeight: '600' },
