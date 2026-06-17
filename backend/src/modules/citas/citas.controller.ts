@@ -100,6 +100,28 @@ export class CitasController {
   }
 
   /**
+   * Marcar cita como completada/atendida
+   */
+  @Patch(':id/completar')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Marcar cita como atendida/completada' })
+  @ApiParam({ name: 'id', description: 'UUID de la cita' })
+  completar(@Param('id', ParseUUIDPipe) id: string) {
+    return this.citasService.completar(id);
+  }
+
+  /**
+   * Confirmar cita
+   */
+  @Patch(':id/confirmar')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Confirmar cita' })
+  @ApiParam({ name: 'id', description: 'UUID de la cita' })
+  confirmar(@Param('id', ParseUUIDPipe) id: string) {
+    return this.citasService.confirmar(id);
+  }
+
+  /**
    * Obtener citas por cliente/extranjero
    */
   @Get('cliente/:clienteId')

@@ -102,7 +102,7 @@ export class FinancieroService {
         );
         if (cliente?.[0]?.user_id) {
           await this.notificacionesService.sendNotification({
-            destinatarioId: cliente[0].userId,
+            destinatarioId: cliente[0].user_id,
             tipo: TipoNotificacion.PAGO_PENDIENTE,
             canal: CanalNotificacion.PUSH,
             titulo: '💰 Pago pendiente generado',
@@ -213,7 +213,7 @@ export class FinancieroService {
         );
         if (cliente?.[0]?.user_id) {
           await this.notificacionesService.sendNotification({
-            destinatarioId: cliente[0].userId,
+            destinatarioId: cliente[0].user_id,
             tipo: TipoNotificacion.PAGO_CONFIRMADO,
             canal: CanalNotificacion.PUSH,
             titulo: '✅ Tu pago fue confirmado',

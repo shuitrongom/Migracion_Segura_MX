@@ -227,6 +227,10 @@ export class TramitesService {
     }
     if (dto.datosFormulario) {
       updateData.datosFormulario = { ...tramite.datosFormulario, ...dto.datosFormulario };
+      // Si viene NUT en datosFormulario, guardarlo también en el campo dedicado
+      if (dto.datosFormulario.nut) {
+        updateData.nut = dto.datosFormulario.nut;
+      }
     }
 
     if (Object.keys(updateData).length > 0) {
@@ -295,7 +299,7 @@ export class TramitesService {
         );
         if (cliente?.[0]?.user_id) {
           await this.notificacionesService.sendNotification({
-            destinatarioId: cliente[0].userId,
+            destinatarioId: cliente[0].user_id,
             tipo: TipoNotificacion.CAMBIO_ESTATUS,
             canal: CanalNotificacion.PUSH,
             titulo: '📋 Tu trámite cambió de estatus',
@@ -306,7 +310,7 @@ export class TramitesService {
           // Notificación especial cuando se aprueba
           if (dto.estatus === EstatusTramite.APROBADO) {
             await this.notificacionesService.sendNotification({
-              destinatarioId: cliente[0].userId,
+              destinatarioId: cliente[0].user_id,
               tipo: TipoNotificacion.FELICITACION_APROBADO,
               canal: CanalNotificacion.PUSH,
               titulo: '🎉 ¡Tu trámite fue aprobado!',
@@ -318,7 +322,7 @@ export class TramitesService {
           // Notificación cuando se entrega el documento
           if (dto.estatus === EstatusTramite.ENTREGADO) {
             await this.notificacionesService.sendNotification({
-              destinatarioId: cliente[0].userId,
+              destinatarioId: cliente[0].user_id,
               tipo: TipoNotificacion.CAMBIO_ESTATUS,
               canal: CanalNotificacion.PUSH,
               titulo: '📄 Documento entregado',
@@ -527,6 +531,11 @@ export class TramitesService {
     // Si es gestor (ASESOR), solo ve sus trámites asignados
     if (user && user.role === UserRole.ASESOR) {
       qb.where('tramite.asesorId = :userId', { userId: user.id });
+    }
+
+    // Si es CLIENTE, solo ve sus propios trámites
+    if (user && user.role === UserRole.CLIENTE) {
+      qb.where('cliente.userId = :userId', { userId: user.id });
     }
 
     const [data, total] = await qb.getManyAndCount();

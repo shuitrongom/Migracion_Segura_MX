@@ -178,6 +178,38 @@ export class CitasService {
   }
 
   /**
+   * Marcar cita como completada/atendida
+   */
+  async completar(id: string): Promise<Cita> {
+    const cita = await this.findOne(id);
+
+    if (cita.estatus === EstatusCita.CANCELADA) {
+      throw new BadRequestException('No se puede completar una cita cancelada');
+    }
+
+    if (cita.estatus === EstatusCita.COMPLETADA) {
+      throw new BadRequestException('La cita ya está completada');
+    }
+
+    cita.estatus = EstatusCita.COMPLETADA;
+    return this.citaRepository.save(cita);
+  }
+
+  /**
+   * Confirmar cita
+   */
+  async confirmar(id: string): Promise<Cita> {
+    const cita = await this.findOne(id);
+
+    if (cita.estatus === EstatusCita.CANCELADA || cita.estatus === EstatusCita.COMPLETADA) {
+      throw new BadRequestException('No se puede confirmar esta cita');
+    }
+
+    cita.estatus = EstatusCita.CONFIRMADA;
+    return this.citaRepository.save(cita);
+  }
+
+  /**
    * Req 8.5 - Get today's appointments for admin dashboard.
    */
   async getTodayAppointments(): Promise<Cita[]> {

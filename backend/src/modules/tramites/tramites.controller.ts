@@ -127,7 +127,7 @@ export class TramitesController {
    */
   @Get()
   @ApiBearerAuth()
-  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR, UserRole.CLIENTE)
   @ApiOperation({ summary: 'Listar todos los trámites' })
   findAll(@Query() pagination: PaginationDto, @Request() req: { user: { id: string; role: string } }) {
     return this.tramitesService.findAll(pagination, req.user);
