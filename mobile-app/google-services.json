@@ -12,7 +12,20 @@
           "package_name": "mx.migracion_segura.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "727892370313-usa00doh30jvi4vim5fbb96maaaqbobd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "mx.migracion_segura.app",
+            "certificate_hash": "da0ebfa34e0d863d978475190563903bd9b58d84"
+          }
+        },
+        {
+          "client_id": "727892370313-hv7u63nnnir1pqa7qpbatdn1vc1pc1ll.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDI8E4wy-rjRtAuJCEjbTLsnzVOHyraJso"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "727892370313-hv7u63nnnir1pqa7qpbatdn1vc1pc1ll.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
