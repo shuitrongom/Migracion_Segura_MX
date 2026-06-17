@@ -275,7 +275,7 @@ export default function TramitesPage() {
                             e.preventDefault();
                             e.stopPropagation();
                             try {
-                              const res = await api.get(`/financiero/pagos?tramiteId=${tramite.id}`);
+                              const res = await api.get(`/financiero/pagos/tramite/${tramite.id}`);
                               const pagos = res.data?.data || res.data || [];
                               const pendiente = pagos.find((p: any) => (p.estatusPago === 'pendiente' || p.estatus_pago === 'pendiente') && p.mercadopagoInitPoint);
                               if (pendiente) {

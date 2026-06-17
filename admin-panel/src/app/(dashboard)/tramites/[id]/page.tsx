@@ -510,7 +510,7 @@ function PagosDelTramite({ tramiteId, clienteId }: { tramiteId: string; clienteI
   useEffect(() => {
     async function fetchPagos() {
       try {
-        const res = await api.get(`/financiero/pagos?tramiteId=${tramiteId}`);
+        const res = await api.get(`/financiero/pagos/tramite/${tramiteId}`);
         setPagos(res.data?.data || res.data || []);
       } catch {
         setPagos([]);
