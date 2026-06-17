@@ -313,7 +313,7 @@ export default function CitasPage() {
                         <button
                           onClick={async () => {
                             try {
-                              await api.patch(`/citas/${cita.id}`, { estatus: 'completada' });
+                              await api.patch(`/citas/${cita.id}/completar`);
                               toast.success('Cita marcada como atendida');
                               fetchCitas();
                             } catch { toast.error('Error al actualizar'); }
@@ -324,7 +324,7 @@ export default function CitasPage() {
                         <button
                           onClick={async () => {
                             try {
-                              await api.patch(`/citas/${cita.id}`, { estatus: 'cancelada' });
+                              await api.patch(`/citas/${cita.id}/cancelar`);
                               toast.success('Cita cancelada');
                               fetchCitas();
                             } catch { toast.error('Error al actualizar'); }
