@@ -173,8 +173,8 @@ export class CitasService {
       throw new BadRequestException('No se puede cancelar una cita completada');
     }
 
-    cita.estatus = EstatusCita.CANCELADA;
-    return this.citaRepository.save(cita);
+    await this.citaRepository.update(id, { estatus: EstatusCita.CANCELADA });
+    return this.findOne(id);
   }
 
   /**
@@ -191,8 +191,8 @@ export class CitasService {
       throw new BadRequestException('La cita ya está completada');
     }
 
-    cita.estatus = EstatusCita.COMPLETADA;
-    return this.citaRepository.save(cita);
+    await this.citaRepository.update(id, { estatus: EstatusCita.COMPLETADA });
+    return this.findOne(id);
   }
 
   /**
