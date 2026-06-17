@@ -561,10 +561,38 @@ function PagosDelTramite({ tramiteId, clienteId }: { tramiteId: string; clienteI
                 <div className="flex items-center gap-3 mt-2 text-[10px] text-white/70">
                   {pago.fechaPago && <span>Pagado: {formatDate(pago.fechaPago)}</span>}
                   {pago.fechaVencimiento && <span>Vence: {formatDate(pago.fechaVencimiento)}</span>}
-                  {pago.mercadopagoInitPoint && (
-                    <a href={pago.mercadopagoInitPoint} target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300">Ver link MP</a>
-                  )}
                 </div>
+                {/* Acciones de pago pendiente */}
+                {pago.mercadopagoInitPoint && (pago.estatusPago === 'pendiente' || pago.estatus_pago === 'pendiente') && (
+                  <div className="flex items-center gap-2 mt-3 pt-2 border-t border-[#2a2a2a]">
+                    <a href={pago.mercadopagoInitPoint} target="_blank" rel="noopener noreferrer" className="flex-1 text-center px-3 py-1.5 text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-lg hover:bg-amber-500/20 transition-colors">
+                      🔗 Ver link de pago
+                    </a>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(pago.mercadopagoInitPoint);
+                          toast.success('Link copiado al portapapeles');
+                        } catch {
+                          window.open(pago.mercadopagoInitPoint, '_blank');
+                        }
+                      }}
+                      className="px-3 py-1.5 text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-lg hover:bg-blue-500/20 transition-colors"
+                    >📋 Copiar</button>
+                    <button
+                      onClick={async () => {
+                        try {
+                          // Reenviar notificación push al extranjero con el link
+                          await api.post(`/financiero/pagos/reenviar-link`, { tramiteId, pagoId: pago.id });
+                          toast.success('Link de pago reenviado al extranjero');
+                        } catch {
+                          toast.error('Error al reenviar. Copia el link y envíalo por WhatsApp.');
+                        }
+                      }}
+                      className="px-3 py-1.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors"
+                    >📲 Reenviar</button>
+                  </div>
+                )}
               </div>
             );
           })}

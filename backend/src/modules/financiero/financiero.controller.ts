@@ -175,4 +175,46 @@ export class FinancieroController {
     }
     return { received: true };
   }
+
+  /**
+   * Reenviar link de pago al extranjero vía push notification
+   */
+  @Post('pagos/reenviar-link')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Reenviar link de pago al extranjero' })
+  async reenviarLinkPago(@Body() body: { tramiteId: string; pagoId?: string }) {
+    try {
+      // Buscar el pago pendiente con link
+      const pagos = await this.financieroService.getPagosByTramite(body.tramiteId);
+      const pago = body.pagoId
+        ? pagos.find(p => p.id === body.pagoId)
+        : pagos.find(p => (p.estatusPago === 'pendiente') && p.mercadopagoInitPoint);
+
+      if (!pago || !pago.mercadopagoInitPoint) {
+        return { ok: false, message: 'No hay link de pago pendiente para este trámite' };
+      }
+
+      // Buscar userId del cliente
+      const userId = await this.financieroService.getUserIdByTramiteOrSolicitud(body.tramiteId);
+      if (!userId) {
+        return { ok: false, message: 'No se encontró el usuario del extranjero' };
+      }
+
+      // Enviar push
+      const { NotificacionesService } = await import('../notificaciones/notificaciones.service');
+      const notifService = this.financieroService['notificacionesService'];
+      await notifService.sendNotification({
+        destinatarioId: userId,
+        tipo: 'pago_pendiente',
+        canal: 'push',
+        titulo: '💰 Recordatorio: Tienes un pago pendiente',
+        contenido: `Pago de $${Number(pago.monto).toLocaleString()} MXN pendiente. Toca para pagar.`,
+        metadata: { tramiteId: body.tramiteId, initPoint: pago.mercadopagoInitPoint, monto: pago.monto.toString() },
+      });
+
+      return { ok: true, message: 'Link reenviado al extranjero' };
+    } catch {
+      return { ok: false, message: 'Error al reenviar' };
+    }
+  }
 }
