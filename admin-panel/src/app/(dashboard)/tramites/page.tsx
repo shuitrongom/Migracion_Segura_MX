@@ -6,6 +6,8 @@ import { Search, ChevronLeft, ChevronRight, MoreHorizontal, Plus, FileText, Acti
 import { useTramites } from '@/hooks/use-tramites';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EstatusTramite, TipoTramite } from '@/lib/types';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 import type { Tramite } from '@/lib/types';
 
 type EstatusFilter = 'todos' | `${EstatusTramite}`;
@@ -268,6 +270,28 @@ export default function TramitesPage() {
                             Continuar
                           </Link>
                         )}
+                        <button
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            try {
+                              const res = await api.get(`/financiero/pagos?tramiteId=${tramite.id}`);
+                              const pagos = res.data?.data || res.data || [];
+                              const pendiente = pagos.find((p: any) => (p.estatusPago === 'pendiente' || p.estatus_pago === 'pendiente') && p.mercadopagoInitPoint);
+                              if (pendiente) {
+                                const action = window.confirm(`Link de pago: $${Number(pendiente.monto).toLocaleString()} MXN\n\n¿Copiar link al portapapeles?\n\nLink: ${pendiente.mercadopagoInitPoint}`);
+                                if (action) {
+                                  await navigator.clipboard.writeText(pendiente.mercadopagoInitPoint);
+                                  toast.success('Link copiado');
+                                }
+                              } else {
+                                toast.info('No hay pagos pendientes con link para este trámite');
+                              }
+                            } catch { toast.error('Error al consultar pagos'); }
+                          }}
+                          className="inline-flex items-center justify-center h-8 px-2 rounded-lg hover:bg-amber-500/10 text-amber-400 transition-colors text-[10px] font-semibold"
+                          title="Ver/Copiar link de pago"
+                        >💰</button>
                         <Link href={`/tramites/${tramite.id}`} className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-[#222222] text-white/70 transition-colors" aria-label={`Ver detalle del trámite ${tramite.numeroPieza ?? tramite.id}`}>
                           <MoreHorizontal className="h-4 w-4" />
                         </Link>
