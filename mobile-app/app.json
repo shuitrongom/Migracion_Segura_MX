@@ -45,7 +45,9 @@
         "READ_CONTACTS",
         "VIBRATE",
         "RECEIVE_BOOT_COMPLETED",
-        "POST_NOTIFICATIONS"
+        "POST_NOTIFICATIONS",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ]
     },
     "web": {
@@ -80,7 +82,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "429519f6-9f00-4a9a-84b3-67a1d30dbbe8"
+        "projectId": "a3c63976-96ce-4ef1-8c61-5eb42b037b9d"
       }
     }
   }
