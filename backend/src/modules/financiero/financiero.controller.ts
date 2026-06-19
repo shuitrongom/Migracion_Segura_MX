@@ -20,7 +20,7 @@ import { CreatePagoDto } from './dto/create-pago.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Public } from '../../common/decorators/public.decorator';
-import { UserRole } from '../../common/enums';
+import { UserRole, TipoNotificacion, CanalNotificacion } from '../../common/enums';
 
 @ApiTags('Financiero')
 @ApiBearerAuth()
@@ -201,12 +201,11 @@ export class FinancieroController {
       }
 
       // Enviar push
-      const { NotificacionesService } = await import('../notificaciones/notificaciones.service');
       const notifService = this.financieroService['notificacionesService'];
       await notifService.sendNotification({
         destinatarioId: userId,
-        tipo: 'pago_pendiente',
-        canal: 'push',
+        tipo: TipoNotificacion.PAGO_PENDIENTE,
+        canal: CanalNotificacion.PUSH,
         titulo: '💰 Recordatorio: Tienes un pago pendiente',
         contenido: `Pago de $${Number(pago.monto).toLocaleString()} MXN pendiente. Toca para pagar.`,
         metadata: { tramiteId: body.tramiteId, initPoint: pago.mercadopagoInitPoint, monto: pago.monto.toString() },
