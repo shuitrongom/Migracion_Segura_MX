@@ -279,12 +279,12 @@ export default function TramiteNuevoScreen() {
 
           {/* Seleccionar beneficiario */}
           <View style={{ marginBottom: 20, marginTop: 8 }}>
-            <Text style={{ fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>¿Para quién es el trámite?</Text>
+            <Text style={{ fontSize: 12, fontWeight: '600', color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>¿Para quién es el trámite?</Text>
             {beneficiarioId ? (
               <View style={{ backgroundColor: 'rgba(245,158,11,0.08)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)', borderRadius: 12, padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                   <Text style={{ fontSize: 20 }}>👤</Text>
-                  <Text style={{ color: '#fff', fontSize: 15, fontWeight: '600' }}>{beneficiarioNombre}</Text>
+                  <Text style={{ color: colors.text, fontSize: 15, fontWeight: '600' }}>{beneficiarioNombre}</Text>
                 </View>
                 <TouchableOpacity onPress={() => { setBeneficiarioId(null); setBeneficiarioNombre(''); }}>
                   <Text style={{ color: '#f59e0b', fontSize: 12 }}>Cambiar</Text>
@@ -298,19 +298,19 @@ export default function TramiteNuevoScreen() {
                 onPress={() => router.push({ pathname: '/(cliente)/beneficiarios', params: { selectMode: 'true', redirect: '/(cliente)/tramite-nuevo' } })}
               >
                 <Text style={{ color: '#f59e0b', fontSize: 14, fontWeight: '600' }}>➕ Registrar extranjero primero</Text>
-                <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 4 }}>Registra a la persona para quien harás el trámite</Text>
+                <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: 4 }}>Registra a la persona para quien harás el trámite</Text>
               </TouchableOpacity>
             ) : (
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {beneficiarios.map((b: any) => (
                   <TouchableOpacity
                     key={b.id}
-                    style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: 12, marginRight: 8, minWidth: 120, alignItems: 'center' }}
+                    style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)', borderRadius: 12, padding: 12, marginRight: 8, minWidth: 120, alignItems: 'center' }}
                     onPress={() => selectBenef(b)}
                   >
                     <Text style={{ fontSize: 22, marginBottom: 4 }}>👤</Text>
-                    <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600' }}>{b.nombre}</Text>
-                    <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>{b.apellidos}</Text>
+                    <Text style={{ color: colors.text, fontSize: 13, fontWeight: '600' }}>{b.nombre}</Text>
+                    <Text style={{ color: colors.textMuted, fontSize: 11 }}>{b.apellidos}</Text>
                   </TouchableOpacity>
                 ))}
                 <TouchableOpacity
@@ -345,8 +345,8 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   pageTitle: { fontSize: 22, fontWeight: '700', marginBottom: 4 },
   pageDesc: { fontSize: 14, marginBottom: 20, lineHeight: 20 },
-  tipoCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: 16, marginBottom: 10, gap: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  tipoIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.06)', justifyContent: 'center', alignItems: 'center' },
+  tipoCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(128,128,128,0.06)', borderRadius: 16, padding: 16, marginBottom: 10, gap: 14, borderWidth: 1, borderColor: 'rgba(128,128,128,0.15)' },
+  tipoIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(128,128,128,0.1)', justifyContent: 'center', alignItems: 'center' },
   tipoInfo: { flex: 1 },
   tipoLabel: { fontSize: 14, fontWeight: '600' },
   tipoDesc: { fontSize: 12, marginTop: 2, lineHeight: 16 },
@@ -358,12 +358,12 @@ const styles = StyleSheet.create({
   fieldContainer: { marginBottom: 14 },
   fieldLabel: { fontSize: 12, fontWeight: '600', marginBottom: 5 },
   input: { borderWidth: 1.5, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14 },
-  requiredNote: { fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 16 },
+  requiredNote: { fontSize: 11, marginTop: 16 },
   submitBtn: { borderRadius: 14, paddingVertical: 16, alignItems: 'center', marginTop: 24, shadowColor: '#f59e0b', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6 },
   submitText: { color: '#ffffff', fontSize: 16, fontWeight: '700' },
   disclaimer: { fontSize: 11, textAlign: 'center', marginTop: 12, lineHeight: 16, marginBottom: 20 },
   successContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
-  successIconContainer: { width: 100, height: 100, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center', marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  successIconContainer: { width: 100, height: 100, borderRadius: 50, backgroundColor: 'rgba(128,128,128,0.06)', justifyContent: 'center', alignItems: 'center', marginBottom: 8, borderWidth: 1, borderColor: 'rgba(128,128,128,0.15)' },
   successTitle: { fontSize: 22, fontWeight: '700', marginTop: 16, marginBottom: 8 },
   successText: { fontSize: 14, textAlign: 'center', lineHeight: 22, marginBottom: 24 },
   successBtn: { borderRadius: 12, paddingVertical: 14, paddingHorizontal: 32, shadowColor: '#f59e0b', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6 },

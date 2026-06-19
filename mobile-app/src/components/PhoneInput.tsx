@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Text, Modal, FlatList, Pressable } from 'react-native';
+import { useTheme } from '@/lib/theme';
 
 interface Country {
   code: string;
   dial: string;
   flag: string;
   name: string;
-  format: string; // placeholder format
+  format: string;
 }
 
 const COUNTRIES: Country[] = [
@@ -34,7 +35,6 @@ interface PhoneInputProps {
 }
 
 function formatPhoneDisplay(digits: string): string {
-  // Format as groups of digits for readability
   const clean = digits.replace(/\D/g, '');
   if (clean.length <= 2) return clean;
   if (clean.length <= 4) return clean.slice(0, 2) + ' ' + clean.slice(2);
@@ -43,7 +43,8 @@ function formatPhoneDisplay(digits: string): string {
 }
 
 export default function PhoneInput({ value, onChangeText }: PhoneInputProps) {
-  const [country, setCountry] = useState<Country>(COUNTRIES[0]); // México default
+  const { colors } = useTheme();
+  const [country, setCountry] = useState<Country>(COUNTRIES[0]);
   const [digits, setDigits] = useState('');
   const [showPicker, setShowPicker] = useState(false);
 
@@ -60,30 +61,30 @@ export default function PhoneInput({ value, onChangeText }: PhoneInputProps) {
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.countryButton} onPress={() => setShowPicker(true)}>
+    <View style={[styles.container, { backgroundColor: colors.bgInput, borderColor: colors.border }]}>
+      <TouchableOpacity style={[styles.countryButton, { borderRightColor: colors.border }]} onPress={() => setShowPicker(true)}>
         <Text style={styles.flag}>{country.flag}</Text>
-        <Text style={styles.dial}>{country.dial}</Text>
-        <Text style={styles.arrow}>▾</Text>
+        <Text style={[styles.dial, { color: colors.text }]}>{country.dial}</Text>
+        <Text style={[styles.arrow, { color: colors.textMuted }]}>▾</Text>
       </TouchableOpacity>
 
       <TextInput
-        style={styles.input}
+        style={[styles.input, { color: colors.text }]}
         value={formatPhoneDisplay(digits)}
         onChangeText={handleDigitsChange}
         placeholder={country.format}
-        placeholderTextColor="#9CA3AF"
+        placeholderTextColor={colors.textMuted}
         keyboardType="number-pad"
         maxLength={14}
       />
 
       <Modal visible={showPicker} animationType="slide" transparent>
         <Pressable style={styles.modalOverlay} onPress={() => setShowPicker(false)}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Seleccionar país</Text>
+          <View style={[styles.modalContent, { backgroundColor: colors.bgModal }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Seleccionar país</Text>
               <TouchableOpacity onPress={() => setShowPicker(false)}>
-                <Text style={styles.modalClose}>✕</Text>
+                <Text style={[styles.modalClose, { color: colors.textMuted }]}>✕</Text>
               </TouchableOpacity>
             </View>
             <FlatList
@@ -91,12 +92,12 @@ export default function PhoneInput({ value, onChangeText }: PhoneInputProps) {
               keyExtractor={(item) => item.code}
               renderItem={({ item }) => (
                 <TouchableOpacity
-                  style={[styles.countryRow, item.code === country.code && styles.countryRowActive]}
+                  style={[styles.countryRow, item.code === country.code && { backgroundColor: colors.accentLight }]}
                   onPress={() => selectCountry(item)}
                 >
                   <Text style={styles.countryFlag}>{item.flag}</Text>
-                  <Text style={styles.countryName}>{item.name}</Text>
-                  <Text style={styles.countryDial}>{item.dial}</Text>
+                  <Text style={[styles.countryName, { color: colors.text }]}>{item.name}</Text>
+                  <Text style={[styles.countryDial, { color: colors.textSecondary }]}>{item.dial}</Text>
                 </TouchableOpacity>
               )}
             />
@@ -111,9 +112,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E8DFD3',
+    borderWidth: 1.5,
     borderRadius: 12,
   },
   countryButton: {
@@ -123,18 +122,16 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     paddingVertical: 14,
     borderRightWidth: 1,
-    borderRightColor: '#E8DFD3',
     gap: 4,
   },
   flag: { fontSize: 20 },
-  dial: { fontSize: 15, color: '#2C1810', fontWeight: '500' },
-  arrow: { fontSize: 12, color: '#8B7B6F', marginLeft: 2 },
+  dial: { fontSize: 15, fontWeight: '500' },
+  arrow: { fontSize: 12, marginLeft: 2 },
   input: {
     flex: 1,
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: 16,
-    color: '#2C1810',
   },
   modalOverlay: {
     flex: 1,
@@ -142,7 +139,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: '60%',
@@ -154,10 +150,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#E8DFD3',
   },
-  modalTitle: { fontSize: 18, fontWeight: '600', color: '#2C1810' },
-  modalClose: { fontSize: 20, color: '#6B5B4F', padding: 4 },
+  modalTitle: { fontSize: 18, fontWeight: '600' },
+  modalClose: { fontSize: 20, padding: 4 },
   countryRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -165,8 +160,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     gap: 12,
   },
-  countryRowActive: { backgroundColor: '#F5F0E8' },
   countryFlag: { fontSize: 24 },
-  countryName: { flex: 1, fontSize: 15, color: '#2C1810' },
-  countryDial: { fontSize: 14, color: '#6B5B4F', fontWeight: '500' },
+  countryName: { flex: 1, fontSize: 15 },
+  countryDial: { fontSize: 14, fontWeight: '500' },
 });

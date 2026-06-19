@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HomeIcon, FileEditIcon, UserIcon, SearchIcon } from '@/components/TabIcons';
 import Svg, { Path, Circle, Rect } from 'react-native-svg';
+import { useTheme } from '@/lib/theme';
 
 function CalendarIcon({ color, size = 22 }: { color: string; size?: number }) {
   return (
@@ -34,19 +35,21 @@ function ClipboardIcon({ color, size = 22 }: { color: string; size?: number }) {
 
 export default function AdminLayout() {
   const insets = useSafeAreaInsets();
+  const { colors, mode } = useTheme();
   const bottomPadding = Platform.OS === 'android' ? Math.max(insets.bottom, 10) : insets.bottom;
+  const isDark = mode === 'dark';
 
   return (
     <Tabs
       screenOptions={{
         headerShown: true,
-        headerStyle: { backgroundColor: '#3D2B1F' },
-        headerTintColor: '#FFFFFF',
+        headerStyle: { backgroundColor: isDark ? '#3D2B1F' : colors.bgSecondary },
+        headerTintColor: isDark ? '#FFFFFF' : colors.text,
         headerTitleStyle: { fontWeight: '600' },
-        tabBarActiveTintColor: '#C4A265',
-        tabBarInactiveTintColor: '#8B7B6F',
+        tabBarActiveTintColor: isDark ? '#C4A265' : '#d97706',
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
-          backgroundColor: '#2C1810',
+          backgroundColor: isDark ? '#2C1810' : colors.bgSecondary,
           borderTopWidth: 0,
           paddingTop: 8,
           paddingBottom: bottomPadding + 6,

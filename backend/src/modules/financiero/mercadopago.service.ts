@@ -42,6 +42,7 @@ export class MercadoPagoService {
           ],
           payer: {
             name: params.clienteNombre || 'Extranjero',
+            email: params.email || undefined,
           },
           payment_methods: {
             excluded_payment_types: [],

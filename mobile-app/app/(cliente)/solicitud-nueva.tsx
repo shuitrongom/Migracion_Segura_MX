@@ -338,7 +338,7 @@ export default function SolicitudNuevaScreen() {
             <Text style={{ fontSize: 56 }}>✅</Text>
           </View>
           <Text style={[styles.successTitle, { color: colors.text }]}>¡Solicitud enviada!</Text>
-          <Text style={styles.successText}>
+          <Text style={[styles.successText, { color: colors.textMuted }]}>
             Tu solicitud fue recibida exitosamente.{'\n\n'}
             En breve tu gestor la procesará en el INM y te enviará los requisitos.{'\n\n'}
             Recibirás una notificación con el enlace de pago por <Text style={{ color: '#f59e0b', fontWeight: '700' }}>$100 MXN</Text> una vez lista.
@@ -413,7 +413,7 @@ export default function SolicitudNuevaScreen() {
               </LinearGradient>
             </TouchableOpacity>
 
-            <Text style={styles.disclaimer}>
+            <Text style={[styles.disclaimer, { color: colors.textMuted }]}>
               Al enviar, un gestor revisará tu información. Costo: $100 MXN por solicitud y $100 MXN por cada escrito adicional.
             </Text>
           </ScrollView>
@@ -473,16 +473,16 @@ const styles = StyleSheet.create({
   submitBtn: { paddingVertical: 16, alignItems: 'center', justifyContent: 'center' },
   submitText: { color: '#ffffff', fontSize: 16, fontWeight: '700' },
   disclaimer: {
-    fontSize: 11, color: 'rgba(255,255,255,0.35)',
+    fontSize: 11,
     textAlign: 'center', marginTop: 12, lineHeight: 16, marginBottom: 20,
   },
 
   successContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
   successIconContainer: {
     width: 100, height: 100, borderRadius: 50,
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: 'rgba(128,128,128,0.06)',
     justifyContent: 'center', alignItems: 'center',
-    marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)',
+    marginBottom: 8, borderWidth: 1, borderColor: 'rgba(128,128,128,0.12)',
   },
   successTitle: { fontSize: 22, fontWeight: '700', marginTop: 16, marginBottom: 8 },
   successText: {

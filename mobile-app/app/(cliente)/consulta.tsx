@@ -84,14 +84,14 @@ const styles = StyleSheet.create({
   title: { fontSize: 20, fontWeight: '700' },
   subtitle: { fontSize: 13, marginTop: 4, lineHeight: 18 },
 
-  webviewContainer: { flex: 1, marginHorizontal: 12, borderRadius: 12, overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  webviewContainer: { flex: 1, marginHorizontal: 12, borderRadius: 12, overflow: 'hidden', backgroundColor: 'rgba(128,128,128,0.06)', borderWidth: 1, borderColor: 'rgba(128,128,128,0.12)' },
   webview: { flex: 1 },
 
-  loadingOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0a0a', zIndex: 10 },
+  loadingOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 10 },
   loadingText: { fontSize: 13, marginTop: 12 },
 
   errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
-  errorIconContainer: { width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center', marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  errorIconContainer: { width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(128,128,128,0.06)', justifyContent: 'center', alignItems: 'center', marginBottom: 12, borderWidth: 1, borderColor: 'rgba(128,128,128,0.12)' },
   errorIcon: { fontSize: 40 },
   errorText: { fontSize: 15, fontWeight: '600' },
   errorHint: { fontSize: 13, marginTop: 4 },
@@ -99,6 +99,6 @@ const styles = StyleSheet.create({
   retryText: { color: '#ffffff', fontSize: 14, fontWeight: '600' },
 
   footer: { padding: 12 },
-  inmBadge: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: 10, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  inmBadge: { backgroundColor: 'rgba(128,128,128,0.06)', borderRadius: 8, padding: 10, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(128,128,128,0.12)' },
   inmText: { fontSize: 11, textAlign: 'center' },
 });

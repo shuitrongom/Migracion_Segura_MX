@@ -21,10 +21,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Circle } from 'react-native-svg';
 import PasswordInput from '@/components/PasswordInput';
 import PhoneInput from '@/components/PhoneInput';
+import { useTheme } from '@/lib/theme';
 
 const { width, height } = Dimensions.get('window');
 
 export default function RegisterScreen() {
+  const { colors, mode } = useTheme();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -100,7 +102,6 @@ export default function RegisterScreen() {
         return;
       }
 
-      // Si el backend devuelve userId, mostrar pantalla de verificación
       setUserId(data.userId);
       setShowVerify(true);
     } catch {
@@ -141,14 +142,26 @@ export default function RegisterScreen() {
     }
   };
 
-  // Pantalla de verificación - Dark themed
+  // Colores dinámicos según tema
+  const isDark = mode === 'dark';
+  const inputBg = isDark ? 'rgba(255,255,255,0.04)' : colors.bgInput;
+  const inputBorder = isDark ? 'rgba(255,255,255,0.08)' : colors.border;
+  const inputBgFocused = isDark ? 'rgba(255,255,255,0.06)' : colors.bgInput;
+  const placeholderColor = colors.textMuted;
+  const labelColor = colors.textMuted;
+  const formCardBg = isDark ? 'rgba(23,23,23,0.9)' : colors.bgCard;
+  const orbColor1 = isDark ? 'rgba(245,158,11,0.08)' : 'rgba(245,158,11,0.06)';
+  const orbColor2 = isDark ? 'rgba(217,119,6,0.06)' : 'rgba(217,119,6,0.04)';
+  const orbColor3 = isDark ? 'rgba(245,158,11,0.03)' : 'rgba(245,158,11,0.02)';
+
+  // Pantalla de verificación
   if (showVerify) {
     return (
-      <View style={styles.container}>
-        <LinearGradient colors={['#0a0a0a', '#1c1917', '#0a0a0a']} style={StyleSheet.absoluteFill} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
-        <Animated.View style={[styles.orb1, { opacity: glowAnim }]} />
-        <Animated.View style={[styles.orb2, { opacity: glowAnim }]} />
-        <Animated.View style={styles.orb3} />
+      <View style={[styles.container, { backgroundColor: colors.bg }]}>
+        <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={StyleSheet.absoluteFill} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
+        <Animated.View style={[styles.orb1, { opacity: glowAnim, backgroundColor: orbColor1 }]} />
+        <Animated.View style={[styles.orb2, { opacity: glowAnim, backgroundColor: orbColor2 }]} />
+        <Animated.View style={[styles.orb3, { backgroundColor: orbColor3 }]} />
 
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={[styles.content, { justifyContent: 'center' }]}>
@@ -159,25 +172,25 @@ export default function RegisterScreen() {
                   <Path d="M22 6l-10 7L2 6" />
                 </Svg>
               </View>
-              <Text style={styles.title}>VERIFICAR <Text style={styles.titleAccent}>CUENTA</Text></Text>
-              <Text style={styles.subtitle}>Ingresa el código de 6 dígitos{'\n'}que enviamos a tu correo</Text>
+              <Text style={[styles.title, { color: colors.text }]}>VERIFICAR <Text style={styles.titleAccent}>CUENTA</Text></Text>
+              <Text style={[styles.subtitle, { color: colors.textMuted }]}>Ingresa el código de 6 dígitos{'\n'}que enviamos a tu correo</Text>
             </Animated.View>
 
             <Animated.View style={[styles.formCard, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
               <LinearGradient colors={['rgba(245,158,11,0.15)', 'rgba(245,158,11,0.05)', 'rgba(245,158,11,0.15)']} style={styles.formCardBorder} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
-              <View style={styles.formInner}>
+              <View style={[styles.formInner, { backgroundColor: formCardBg }]}>
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>CÓDIGO DE VERIFICACIÓN</Text>
-                  <View style={[styles.inputContainer, verifyFocused && styles.inputFocused]}>
-                    <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={verifyFocused ? '#f59e0b' : '#6b7280'} strokeWidth={1.8}>
+                  <Text style={[styles.label, { color: labelColor }]}>CÓDIGO DE VERIFICACIÓN</Text>
+                  <View style={[styles.inputContainer, { backgroundColor: inputBg, borderColor: inputBorder }, verifyFocused && { borderColor: 'rgba(245,158,11,0.4)', backgroundColor: inputBgFocused }]}>
+                    <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={verifyFocused ? '#f59e0b' : colors.textMuted} strokeWidth={1.8}>
                       <Path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" />
                     </Svg>
                     <TextInput
-                      style={[styles.input, { textAlign: 'center', fontSize: 24, letterSpacing: 6, fontWeight: '700' }]}
+                      style={[styles.input, { color: colors.text, textAlign: 'center', fontSize: 24, letterSpacing: 6, fontWeight: '700' }]}
                       value={verifyCode}
                       onChangeText={(t) => setVerifyCode(t.replace(/[^0-9]/g, '').slice(0, 6))}
                       placeholder="000000"
-                      placeholderTextColor="rgba(255,255,255,0.2)"
+                      placeholderTextColor={placeholderColor}
                       keyboardType="number-pad"
                       maxLength={6}
                       onFocus={() => setVerifyFocused(true)}
@@ -207,12 +220,12 @@ export default function RegisterScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => { setShowVerify(false); router.replace('/(auth)/login'); }} style={styles.loginLink}>
-                  <Text style={styles.loginText}>Ir al <Text style={styles.loginAccent}>login</Text></Text>
+                  <Text style={[styles.loginText, { color: colors.textMuted }]}>Ir al <Text style={styles.loginAccent}>login</Text></Text>
                 </TouchableOpacity>
 
                 <View style={styles.securityBadge}>
                   <View style={styles.securityDot} />
-                  <Text style={styles.securityText}>Verificación segura de identidad</Text>
+                  <Text style={[styles.securityText, { color: colors.textMuted }]}>Verificación segura de identidad</Text>
                 </View>
               </View>
             </Animated.View>
@@ -223,16 +236,16 @@ export default function RegisterScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <LinearGradient colors={['#0a0a0a', '#1c1917', '#0a0a0a']} style={StyleSheet.absoluteFill} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={StyleSheet.absoluteFill} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
 
       {/* Orbes de fondo animados */}
-      <Animated.View style={[styles.orb1, { opacity: glowAnim }]} />
-      <Animated.View style={[styles.orb2, { opacity: glowAnim }]} />
-      <Animated.View style={styles.orb3} />
+      <Animated.View style={[styles.orb1, { opacity: glowAnim, backgroundColor: orbColor1 }]} />
+      <Animated.View style={[styles.orb2, { opacity: glowAnim, backgroundColor: orbColor2 }]} />
+      <Animated.View style={[styles.orb3, { backgroundColor: orbColor3 }]} />
 
       {/* Grid sutil */}
-      <View style={styles.gridOverlay} />
+      <View style={[styles.gridOverlay, { borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.03)' }]} />
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -244,30 +257,29 @@ export default function RegisterScreen() {
                 <View style={styles.logoGlow} />
                 <Image source={require('../../assets/logo_splash_1024.png')} style={styles.logoImage} resizeMode="contain" />
               </View>
-              <Text style={styles.title}>CREAR <Text style={styles.titleAccent}>CUENTA</Text></Text>
-              <Text style={styles.subtitle}>Registro para extranjeros{'\n'}Gestiona tus trámites migratorios</Text>
+              <Text style={[styles.title, { color: colors.text }]}>CREAR <Text style={styles.titleAccent}>CUENTA</Text></Text>
+              <Text style={[styles.subtitle, { color: colors.textMuted }]}>Registro para extranjeros{'\n'}Gestiona tus trámites migratorios</Text>
             </Animated.View>
 
             {/* Card del formulario */}
             <Animated.View style={[styles.formCard, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-              {/* Borde glow */}
               <LinearGradient colors={['rgba(245,158,11,0.15)', 'rgba(245,158,11,0.05)', 'rgba(245,158,11,0.15)']} style={styles.formCardBorder} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
 
-              <View style={styles.formInner}>
+              <View style={[styles.formInner, { backgroundColor: formCardBg }]}>
                 {/* Nombre completo */}
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>NOMBRE COMPLETO</Text>
-                  <View style={[styles.inputContainer, nameFocused && styles.inputFocused]}>
-                    <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={nameFocused ? '#f59e0b' : '#6b7280'} strokeWidth={1.8}>
+                  <Text style={[styles.label, { color: labelColor }]}>NOMBRE COMPLETO</Text>
+                  <View style={[styles.inputContainer, { backgroundColor: inputBg, borderColor: inputBorder }, nameFocused && { borderColor: 'rgba(245,158,11,0.4)', backgroundColor: inputBgFocused }]}>
+                    <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={nameFocused ? '#f59e0b' : colors.textMuted} strokeWidth={1.8}>
                       <Path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                       <Circle cx="12" cy="7" r="4" />
                     </Svg>
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { color: colors.text }]}
                       value={fullName}
                       onChangeText={setFullName}
                       placeholder="Ej: Juan Pérez García"
-                      placeholderTextColor="rgba(255,255,255,0.2)"
+                      placeholderTextColor={placeholderColor}
                       autoCapitalize="words"
                       onFocus={() => setNameFocused(true)}
                       onBlur={() => setNameFocused(false)}
@@ -277,18 +289,18 @@ export default function RegisterScreen() {
 
                 {/* Correo electrónico */}
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>CORREO ELECTRÓNICO</Text>
-                  <View style={[styles.inputContainer, emailFocused && styles.inputFocused]}>
-                    <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={emailFocused ? '#f59e0b' : '#6b7280'} strokeWidth={1.8}>
+                  <Text style={[styles.label, { color: labelColor }]}>CORREO ELECTRÓNICO</Text>
+                  <View style={[styles.inputContainer, { backgroundColor: inputBg, borderColor: inputBorder }, emailFocused && { borderColor: 'rgba(245,158,11,0.4)', backgroundColor: inputBgFocused }]}>
+                    <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={emailFocused ? '#f59e0b' : colors.textMuted} strokeWidth={1.8}>
                       <Path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                       <Path d="M22 6l-10 7L2 6" />
                     </Svg>
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { color: colors.text }]}
                       value={email}
                       onChangeText={setEmail}
                       placeholder="tu@email.com"
-                      placeholderTextColor="rgba(255,255,255,0.2)"
+                      placeholderTextColor={placeholderColor}
                       keyboardType="email-address"
                       autoCapitalize="none"
                       onFocus={() => setEmailFocused(true)}
@@ -299,19 +311,19 @@ export default function RegisterScreen() {
 
                 {/* WhatsApp */}
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>WHATSAPP</Text>
+                  <Text style={[styles.label, { color: labelColor }]}>WHATSAPP</Text>
                   <PhoneInput value={phone} onChangeText={setPhone} />
                 </View>
 
                 {/* Contraseña */}
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>CONTRASEÑA</Text>
+                  <Text style={[styles.label, { color: labelColor }]}>CONTRASEÑA</Text>
                   <PasswordInput value={password} onChangeText={setPassword} placeholder="Mayúscula, minúscula y número" />
                 </View>
 
                 {/* Confirmar contraseña */}
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>CONFIRMAR CONTRASEÑA</Text>
+                  <Text style={[styles.label, { color: labelColor }]}>CONFIRMAR CONTRASEÑA</Text>
                   <PasswordInput value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Repite tu contraseña" />
                 </View>
 
@@ -339,7 +351,7 @@ export default function RegisterScreen() {
                 {/* Security badge */}
                 <View style={styles.securityBadge}>
                   <View style={styles.securityDot} />
-                  <Text style={styles.securityText}>Conexión cifrada de extremo a extremo</Text>
+                  <Text style={[styles.securityText, { color: colors.textMuted }]}>Conexión cifrada de extremo a extremo</Text>
                 </View>
               </View>
             </Animated.View>
@@ -347,7 +359,7 @@ export default function RegisterScreen() {
             {/* Login link */}
             <Animated.View style={{ opacity: fadeAnim }}>
               <TouchableOpacity onPress={() => router.back()} style={styles.loginLink}>
-                <Text style={styles.loginText}>¿Ya tienes cuenta? <Text style={styles.loginAccent}>Inicia sesión</Text></Text>
+                <Text style={[styles.loginText, { color: colors.textMuted }]}>¿Ya tienes cuenta? <Text style={styles.loginAccent}>Inicia sesión</Text></Text>
               </TouchableOpacity>
             </Animated.View>
 
@@ -359,23 +371,23 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1 },
   content: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 50 },
 
   // Orbes de fondo
-  orb1: { position: 'absolute', top: height * 0.08, left: -50, width: 250, height: 250, borderRadius: 125, backgroundColor: 'rgba(245,158,11,0.08)' },
-  orb2: { position: 'absolute', bottom: height * 0.05, right: -80, width: 300, height: 300, borderRadius: 150, backgroundColor: 'rgba(217,119,6,0.06)' },
-  orb3: { position: 'absolute', top: height * 0.5, left: width * 0.3, width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(245,158,11,0.03)' },
-  gridOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.02, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  orb1: { position: 'absolute', top: height * 0.08, left: -50, width: 250, height: 250, borderRadius: 125 },
+  orb2: { position: 'absolute', bottom: height * 0.05, right: -80, width: 300, height: 300, borderRadius: 150 },
+  orb3: { position: 'absolute', top: height * 0.5, left: width * 0.3, width: 200, height: 200, borderRadius: 100 },
+  gridOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.02, borderWidth: 1 },
 
   // Header / Logo
   header: { alignItems: 'center', marginBottom: 24 },
   logoContainer: { position: 'relative', marginBottom: 16 },
   logoGlow: { position: 'absolute', top: -10, left: -10, right: -10, bottom: -10, borderRadius: 50, backgroundColor: 'rgba(245,158,11,0.15)' },
   logoImage: { width: 70, height: 70, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)' },
-  title: { fontSize: 26, fontWeight: '800', color: '#ffffff', letterSpacing: 1 },
+  title: { fontSize: 26, fontWeight: '800', letterSpacing: 1 },
   titleAccent: { color: '#f59e0b' },
-  subtitle: { fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4, fontWeight: '300', textAlign: 'center', lineHeight: 20 },
+  subtitle: { fontSize: 13, marginTop: 4, fontWeight: '300', textAlign: 'center', lineHeight: 20 },
 
   // Verify icon
   verifyIconContainer: { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(245,158,11,0.1)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
@@ -383,18 +395,17 @@ const styles = StyleSheet.create({
   // Form card
   formCard: { position: 'relative', borderRadius: 24, overflow: 'hidden' },
   formCardBorder: { ...StyleSheet.absoluteFillObject, borderRadius: 24 },
-  formInner: { margin: 1, borderRadius: 23, backgroundColor: 'rgba(23,23,23,0.9)', paddingHorizontal: 24, paddingVertical: 24 },
+  formInner: { margin: 1, borderRadius: 23, paddingHorizontal: 24, paddingVertical: 24 },
 
   // Inputs
   inputGroup: { marginBottom: 14 },
-  label: { fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.4)', letterSpacing: 1.5, marginBottom: 8, textTransform: 'uppercase' },
+  label: { fontSize: 10, fontWeight: '600', letterSpacing: 1.5, marginBottom: 8, textTransform: 'uppercase' },
   inputContainer: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
     borderRadius: 14, paddingHorizontal: 16, gap: 12,
   },
-  inputFocused: { borderColor: 'rgba(245,158,11,0.4)', backgroundColor: 'rgba(255,255,255,0.06)' },
-  input: { flex: 1, paddingVertical: 14, fontSize: 15, color: '#ffffff' },
+  input: { flex: 1, paddingVertical: 14, fontSize: 15 },
 
   // Submit
   submitButton: { marginTop: 8, borderRadius: 14, overflow: 'hidden', shadowColor: '#f59e0b', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 8 },
@@ -404,10 +415,10 @@ const styles = StyleSheet.create({
   // Security
   securityBadge: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 18, gap: 6 },
   securityDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#22c55e' },
-  securityText: { fontSize: 11, color: 'rgba(255,255,255,0.2)', fontWeight: '500' },
+  securityText: { fontSize: 11, fontWeight: '500' },
 
   // Login link
   loginLink: { marginTop: 24, alignItems: 'center' },
-  loginText: { fontSize: 14, color: 'rgba(255,255,255,0.4)' },
+  loginText: { fontSize: 14 },
   loginAccent: { color: '#f59e0b', fontWeight: '600' },
 });

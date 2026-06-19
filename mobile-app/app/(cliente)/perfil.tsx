@@ -103,15 +103,15 @@ export default function ClientePerfilScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
-  profileCard: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 20, padding: 24, alignItems: 'center', gap: 8, marginBottom: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  profileCard: { backgroundColor: 'rgba(128,128,128,0.06)', borderRadius: 20, padding: 24, alignItems: 'center', gap: 8, marginBottom: 20, borderWidth: 1, borderColor: 'rgba(128,128,128,0.12)' },
   avatar: { width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(245,158,11,0.15)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)', justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
   avatarText: { color: '#f59e0b', fontSize: 28, fontWeight: '700' },
-  name: { fontSize: 20, fontWeight: '700', color: '#ffffff' },
-  email: { fontSize: 14, color: 'rgba(255,255,255,0.4)' },
-  menu: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 16, overflow: 'hidden', marginBottom: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  menuItem: { padding: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)' },
-  menuText: { fontSize: 15, color: '#ffffff', fontWeight: '500' },
-  logoutButton: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: 16, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(231,76,60,0.4)' },
+  name: { fontSize: 20, fontWeight: '700' },
+  email: { fontSize: 14 },
+  menu: { backgroundColor: 'rgba(128,128,128,0.06)', borderRadius: 16, overflow: 'hidden', marginBottom: 20, borderWidth: 1, borderColor: 'rgba(128,128,128,0.12)' },
+  menuItem: { padding: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(128,128,128,0.1)' },
+  menuText: { fontSize: 15, fontWeight: '500' },
+  logoutButton: { backgroundColor: 'rgba(128,128,128,0.06)', borderRadius: 12, padding: 16, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(231,76,60,0.4)' },
   logoutText: { color: '#E74C3C', fontSize: 15, fontWeight: '600' },
-  version: { textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: 12, marginTop: 20, marginBottom: 40 },
+  version: { textAlign: 'center', fontSize: 12, marginTop: 20, marginBottom: 40 },
 });

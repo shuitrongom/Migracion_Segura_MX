@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { apiFetch } from '@/lib/api';
 import { storage } from '@/lib/storage';
 import { WHATSAPP_URL } from '@/lib/config';
+import { useTheme } from '@/lib/theme';
 
 const { width } = Dimensions.get('window');
 
@@ -22,6 +23,8 @@ const ESTATUS_CONFIG = [
 ];
 
 export default function AdminDashboardScreen() {
+  const { colors, mode } = useTheme();
+  const isDark = mode === 'dark';
   const [user, setUser] = useState<any>(null);
   const [metrics, setMetrics] = useState<Metrics>({ totalClientes: 0, totalTramites: 0, citasHoy: 0 });
   const [estatusData, setEstatusData] = useState<EstatusItem[]>([]);
@@ -72,17 +75,26 @@ export default function AdminDashboardScreen() {
   const onRefresh = useCallback(async () => { setRefreshing(true); await loadData(); setRefreshing(false); }, []);
   const totalEstatus = estatusData.reduce((sum, item) => sum + item.cantidad, 0);
 
+  // Colores dinámicos
+  const cardBg = isDark ? 'rgba(255,255,255,0.03)' : colors.bgCard;
+  const cardBorder = isDark ? 'rgba(255,255,255,0.06)' : colors.border;
+  const metricBorder = isDark ? 'rgba(255,255,255,0.06)' : colors.borderLight;
+  const barBg = isDark ? 'rgba(255,255,255,0.05)' : colors.borderLight;
+  const rowBorder = isDark ? 'rgba(255,255,255,0.04)' : colors.borderLight;
+  const actionBg = isDark ? 'rgba(255,255,255,0.03)' : colors.bgTertiary;
+  const actionBorder = isDark ? 'rgba(255,255,255,0.06)' : colors.borderLight;
+
   if (loading) return (
-    <View style={styles.loadingContainer}>
-      <LinearGradient colors={['#0a0a0a', '#1c1917', '#0a0a0a']} style={StyleSheet.absoluteFill} />
+    <View style={[styles.loadingContainer, { backgroundColor: colors.bg }]}>
+      <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={StyleSheet.absoluteFill} />
       <ActivityIndicator size="large" color="#f59e0b" />
-      <Text style={styles.loadingText}>Cargando panel...</Text>
+      <Text style={[styles.loadingText, { color: colors.textMuted }]}>Cargando panel...</Text>
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      <LinearGradient colors={['#0a0a0a', '#1c1917', '#0f0f0f']} style={StyleSheet.absoluteFill} />
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={StyleSheet.absoluteFill} />
       <ScrollView showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#f59e0b" />}>
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
 
@@ -90,7 +102,7 @@ export default function AdminDashboardScreen() {
           <LinearGradient colors={['rgba(245,158,11,0.08)', 'transparent']} style={styles.headerGradient}>
             <View style={styles.header}>
               <View>
-                <Text style={styles.greeting}>Hola, {user?.fullName?.split(' ')[0] || 'Admin'}</Text>
+                <Text style={[styles.greeting, { color: colors.text }]}>Hola, {user?.fullName?.split(' ')[0] || 'Admin'}</Text>
                 <Text style={styles.roleTag}>Panel Administrativo</Text>
               </View>
               <View style={styles.avatarSmall}>
@@ -101,62 +113,62 @@ export default function AdminDashboardScreen() {
 
           {/* Metric cards */}
           <View style={styles.metricsRow}>
-            <TouchableOpacity style={styles.metricCard} onPress={() => router.push('/(admin)/extranjeros')} activeOpacity={0.8}>
+            <TouchableOpacity style={[styles.metricCard, { borderColor: metricBorder }]} onPress={() => router.push('/(admin)/extranjeros')} activeOpacity={0.8}>
               <LinearGradient colors={['rgba(59,130,246,0.1)', 'rgba(59,130,246,0.02)']} style={styles.metricGradient}>
                 <Text style={[styles.metricValue, { color: '#60a5fa' }]}>{metrics.totalClientes}</Text>
-                <Text style={styles.metricLabel}>Clientes</Text>
+                <Text style={[styles.metricLabel, { color: colors.textMuted }]}>Clientes</Text>
               </LinearGradient>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.metricCard} onPress={() => router.push('/(admin)/tramites')} activeOpacity={0.8}>
+            <TouchableOpacity style={[styles.metricCard, { borderColor: metricBorder }]} onPress={() => router.push('/(admin)/tramites')} activeOpacity={0.8}>
               <LinearGradient colors={['rgba(245,158,11,0.1)', 'rgba(245,158,11,0.02)']} style={styles.metricGradient}>
                 <Text style={[styles.metricValue, { color: '#f59e0b' }]}>{metrics.totalTramites}</Text>
-                <Text style={styles.metricLabel}>Trámites</Text>
+                <Text style={[styles.metricLabel, { color: colors.textMuted }]}>Trámites</Text>
               </LinearGradient>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.metricCard} onPress={() => router.push('/(admin)/citas')} activeOpacity={0.8}>
+            <TouchableOpacity style={[styles.metricCard, { borderColor: metricBorder }]} onPress={() => router.push('/(admin)/citas')} activeOpacity={0.8}>
               <LinearGradient colors={['rgba(34,197,94,0.1)', 'rgba(34,197,94,0.02)']} style={styles.metricGradient}>
                 <Text style={[styles.metricValue, { color: '#22c55e' }]}>{metrics.citasHoy}</Text>
-                <Text style={styles.metricLabel}>Citas hoy</Text>
+                <Text style={[styles.metricLabel, { color: colors.textMuted }]}>Citas hoy</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
 
           {/* Distribución por estatus */}
           {totalEstatus > 0 && (
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Distribución por estatus</Text>
+            <View style={[styles.card, { backgroundColor: cardBg, borderColor: cardBorder }]}>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>Distribución por estatus</Text>
               {estatusData.filter(item => item.cantidad > 0).map((item) => (
                 <View key={item.key} style={styles.estatusRow}>
                   <View style={[styles.estatusDot, { backgroundColor: item.color }]} />
-                  <Text style={styles.estatusLabel}>{item.label}</Text>
-                  <View style={styles.estatusBarBg}>
+                  <Text style={[styles.estatusLabel, { color: colors.textSecondary }]}>{item.label}</Text>
+                  <View style={[styles.estatusBarBg, { backgroundColor: barBg }]}>
                     <View style={[styles.estatusBarFill, { width: `${(item.cantidad / totalEstatus) * 100}%`, backgroundColor: item.color }]} />
                   </View>
-                  <Text style={styles.estatusCount}>{item.cantidad}</Text>
+                  <Text style={[styles.estatusCount, { color: colors.text }]}>{item.cantidad}</Text>
                 </View>
               ))}
             </View>
           )}
 
           {/* Últimos trámites */}
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor: cardBg, borderColor: cardBorder }]}>
             <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>Últimos trámites</Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>Últimos trámites</Text>
               <TouchableOpacity onPress={() => router.push('/(admin)/tramites')}>
                 <Text style={styles.cardLink}>Ver todos →</Text>
               </TouchableOpacity>
             </View>
             {recentTramites.length === 0 ? (
-              <Text style={styles.emptyText}>Sin trámites registrados</Text>
+              <Text style={[styles.emptyText, { color: colors.textMuted }]}>Sin trámites registrados</Text>
             ) : (
               recentTramites.map((t: any) => (
-                <View key={t.id} style={styles.tramiteRow}>
+                <View key={t.id} style={[styles.tramiteRow, { borderBottomColor: rowBorder }]}>
                   <View style={styles.tramiteIcon}>
                     <Text style={{ fontSize: 14 }}>📄</Text>
                   </View>
                   <View style={styles.tramiteInfo}>
-                    <Text style={styles.tramiteNombre} numberOfLines={1}>{t.cliente?.nombreCompleto || t.datosFormulario?.nombre || 'Sin nombre'}</Text>
-                    <Text style={styles.tramiteTipo}>{(t.tipo || '').replace(/_/g, ' ')}</Text>
+                    <Text style={[styles.tramiteNombre, { color: colors.text }]} numberOfLines={1}>{t.cliente?.nombreCompleto || t.datosFormulario?.nombre || 'Sin nombre'}</Text>
+                    <Text style={[styles.tramiteTipo, { color: colors.textMuted }]}>{(t.tipo || '').replace(/_/g, ' ')}</Text>
                   </View>
                   <View style={[styles.tramiteBadge, { backgroundColor: (ESTATUS_CONFIG.find(e => e.key === t.estatus)?.color || '#6b7280') + '20' }]}>
                     <Text style={[styles.tramiteBadgeText, { color: ESTATUS_CONFIG.find(e => e.key === t.estatus)?.color || '#6b7280' }]}>
@@ -169,32 +181,32 @@ export default function AdminDashboardScreen() {
           </View>
 
           {/* Acciones rápidas */}
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Acciones rápidas</Text>
+          <View style={[styles.card, { backgroundColor: cardBg, borderColor: cardBorder }]}>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>Acciones rápidas</Text>
             <View style={styles.actionsGrid}>
-              <TouchableOpacity style={styles.actionBtn} onPress={() => Linking.openURL('https://migracion-segura-mx-admin-panel.vercel.app/tramites/nuevo')}>
+              <TouchableOpacity style={[styles.actionBtn, { backgroundColor: actionBg, borderColor: actionBorder }]} onPress={() => Linking.openURL('https://migracion-segura-mx-admin-panel.vercel.app/tramites/nuevo')}>
                 <LinearGradient colors={['rgba(245,158,11,0.15)', 'rgba(245,158,11,0.05)']} style={styles.actionIconBg}>
                   <Text style={{ fontSize: 20 }}>📄</Text>
                 </LinearGradient>
-                <Text style={styles.actionLabel}>Nuevo trámite</Text>
+                <Text style={[styles.actionLabel, { color: colors.textSecondary }]}>Nuevo trámite</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionBtn} onPress={() => Linking.openURL('https://migracion-segura-mx-admin-panel.vercel.app/financiero')}>
+              <TouchableOpacity style={[styles.actionBtn, { backgroundColor: actionBg, borderColor: actionBorder }]} onPress={() => Linking.openURL('https://migracion-segura-mx-admin-panel.vercel.app/financiero')}>
                 <LinearGradient colors={['rgba(34,197,94,0.15)', 'rgba(34,197,94,0.05)']} style={styles.actionIconBg}>
                   <Text style={{ fontSize: 20 }}>💰</Text>
                 </LinearGradient>
-                <Text style={styles.actionLabel}>Financiero</Text>
+                <Text style={[styles.actionLabel, { color: colors.textSecondary }]}>Financiero</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionBtn} onPress={() => Linking.openURL(WHATSAPP_URL)}>
+              <TouchableOpacity style={[styles.actionBtn, { backgroundColor: actionBg, borderColor: actionBorder }]} onPress={() => Linking.openURL(WHATSAPP_URL)}>
                 <LinearGradient colors={['rgba(37,211,102,0.15)', 'rgba(37,211,102,0.05)']} style={styles.actionIconBg}>
                   <Text style={{ fontSize: 20 }}>💬</Text>
                 </LinearGradient>
-                <Text style={styles.actionLabel}>WhatsApp</Text>
+                <Text style={[styles.actionLabel, { color: colors.textSecondary }]}>WhatsApp</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionBtn} onPress={() => Linking.openURL('https://migracion-segura-mx-admin-panel.vercel.app')}>
+              <TouchableOpacity style={[styles.actionBtn, { backgroundColor: actionBg, borderColor: actionBorder }]} onPress={() => Linking.openURL('https://migracion-segura-mx-admin-panel.vercel.app')}>
                 <LinearGradient colors={['rgba(59,130,246,0.15)', 'rgba(59,130,246,0.05)']} style={styles.actionIconBg}>
                   <Text style={{ fontSize: 20 }}>💻</Text>
                 </LinearGradient>
-                <Text style={styles.actionLabel}>Panel web</Text>
+                <Text style={[styles.actionLabel, { color: colors.textSecondary }]}>Panel web</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -207,47 +219,47 @@ export default function AdminDashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0a0a', gap: 12 },
-  loadingText: { fontSize: 14, color: 'rgba(255,255,255,0.4)' },
+  container: { flex: 1 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
+  loadingText: { fontSize: 14 },
 
   headerGradient: { paddingTop: 56, paddingBottom: 20, paddingHorizontal: 20 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  greeting: { fontSize: 24, fontWeight: '700', color: '#ffffff' },
+  greeting: { fontSize: 24, fontWeight: '700' },
   roleTag: { fontSize: 12, color: '#f59e0b', fontWeight: '600', marginTop: 2, letterSpacing: 0.5 },
   avatarSmall: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(245,158,11,0.15)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)', justifyContent: 'center', alignItems: 'center' },
   avatarSmallText: { color: '#f59e0b', fontSize: 18, fontWeight: '700' },
 
   metricsRow: { flexDirection: 'row', paddingHorizontal: 16, gap: 10, marginBottom: 16 },
-  metricCard: { flex: 1, borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  metricCard: { flex: 1, borderRadius: 16, overflow: 'hidden', borderWidth: 1 },
   metricGradient: { padding: 16, alignItems: 'center' },
   metricValue: { fontSize: 28, fontWeight: '800' },
-  metricLabel: { fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4, fontWeight: '500' },
+  metricLabel: { fontSize: 11, marginTop: 4, fontWeight: '500' },
 
-  card: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 20, marginHorizontal: 16, marginBottom: 14, padding: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  card: { borderRadius: 20, marginHorizontal: 16, marginBottom: 14, padding: 18, borderWidth: 1 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
-  cardTitle: { fontSize: 15, fontWeight: '700', color: '#ffffff', marginBottom: 14 },
+  cardTitle: { fontSize: 15, fontWeight: '700', marginBottom: 14 },
   cardLink: { fontSize: 12, color: '#f59e0b', fontWeight: '600' },
 
   estatusRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10, gap: 8 },
   estatusDot: { width: 8, height: 8, borderRadius: 4 },
-  estatusLabel: { fontSize: 12, color: 'rgba(255,255,255,0.5)', width: 72 },
-  estatusBarBg: { flex: 1, height: 6, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 3, overflow: 'hidden' },
+  estatusLabel: { fontSize: 12, width: 72 },
+  estatusBarBg: { flex: 1, height: 6, borderRadius: 3, overflow: 'hidden' },
   estatusBarFill: { height: '100%', borderRadius: 3 },
-  estatusCount: { fontSize: 12, fontWeight: '700', color: '#ffffff', width: 24, textAlign: 'right' },
+  estatusCount: { fontSize: 12, fontWeight: '700', width: 24, textAlign: 'right' },
 
-  tramiteRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)', gap: 12 },
+  tramiteRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, gap: 12 },
   tramiteIcon: { width: 36, height: 36, borderRadius: 10, backgroundColor: 'rgba(245,158,11,0.1)', justifyContent: 'center', alignItems: 'center' },
   tramiteInfo: { flex: 1 },
-  tramiteNombre: { fontSize: 14, fontWeight: '500', color: '#ffffff' },
-  tramiteTipo: { fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2, textTransform: 'capitalize' },
+  tramiteNombre: { fontSize: 14, fontWeight: '500' },
+  tramiteTipo: { fontSize: 11, marginTop: 2, textTransform: 'capitalize' },
   tramiteBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
   tramiteBadgeText: { fontSize: 10, fontWeight: '600' },
 
   actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  actionBtn: { width: '47%', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 14, padding: 16, alignItems: 'center', gap: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  actionBtn: { width: '47%', borderRadius: 14, padding: 16, alignItems: 'center', gap: 10, borderWidth: 1 },
   actionIconBg: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-  actionLabel: { fontSize: 12, fontWeight: '500', color: 'rgba(255,255,255,0.7)', textAlign: 'center' },
+  actionLabel: { fontSize: 12, fontWeight: '500', textAlign: 'center' },
 
-  emptyText: { fontSize: 13, color: 'rgba(255,255,255,0.3)', textAlign: 'center', paddingVertical: 16 },
+  emptyText: { fontSize: 13, textAlign: 'center', paddingVertical: 16 },
 });

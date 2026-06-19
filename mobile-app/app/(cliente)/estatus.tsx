@@ -436,7 +436,7 @@ export default function EstatusScreen() {
                     <View style={styles.inmDataBox}>
                       <Text style={styles.inmDataLabel}>📋 Pieza INM asignada</Text>
                       <Text style={styles.inmDataValue}>{item.numeroPieza}</Text>
-                      <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Se entregará completa al confirmar el pago</Text>
+                      <Text style={{ fontSize: 10, color: colors.textMuted, marginTop: 4 }}>Se entregará completa al confirmar el pago</Text>
                     </View>
                   )}
 

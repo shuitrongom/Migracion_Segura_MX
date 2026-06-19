@@ -62,7 +62,7 @@ export default function ContinuarTramitePage() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [requisitos, setRequisitos] = useState<Requisito[]>([]);
   const [submitting, setSubmitting] = useState(false);
-  const [pagoData, setPagoData] = useState({ concepto: '', monto: '', metodoPago: '', referencia: '' });
+  const [pagoData, setPagoData] = useState({ concepto: '', monto: '', metodoPago: '', referencia: '', email: '' });
   const [requisitosSeleccionados, setRequisitosSeleccionados] = useState<Set<number>>(new Set());
 
   useEffect(() => {
@@ -208,15 +208,27 @@ export default function ContinuarTramitePage() {
       // Registrar pago dividido si se llenó el monto
       if (pagoData.monto && pagoData.concepto) {
         const nombreExtranjero = tramite?.cliente?.nombreCompleto || `${tramite?.datosFormulario?.nombre || ''} ${tramite?.datosFormulario?.apellidos || ''}`.trim();
-        const emailExtranjero = tramite?.cliente?.email || tramite?.datosFormulario?.solicitanteEmail || tramite?.datosFormulario?.email || '';
-        await api.post('/financiero/pagos/generar-dividido', {
-          tramiteId,
-          clienteId: tramite?.clienteId,
-          montoTotal: parseFloat(pagoData.monto),
-          concepto: pagoData.concepto,
-          clienteNombre: nombreExtranjero,
-          email: emailExtranjero,
-        }).catch(() => {});
+        const emailExtranjero = pagoData.email || tramite?.cliente?.email || tramite?.datosFormulario?.solicitanteEmail || tramite?.datosFormulario?.email || '';
+
+        if (!emailExtranjero) {
+          toast.error('Email del extranjero es obligatorio para generar el link de pago');
+          setSubmitting(false);
+          return;
+        }
+
+        try {
+          await api.post('/financiero/pagos/generar-dividido', {
+            tramiteId,
+            clienteId: tramite?.clienteId,
+            montoTotal: parseFloat(pagoData.monto),
+            concepto: pagoData.concepto,
+            clienteNombre: nombreExtranjero,
+            email: emailExtranjero,
+          });
+          toast.success('Pagos generados y link enviado al extranjero');
+        } catch (err: any) {
+          toast.error(err?.response?.data?.message || 'Error al generar pagos. Verifica el email.');
+        }
       }
 
       toast.success('Trámite completado. Requisitos enviados al extranjero.');
@@ -541,6 +553,11 @@ export default function ContinuarTramitePage() {
               <div>
                 <label className="block text-xs font-medium text-white/70 mb-1">Monto TOTAL (MXN) *</label>
                 <input type="number" value={pagoData.monto} onChange={e => setPagoData(prev => ({ ...prev, monto: e.target.value }))} className="w-full px-3 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="0.00" />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-xs font-medium text-white/70 mb-1">Email del extranjero (para link de pago) *</label>
+                <input type="email" value={pagoData.email} onChange={e => setPagoData(prev => ({ ...prev, email: e.target.value }))} className="w-full px-3 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="correo@ejemplo.com" />
+                <p className="text-[10px] text-white/40 mt-1">Este correo se usará para generar el link de pago en Mercado Pago</p>
               </div>
             </div>
             {pagoData.monto && (

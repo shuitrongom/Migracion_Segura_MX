@@ -186,7 +186,7 @@ export default function SubirDocumentoScreen() {
           >
             <Text style={styles.tipoIcon}>{tipo.icon}</Text>
             <Text style={[styles.tipoLabel, { color: colors.text }]}>{tipo.label}</Text>
-            <Text style={styles.tipoDesc}>{tipo.description}</Text>
+            <Text style={[styles.tipoDesc, { color: colors.textMuted }]}>{tipo.description}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -268,7 +268,7 @@ export default function SubirDocumentoScreen() {
           onPress={() => { setStep('tipo'); setImages([]); setTipoSeleccionado(null); }}
           activeOpacity={0.7}
         >
-          <Text style={styles.backBtnText}>← Cambiar tipo de documento</Text>
+          <Text style={[styles.backBtnText, { color: colors.textMuted }]}>← Cambiar tipo de documento</Text>
         </TouchableOpacity>
       </View>
     );
@@ -311,7 +311,7 @@ export default function SubirDocumentoScreen() {
         onPress={() => setStep('captura')}
         activeOpacity={0.7}
       >
-        <Text style={styles.backBtnText}>← Volver a captura</Text>
+        <Text style={[styles.backBtnText, { color: colors.textMuted }]}>← Volver a captura</Text>
       </TouchableOpacity>
     </View>
   );
@@ -323,7 +323,7 @@ export default function SubirDocumentoScreen() {
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.back()} style={styles.headerBack}>
-              <Text style={styles.headerBackText}>←</Text>
+              <Text style={[styles.headerBackText, { color: colors.text }]}>←</Text>
             </TouchableOpacity>
             <View>
               <Text style={[styles.headerTitle, { color: colors.text }]}>Subir documento</Text>
@@ -345,8 +345,8 @@ const styles = StyleSheet.create({
   gradient: { flex: 1 },
   scrollContent: { padding: 20, paddingBottom: 40 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 24, paddingTop: Platform.OS === 'ios' ? 50 : 20 },
-  headerBack: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#171717', borderWidth: 1, borderColor: '#3a3a3a', alignItems: 'center', justifyContent: 'center' },
-  headerBackText: { fontSize: 18, color: '#fff' },
+  headerBack: { width: 40, height: 40, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  headerBackText: { fontSize: 18 },
   headerTitle: { fontSize: 22, fontWeight: '700' },
   headerSubtitle: { fontSize: 13, marginTop: 2 },
   section: { marginBottom: 24 },
@@ -355,17 +355,17 @@ const styles = StyleSheet.create({
   tiposGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   tipoCard: {
     width: '47%',
-    backgroundColor: '#171717',
+    backgroundColor: 'rgba(128,128,128,0.08)',
     borderRadius: 16,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#3a3a3a',
+    borderColor: 'rgba(128,128,128,0.2)',
     alignItems: 'center',
   },
   tipoCardSelected: { borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.08)' },
   tipoIcon: { fontSize: 32, marginBottom: 8 },
   tipoLabel: { fontSize: 14, fontWeight: '700', marginBottom: 4 },
-  tipoDesc: { fontSize: 11, color: 'rgba(255,255,255,0.5)', textAlign: 'center' },
+  tipoDesc: { fontSize: 11, textAlign: 'center' },
   guideContainer: { alignItems: 'center', marginVertical: 20 },
   guideOverlay: {
     borderWidth: 2,
@@ -388,11 +388,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#171717',
+    backgroundColor: 'rgba(128,128,128,0.08)',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#3a3a3a',
+    borderColor: 'rgba(128,128,128,0.2)',
   },
   captureBtnDone: { borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.05)' },
   captureBtnIcon: { fontSize: 20 },
@@ -418,16 +418,16 @@ const styles = StyleSheet.create({
   },
   previewBtnText: { fontSize: 14, fontWeight: '700', color: '#fff' },
   backBtn: { marginTop: 12, padding: 12, alignItems: 'center' },
-  backBtnText: { fontSize: 13, color: 'rgba(255,255,255,0.5)' },
+  backBtnText: { fontSize: 13 },
   previewScroll: { marginBottom: 20 },
   previewCard: {
     width: 200,
     marginRight: 12,
     borderRadius: 12,
     overflow: 'hidden',
-    backgroundColor: '#171717',
+    backgroundColor: 'rgba(128,128,128,0.08)',
     borderWidth: 1,
-    borderColor: '#3a3a3a',
+    borderColor: 'rgba(128,128,128,0.2)',
   },
   previewImage: { width: '100%', height: 140 },
   previewCardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 10 },

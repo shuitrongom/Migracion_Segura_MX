@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   uploadHint: { fontSize: 11, marginTop: 2 },
 
   list: { paddingHorizontal: 16, paddingBottom: 20 },
-  notifCard: { backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  notifCard: { backgroundColor: 'rgba(128,128,128,0.06)', borderRadius: 12, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: 'rgba(128,128,128,0.12)' },
   notifUnread: { borderLeftWidth: 3, borderLeftColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.03)' },
   notifHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
   notifTitle: { fontSize: 14, fontWeight: '600', flex: 1 },
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   notifDate: { fontSize: 11, marginTop: 6 },
 
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, gap: 10 },
-  emptyIconContainer: { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  emptyIconContainer: { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(128,128,128,0.06)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(128,128,128,0.12)' },
   emptyTitle: { fontSize: 16, fontWeight: '600' },
   emptyText: { fontSize: 13, textAlign: 'center', lineHeight: 20 },
 });
