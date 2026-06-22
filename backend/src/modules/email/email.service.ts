@@ -364,6 +364,7 @@ export class EmailService {
 
   /**
    * Notificar al admin por email de eventos importantes
+   * Envía al correo configurado en ADMIN_NOTIFICATION_EMAIL (o admin@migracionseguramx.com por defecto)
    */
   async sendAdminNotificationEmail(params: {
     subject: string;
@@ -371,7 +372,7 @@ export class EmailService {
     details: string;
     extraInfo?: string;
   }): Promise<void> {
-    const adminEmail = 'admin@migracionseguramx.com';
+    const adminEmail = this.configService.get<string>('ADMIN_NOTIFICATION_EMAIL') || 'admin@migracionseguramx.com';
     const { subject, event, details, extraInfo } = params;
 
     const body = `

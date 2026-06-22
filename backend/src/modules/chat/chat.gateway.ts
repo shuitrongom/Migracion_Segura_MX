@@ -4,6 +4,7 @@ import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ChatMessage } from './entities/message.entity';
+import { AdminNotifierService } from '../notificaciones/admin-notifier.service';
 
 @WebSocketGateway({
   cors: { origin: '*' },
@@ -19,6 +20,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     @InjectRepository(ChatMessage)
     private readonly messageRepository: Repository<ChatMessage>,
+    private readonly adminNotifier: AdminNotifierService,
   ) {}
 
   handleConnection(client: Socket) {
@@ -59,6 +61,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // Confirmar al emisor
     client.emit('messageSent', saved);
+
+    // Notificar al admin si el mensaje viene de un cliente
+    try {
+      const sender = await this.messageRepository.manager.query(
+        `SELECT role, full_name FROM users WHERE id = $1 LIMIT 1`, [data.senderId]
+      );
+      if (sender?.[0]?.role === 'cliente') {
+        await this.adminNotifier.nuevoMensajeChat(
+          sender[0].full_name || 'Cliente',
+          data.content,
+        );
+      }
+    } catch {}
 
     return saved;
   }
