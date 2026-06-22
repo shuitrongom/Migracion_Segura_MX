@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator, Animated, Linking, Modal, Alert } from 'react-native';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { apiFetch } from '@/lib/api';
 import { storage } from '@/lib/storage';
@@ -27,6 +27,9 @@ export default function MisTramitesScreen() {
   const slideAnim = useRef(new Animated.Value(20)).current;
 
   useEffect(() => { loadData(); }, []);
+  
+  // Recargar datos cuando la pantalla recibe foco (al volver de otro trámite)
+  useFocusEffect(useCallback(() => { loadData(); }, []));
   useEffect(() => {
     if (!loading) {
       Animated.parallel([

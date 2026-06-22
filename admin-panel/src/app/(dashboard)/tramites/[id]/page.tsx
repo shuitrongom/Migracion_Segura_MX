@@ -303,6 +303,48 @@ export default function TramiteDetailPage() {
                     <span className="text-sm text-white font-mono">{String(tramite.datosFormulario.curpExtranjero)}</span>
                   </div>
                 )}
+                {tramite.datosFormulario.sexo && (
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-white/50 uppercase">Sexo</span>
+                    <span className="text-sm text-white">{tramite.datosFormulario.sexo === 'H' ? 'Hombre' : tramite.datosFormulario.sexo === 'M' ? 'Mujer' : String(tramite.datosFormulario.sexo)}</span>
+                  </div>
+                )}
+                {tramite.datosFormulario.fechaNacimiento && (
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-white/50 uppercase">Fecha nacimiento</span>
+                    <span className="text-sm text-white">{String(tramite.datosFormulario.fechaNacimiento)}</span>
+                  </div>
+                )}
+                {tramite.datosFormulario.estadoCivil && (
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-white/50 uppercase">Estado civil</span>
+                    <span className="text-sm text-white">{String(tramite.datosFormulario.estadoCivil)}</span>
+                  </div>
+                )}
+                {tramite.datosFormulario.paisNacimiento && (
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-white/50 uppercase">País de nacimiento</span>
+                    <span className="text-sm text-white">{String(tramite.datosFormulario.paisNacimiento)}</span>
+                  </div>
+                )}
+                {tramite.datosFormulario.paisExpedicion && (
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-white/50 uppercase">País expedición</span>
+                    <span className="text-sm text-white">{String(tramite.datosFormulario.paisExpedicion)}</span>
+                  </div>
+                )}
+                {tramite.datosFormulario.fechaExpedicion && (
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-white/50 uppercase">Fecha expedición</span>
+                    <span className="text-sm text-white">{String(tramite.datosFormulario.fechaExpedicion)}</span>
+                  </div>
+                )}
+                {tramite.datosFormulario.fechaVencimiento && (
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-white/50 uppercase">Fecha vencimiento</span>
+                    <span className="text-sm text-white">{String(tramite.datosFormulario.fechaVencimiento)}</span>
+                  </div>
+                )}
                 {(tramite.datosFormulario.domCalle || tramite.datosFormulario.domColonia) && (
                   <div>
                     <span className="text-[10px] text-white/50 uppercase">Domicilio</span>
@@ -326,6 +368,59 @@ export default function TramiteDetailPage() {
                   </div>
                 )}
               </div>
+
+              {/* Datos del solicitante/persona física (visa) */}
+              {tramite.datosFormulario.solicitante && typeof tramite.datosFormulario.solicitante === 'object' && (tramite.datosFormulario.solicitante as any).nombre && (
+                <div className="mt-4 pt-4 border-t border-[#2a2a2a]">
+                  <h4 className="text-[10px] font-semibold text-amber-500 uppercase mb-3">Datos del solicitante (persona física/moral)</h4>
+                  <div className="space-y-2">
+                    {(tramite.datosFormulario.solicitante as any).nombre && (
+                      <div className="flex justify-between">
+                        <span className="text-[10px] text-white/50 uppercase">Nombre</span>
+                        <span className="text-sm text-white">{String((tramite.datosFormulario.solicitante as any).nombre)} {String((tramite.datosFormulario.solicitante as any).apellidos || '')}</span>
+                      </div>
+                    )}
+                    {(tramite.datosFormulario.solicitante as any).tipoPersona && (
+                      <div className="flex justify-between">
+                        <span className="text-[10px] text-white/50 uppercase">Tipo persona</span>
+                        <span className="text-sm text-white">{String((tramite.datosFormulario.solicitante as any).tipoPersona)}</span>
+                      </div>
+                    )}
+                    {(tramite.datosFormulario.solicitante as any).curp && (
+                      <div className="flex justify-between">
+                        <span className="text-[10px] text-white/50 uppercase">CURP</span>
+                        <span className="text-sm text-white font-mono">{String((tramite.datosFormulario.solicitante as any).curp)}</span>
+                      </div>
+                    )}
+                    {(tramite.datosFormulario.solicitante as any).rfc && (
+                      <div className="flex justify-between">
+                        <span className="text-[10px] text-white/50 uppercase">RFC</span>
+                        <span className="text-sm text-white font-mono">{String((tramite.datosFormulario.solicitante as any).rfc)}</span>
+                      </div>
+                    )}
+                    {(tramite.datosFormulario.solicitante as any).vinculoParentesco && (
+                      <div className="flex justify-between">
+                        <span className="text-[10px] text-white/50 uppercase">Vínculo</span>
+                        <span className="text-sm text-white">{String((tramite.datosFormulario.solicitante as any).vinculoParentesco)}</span>
+                      </div>
+                    )}
+                    {((tramite.datosFormulario.solicitante as any).calle || (tramite.datosFormulario.solicitante as any).colonia) && (
+                      <div>
+                        <span className="text-[10px] text-white/50 uppercase">Domicilio solicitante</span>
+                        <p className="text-sm text-white mt-0.5">
+                          {[(tramite.datosFormulario.solicitante as any).calle, (tramite.datosFormulario.solicitante as any).numeroExterior, (tramite.datosFormulario.solicitante as any).colonia, (tramite.datosFormulario.solicitante as any).municipio, (tramite.datosFormulario.solicitante as any).estado, (tramite.datosFormulario.solicitante as any).codigoPostal].filter(Boolean).join(', ')}
+                        </p>
+                      </div>
+                    )}
+                    {(tramite.datosFormulario.solicitante as any).telefonoFijo && (
+                      <div className="flex justify-between">
+                        <span className="text-[10px] text-white/50 uppercase">Teléfono</span>
+                        <span className="text-sm text-white">{String((tramite.datosFormulario.solicitante as any).telefonoFijo)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

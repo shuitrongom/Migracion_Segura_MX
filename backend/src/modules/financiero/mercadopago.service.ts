@@ -19,6 +19,10 @@ export class MercadoPagoService {
   /**
    * Crear preferencia de pago (Checkout Pro)
    * Retorna la URL donde el usuario paga
+   *
+   * NOTA: En sandbox (NODE_ENV !== 'production') NO se envía payer.email
+   * para que el campo quede editable en el checkout de Mercado Pago.
+   * En producción se pre-llena con el email del cliente.
    */
   async createPreference(params: {
     tramiteId: string;
@@ -27,6 +31,9 @@ export class MercadoPagoService {
     monto: number;
     email: string;
   }) {
+    const isProduction = this.configService.get<string>('NODE_ENV') === 'production';
+    const cleanEmail = params.email?.trim().toLowerCase();
+
     try {
       const response = await this.preference.create({
         body: {
@@ -42,7 +49,7 @@ export class MercadoPagoService {
           ],
           payer: {
             name: params.clienteNombre || 'Extranjero',
-            email: params.email || undefined,
+            ...(isProduction && cleanEmail ? { email: cleanEmail } : {}),
           },
           payment_methods: {
             excluded_payment_types: [],

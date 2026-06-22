@@ -109,6 +109,7 @@ export enum MetodoPago {
   TRANSFERENCIA_BANCARIA = 'transferencia_bancaria',
   TARJETA_CREDITO_DEBITO = 'tarjeta_credito_debito',
   EFECTIVO = 'efectivo',
+  CRYPTO = 'crypto',
 }
 
 /**

@@ -216,4 +216,77 @@ export class FinancieroController {
       return { ok: false, message: 'Error al reenviar' };
     }
   }
+
+  /**
+   * Cliente sube voucher/comprobante de transferencia
+   * Requiere: pagoId, montoDeclarado, voucherUrl (ya subido a storage)
+   */
+  @Post('pagos/:pagoId/voucher')
+  @Roles(UserRole.CLIENTE, UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Registrar pago por transferencia con voucher' })
+  @ApiParam({ name: 'pagoId', description: 'UUID del pago' })
+  async subirVoucher(
+    @Param('pagoId', ParseUUIDPipe) pagoId: string,
+    @Body() body: { montoDeclarado: number; voucherUrl: string; metodoPago: string },
+    @Request() req: { user: { id: string } },
+  ) {
+    return this.financieroService.registrarVoucher({
+      pagoId,
+      montoDeclarado: body.montoDeclarado,
+      voucherUrl: body.voucherUrl,
+      metodoPago: body.metodoPago,
+      userId: req.user.id,
+    });
+  }
+
+  /**
+   * Admin aprueba un voucher
+   */
+  @Post('pagos/:pagoId/voucher/aprobar')
+  @Roles(UserRole.ADMINISTRADOR)
+  @ApiOperation({ summary: 'Aprobar voucher de transferencia' })
+  @ApiParam({ name: 'pagoId', description: 'UUID del pago' })
+  async aprobarVoucher(
+    @Param('pagoId', ParseUUIDPipe) pagoId: string,
+    @Body() body: { nota?: string },
+    @Request() req: { user: { id: string } },
+  ) {
+    return this.financieroService.aprobarVoucher(pagoId, req.user.id, body.nota);
+  }
+
+  /**
+   * Admin rechaza un voucher
+   */
+  @Post('pagos/:pagoId/voucher/rechazar')
+  @Roles(UserRole.ADMINISTRADOR)
+  @ApiOperation({ summary: 'Rechazar voucher de transferencia' })
+  @ApiParam({ name: 'pagoId', description: 'UUID del pago' })
+  async rechazarVoucher(
+    @Param('pagoId', ParseUUIDPipe) pagoId: string,
+    @Body() body: { nota: string },
+    @Request() req: { user: { id: string } },
+  ) {
+    return this.financieroService.rechazarVoucher(pagoId, req.user.id, body.nota);
+  }
+
+  /**
+   * Obtener datos bancarios para transferencia
+   */
+  @Get('datos-bancarios')
+  @Roles(UserRole.CLIENTE, UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Obtener datos bancarios para pago por transferencia' })
+  getDatosBancarios() {
+    return {
+      titular: 'Edgar Colin Palacios',
+      cuentas: [
+        { banco: 'BBVA Bancomer', clabe: '012180015014946778', tarjeta: '4152 3141 9644 6655' },
+        { banco: 'Banamex', clabe: '002260701966403299', tarjeta: null },
+        { banco: 'Banco Azteca', clabe: '127420013084552477', tarjeta: null },
+        { banco: 'Mercado Pago', clabe: '722969017151083524', tarjeta: null },
+      ],
+      crypto: [
+        { red: 'Binance (USDT)', email: 'eddcoll87@gmail.com', wallet: '0x11dEf1053Dc4cB950681BcAd41db6b999F7Cb8b2' },
+      ],
+    };
+  }
 }

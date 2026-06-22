@@ -1,7 +1,10 @@
-import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, TouchableOpacity, Linking, Animated, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, TouchableOpacity, Linking, Animated, Alert, Platform } from 'react-native';
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { router, useFocusEffect } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import { apiFetch } from '@/lib/api';
 import { storage } from '@/lib/storage';
 import { useTheme } from '@/lib/theme';
@@ -34,6 +37,9 @@ export default function EstatusScreen() {
   const slideAnim = useRef(new Animated.Value(30)).current;
 
   useEffect(() => { loadData(); }, []);
+
+  // Recargar al volver a esta pantalla (ej: después de pagar)
+  useFocusEffect(useCallback(() => { loadData(); }, []));
 
   useEffect(() => {
     Animated.parallel([
@@ -164,10 +170,32 @@ export default function EstatusScreen() {
         <Text style={[styles.date, { color: colors.textMuted }]}>Iniciado: {item.createdAt?.slice(0, 10)}</Text>
 
         {/* Pagos pendientes */}
-        {pagos[item.id]?.filter((p: any) => p.estatusPago === 'pendiente' && p.mercadopagoInitPoint).map((pago: any) => (
+        {pagos[item.id]?.filter((p: any) => p.estatusPago === 'pendiente').map((pago: any) => (
           <TouchableOpacity
             key={pago.id}
-            onPress={() => Linking.openURL(pago.mercadopagoInitPoint)}
+            onPress={() => {
+              const opciones: any[] = [];
+              if (pago.mercadopagoInitPoint) {
+                opciones.push({
+                  text: '💳 Mercado Pago (tarjeta)',
+                  onPress: () => Linking.openURL(pago.mercadopagoInitPoint),
+                });
+              }
+              opciones.push({
+                text: '🏦 Transferencia / Crypto',
+                onPress: () => router.push({
+                  pathname: '/(cliente)/pago-transferencia',
+                  params: { pagoId: pago.id, monto: String(pago.monto), concepto: pago.concepto || '', tramiteId: item.id },
+                }),
+              });
+              opciones.push({ text: 'Cancelar', style: 'cancel' });
+
+              Alert.alert(
+                '💳 Opciones de pago',
+                `Monto: $${Number(pago.monto).toLocaleString()} MXN\n\nElige cómo deseas pagar:`,
+                opciones,
+              );
+            }}
           >
             <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.payButton}>
               <Text style={styles.payButtonText}>💳 Pagar {pago.tipoPago === 'anticipo' ? 'Anticipo' : 'Liquidación'}: ${Number(pago.monto).toLocaleString()} MXN</Text>
@@ -182,20 +210,41 @@ export default function EstatusScreen() {
           </View>
         ))}
 
-        {/* Pieza INM */}
-        {item.numeroPieza && !item.numeroPieza.startsWith('MSX-') && (
-          <View style={styles.inmDataBox}>
-            <Text style={[styles.inmDataLabel, { color: colors.textMuted }]}>📋 Pieza INM</Text>
-            <Text style={styles.inmDataValue}>{item.numeroPieza}</Text>
+        {/* Pagos en revisión de voucher */}
+        {pagos[item.id]?.filter((p: any) => p.estatusPago === 'en_revision_voucher').map((pago: any) => (
+          <View key={pago.id} style={[styles.paidBadge, { backgroundColor: '#E67E2215' }]}>
+            <Text style={[styles.paidText, { color: '#E67E22' }]}>🧾 {pago.tipoPago === 'anticipo' ? 'Anticipo' : 'Liquidación'}: Comprobante en revisión (${Number(pago.montoDeclarado || pago.monto).toLocaleString()})</Text>
           </View>
+        ))}
+
+        {/* Pieza INM - solo mostrar si todos los pagos están aprobados */}
+        {item.numeroPieza && !item.numeroPieza.startsWith('MSX-') && (
+          pagos[item.id]?.length > 0 && pagos[item.id].every((p: any) => p.estatusPago === 'aprobado') ? (
+            <View style={styles.inmDataBox}>
+              <Text style={[styles.inmDataLabel, { color: colors.textMuted }]}>📋 Pieza INM</Text>
+              <Text style={styles.inmDataValue}>{item.numeroPieza}</Text>
+            </View>
+          ) : !pagos[item.id]?.length ? (
+            <View style={styles.inmDataBox}>
+              <Text style={[styles.inmDataLabel, { color: colors.textMuted }]}>📋 Pieza INM</Text>
+              <Text style={styles.inmDataValue}>{item.numeroPieza}</Text>
+            </View>
+          ) : null
         )}
 
-        {/* Contraseña INM */}
+        {/* Contraseña INM - solo mostrar si todos los pagos están aprobados */}
         {item.contrasenaTramite && (
-          <View style={styles.inmDataBox}>
-            <Text style={[styles.inmDataLabel, { color: colors.textMuted }]}>🔑 Clave INM</Text>
-            <Text style={styles.inmDataValue}>{item.contrasenaTramite}</Text>
-          </View>
+          pagos[item.id]?.length > 0 && pagos[item.id].every((p: any) => p.estatusPago === 'aprobado') ? (
+            <View style={styles.inmDataBox}>
+              <Text style={[styles.inmDataLabel, { color: colors.textMuted }]}>🔑 Clave INM</Text>
+              <Text style={styles.inmDataValue}>{item.contrasenaTramite}</Text>
+            </View>
+          ) : !pagos[item.id]?.length ? (
+            <View style={styles.inmDataBox}>
+              <Text style={[styles.inmDataLabel, { color: colors.textMuted }]}>🔑 Clave INM</Text>
+              <Text style={styles.inmDataValue}>{item.contrasenaTramite}</Text>
+            </View>
+          ) : null
         )}
 
         {/* NUT */}
@@ -351,7 +400,7 @@ export default function EstatusScreen() {
           onPress={() => setActiveTab('tramites')}
         >
           <Text style={[styles.tabText, { color: colors.textMuted }, activeTab === 'tramites' && styles.tabTextActive]}>
-            Trámites {Object.values(pagos).flat().filter((p: any) => p.estatusPago === 'pendiente' && p.mercadopagoInitPoint).length > 0 ? '🔴' : ''}
+            Trámites {Object.values(pagos).flat().filter((p: any) => p.estatusPago === 'pendiente').length > 0 ? '🔴' : ''}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -420,23 +469,44 @@ export default function EstatusScreen() {
                   <Text style={styles.date}>Creada: {item.createdAt?.slice(0, 10)}</Text>
 
                   {/* Botón pagar si está pendiente */}
-                  {item.estatus === 'pendiente_pago' && item.mercadopagoInitPoint && (
+                  {item.estatus === 'pendiente_pago' && (
                     <TouchableOpacity
-                      onPress={() => Linking.openURL(item.mercadopagoInitPoint)}
+                      onPress={() => {
+                        const opciones: any[] = [];
+                        if (item.mercadopagoInitPoint) {
+                          opciones.push({
+                            text: '💳 Mercado Pago (tarjeta)',
+                            onPress: () => Linking.openURL(item.mercadopagoInitPoint),
+                          });
+                        }
+                        opciones.push({
+                          text: '🏦 Transferencia / Crypto',
+                          onPress: () => router.push({
+                            pathname: '/(cliente)/pago-transferencia',
+                            params: { pagoId: item.id, monto: String(item.costo || 100), concepto: `Solicitud INM - ${tipoLabel}`, tramiteId: item.id },
+                          }),
+                        });
+                        opciones.push({ text: 'Cancelar', style: 'cancel' });
+
+                        Alert.alert(
+                          '💳 Opciones de pago',
+                          `Monto: $${item.costo || 100} MXN\n\nElige cómo deseas pagar:`,
+                          opciones,
+                        );
+                      }}
                       style={styles.payButton}
                     >
                       <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.payButton}>
-                        <Text style={styles.payButtonText}>💳 Pagar $100 MXN — Enlace de pago</Text>
+                        <Text style={styles.payButtonText}>💳 Pagar ${item.costo || 100} MXN — Opciones de pago</Text>
                       </LinearGradient>
                     </TouchableOpacity>
                   )}
 
-                  {/* Pieza asignada en pendiente_pago */}
-                  {item.numeroPieza && item.estatus === 'pendiente_pago' && (
-                    <View style={styles.inmDataBox}>
-                      <Text style={styles.inmDataLabel}>📋 Pieza INM asignada</Text>
-                      <Text style={styles.inmDataValue}>{item.numeroPieza}</Text>
-                      <Text style={{ fontSize: 10, color: colors.textMuted, marginTop: 4 }}>Se entregará completa al confirmar el pago</Text>
+                  {/* Pendiente de pago — NO mostrar pieza ni contraseña */}
+                  {item.estatus === 'pendiente_pago' && (
+                    <View style={[styles.inmDataBox, { backgroundColor: 'rgba(231,76,60,0.06)', borderColor: 'rgba(231,76,60,0.2)' }]}>
+                      <Text style={[styles.inmDataLabel, { color: '#E74C3C' }]}>⚠️ Pago pendiente</Text>
+                      <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 4 }}>Tu solicitud está lista. Realiza el pago para obtener tu pieza, contraseña y PDF.</Text>
                     </View>
                   )}
 
@@ -467,25 +537,54 @@ export default function EstatusScreen() {
                             try {
                               // Obtener signed URL temporal del backend
                               const res = await apiFetch(`/solicitudes/${item.id}/documento-url`);
+                              let downloadUrl = '';
                               if (res.ok) {
                                 const data = await res.json();
                                 if (data.url) {
-                                  Linking.openURL(data.url);
-                                  return;
+                                  downloadUrl = data.url;
                                 }
                               }
-                              // Fallback: abrir directamente el endpoint de descarga
+                              if (!downloadUrl) {
+                                downloadUrl = `https://api.migracionseguramx.com/api/v1/solicitudes/${item.id}/documento`;
+                              }
+
+                              // Descargar al dispositivo
+                              const fileName = `solicitud_${item.numeroPieza || item.id}.pdf`;
+                              const fileUri = FileSystem.documentDirectory + fileName;
                               const token = await storage.getItem('access_token');
-                              Linking.openURL(`https://api.migracionseguramx.com/api/v1/solicitudes/${item.id}/documento`);
+
+                              Alert.alert('Descargando...', 'Tu PDF se está descargando.');
+
+                              const downloadResult = await FileSystem.downloadAsync(
+                                downloadUrl,
+                                fileUri,
+                                {
+                                  headers: token ? { Authorization: `Bearer ${token}` } : {},
+                                }
+                              );
+
+                              if (downloadResult.status === 200) {
+                                // Compartir/guardar el archivo descargado
+                                if (await Sharing.isAvailableAsync()) {
+                                  await Sharing.shareAsync(downloadResult.uri, {
+                                    mimeType: 'application/pdf',
+                                    dialogTitle: 'Guardar solicitud PDF',
+                                  });
+                                } else {
+                                  Alert.alert('PDF descargado', `Se guardó en: ${downloadResult.uri}`);
+                                }
+                              } else {
+                                Alert.alert('Error', 'No se pudo descargar el PDF. Intenta de nuevo.');
+                              }
                             } catch {
-                              Alert.alert('Error', 'No se pudo obtener el documento. Intenta de nuevo.');
+                              Alert.alert('Error', 'No se pudo descargar el documento. Intenta de nuevo.');
                             }
                           } else {
                             Alert.alert('PDF no disponible', 'Tu solicitud aún no tiene documento adjunto. Recibirás una notificación cuando esté listo.');
                           }
                         }}
                       >
-                        <Text style={{ color: '#f59e0b', fontSize: 14, fontWeight: '700' }}>📄 Ver/Descargar solicitud PDF</Text>
+                        <Text style={{ color: '#f59e0b', fontSize: 14, fontWeight: '700' }}>📄 Descargar solicitud PDF</Text>
                       </TouchableOpacity>
                     </View>
                   )}

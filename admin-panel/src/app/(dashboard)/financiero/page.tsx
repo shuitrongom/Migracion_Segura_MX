@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { DollarSign, TrendingUp, Clock, CheckCircle, XCircle, RefreshCw, Wallet } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { DollarSign, TrendingUp, Clock, CheckCircle, XCircle, RefreshCw, Wallet, Eye, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -12,6 +12,7 @@ function formatCurrency(amount: number): string {
 
 const ESTATUS_CONFIG: Record<string, { label: string; color: string; icon: typeof CheckCircle }> = {
   pendiente: { label: 'Pendiente', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20', icon: Clock },
+  en_revision_voucher: { label: 'Voucher en revisión', color: 'bg-orange-500/10 text-orange-400 border-orange-500/20', icon: Clock },
   aprobado: { label: 'Pagado', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', icon: CheckCircle },
   rechazado: { label: 'Rechazado', color: 'bg-red-500/10 text-red-400 border-red-500/20', icon: XCircle },
   cancelado: { label: 'Cancelado', color: 'bg-[#1a1a1a] text-white/70 border-[#3a3a3a]', icon: XCircle },
@@ -85,6 +86,7 @@ export default function FinancieroPage() {
   const pagos = pagosQuery.data || [];
   const totalAprobado = pagos.filter(p => p.estatusPago === 'aprobado').reduce((sum, p) => sum + Number(p.monto), 0);
   const totalPendiente = pagos.filter(p => p.estatusPago === 'pendiente').reduce((sum, p) => sum + Number(p.monto), 0);
+  const totalEnRevision = pagos.filter(p => p.estatusPago === 'en_revision_voucher').reduce((sum, p) => sum + Number(p.monto), 0);
   const totalCancelado = pagos.filter(p => p.estatusPago === 'cancelado').reduce((sum, p) => sum + Number(p.monto), 0);
 
   return (
@@ -189,29 +191,78 @@ export default function FinancieroPage() {
               const config = ESTATUS_CONFIG[pago.estatusPago] || ESTATUS_CONFIG.pendiente;
               const Icon = config.icon;
               return (
-                <div key={pago.id} className="flex items-center justify-between px-6 py-4 hover:bg-[#222222] transition-colors group">
-                  <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500/15 to-amber-600/15 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
-                      <DollarSign className="h-5 w-5 text-amber-500" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-white">{pago.tramite?.cliente?.nombreCompleto || pago.tramite?.datosFormulario?.nombre || pago.solicitud?.datosFormulario?.nombre || '—'}</p>
-                      <p className="text-xs text-white/70">{pago.concepto} • {pago.createdAt?.slice(0, 10)}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <p className="text-[10px] text-white/70">{pago.tramite?.numeroPieza || pago.tramiteId?.slice(0, 8)}</p>
-                        {pago.origen === 'solicitud' && <span className="text-[9px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-1.5 py-0.5 rounded">Solicitud $100</span>}
+                <div key={pago.id} className="px-6 py-4 hover:bg-[#222222] transition-colors group">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500/15 to-amber-600/15 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+                        <DollarSign className="h-5 w-5 text-amber-500" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-white">{pago.tramite?.cliente?.nombreCompleto || pago.tramite?.datosFormulario?.nombre || pago.solicitud?.datosFormulario?.nombre || '—'}</p>
+                        <p className="text-xs text-white/70">{pago.concepto} • {pago.createdAt?.slice(0, 10)}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <p className="text-[10px] text-white/70">{pago.tramite?.numeroPieza || pago.tramiteId?.slice(0, 8)}</p>
+                          {pago.origen === 'solicitud' && <span className="text-[9px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-1.5 py-0.5 rounded">Solicitud $100</span>}
+                        </div>
                       </div>
                     </div>
+                    <div className="flex items-center gap-4 shrink-0">
+                      <span className="text-xs font-medium text-amber-500 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
+                        {TIPO_PAGO_LABELS[pago.tipoPago] || pago.tipoPago}
+                      </span>
+                      <p className="font-mono font-bold text-white">{formatCurrency(Number(pago.monto))}</p>
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border ${config.color}`}>
+                        <Icon className="h-3 w-3" /> {config.label}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-4 shrink-0">
-                    <span className="text-xs font-medium text-amber-500 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
-                      {TIPO_PAGO_LABELS[pago.tipoPago] || pago.tipoPago}
-                    </span>
-                    <p className="font-mono font-bold text-white">{formatCurrency(Number(pago.monto))}</p>
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border ${config.color}`}>
-                      <Icon className="h-3 w-3" /> {config.label}
-                    </span>
-                  </div>
+
+                  {/* Voucher info — visible cuando hay voucher */}
+                  {pago.voucherUrl && (
+                    <div className="mt-3 ml-15 pl-[60px] flex items-center gap-3 p-3 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a]">
+                      <div className="flex-1">
+                        <p className="text-xs text-white/70">
+                          🧾 <span className="font-semibold text-white">Monto declarado:</span> {formatCurrency(Number(pago.montoDeclarado || 0))}
+                          {pago.metodoPago && <span className="ml-2 text-white/50">• {pago.metodoPago === 'crypto' ? 'Crypto/USDT' : 'Transferencia bancaria'}</span>}
+                        </p>
+                        {pago.voucherNotaAdmin && (
+                          <p className="text-[10px] text-white/50 mt-1">Nota: {pago.voucherNotaAdmin}</p>
+                        )}
+                      </div>
+                      <a href={pago.voucherUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-medium hover:bg-blue-500/20 transition-colors">
+                        <Eye className="h-3 w-3" /> Ver voucher
+                      </a>
+                      {pago.estatusPago === 'en_revision_voucher' && (
+                        <>
+                          <button
+                            onClick={async () => {
+                              if (!confirm('¿Aprobar este voucher y confirmar el pago?')) return;
+                              try {
+                                await api.post(`/financiero/pagos/${pago.id}/voucher/aprobar`, { nota: '' });
+                                pagosQuery.refetch();
+                              } catch { alert('Error al aprobar'); }
+                            }}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold hover:bg-emerald-500/20 transition-colors"
+                          >
+                            <ThumbsUp className="h-3 w-3" /> Aprobar
+                          </button>
+                          <button
+                            onClick={async () => {
+                              const nota = prompt('Razón del rechazo (obligatorio):');
+                              if (!nota) return;
+                              try {
+                                await api.post(`/financiero/pagos/${pago.id}/voucher/rechazar`, { nota });
+                                pagosQuery.refetch();
+                              } catch { alert('Error al rechazar'); }
+                            }}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-bold hover:bg-red-500/20 transition-colors"
+                          >
+                            <ThumbsDown className="h-3 w-3" /> Rechazar
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}

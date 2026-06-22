@@ -7,11 +7,12 @@ import { MetodoPago } from '../../../common/enums';
  * Estados del pago
  */
 export enum EstatusPago {
-  PENDIENTE = 'pendiente',       // Link generado, esperando pago
-  APROBADO = 'aprobado',         // Pago confirmado por Mercado Pago
-  RECHAZADO = 'rechazado',       // Pago rechazado
-  CANCELADO = 'cancelado',       // Cancelado por timeout o admin
-  REEMBOLSADO = 'reembolsado',   // Dinero devuelto
+  PENDIENTE = 'pendiente',                     // Link generado, esperando pago
+  EN_REVISION_VOUCHER = 'en_revision_voucher', // Voucher subido, esperando revisión del admin
+  APROBADO = 'aprobado',                       // Pago confirmado
+  RECHAZADO = 'rechazado',                     // Pago rechazado
+  CANCELADO = 'cancelado',                     // Cancelado por timeout o admin
+  REEMBOLSADO = 'reembolsado',                 // Dinero devuelto
 }
 
 /**
@@ -88,6 +89,19 @@ export class Pago extends BaseEntity {
 
   @Column({ type: 'varchar', length: 500, nullable: true })
   referencia: string | null;
+
+  // Voucher / Comprobante de transferencia
+  @Column({ name: 'voucher_url', type: 'varchar', length: 500, nullable: true })
+  voucherUrl: string | null;
+
+  @Column({ name: 'monto_declarado', type: 'decimal', precision: 12, scale: 2, nullable: true })
+  montoDeclarado: number | null;
+
+  @Column({ name: 'voucher_estatus', type: 'varchar', length: 30, nullable: true, default: null })
+  voucherEstatus: 'pendiente_revision' | 'aprobado' | 'rechazado' | null;
+
+  @Column({ name: 'voucher_nota_admin', type: 'varchar', length: 500, nullable: true })
+  voucherNotaAdmin: string | null;
 
   // Historial inmutable de cambios
   @Column({ type: 'jsonb', default: [] })

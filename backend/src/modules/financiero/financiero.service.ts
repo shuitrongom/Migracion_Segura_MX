@@ -36,7 +36,7 @@ export class FinancieroService {
     email: string;
     registradoPor: string;
   }): Promise<{ anticipo: Pago; liquidacion: Pago }> {
-    const montoAnticipo = Math.round(params.montoTotal * 50) / 100; // 50%
+    const montoAnticipo = Math.round(params.montoTotal * 100 * 0.5) / 100; // 50%
     const montoLiquidacion = params.montoTotal - montoAnticipo;
     const fechaVencimiento = new Date();
     fechaVencimiento.setDate(fechaVencimiento.getDate() + 15); // 15 días para pagar
@@ -354,7 +354,7 @@ export class FinancieroService {
   async getSaldoPendiente(clienteId: string) {
     const pagos = await this.pagoRepository.find({ where: { clienteId } });
     const totalCobrado = pagos.filter(p => p.estatusPago === EstatusPago.APROBADO).reduce((sum, p) => sum + Number(p.monto), 0);
-    const totalPendiente = pagos.filter(p => p.estatusPago === EstatusPago.PENDIENTE).reduce((sum, p) => sum + Number(p.monto), 0);
+    const totalPendiente = pagos.filter(p => p.estatusPago === EstatusPago.PENDIENTE || p.estatusPago === EstatusPago.EN_REVISION_VOUCHER).reduce((sum, p) => sum + Number(p.monto), 0);
     const totalGeneral = pagos.reduce((sum, p) => sum + Number(p.montoTotalTramite || p.monto), 0) / 2; // Evitar doble conteo
 
     return { montoTotal: totalGeneral, montoPagado: totalCobrado, saldoPendiente: totalPendiente };
@@ -400,5 +400,177 @@ export class FinancieroService {
       totalPagos: pagos.length,
       porMetodo: Object.entries(porMetodo).map(([metodoPago, data]) => ({ metodoPago, ...data })),
     };
+  }
+
+  /**
+   * Registrar voucher de transferencia
+   * Validación estricta: requiere monto y voucher URL para proceder
+   */
+  async registrarVoucher(params: {
+    pagoId: string;
+    montoDeclarado: number;
+    voucherUrl: string;
+    metodoPago: string;
+    userId: string;
+  }): Promise<Pago> {
+    // Validar que se envía monto
+    if (!params.montoDeclarado || params.montoDeclarado <= 0) {
+      throw new BadRequestException('Debes indicar el monto que transferiste. Sin monto no se puede registrar el pago.');
+    }
+
+    // Validar que se envía voucher
+    if (!params.voucherUrl || params.voucherUrl.trim() === '') {
+      throw new BadRequestException('Debes subir el comprobante de transferencia (voucher). Sin comprobante no se registra el pago.');
+    }
+
+    const pago = await this.pagoRepository.findOne({ where: { id: params.pagoId } });
+    if (!pago) {
+      throw new NotFoundException('Pago no encontrado');
+    }
+
+    if (pago.estatusPago !== EstatusPago.PENDIENTE) {
+      throw new BadRequestException('Este pago ya no está pendiente. No se puede subir voucher.');
+    }
+
+    // Registrar voucher — no se aprueba automáticamente, queda en revisión
+    pago.voucherUrl = params.voucherUrl.trim();
+    pago.montoDeclarado = params.montoDeclarado;
+    pago.voucherEstatus = 'pendiente_revision';
+    pago.estatusPago = EstatusPago.EN_REVISION_VOUCHER;
+    pago.metodoPago = params.metodoPago === 'crypto'
+      ? MetodoPago.CRYPTO
+      : MetodoPago.TRANSFERENCIA_BANCARIA;
+    pago.historial = [
+      ...pago.historial,
+      {
+        accion: 'VOUCHER_SUBIDO',
+        fecha: new Date().toISOString(),
+        usuarioId: params.userId,
+        detalle: `Voucher subido. Monto declarado: $${params.montoDeclarado}. Método: ${params.metodoPago}. En espera de revisión del admin.`,
+      },
+    ];
+
+    const saved = await this.pagoRepository.save(pago);
+
+    // Notificar al admin que hay un voucher pendiente de revisión
+    try {
+      const admins = await this.pagoRepository.manager.query(
+        `SELECT id FROM users WHERE role = 'administrador' AND deleted_at IS NULL LIMIT 1`
+      );
+      if (admins?.[0]?.id) {
+        await this.notificacionesService.sendNotification({
+          destinatarioId: admins[0].id,
+          tipo: TipoNotificacion.PAGO_PENDIENTE,
+          canal: CanalNotificacion.PUSH,
+          titulo: '🧾 Voucher pendiente de revisión',
+          contenido: `Se subió un comprobante de $${params.montoDeclarado} MXN. Revisa y aprueba o rechaza.`,
+          metadata: { pagoId: params.pagoId, monto: params.montoDeclarado.toString() },
+        }).catch(() => {});
+      }
+    } catch {}
+
+    return saved;
+  }
+
+  /**
+   * Admin aprueba un voucher — marca el pago como aprobado
+   */
+  async aprobarVoucher(pagoId: string, adminId: string, nota?: string): Promise<Pago> {
+    const pago = await this.pagoRepository.findOne({ where: { id: pagoId } });
+    if (!pago) throw new NotFoundException('Pago no encontrado');
+
+    if (pago.voucherEstatus !== 'pendiente_revision') {
+      throw new BadRequestException('Este voucher ya fue procesado.');
+    }
+
+    pago.estatusPago = EstatusPago.APROBADO;
+    pago.voucherEstatus = 'aprobado';
+    pago.voucherNotaAdmin = nota || null;
+    pago.fechaPago = new Date();
+    pago.historial = [
+      ...pago.historial,
+      {
+        accion: 'VOUCHER_APROBADO',
+        fecha: new Date().toISOString(),
+        usuarioId: adminId,
+        detalle: `Voucher aprobado por admin. Monto confirmado: $${pago.montoDeclarado}.${nota ? ` Nota: ${nota}` : ''}`,
+      },
+    ];
+
+    const saved = await this.pagoRepository.save(pago);
+
+    // Notificar al cliente que su pago fue confirmado
+    try {
+      if (pago.clienteId) {
+        const cliente = await this.pagoRepository.manager.query(
+          `SELECT user_id FROM clientes WHERE id = $1`, [pago.clienteId]
+        );
+        if (cliente?.[0]?.user_id) {
+          await this.notificacionesService.sendNotification({
+            destinatarioId: cliente[0].user_id,
+            tipo: TipoNotificacion.PAGO_CONFIRMADO,
+            canal: CanalNotificacion.PUSH,
+            titulo: '✅ Tu pago fue confirmado',
+            contenido: `Tu transferencia de $${pago.montoDeclarado} MXN ha sido verificada y aprobada.`,
+            metadata: { pagoId, monto: pago.montoDeclarado?.toString() || '' },
+          }).catch(() => {});
+        }
+      }
+    } catch {}
+
+    return saved;
+  }
+
+  /**
+   * Admin rechaza un voucher — el cliente debe volver a subir
+   */
+  async rechazarVoucher(pagoId: string, adminId: string, nota: string): Promise<Pago> {
+    if (!nota || nota.trim() === '') {
+      throw new BadRequestException('Debes indicar la razón del rechazo.');
+    }
+
+    const pago = await this.pagoRepository.findOne({ where: { id: pagoId } });
+    if (!pago) throw new NotFoundException('Pago no encontrado');
+
+    if (pago.voucherEstatus !== 'pendiente_revision') {
+      throw new BadRequestException('Este voucher ya fue procesado.');
+    }
+
+    // Regresar a pendiente para que el cliente pueda reintentar
+    pago.estatusPago = EstatusPago.PENDIENTE;
+    pago.voucherEstatus = 'rechazado';
+    pago.voucherNotaAdmin = nota.trim();
+    pago.historial = [
+      ...pago.historial,
+      {
+        accion: 'VOUCHER_RECHAZADO',
+        fecha: new Date().toISOString(),
+        usuarioId: adminId,
+        detalle: `Voucher rechazado. Razón: ${nota}. El cliente puede subir un nuevo comprobante.`,
+      },
+    ];
+
+    const saved = await this.pagoRepository.save(pago);
+
+    // Notificar al cliente que su voucher fue rechazado
+    try {
+      if (pago.clienteId) {
+        const cliente = await this.pagoRepository.manager.query(
+          `SELECT user_id FROM clientes WHERE id = $1`, [pago.clienteId]
+        );
+        if (cliente?.[0]?.user_id) {
+          await this.notificacionesService.sendNotification({
+            destinatarioId: cliente[0].user_id,
+            tipo: TipoNotificacion.PAGO_PENDIENTE,
+            canal: CanalNotificacion.PUSH,
+            titulo: '❌ Comprobante rechazado',
+            contenido: `Tu comprobante fue rechazado: "${nota}". Por favor sube un nuevo comprobante.`,
+            metadata: { pagoId, razon: nota },
+          }).catch(() => {});
+        }
+      }
+    } catch {}
+
+    return saved;
   }
 }

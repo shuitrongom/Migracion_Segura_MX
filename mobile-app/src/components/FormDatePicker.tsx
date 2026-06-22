@@ -46,6 +46,7 @@ export default function FormDatePicker({ label, value, onChange, required, minYe
           </Text>
           <Text style={styles.icon}>📅</Text>
         </TouchableOpacity>
+        <Text style={[styles.hint, { color: colors.textMuted }]}>💡 Toca el año en el calendario para cambiar rápidamente ▼</Text>
         {show && (
           <DateTimePicker
             value={dateValue}
@@ -106,6 +107,7 @@ const styles = StyleSheet.create({
   selectFilled: { borderColor: 'rgba(245,158,11,0.35)' },
   selectText: { flex: 1, fontSize: 14 },
   icon: { fontSize: 16 },
+  hint: { fontSize: 10, marginTop: 4, marginLeft: 2 },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
   modal: { borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 30, borderTopWidth: 1 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1 },
