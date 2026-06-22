@@ -7,6 +7,8 @@ import { apiFetch } from '@/lib/api';
 import { storage } from '@/lib/storage';
 import { useTheme } from '@/lib/theme';
 import DocumentUploadStep from '@/components/DocumentUploadStep';
+import PassportScanner, { PassportData } from '@/components/PassportScanner';
+import DocumentosOpcionales, { DocumentoOpcional } from '@/components/DocumentosOpcionales';
 import { OPCIONES_POR_TIPO, SEXOS, ESTADOS_CIVILES, DOCUMENTOS_IDENTIFICACION, NACIONALIDADES, PAISES, ACTIVIDADES_PRINCIPALES, SI_NO, SITUACIONES_TRABAJO, OCUPACIONES_TRABAJO, ESTADOS_MEXICO, SECTORES_ACTIVIDAD, TIPOS_PERSONA } from '@/lib/catalogos';
 import FormSelect from '@/components/FormSelect';
 import FormDatePicker from '@/components/FormDatePicker';
@@ -26,13 +28,15 @@ const TRAMITES_INM = [
 export default function TramiteNuevoScreen() {
   const { colors } = useTheme();
   const params = useLocalSearchParams<{ beneficiarioId?: string; beneficiarioNombre?: string }>();
-  const [step, setStep] = useState<'select' | 'form' | 'docs' | 'success'>('select');
+  const [step, setStep] = useState<'select' | 'scan' | 'optionalDocs' | 'form' | 'docs' | 'success'>('select');
   const [selectedTipo, setSelectedTipo] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [beneficiarioId, setBeneficiarioId] = useState<string | null>(params.beneficiarioId || null);
   const [beneficiarioNombre, setBeneficiarioNombre] = useState(params.beneficiarioNombre || '');
   const [beneficiarios, setBeneficiarios] = useState<any[]>([]);
   const [loadingBenef, setLoadingBenef] = useState(true);
+  const [passportPhotoUri, setPassportPhotoUri] = useState<string | null>(null);
+  const [optionalDocs, setOptionalDocs] = useState<DocumentoOpcional[]>([]);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -187,6 +191,30 @@ export default function TramiteNuevoScreen() {
         } catch {}
       }
 
+      // 3. Subir foto del pasaporte escaneado (si la hay)
+      if (passportPhotoUri) {
+        try {
+          const formData = new FormData();
+          formData.append('file', { uri: passportPhotoUri, name: `pasaporte_scan_${Date.now()}.jpg`, type: 'image/jpeg' } as any);
+          formData.append('nombre', 'Pasaporte (escaneado)');
+          formData.append('categoria', 'pasaporte');
+          if (data.id) formData.append('tramiteId', data.id);
+          await fetch('https://api.migracionseguramx.com/api/v1/documentos/upload', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData });
+        } catch {}
+      }
+
+      // 4. Subir documentos opcionales (comprobante domicilio, INE)
+      for (const optDoc of optionalDocs) {
+        try {
+          const formData = new FormData();
+          formData.append('file', { uri: optDoc.uri, name: optDoc.name, type: optDoc.mimeType } as any);
+          formData.append('nombre', optDoc.tipo === 'comprobante_domicilio' ? 'Comprobante de domicilio' : 'INE / Tarjeta de residencia');
+          formData.append('categoria', optDoc.tipo === 'comprobante_domicilio' ? 'comprobante' : 'identificacion');
+          if (data.id) formData.append('tramiteId', data.id);
+          await fetch('https://api.migracionseguramx.com/api/v1/documentos/upload', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData });
+        } catch {}
+      }
+
       setSubmitting(false);
       setStep('success');
     } catch { setSubmitting(false); Alert.alert('Error', 'No se pudo enviar'); }
@@ -220,6 +248,57 @@ export default function TramiteNuevoScreen() {
           </TouchableOpacity>
         </Animated.View>
       </LinearGradient>
+    );
+  }
+
+  if (step === 'scan') {
+    // Paso de escaneo de pasaporte — solo para trámites que NO son constancia_empleador
+    if (selectedTipo === 'constancia_empleador') {
+      // CIE no necesita pasaporte, ir directo a docs opcionales
+      setStep('optionalDocs');
+      return null;
+    }
+
+    const handleScanComplete = (data: PassportData) => {
+      // Pre-llenar formulario con datos del pasaporte
+      setForm(prev => ({
+        ...prev,
+        nombre: data.nombre || prev.nombre,
+        apellidos: data.apellidos || prev.apellidos,
+        sexo: data.sexo || prev.sexo,
+        fechaNacimiento: data.fechaNacimiento || prev.fechaNacimiento,
+        nacionalidad: data.nacionalidad || prev.nacionalidad,
+        numeroDocumento: data.numeroDocumento || prev.numeroDocumento,
+        paisExpedicion: data.paisExpedicion || prev.paisExpedicion,
+        fechaVencimiento: data.fechaVencimiento || prev.fechaVencimiento,
+        documentoIdentificacion: data.documentoIdentificacion || prev.documentoIdentificacion,
+      }));
+      setPassportPhotoUri(data.photoUri);
+
+      // Mostrar datos pre-llenados para validación
+      Alert.alert(
+        '✅ Datos escaneados',
+        `Nombre: ${data.nombre} ${data.apellidos}\nPasaporte: ${data.numeroDocumento}\nNacionalidad: ${data.nacionalidad}\nVencimiento: ${data.fechaVencimiento}\n\nRevisa y corrige los datos en el formulario si es necesario.`,
+        [{ text: 'Continuar', onPress: () => setStep('optionalDocs') }],
+      );
+    };
+
+    return (
+      <PassportScanner
+        onScanComplete={handleScanComplete}
+        onSkip={() => setStep('optionalDocs')}
+      />
+    );
+  }
+
+  if (step === 'optionalDocs') {
+    return (
+      <DocumentosOpcionales
+        onComplete={(docs) => {
+          setOptionalDocs(docs);
+          setStep('form');
+        }}
+      />
     );
   }
 
@@ -325,7 +404,7 @@ export default function TramiteNuevoScreen() {
           </View>
 
           {TRAMITES_INM.map((tipo) => (
-            <TouchableOpacity key={tipo.key} style={styles.tipoCard} onPress={() => { setSelectedTipo(tipo.key); setStep('form'); }}>
+            <TouchableOpacity key={tipo.key} style={styles.tipoCard} onPress={() => { setSelectedTipo(tipo.key); setStep('scan'); }}>
               <View style={styles.tipoIcon}><Text style={{ fontSize: 20 }}>{tipo.icon}</Text></View>
               <View style={styles.tipoInfo}>
                 <Text style={[styles.tipoLabel, { color: colors.text }]}>{tipo.nombre}</Text>

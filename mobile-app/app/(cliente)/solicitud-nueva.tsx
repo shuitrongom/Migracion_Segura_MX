@@ -11,6 +11,8 @@ import { apiFetch } from '@/lib/api';
 import { useTheme } from '@/lib/theme';
 import { storage } from '@/lib/storage';
 import DocumentUploadStep from '@/components/DocumentUploadStep';
+import PassportScanner, { PassportData } from '@/components/PassportScanner';
+import DocumentosOpcionales, { DocumentoOpcional } from '@/components/DocumentosOpcionales';
 import VisaForm from '@/components/forms/VisaForm';
 import GenericTramiteForm from '@/components/forms/GenericTramiteForm';
 
@@ -53,9 +55,11 @@ const EMPTY_SOLICITANTE: Record<string, string> = {
 export default function SolicitudNuevaScreen() {
   const params = useLocalSearchParams<{ beneficiarioId?: string; beneficiarioNombre?: string }>();
   const { colors } = useTheme();
-  const [step, setStep] = useState<'tipo' | 'form' | 'docs' | 'success'>('tipo'); // tipo=seleccionar, form=formulario, docs=documentos, success=confirmacion
+  const [step, setStep] = useState<'tipo' | 'scan' | 'optionalDocs' | 'form' | 'docs' | 'success'>('tipo');
   const [tipoTramite, setTipoTramite] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [passportPhotoUri, setPassportPhotoUri] = useState<string | null>(null);
+  const [optionalDocs, setOptionalDocs] = useState<DocumentoOpcional[]>([]);
   const [beneficiarioId, setBeneficiarioId] = useState<string | null>(params.beneficiarioId || null);
   const [beneficiarioNombre, setBeneficiarioNombre] = useState(params.beneficiarioNombre || '');
   const [beneficiarios, setBeneficiarios] = useState<any[]>([]);
@@ -144,7 +148,7 @@ export default function SolicitudNuevaScreen() {
   const handleSelectTipo = (value: string) => {
     setTipoTramite(value);
     resetForm();
-    setStep('form');
+    setStep('scan');
   };
 
   const handleSubmit = async () => {
@@ -313,6 +317,55 @@ export default function SolicitudNuevaScreen() {
           </Animated.View>
         </ScrollView>
       </LinearGradient>
+    );
+  }
+
+  // ─── Paso 0.5: Escanear pasaporte ──────────────────────────────────────────
+  if (step === 'scan') {
+    if (tipoTramite === 'constancia_empleador') {
+      // CIE no necesita pasaporte
+      setStep('optionalDocs');
+      return null;
+    }
+
+    const handleScanComplete = (data: PassportData) => {
+      setForm(prev => ({
+        ...prev,
+        nombre: data.nombre || prev.nombre,
+        apellidos: data.apellidos || prev.apellidos,
+        sexo: data.sexo || prev.sexo,
+        fechaNacimiento: data.fechaNacimiento || prev.fechaNacimiento,
+        nacionalidad: data.nacionalidad || prev.nacionalidad,
+        numeroDocumento: data.numeroDocumento || prev.numeroDocumento,
+        paisExpedicion: data.paisExpedicion || prev.paisExpedicion,
+        fechaVencimiento: data.fechaVencimiento || prev.fechaVencimiento,
+        documentoIdentificacion: data.documentoIdentificacion || prev.documentoIdentificacion,
+      }));
+      setPassportPhotoUri(data.photoUri);
+      Alert.alert(
+        '✅ Datos escaneados',
+        `Nombre: ${data.nombre} ${data.apellidos}\nPasaporte: ${data.numeroDocumento}\nNacionalidad: ${data.nacionalidad}\n\nRevisa y corrige los datos en el formulario si es necesario.`,
+        [{ text: 'Continuar', onPress: () => setStep('optionalDocs') }],
+      );
+    };
+
+    return (
+      <PassportScanner
+        onScanComplete={handleScanComplete}
+        onSkip={() => setStep('optionalDocs')}
+      />
+    );
+  }
+
+  // ─── Paso 0.7: Documentos opcionales ─────────────────────────────────────────
+  if (step === 'optionalDocs') {
+    return (
+      <DocumentosOpcionales
+        onComplete={(docs) => {
+          setOptionalDocs(docs);
+          setStep('form');
+        }}
+      />
     );
   }
 
