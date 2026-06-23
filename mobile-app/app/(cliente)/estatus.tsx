@@ -258,10 +258,28 @@ export default function EstatusScreen() {
         {/* Leyenda de requisitos - mostrar cuando está en revisión */}
         {(item.estatus === 'en_revision' || item.estatus === 'recibido') && (
           <View style={styles.requisitosLeyenda}>
-            <Text style={styles.requisitosTitle}>📄 Importante sobre tus documentos:</Text>
+            <Text style={styles.requisitosTitle}>📄 Requisitos de tu trámite:</Text>
             <Text style={[styles.requisitosText, { color: colors.textSecondary }]}>• Entrega todos los requisitos en original y copia.</Text>
             <Text style={[styles.requisitosText, { color: colors.textSecondary }]}>• La solicitud debe estar firmada.</Text>
             <Text style={[styles.requisitosText, { color: colors.textSecondary }]}>• Tu firma debe ser lo más parecida posible a la de tu pasaporte para que no sea rechazada por el INM.</Text>
+            
+            {/* Requisitos específicos del trámite (enviados por el admin) */}
+            {item.datosFormulario?.requisitosAsignados && Array.isArray(item.datosFormulario.requisitosAsignados) && (
+              <View style={{ marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(245,158,11,0.15)' }}>
+                <Text style={[styles.requisitosTitle, { fontSize: 11 }]}>📋 Documentos solicitados por tu asesor:</Text>
+                {item.datosFormulario.requisitosAsignados.map((req: string, i: number) => (
+                  <Text key={i} style={[styles.requisitosText, { color: colors.textSecondary }]}>• {req}</Text>
+                ))}
+              </View>
+            )}
+
+            {/* Botón para subir documentos */}
+            <TouchableOpacity
+              style={[styles.uploadFormBtn, { marginTop: 12, backgroundColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)' }]}
+              onPress={() => router.push({ pathname: '/(cliente)/subir-documento', params: { tramiteId: item.id } })}
+            >
+              <Text style={[styles.uploadFormBtnText, { color: '#f59e0b' }]}>📷 Escanear y subir documentos</Text>
+            </TouchableOpacity>
           </View>
         )}
 

@@ -185,27 +185,70 @@ export class FinancieroController {
         : pagos.find(p => (p.estatusPago === 'pendiente') && p.mercadopagoInitPoint);
 
       if (!pago || !pago.mercadopagoInitPoint) {
-        return { ok: false, message: 'No hay link de pago pendiente para este trámite' };
+        // Si no hay link MP, el extranjero puede pagar por transferencia
+        if (!pago) return { ok: false, message: 'No hay pago pendiente para este trámite' };
       }
 
-      // Buscar userId del cliente
+      // Buscar userId y datos del cliente
       const userId = await this.financieroService.getUserIdByTramiteOrSolicitud(body.tramiteId);
       if (!userId) {
         return { ok: false, message: 'No se encontró el usuario del extranjero' };
       }
 
-      // Enviar push
+      // Obtener datos del extranjero para email y WhatsApp
+      const clienteData = await this.financieroService['pagoRepository'].manager.query(
+        `SELECT c.email, c.telefono, c.nombre_completo, u.full_name FROM clientes c LEFT JOIN users u ON u.id = c.user_id WHERE c.user_id = $1 OR c.id = $1 LIMIT 1`,
+        [userId]
+      ).catch(() => []);
+      const clienteEmail = clienteData?.[0]?.email;
+      const clienteTelefono = clienteData?.[0]?.telefono;
+      const clienteNombre = clienteData?.[0]?.nombre_completo || clienteData?.[0]?.full_name || 'Extranjero';
+
+      // 1. Enviar push notification
       const notifService = this.financieroService['notificacionesService'];
       await notifService.sendNotification({
         destinatarioId: userId,
         tipo: TipoNotificacion.PAGO_PENDIENTE,
         canal: CanalNotificacion.PUSH,
         titulo: '💰 Recordatorio: Tienes un pago pendiente',
-        contenido: `Pago de $${Number(pago.monto).toLocaleString()} MXN pendiente. Toca para pagar.`,
-        metadata: { tramiteId: body.tramiteId, initPoint: pago.mercadopagoInitPoint, monto: pago.monto.toString() },
-      });
+        contenido: pago.mercadopagoInitPoint
+          ? `Pago de $${Number(pago.monto).toLocaleString()} MXN pendiente. Toca para pagar.`
+          : `Pago de $${Number(pago.monto).toLocaleString()} MXN pendiente. Paga por transferencia desde la app.`,
+        metadata: { tramiteId: body.tramiteId, initPoint: pago.mercadopagoInitPoint || '', monto: pago.monto.toString() },
+      }).catch(() => {});
 
-      return { ok: true, message: 'Link reenviado al extranjero' };
+      // 2. Enviar email con link de pago
+      if (clienteEmail) {
+        const emailService = this.financieroService['emailService'];
+        try {
+          await emailService.sendPaymentReminderEmail?.({
+            to: clienteEmail,
+            nombreExtranjero: clienteNombre,
+            monto: Number(pago.monto),
+            concepto: pago.concepto || 'Pago de trámite migratorio',
+            linkPago: pago.mercadopagoInitPoint || 'Paga por transferencia desde la app',
+          });
+        } catch {
+          // Si no existe el método específico, usar el genérico
+          await emailService.sendAdminNotificationEmail?.({
+            subject: `Recordatorio de pago: $${pago.monto} MXN`,
+            event: '💰 Tienes un pago pendiente',
+            details: `Hola ${clienteNombre}, tu pago de $${Number(pago.monto).toLocaleString()} MXN está pendiente. ${pago.mercadopagoInitPoint ? 'Usa el link de pago o paga por transferencia desde la app.' : 'Paga por transferencia desde la app.'}`,
+            extraInfo: pago.mercadopagoInitPoint || undefined,
+          }).catch(() => {});
+        }
+      }
+
+      // 3. Registrar intento de WhatsApp (para que el admin copie y envíe)
+      const whatsappLink = clienteTelefono
+        ? `https://wa.me/${clienteTelefono.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hola ${clienteNombre}, tienes un pago pendiente de $${Number(pago.monto).toLocaleString()} MXN para tu trámite migratorio. ${pago.mercadopagoInitPoint ? 'Link de pago: ' + pago.mercadopagoInitPoint : 'Paga por transferencia desde la app Migración Segura MX.'}`)}`
+        : null;
+
+      return {
+        ok: true,
+        message: 'Link reenviado por push' + (clienteEmail ? ' + email' : '') + (whatsappLink ? ' (WhatsApp disponible)' : ''),
+        whatsappLink,
+      };
     } catch {
       return { ok: false, message: 'Error al reenviar' };
     }
