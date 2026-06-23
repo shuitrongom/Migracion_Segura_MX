@@ -311,6 +311,19 @@ export default function TramiteNuevoScreen() {
     const showInfoAdicional = selectedTipo === 'visa';
     const especificaOpciones = opciones.especifica[form.propositoViaje] || [];
 
+    // Para GenericTramiteForm (wizard), renderizar sin ScrollView externo
+    if (selectedTipo !== 'visa') {
+      return (
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={{ flex: 1, paddingTop: 56 }}>
+            <TouchableOpacity onPress={() => { setStep('select'); }} style={[styles.backBtn, { marginHorizontal: 16 }]}><Text style={styles.backText}>← Volver</Text></TouchableOpacity>
+            <GenericTramiteForm tipo={selectedTipo} form={form} updateForm={u} onSubmit={handleSubmit} />
+          </LinearGradient>
+        </KeyboardAvoidingView>
+      );
+    }
+
+    // Para VisaForm, mantener ScrollView
     return (
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={{ flex: 1 }}>
@@ -322,25 +335,17 @@ export default function TramiteNuevoScreen() {
               bounces={true}
               nestedScrollEnabled={true}
             >
-              <TouchableOpacity onPress={() => { setStep('select'); setForm({ propositoViaje:'',especificaTramite:'',curpExtranjero:'',nombre:'',apellidos:'',sexo:'',fechaNacimiento:'',nacionalidad:'',estadoCivil:'',paisNacimiento:'',estadoProvinciaNacimiento:'',documentoIdentificacion:'',numeroDocumento:'',paisExpedicion:'',fechaExpedicion:'',fechaVencimiento:'',domCodigoPostal:'',domEstado:'',domMunicipio:'',domColonia:'',domCalle:'',domNumeroExterior:'',domNumeroInterior:'',domLada:'',domTelefonoFijo:'',actividadPrincipal:'',sectorTrabajo:'',situacionTrabajo:'',ocupacionTrabajo:'',expulsadoMexico:'',antecedentesPenales:'',empleadorTipoPersona:'',empleadorRfc:'',empleadorNumeroExpediente:'',solicitanteEmail:'',solicitanteEmailConfirmacion:'',comentarios:'' }); setSolicitante({ tipoPersona:'',curp:'',rfc:'',nombre:'',apellidos:'',nacionalidad:'',tipoDocumento:'',numeroDocumento:'',vinculoParentesco:'',codigoPostal:'',estado:'',municipio:'',colonia:'',calle:'',numeroExterior:'',numeroInterior:'',lada:'',telefonoFijo:'',moralRfc:'',moralRazonSocial:'',moralSector:'',moralGiroComercial:'',moralCodigoPostal:'',moralEstado:'',moralMunicipio:'',moralColonia:'',moralCalle:'',moralNumeroExterior:'',moralNumeroInterior:'',moralLada:'',moralTelefonoFijo:'',moralNumeroActa:'',moralFechaActa:'' }); }} style={styles.backBtn}><Text style={styles.backText}>← Volver</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => { setStep('select'); }} style={styles.backBtn}><Text style={styles.backText}>← Volver</Text></TouchableOpacity>
               <Text style={[styles.formTitle, { color: colors.text }]}>{tipoInfo?.nombre}</Text>
               <Text style={[styles.formDesc, { color: colors.textMuted }]}>Completa tus datos conforme a tu pasaporte o documento de identidad.</Text>
 
-              {/* Formulario específico por tipo */}
-              {selectedTipo === 'visa' ? (
-                <VisaForm form={form} solicitante={solicitante} updateForm={u} updateSolicitante={uSol} />
-              ) : (
-                <GenericTramiteForm tipo={selectedTipo} form={form} updateForm={u} onSubmit={handleSubmit} />
-              )}
+              <VisaForm form={form} solicitante={solicitante} updateForm={u} updateSolicitante={uSol} />
 
-              {/* Botón enviar solo para VisaForm (GenericTramiteForm ya tiene el suyo en el wizard) */}
-              {selectedTipo === 'visa' && (
-                <TouchableOpacity style={[submitting && { opacity: 0.6 }]} onPress={handleSubmit} disabled={submitting}>
-                  <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.submitBtn}>
-                    <Text style={styles.submitText}>{submitting ? 'Enviando...' : 'Enviar solicitud'}</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              )}
+              <TouchableOpacity style={[submitting && { opacity: 0.6 }]} onPress={handleSubmit} disabled={submitting}>
+                <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.submitBtn}>
+                  <Text style={styles.submitText}>{submitting ? 'Enviando...' : 'Enviar solicitud'}</Text>
+                </LinearGradient>
+              </TouchableOpacity>
               <Text style={[styles.disclaimer, { color: colors.textMuted }]}>Al enviar, un gestor revisará tu información y te contactará para continuar.</Text>
             </ScrollView>
           </LinearGradient>

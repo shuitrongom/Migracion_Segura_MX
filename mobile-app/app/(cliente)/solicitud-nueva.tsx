@@ -424,14 +424,50 @@ export default function SolicitudNuevaScreen() {
               <Text style={{ fontSize: 11, color: colors.textMuted, textAlign: 'center', marginTop: 4 }}>Tarjeta de crédito/débito</Text>
             </TouchableOpacity>
 
-            {/* Transferencia */}
+            {/* Transferencia — pide voucher */}
             <TouchableOpacity
               style={{ backgroundColor: 'rgba(34,197,94,0.08)', borderWidth: 1, borderColor: 'rgba(34,197,94,0.3)', borderRadius: 14, padding: 16, marginBottom: 10 }}
-              onPress={() => {
+              onPress={async () => {
                 Alert.alert(
                   '🏦 Pago por transferencia',
-                  'Transfiere $100 MXN a cualquiera de las cuentas que aparecen en la pestaña "Pagos" de la app.\n\nDespués sube tu comprobante en el siguiente paso.',
-                  [{ text: 'Ya transferí, continuar', onPress: () => setStep('docs') }],
+                  'Transfiere $100 MXN a cualquiera de las cuentas en la pestaña "Pagos".\n\nDespués toca "Subir comprobante" para adjuntar tu captura.',
+                  [
+                    {
+                      text: '📎 Subir comprobante',
+                      onPress: async () => {
+                        try {
+                          const ImagePicker = require('expo-image-picker');
+                          const { status } = await ImagePicker.requestCameraPermissionsAsync();
+                          
+                          Alert.alert('Comprobante', '¿Cómo deseas agregar el comprobante?', [
+                            {
+                              text: '📷 Tomar foto',
+                              onPress: async () => {
+                                const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.8, allowsEditing: true, aspect: [4, 3] });
+                                if (!result.canceled && result.assets?.[0]) {
+                                  setOptionalDocs(prev => [...prev, { tipo: 'comprobante_domicilio' as any, uri: result.assets[0].uri, name: `voucher_solicitud_${Date.now()}.jpg`, mimeType: 'image/jpeg' }]);
+                                  Alert.alert('✅ Comprobante adjuntado', 'Tu comprobante se enviará junto con la solicitud.', [{ text: 'Continuar', onPress: () => setStep('docs') }]);
+                                }
+                              },
+                            },
+                            {
+                              text: '📁 Elegir archivo',
+                              onPress: async () => {
+                                const DocumentPicker = require('expo-document-picker');
+                                const result = await DocumentPicker.getDocumentAsync({ type: ['image/*', 'application/pdf'], copyToCacheDirectory: true });
+                                if (!result.canceled && result.assets?.[0]) {
+                                  setOptionalDocs(prev => [...prev, { tipo: 'comprobante_domicilio' as any, uri: result.assets[0].uri, name: result.assets[0].name || `voucher_${Date.now()}.pdf`, mimeType: result.assets[0].mimeType || 'image/jpeg' }]);
+                                  Alert.alert('✅ Comprobante adjuntado', 'Tu comprobante se enviará junto con la solicitud.', [{ text: 'Continuar', onPress: () => setStep('docs') }]);
+                                }
+                              },
+                            },
+                            { text: 'Cancelar', style: 'cancel' },
+                          ]);
+                        } catch {}
+                      },
+                    },
+                    { text: 'Cancelar', style: 'cancel' },
+                  ],
                 );
               }}
             >
