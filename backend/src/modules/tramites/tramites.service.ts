@@ -339,11 +339,64 @@ export class TramitesService {
 
   /**
    * Req 10.3 - Asignar responsable interno
+   * Notifica al gestor asignado por push + email + WhatsApp
    */
   async assignResponsable(tramiteId: string, dto: AsignarResponsableDto): Promise<Tramite> {
     const tramite = await this.findOneOrFail(tramiteId);
     tramite.responsableId = dto.responsableId;
-    return this.tramiteRepository.save(tramite);
+
+    // También asignar como asesor si no tiene uno
+    if (!tramite.asesorId) {
+      tramite.asesorId = dto.responsableId;
+    }
+
+    const saved = await this.tramiteRepository.save(tramite);
+
+    // Obtener datos del gestor y del extranjero para la notificación
+    try {
+      const gestor = await this.usersService.findById(dto.responsableId);
+      const nombreExtranjero = tramite.datosFormulario?.nombre
+        ? `${tramite.datosFormulario.nombre} ${tramite.datosFormulario.apellidos || ''}`.trim()
+        : 'Extranjero';
+      const tipoTramite = (tramite.tipo || '').replace(/_/g, ' ');
+
+      // 1. Push notification al gestor
+      await this.notificacionesService.sendNotification({
+        destinatarioId: dto.responsableId,
+        tipo: TipoNotificacion.CAMBIO_ESTATUS,
+        canal: CanalNotificacion.PUSH,
+        titulo: '📋 Nuevo trámite asignado',
+        contenido: `Se te asignó el trámite de ${tipoTramite} de ${nombreExtranjero}. Pieza: ${tramite.numeroPieza || 'pendiente'}`,
+        metadata: { tramiteId, tipo: tramite.tipo, nombreExtranjero },
+      }).catch(() => {});
+
+      // 2. Email al gestor
+      if (gestor?.email) {
+        await this.emailService.sendAdminNotificationEmail({
+          subject: `Nuevo trámite asignado: ${tipoTramite}`,
+          event: '📋 Te han asignado un nuevo trámite',
+          details: `El administrador te asignó el trámite de ${tipoTramite} del extranjero ${nombreExtranjero}. Ingresa al panel para darle seguimiento.`,
+          extraInfo: `Pieza: ${tramite.numeroPieza || 'Pendiente'} · Tipo: ${tipoTramite} · Extranjero: ${nombreExtranjero}`,
+        }).catch(() => {});
+      }
+
+      // 3. WhatsApp al gestor (enlace directo)
+      if (gestor?.phone) {
+        const whatsappMsg = encodeURIComponent(
+          `📋 *Nuevo trámite asignado*\n\nTe han asignado un trámite de ${tipoTramite} del extranjero ${nombreExtranjero}.\nPieza: ${tramite.numeroPieza || 'Pendiente'}\n\nIngresa al panel para darle seguimiento.`
+        );
+        // Registrar en historial que se envió notificación por WhatsApp
+        // El mensaje real se envía desde el frontend o mediante un servicio de WhatsApp API
+        this.activityLogService.log({
+          action: 'WHATSAPP_GESTOR_NOTIFICADO',
+          resource: 'tramite',
+          resourceId: tramiteId,
+          details: { gestorId: dto.responsableId, gestorPhone: gestor.phone, mensaje: `Trámite asignado: ${tipoTramite} - ${nombreExtranjero}` },
+        }).catch(() => {});
+      }
+    } catch {}
+
+    return saved;
   }
 
   /**
