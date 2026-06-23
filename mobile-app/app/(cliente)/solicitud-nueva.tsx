@@ -447,24 +447,27 @@ export default function SolicitudNuevaScreen() {
                 tipo={tipoTramite}
                 form={form}
                 updateForm={updateForm}
+                onSubmit={handleSubmit}
               />
             )}
 
-            {/* Botón enviar */}
-            <TouchableOpacity
-              style={[styles.submitBtnWrapper, submitting && { opacity: 0.6 }]}
-              onPress={handleSubmit}
-              disabled={submitting}
-              activeOpacity={0.85}
-            >
-              <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.submitBtn}>
-                {submitting ? (
-                  <ActivityIndicator color="#fff" size="small" />
-                ) : (
-                  <Text style={styles.submitText}>Enviar solicitud</Text>
-                )}
-              </LinearGradient>
-            </TouchableOpacity>
+            {/* Botón enviar solo para VisaForm (GenericTramiteForm ya tiene el suyo en el wizard) */}
+            {tipoTramite === 'visa' && (
+              <TouchableOpacity
+                style={[styles.submitBtnWrapper, submitting && { opacity: 0.6 }]}
+                onPress={handleSubmit}
+                disabled={submitting}
+                activeOpacity={0.85}
+              >
+                <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.submitBtn}>
+                  {submitting ? (
+                    <ActivityIndicator color="#fff" size="small" />
+                  ) : (
+                    <Text style={styles.submitText}>Enviar solicitud</Text>
+                  )}
+                </LinearGradient>
+              </TouchableOpacity>
+            )}
 
             <Text style={[styles.disclaimer, { color: colors.textMuted }]}>
               Al enviar, un gestor revisará tu información. Costo: $100 MXN por solicitud y $100 MXN por cada escrito adicional.
