@@ -221,22 +221,13 @@ export class FinancieroController {
       if (clienteEmail) {
         const emailService = this.financieroService['emailService'];
         try {
-          await emailService.sendPaymentReminderEmail?.({
-            to: clienteEmail,
-            nombreExtranjero: clienteNombre,
-            monto: Number(pago.monto),
-            concepto: pago.concepto || 'Pago de trámite migratorio',
-            linkPago: pago.mercadopagoInitPoint || 'Paga por transferencia desde la app',
-          });
-        } catch {
-          // Si no existe el método específico, usar el genérico
-          await emailService.sendAdminNotificationEmail?.({
-            subject: `Recordatorio de pago: $${pago.monto} MXN`,
+          await emailService.sendAdminNotificationEmail({
+            subject: `Recordatorio de pago: $${Number(pago.monto).toLocaleString()} MXN`,
             event: '💰 Tienes un pago pendiente',
-            details: `Hola ${clienteNombre}, tu pago de $${Number(pago.monto).toLocaleString()} MXN está pendiente. ${pago.mercadopagoInitPoint ? 'Usa el link de pago o paga por transferencia desde la app.' : 'Paga por transferencia desde la app.'}`,
+            details: `Hola ${clienteNombre}, tu pago de $${Number(pago.monto).toLocaleString()} MXN está pendiente. ${pago.mercadopagoInitPoint ? 'Usa el link de pago o paga por transferencia desde la app.' : 'Paga por transferencia desde la app Migración Segura MX.'}`,
             extraInfo: pago.mercadopagoInitPoint || undefined,
-          }).catch(() => {});
-        }
+          });
+        } catch {}
       }
 
       // 3. Registrar intento de WhatsApp (para que el admin copie y envíe)
