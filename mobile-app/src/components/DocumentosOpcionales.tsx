@@ -49,7 +49,8 @@ export default function DocumentosOpcionales({ onComplete }: DocumentosOpcionale
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ['images'],
         quality: 0.8,
-        allowsEditing: false,
+        allowsEditing: true,
+        aspect: [4, 3],
       });
 
       if (result.canceled || !result.assets?.[0]) return;
