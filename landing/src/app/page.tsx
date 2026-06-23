@@ -271,7 +271,7 @@ export default function LandingPage() {
               <span className="text-white/50 text-sm">© 2026 Migración Segura MX. Todos los derechos reservados.</span>
             </div>
             <div className="flex items-center gap-8 text-sm text-white/40">
-              <a href="/politica-privacidad.html" className="hover:text-amber-400 transition">Privacidad</a>
+              <a href="/privacidad" className="hover:text-amber-400 transition">Privacidad</a>
               <a href="mailto:admin@migracionseguramx.com" className="hover:text-amber-400 transition">Contacto</a>
               <a href="https://wa.me/5215512345678" target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition">WhatsApp</a>
             </div>
