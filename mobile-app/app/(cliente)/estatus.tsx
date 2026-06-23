@@ -553,49 +553,53 @@ export default function EstatusScreen() {
                         onPress={async () => {
                           if (item.documentoUrl) {
                             try {
-                              // Obtener signed URL temporal del backend
-                              const res = await apiFetch(`/solicitudes/${item.id}/documento-url`);
+                              const token = await storage.getItem('access_token');
+                              
+                              // Intentar obtener signed URL
                               let downloadUrl = '';
-                              if (res.ok) {
-                                const data = await res.json();
-                                if (data.url) {
-                                  downloadUrl = data.url;
+                              try {
+                                const res = await apiFetch(`/solicitudes/${item.id}/documento-url`);
+                                if (res.ok) {
+                                  const data = await res.json();
+                                  if (data.url) downloadUrl = data.url;
                                 }
-                              }
+                              } catch {}
+
+                              // Fallback: endpoint directo
                               if (!downloadUrl) {
                                 downloadUrl = `https://api.migracionseguramx.com/api/v1/solicitudes/${item.id}/documento`;
                               }
 
-                              // Descargar al dispositivo
                               const fileName = `solicitud_${item.numeroPieza || item.id}.pdf`;
                               const fileUri = FileSystem.documentDirectory + fileName;
-                              const token = await storage.getItem('access_token');
-
-                              Alert.alert('Descargando...', 'Tu PDF se está descargando.');
 
                               const downloadResult = await FileSystem.downloadAsync(
                                 downloadUrl,
                                 fileUri,
-                                {
-                                  headers: token ? { Authorization: `Bearer ${token}` } : {},
-                                }
+                                { headers: token ? { Authorization: `Bearer ${token}` } : {} }
                               );
 
                               if (downloadResult.status === 200) {
-                                // Compartir/guardar el archivo descargado
                                 if (await Sharing.isAvailableAsync()) {
                                   await Sharing.shareAsync(downloadResult.uri, {
                                     mimeType: 'application/pdf',
                                     dialogTitle: 'Guardar solicitud PDF',
                                   });
                                 } else {
-                                  Alert.alert('PDF descargado', `Se guardó en: ${downloadResult.uri}`);
+                                  Alert.alert('✅ PDF descargado', `Guardado en: ${fileName}`);
                                 }
                               } else {
-                                Alert.alert('Error', 'No se pudo descargar el PDF. Intenta de nuevo.');
+                                // Si falla la descarga, abrir en navegador como último recurso
+                                Linking.openURL(downloadUrl);
                               }
                             } catch {
-                              Alert.alert('Error', 'No se pudo descargar el documento. Intenta de nuevo.');
+                              // Último recurso: abrir en navegador
+                              try {
+                                const token = await storage.getItem('access_token');
+                                Linking.openURL(`https://api.migracionseguramx.com/api/v1/solicitudes/${item.id}/documento`);
+                              } catch {
+                                Alert.alert('Error', 'No se pudo obtener el PDF. Contacta a tu asesor.');
+                              }
                             }
                           } else {
                             Alert.alert('PDF no disponible', 'Tu solicitud aún no tiene documento adjunto. Recibirás una notificación cuando esté listo.');
