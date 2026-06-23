@@ -30,10 +30,10 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
   // Parse value
   useEffect(() => {
     if (value) {
-      const d = new Date(value);
-      if (!isNaN(d.getTime())) {
-        setCurrentMonth(d.getMonth());
-        setCurrentYear(d.getFullYear());
+      const parts = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (parts) {
+        setCurrentYear(parseInt(parts[1]));
+        setCurrentMonth(parseInt(parts[2]) - 1);
       }
     }
   }, [value]);
@@ -75,12 +75,20 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
 
   const formatDisplay = (val: string) => {
     if (!val) return '';
-    const d = new Date(val);
-    if (isNaN(d.getTime())) return val;
-    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+    // Parsear directamente sin new Date() para evitar problemas de timezone
+    const parts = val.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (parts) {
+      return `${parts[3]}/${parts[2]}/${parts[1]}`;
+    }
+    return val;
   };
 
-  const selectedDate = value ? new Date(value) : null;
+  // Parsear selectedDate sin timezone issues
+  const selectedDate = value ? (() => {
+    const parts = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (parts) return { year: parseInt(parts[1]), month: parseInt(parts[2]) - 1, day: parseInt(parts[3]) };
+    return null;
+  })() : null;
 
   const renderDays = () => {
     const daysInMonth = getDaysInMonth(currentMonth, currentYear);
@@ -97,7 +105,7 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
         ))}
         {days.map((day, i) => {
           if (day === null) return <div key={`empty-${i}`} />;
-          const isSelected = selectedDate && selectedDate.getDate() === day && selectedDate.getMonth() === currentMonth && selectedDate.getFullYear() === currentYear;
+          const isSelected = selectedDate && selectedDate.day === day && selectedDate.month === currentMonth && selectedDate.year === currentYear;
           const isToday = new Date().getDate() === day && new Date().getMonth() === currentMonth && new Date().getFullYear() === currentYear;
           const dateObj = new Date(currentYear, currentMonth, day);
           const dayOfWeek = dateObj.getDay(); // 0=Sun, 6=Sat

@@ -167,6 +167,43 @@ export default function GestorDetailPage() {
           {/* Datos para solicitudes INM */}
           {isAdmin && (
             <div className="dark-card-static mt-4 p-5">
+              <p className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3">✏️ Editar datos del gestor</p>
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                const form = e.target as HTMLFormElement;
+                const data = {
+                  fullName: (form.elements.namedItem('fullName') as HTMLInputElement)?.value || '',
+                  email: (form.elements.namedItem('email') as HTMLInputElement)?.value || '',
+                  phone: (form.elements.namedItem('phone') as HTMLInputElement)?.value || '',
+                };
+                try {
+                  await api.patch(`/users/${gestorId}`, data);
+                  setGestor(prev => prev ? { ...prev, ...data } : prev);
+                  toast.success('Datos del gestor actualizados');
+                } catch { toast.error('Error al actualizar'); }
+              }} className="space-y-3">
+                <div>
+                  <label className="block text-[10px] font-semibold text-white/60 mb-1">Nombre completo</label>
+                  <input name="fullName" type="text" defaultValue={gestor.fullName || ''} className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#222222] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-white/60 mb-1">Email</label>
+                  <input name="email" type="email" defaultValue={gestor.email || ''} className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#222222] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-white/60 mb-1">Teléfono</label>
+                  <input name="phone" type="text" defaultValue={gestor.phone || ''} className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#222222] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30" placeholder="+52 55 1234 5678" />
+                </div>
+                <button type="submit" className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-semibold transition-colors">
+                  Actualizar datos
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* Datos para solicitudes INM */}
+          {isAdmin && (
+            <div className="dark-card-static mt-4 p-5">
               <p className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3">🔑 Datos para solicitudes INM</p>
               <p className="text-[11px] text-white/50 mb-3">Estos datos se usan para auto-rellenar solicitudes ante el INM cuando el cliente lo autoriza.</p>
               <form onSubmit={async (e) => {
