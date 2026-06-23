@@ -104,18 +104,19 @@ export default function PassportScanner({ onScanComplete, onSkip }: PassportScan
 
       setPhotoUri(photo.uri);
 
-      // OCR con MLKit
-      const result = await TextRecognition.recognize(photo.uri);
-      const allText = result.text || '';
-      const lines = allText.split('\n').map(l => l.trim()).filter(Boolean);
-
-      // Buscar MRZ (las últimas 2-3 líneas con formato especial: solo mayúsculas, <, y dígitos)
-      const mrzLines = lines.filter(line => {
-        const cleaned = line.replace(/\s/g, '');
-        return cleaned.length >= 30 && /^[A-Z0-9<]+$/.test(cleaned);
-      });
-
+      // Intentar OCR con MLKit — puede fallar si no hay módulo nativo
       let passportData: PassportData | null = null;
+
+      try {
+        const result = await TextRecognition.recognize(photo.uri);
+        const allText = result.text || '';
+        const lines = allText.split('\n').map((l: string) => l.trim()).filter(Boolean);
+
+        // Buscar MRZ (las últimas 2-3 líneas con formato especial: solo mayúsculas, <, y dígitos)
+        const mrzLines = lines.filter((line: string) => {
+          const cleaned = line.replace(/\s/g, '');
+          return cleaned.length >= 30 && /^[A-Z0-9<]+$/.test(cleaned);
+        });
 
       if (mrzLines.length >= 2) {
         // Intentar parsear MRZ
@@ -156,20 +157,35 @@ export default function PassportScanner({ onScanComplete, onSkip }: PassportScan
         passportData = extractFromOCRText(lines, photo.uri);
       }
 
+      } catch (ocrError) {
+        // OCR falló (módulo nativo no disponible o error de procesamiento)
+        // La foto se guardó, continuar sin datos pre-llenados
+        console.log('[PassportScanner] OCR no disponible:', ocrError);
+      }
+
       if (passportData && (passportData.nombre || passportData.apellidos || passportData.numeroDocumento)) {
         onScanComplete(passportData);
       } else {
+        // OCR no pudo leer o no está disponible — guardar foto y continuar
         Alert.alert(
-          'No se pudieron leer los datos',
-          'Asegúrate de que la zona inferior del pasaporte (las 2 líneas con letras y números) esté visible y bien iluminada.\n\n¿Deseas intentar de nuevo o llenar manualmente?',
+          '📷 Foto guardada',
+          'No pudimos leer los datos automáticamente, pero tu foto de pasaporte se guardó para tu expediente.\n\nContinúa llenando los datos manualmente.',
           [
             { text: 'Intentar de nuevo', onPress: () => { setPhotoUri(null); setProcessing(false); } },
-            { text: 'Llenar manualmente', onPress: () => onSkip() },
+            {
+              text: 'Continuar con la foto',
+              onPress: () => onScanComplete({
+                nombre: '', apellidos: '', sexo: '', fechaNacimiento: '',
+                nacionalidad: '', numeroDocumento: '', paisExpedicion: '',
+                fechaVencimiento: '', documentoIdentificacion: 'Pasaporte',
+                photoUri: photo.uri,
+              }),
+            },
           ],
         );
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo procesar la imagen. Intenta de nuevo.');
+      Alert.alert('Error', 'No se pudo tomar la foto. Verifica que la cámara funcione correctamente.');
       setPhotoUri(null);
     }
 

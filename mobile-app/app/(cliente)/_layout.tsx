@@ -4,7 +4,7 @@ import { Platform, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
-import { HomeIcon, StatusIcon, SearchIcon, BellIcon, UserIcon } from '@/components/TabIcons';
+import { HomeIcon, StatusIcon, SearchIcon, BellIcon, UserIcon, PaymentIcon } from '@/components/TabIcons';
 import { apiFetch } from '@/lib/api';
 import { useTheme } from '@/lib/theme';
 import { registerForPushNotifications, addNotificationReceivedListener } from '@/lib/notifications';
@@ -146,8 +146,15 @@ export default function ClienteLayout() {
       <Tabs.Screen
         name="consulta"
         options={{
-          tabBarLabel: 'Consultar',
+          tabBarLabel: 'Consulta',
           tabBarIcon: ({ color }) => <SearchIcon color={color} size={22} />,
+        }}
+      />
+      <Tabs.Screen
+        name="pagos"
+        options={{
+          tabBarLabel: 'Pagos',
+          tabBarIcon: ({ color }) => <PaymentIcon color={color} size={22} />,
         }}
       />
       <Tabs.Screen
@@ -163,6 +170,7 @@ export default function ClienteLayout() {
       <Tabs.Screen name="beneficiarios" options={{ href: null }} />
       <Tabs.Screen name="chat" options={{ href: null }} />
       <Tabs.Screen name="pago-resultado" options={{ href: null }} />
+      <Tabs.Screen name="pago-transferencia" options={{ href: null }} />
       <Tabs.Screen name="subir-documento" options={{ href: null }} />
     </Tabs>
   );
