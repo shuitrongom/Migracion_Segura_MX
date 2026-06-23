@@ -33,20 +33,14 @@ export class FinancieroController {
   ) {}
 
   /**
-   * Req 13.1 - Register payment
+   * DESHABILITADO: El admin NO puede registrar pagos manuales.
+   * Los pagos solo se registran via Mercado Pago (webhook) o transferencia con voucher verificado.
+   * El admin solo puede: asignar monto al generar pagos divididos y aprobar/rechazar vouchers.
    */
-  @Post('pagos')
-  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
-  @ApiOperation({ summary: 'Registrar pago manual' })
-  registrarPago(
-    @Body() dto: CreatePagoDto,
-    @Request() req: { user: { id: string } },
-  ) {
-    return this.financieroService.registrarPago(dto, req.user.id);
-  }
 
   /**
    * Generar pagos divididos (anticipo 50% + liquidación 50%)
+   * ÚNICA operación donde el admin define el monto — al momento de asignar costo al trámite.
    */
   @Post('pagos/generar-dividido')
   @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)

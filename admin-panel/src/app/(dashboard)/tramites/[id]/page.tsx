@@ -699,70 +699,12 @@ function PagosDelTramite({ tramiteId, clienteId }: { tramiteId: string; clienteI
         </div>
       )}
 
-      {/* Registrar pago manual (transferencia/comprobante) */}
+      {/* Info: pagos controlados por el sistema */}
       <div className="mt-4 pt-4 border-t border-[#3a3a3a]">
-        <details className="group">
-          <summary className="text-xs font-semibold text-amber-400 cursor-pointer hover:text-amber-300">+ Registrar pago manual (transferencia)</summary>
-          <form className="mt-3 space-y-3" onSubmit={async (e) => {
-            e.preventDefault();
-            const form = e.target as HTMLFormElement;
-            const monto = parseFloat((form.elements.namedItem('monto') as HTMLInputElement)?.value || '0');
-            const concepto = (form.elements.namedItem('concepto') as HTMLInputElement)?.value || '';
-            const tipoPago = (form.elements.namedItem('tipoPago') as HTMLSelectElement)?.value || 'pago_unico';
-            if (!monto || !concepto) { toast.error('Monto y concepto son requeridos'); return; }
-            try {
-              await api.post('/financiero/pagos', {
-                clienteId: clienteId || tramiteId,
-                tramiteId,
-                monto,
-                concepto,
-                tipoPago,
-                metodoPago: 'transferencia_bancaria',
-                fecha: new Date().toISOString(),
-              });
-
-              // Subir comprobante si hay archivo
-              const fileInput = form.elements.namedItem('comprobante') as HTMLInputElement;
-              if (fileInput?.files?.[0]) {
-                const formData = new FormData();
-                formData.append('file', fileInput.files[0]);
-                formData.append('nombre', 'Comprobante de pago - Transferencia');
-                formData.append('categoria', 'comprobante_pago');
-                formData.append('tramiteId', tramiteId);
-                await api.post('/documentos/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-              }
-
-              toast.success('Pago registrado exitosamente');
-              window.location.reload();
-            } catch { toast.error('Error al registrar pago'); }
-          }}>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-[10px] text-white/60 mb-1">Monto *</label>
-                <input name="monto" type="number" step="0.01" className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#222222] text-white rounded-lg text-sm" placeholder="4250.00" required />
-              </div>
-              <div>
-                <label className="block text-[10px] text-white/60 mb-1">Tipo</label>
-                <select name="tipoPago" className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#222222] text-white rounded-lg text-sm">
-                  <option value="pago_unico">Pago total</option>
-                  <option value="anticipo">Pago parcial (anticipo)</option>
-                  <option value="liquidacion">Liquidación</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <label className="block text-[10px] text-white/60 mb-1">Concepto *</label>
-              <input name="concepto" type="text" className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#222222] text-white rounded-lg text-sm" placeholder="Pago por transferencia - Trámite visa" required />
-            </div>
-            <div>
-              <label className="block text-[10px] text-white/60 mb-1">Comprobante (archivo)</label>
-              <input name="comprobante" type="file" accept="image/*,.pdf" className="w-full text-xs text-white/70 file:mr-2 file:px-3 file:py-1.5 file:rounded-lg file:border-0 file:bg-amber-500/10 file:text-amber-400 file:text-xs file:font-semibold" />
-            </div>
-            <button type="submit" className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-semibold transition-colors">
-              Registrar pago
-            </button>
-          </form>
-        </details>
+        <div className="p-3 rounded-lg bg-blue-500/[0.05] border border-blue-500/20">
+          <p className="text-[11px] text-blue-400 font-medium">🔒 Módulo financiero blindado</p>
+          <p className="text-[10px] text-white/50 mt-1">Los pagos solo se registran automáticamente vía Mercado Pago o por transferencia con voucher verificado. No se permiten registros manuales para evitar discrepancias.</p>
+        </div>
       </div>
     </div>
   );

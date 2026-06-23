@@ -34,7 +34,6 @@ export default function PagoTransferenciaScreen() {
   const [datos, setDatos] = useState<DatosBancarios | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [montoDeclarado, setMontoDeclarado] = useState('');
   const [voucherFile, setVoucherFile] = useState<{ uri: string; name: string; type: string } | null>(null);
   const [metodoPago, setMetodoPago] = useState<'transferencia' | 'crypto'>('transferencia');
 
@@ -73,10 +72,10 @@ export default function PagoTransferenciaScreen() {
   };
 
   const submitPago = async () => {
-    // Validación estricta
-    const montoNum = parseFloat(montoDeclarado);
-    if (!montoDeclarado || isNaN(montoNum) || montoNum <= 0) {
-      Alert.alert('Error', 'Debes indicar el monto exacto que transferiste. Sin monto no se puede registrar.');
+    // El monto es fijo — viene del pago generado
+    const montoNum = parseFloat(monto || '0');
+    if (!montoNum || montoNum <= 0) {
+      Alert.alert('Error', 'No se encontró el monto del pago. Regresa e intenta de nuevo.');
       return;
     }
 
@@ -239,19 +238,18 @@ export default function PagoTransferenciaScreen() {
         <View style={[styles.section, { borderColor: colors.borderLight }]}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Registrar tu pago</Text>
           <Text style={[styles.warningText, { color: '#E74C3C' }]}>
-            ⚠️ Ambos campos son obligatorios. Sin monto y sin comprobante no se registra el pago.
+            ⚠️ Debes transferir EXACTAMENTE ${monto || '---'} MXN. Si el monto no coincide con tu voucher, será rechazado automáticamente.
           </Text>
 
-          {/* Monto */}
-          <Text style={[styles.fieldLabel, { color: colors.textMuted }]}>Monto que transferiste (MXN) *</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.bgInput, borderColor: colors.border, color: colors.text }]}
-            value={montoDeclarado}
-            onChangeText={setMontoDeclarado}
-            placeholder="Ej: 2500.00"
-            placeholderTextColor={colors.textMuted}
-            keyboardType="decimal-pad"
-          />
+          {/* Monto - pre-llenado y no editable */}
+          <Text style={[styles.fieldLabel, { color: colors.textMuted }]}>Monto a transferir (MXN) *</Text>
+          <View style={[styles.input, { backgroundColor: colors.bgInput, borderColor: '#f59e0b', borderWidth: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
+            <Text style={{ color: colors.text, fontSize: 18, fontWeight: '700' }}>${monto || '---'} MXN</Text>
+            <Text style={{ color: '#f59e0b', fontSize: 11, fontWeight: '600' }}>MONTO EXACTO</Text>
+          </View>
+          <Text style={{ color: colors.textMuted, fontSize: 10, marginTop: 4 }}>
+            Este es el monto que debes transferir. No se acepta más ni menos.
+          </Text>
 
           {/* Voucher */}
           <Text style={[styles.fieldLabel, { color: colors.textMuted, marginTop: 14 }]}>Comprobante de transferencia *</Text>

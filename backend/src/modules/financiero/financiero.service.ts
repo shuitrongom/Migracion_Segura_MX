@@ -404,7 +404,8 @@ export class FinancieroService {
 
   /**
    * Registrar voucher de transferencia
-   * Validación estricta: requiere monto y voucher URL para proceder
+   * BLINDADO: El monto declarado debe coincidir EXACTAMENTE con el monto del pago.
+   * Sin monto correcto + sin voucher = no se registra NADA.
    */
   async registrarVoucher(params: {
     pagoId: string;
@@ -432,6 +433,21 @@ export class FinancieroService {
       throw new BadRequestException('Este pago ya no está pendiente. No se puede subir voucher.');
     }
 
+    // ══════════════════════════════════════════════════════════════════════
+    // VALIDACIÓN CRÍTICA: El monto declarado DEBE ser EXACTO al monto del pago
+    // No se permite pagar de más ni de menos.
+    // ══════════════════════════════════════════════════════════════════════
+    const montoEsperado = Number(pago.monto);
+    const montoDeclarado = Number(params.montoDeclarado);
+
+    if (Math.abs(montoDeclarado - montoEsperado) > 0.01) {
+      throw new BadRequestException(
+        `El monto que ingresaste ($${montoDeclarado.toFixed(2)}) no coincide con el monto a pagar ($${montoEsperado.toFixed(2)}). ` +
+        `Debes transferir EXACTAMENTE $${montoEsperado.toFixed(2)} MXN y poner ese monto. ` +
+        `Si ya transferiste una cantidad diferente, contacta a tu asesor.`
+      );
+    }
+
     // Registrar voucher — no se aprueba automáticamente, queda en revisión
     pago.voucherUrl = params.voucherUrl.trim();
     pago.montoDeclarado = params.montoDeclarado;
@@ -446,7 +462,7 @@ export class FinancieroService {
         accion: 'VOUCHER_SUBIDO',
         fecha: new Date().toISOString(),
         usuarioId: params.userId,
-        detalle: `Voucher subido. Monto declarado: $${params.montoDeclarado}. Método: ${params.metodoPago}. En espera de revisión del admin.`,
+        detalle: `Voucher subido. Monto declarado: $${params.montoDeclarado} (coincide con monto esperado: $${montoEsperado}). Método: ${params.metodoPago}. En espera de revisión.`,
       },
     ];
 
