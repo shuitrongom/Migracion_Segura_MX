@@ -623,19 +623,27 @@ function GestorDataSection({ tramite }: { tramite: any }) {
   useEffect(() => {
     async function load() {
       try {
-        const res = await api.get('/users?role=asesor');
-        const list = res.data?.data || res.data || [];
-        // También cargar admins como opción
-        const adminRes = await api.get('/users?role=administrador');
-        const admins = adminRes.data?.data || adminRes.data || [];
-        setGestores([...admins, ...list]);
+        // Cargar asesores + el admin actual (que también puede gestionar)
+        const res = await api.get('/users/asesores');
+        const asesores = Array.isArray(res.data) ? res.data : res.data?.data || [];
+        
+        // También intentar cargar datos del admin logueado
+        try {
+          const meRes = await api.get('/auth/me');
+          const me = meRes.data;
+          if (me && me.role === 'administrador' && !asesores.find((a: any) => a.id === me.id)) {
+            asesores.unshift(me); // Admin al inicio de la lista
+          }
+        } catch {}
+
+        setGestores(asesores);
         // Si hay asesor asignado, cargar sus datos
         if (tramite?.asesorId) {
           setSelectedGestorId(tramite.asesorId);
           loadGestorData(tramite.asesorId);
-        } else if (admins.length > 0) {
-          setSelectedGestorId(admins[0].id);
-          loadGestorData(admins[0].id);
+        } else if (asesores.length > 0) {
+          setSelectedGestorId(asesores[0].id);
+          loadGestorData(asesores[0].id);
         }
       } catch {}
       setLoading(false);
