@@ -258,7 +258,20 @@ export class UsersService {
   async createAsesor(dto: CreateAsesorDto): Promise<Pick<User, 'id' | 'fullName' | 'email'>> {
     const existing = await this.userRepository.findOne({ where: { email: dto.email } });
     if (existing) {
-      throw new ConflictException('Ya existe un usuario con ese correo electrónico');
+      // Si ya existe como cliente, elevar a asesor (puede ser ambos)
+      if (existing.role === UserRole.CLIENTE) {
+        existing.role = UserRole.ASESOR;
+        existing.fullName = dto.fullName || existing.fullName;
+        existing.phone = dto.phone || existing.phone;
+        if (dto.password) {
+          existing.passwordHash = await bcrypt.hash(dto.password, 12);
+        }
+        existing.isVerified = true;
+        const updated = await this.userRepository.save(existing);
+        return { id: updated.id, fullName: updated.fullName, email: updated.email };
+      }
+      // Si ya es asesor o admin, no duplicar
+      throw new ConflictException('Ya existe un usuario con ese correo electrónico con rol de gestor o administrador');
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
