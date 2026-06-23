@@ -38,7 +38,7 @@ const EMPTY_FORM: Record<string, string> = {
   actividadPrincipal: '', sectorTrabajo: '', situacionTrabajo: '', ocupacionTrabajo: '',
   expulsadoMexico: '', antecedentesPenales: '',
   empleadorTipoPersona: '', empleadorRfc: '', empleadorNumeroExpediente: '',
-  solicitanteEmail: '', solicitanteEmailConfirmacion: '', comentarios: '',
+  solicitanteEmail: '', solicitanteEmailConfirmacion: '', comentarios: '', telefono: '',
 };
 
 const EMPTY_SOLICITANTE: Record<string, string> = {
@@ -188,7 +188,7 @@ export default function SolicitudNuevaScreen() {
         body: JSON.stringify({
           tipoTramite,
           beneficiarioId: beneficiarioId || undefined,
-          datosFormulario: { ...form, solicitante, telefono: whatsapp, ubicacionOrigen: ubicacion },
+          datosFormulario: { ...form, solicitante, telefono: form.telefono || whatsapp, ubicacionOrigen: ubicacion },
         }),
       });
 
