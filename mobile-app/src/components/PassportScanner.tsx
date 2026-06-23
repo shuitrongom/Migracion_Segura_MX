@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Image } from 'react-native';
-import { useState, useRef } from 'react';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useState } from 'react';
+import * as ImagePicker from 'expo-image-picker';
 import { TextRecognition } from '@infinitered/react-native-mlkit-text-recognition';
 import { parse as parseMRZ } from 'mrz';
 import { useTheme } from '@/lib/theme';
@@ -56,63 +56,43 @@ interface PassportScannerProps {
 
 export default function PassportScanner({ onScanComplete, onSkip }: PassportScannerProps) {
   const { colors } = useTheme();
-  const [permission, requestPermission] = useCameraPermissions();
   const [processing, setProcessing] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const cameraRef = useRef<CameraView>(null);
-
-  // Solicitar permisos si no los tiene
-  if (!permission) {
-    return <ActivityIndicator size="large" color="#f59e0b" style={{ flex: 1 }} />;
-  }
-
-  if (!permission.granted) {
-    return (
-      <View style={[styles.container, { backgroundColor: colors.bg }]}>
-        <View style={styles.permissionContainer}>
-          <Text style={{ fontSize: 48, marginBottom: 16 }}>📷</Text>
-          <Text style={[styles.permissionTitle, { color: colors.text }]}>Permiso de cámara</Text>
-          <Text style={[styles.permissionText, { color: colors.textMuted }]}>
-            Necesitamos acceso a tu cámara para escanear tu pasaporte y llenar los datos automáticamente.
-          </Text>
-          <TouchableOpacity onPress={requestPermission} style={styles.permissionBtn}>
-            <Text style={styles.permissionBtnText}>Permitir cámara</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={onSkip} style={styles.skipBtn}>
-            <Text style={[styles.skipBtnText, { color: colors.textMuted }]}>Omitir y llenar manualmente</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
 
   const takePhoto = async () => {
-    if (!cameraRef.current || processing) return;
+    if (processing) return;
+
+    // Pedir permiso de cámara
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permiso necesario', 'Necesitamos acceso a tu cámara para escanear tu pasaporte.');
+      return;
+    }
+
+    // Abrir cámara con opción de editar/recortar
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ['images'],
+      quality: 0.85,
+      allowsEditing: true,
+      aspect: [3, 2], // Proporción de pasaporte (horizontal)
+    });
+
+    if (result.canceled || !result.assets?.[0]) return;
+
+    const photo = result.assets[0];
+    setPhotoUri(photo.uri);
     setProcessing(true);
 
     try {
-      const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.8,
-        skipProcessing: false,
-      });
-
-      if (!photo?.uri) {
-        Alert.alert('Error', 'No se pudo tomar la foto. Intenta de nuevo.');
-        setProcessing(false);
-        return;
-      }
-
-      setPhotoUri(photo.uri);
-
-      // Intentar OCR con MLKit — puede fallar si no hay módulo nativo
+      // Intentar OCR con MLKit
       let passportData: PassportData | null = null;
 
       try {
-        const result = await TextRecognition.recognize(photo.uri);
-        const allText = result.text || '';
+        const ocrResult = await TextRecognition.recognize(photo.uri);
+        const allText = ocrResult.text || '';
         const lines = allText.split('\n').map((l: string) => l.trim()).filter(Boolean);
 
-        // Buscar MRZ (las últimas 2-3 líneas con formato especial: solo mayúsculas, <, y dígitos)
+        // Buscar MRZ
         const mrzLines = lines.filter((line: string) => {
           const cleaned = line.replace(/\s/g, '');
           return cleaned.length >= 30 && /^[A-Z0-9<]+$/.test(cleaned);
@@ -193,54 +173,31 @@ export default function PassportScanner({ onScanComplete, onSkip }: PassportScan
   };
 
   return (
-    <View style={styles.container}>
-      {!photoUri ? (
-        <>
-          <CameraView
-            ref={cameraRef}
-            style={styles.camera}
-            facing="back"
-          >
-            {/* Overlay con guía */}
-            <View style={styles.overlay}>
-              <View style={styles.topOverlay}>
-                <Text style={styles.instruction}>📷 Escanear pasaporte</Text>
-                <Text style={styles.subInstruction}>
-                  Coloca la página de datos de tu pasaporte dentro del recuadro
-                </Text>
-              </View>
-
-              {/* Marco guía */}
-              <View style={styles.frameContainer}>
-                <View style={styles.frame}>
-                  <View style={[styles.corner, styles.topLeft]} />
-                  <View style={[styles.corner, styles.topRight]} />
-                  <View style={[styles.corner, styles.bottomLeft]} />
-                  <View style={[styles.corner, styles.bottomRight]} />
-                </View>
-                <Text style={styles.mrzHint}>↓ Asegúrate de incluir estas 2 líneas de abajo ↓</Text>
-              </View>
-
-              <View style={styles.bottomOverlay}>
-                <TouchableOpacity onPress={takePhoto} style={styles.captureBtn} disabled={processing}>
-                  {processing ? (
-                    <ActivityIndicator color="#fff" size="small" />
-                  ) : (
-                    <View style={styles.captureBtnInner} />
-                  )}
-                </TouchableOpacity>
-                <TouchableOpacity onPress={onSkip} style={styles.skipCameraBtn}>
-                  <Text style={styles.skipCameraText}>Omitir → Llenar manualmente</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </CameraView>
-        </>
-      ) : (
-        <View style={[styles.processingContainer, { backgroundColor: colors.bg }]}>
-          <Image source={{ uri: photoUri }} style={styles.previewImage} resizeMode="contain" />
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      {processing ? (
+        <View style={styles.processingContainer}>
+          {photoUri && <Image source={{ uri: photoUri }} style={styles.previewImage} resizeMode="contain" />}
           <ActivityIndicator size="large" color="#f59e0b" style={{ marginTop: 20 }} />
           <Text style={[styles.processingText, { color: colors.text }]}>Leyendo datos del pasaporte...</Text>
+        </View>
+      ) : (
+        <View style={styles.scanContainer}>
+          <Text style={{ fontSize: 64, textAlign: 'center', marginBottom: 16 }}>📷</Text>
+          <Text style={[styles.scanTitle, { color: colors.text }]}>Escanear pasaporte</Text>
+          <Text style={[styles.scanSubtitle, { color: colors.textMuted }]}>
+            Toma una foto de la página de datos de tu pasaporte. Podrás ajustar y recortar la imagen antes de enviar.
+          </Text>
+          <Text style={[styles.scanHint, { color: colors.textMuted }]}>
+            💡 Asegúrate de que se vean las 2 líneas de texto al fondo del pasaporte (zona MRZ)
+          </Text>
+
+          <TouchableOpacity onPress={takePhoto} style={styles.scanBtn} activeOpacity={0.85}>
+            <Text style={styles.scanBtnText}>📷 Abrir cámara y escanear</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={onSkip} style={styles.skipBtn}>
+            <Text style={[styles.skipBtnText, { color: colors.textMuted }]}>Omitir → Llenar manualmente</Text>
+          </TouchableOpacity>
         </View>
       )}
     </View>
@@ -320,30 +277,17 @@ const styles = StyleSheet.create({
   instruction: { color: '#fff', fontSize: 20, fontWeight: '700' },
   subInstruction: { color: 'rgba(255,255,255,0.8)', fontSize: 13, textAlign: 'center', marginTop: 6 },
 
-  frameContainer: { alignItems: 'center', justifyContent: 'center' },
-  frame: { width: '88%', aspectRatio: 1.42, borderWidth: 0, position: 'relative' },
-  corner: { position: 'absolute', width: 30, height: 30, borderColor: '#f59e0b', borderWidth: 3 },
-  topLeft: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0 },
-  topRight: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0 },
-  bottomLeft: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0 },
-  bottomRight: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0 },
-  mrzHint: { color: '#f59e0b', fontSize: 11, fontWeight: '600', marginTop: 8, textAlign: 'center' },
-
-  bottomOverlay: { alignItems: 'center', paddingBottom: 40, backgroundColor: 'rgba(0,0,0,0.6)', paddingTop: 20 },
-  captureBtn: { width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(255,255,255,0.3)', justifyContent: 'center', alignItems: 'center', borderWidth: 4, borderColor: '#fff' },
-  captureBtnInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#fff' },
-  skipCameraBtn: { marginTop: 16 },
-  skipCameraText: { color: 'rgba(255,255,255,0.7)', fontSize: 14, fontWeight: '500' },
+  scanContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
+  scanTitle: { fontSize: 22, fontWeight: '700', textAlign: 'center', marginBottom: 8 },
+  scanSubtitle: { fontSize: 14, textAlign: 'center', lineHeight: 22, marginBottom: 12 },
+  scanHint: { fontSize: 11, textAlign: 'center', lineHeight: 16, marginBottom: 24, paddingHorizontal: 16 },
+  scanBtn: { backgroundColor: '#f59e0b', paddingVertical: 16, paddingHorizontal: 32, borderRadius: 16, width: '100%', alignItems: 'center' },
+  scanBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
 
   processingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   previewImage: { width: '90%', height: 250, borderRadius: 12 },
   processingText: { fontSize: 16, fontWeight: '600', marginTop: 12 },
 
-  permissionContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
-  permissionTitle: { fontSize: 20, fontWeight: '700', marginBottom: 8 },
-  permissionText: { fontSize: 14, textAlign: 'center', lineHeight: 22, marginBottom: 24 },
-  permissionBtn: { backgroundColor: '#f59e0b', paddingVertical: 14, paddingHorizontal: 32, borderRadius: 14 },
-  permissionBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  skipBtn: { marginTop: 16 },
+  skipBtn: { marginTop: 20 },
   skipBtnText: { fontSize: 14 },
 });

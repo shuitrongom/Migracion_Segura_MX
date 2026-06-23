@@ -330,14 +330,17 @@ export default function TramiteNuevoScreen() {
               {selectedTipo === 'visa' ? (
                 <VisaForm form={form} solicitante={solicitante} updateForm={u} updateSolicitante={uSol} />
               ) : (
-                <GenericTramiteForm tipo={selectedTipo} form={form} updateForm={u} />
+                <GenericTramiteForm tipo={selectedTipo} form={form} updateForm={u} onSubmit={handleSubmit} />
               )}
 
-              <TouchableOpacity style={[submitting && { opacity: 0.6 }]} onPress={handleSubmit} disabled={submitting}>
-                <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.submitBtn}>
-                  <Text style={styles.submitText}>{submitting ? 'Enviando...' : 'Enviar solicitud'}</Text>
-                </LinearGradient>
-              </TouchableOpacity>
+              {/* Botón enviar solo para VisaForm (GenericTramiteForm ya tiene el suyo en el wizard) */}
+              {selectedTipo === 'visa' && (
+                <TouchableOpacity style={[submitting && { opacity: 0.6 }]} onPress={handleSubmit} disabled={submitting}>
+                  <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.submitBtn}>
+                    <Text style={styles.submitText}>{submitting ? 'Enviando...' : 'Enviar solicitud'}</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              )}
               <Text style={[styles.disclaimer, { color: colors.textMuted }]}>Al enviar, un gestor revisará tu información y te contactará para continuar.</Text>
             </ScrollView>
           </LinearGradient>

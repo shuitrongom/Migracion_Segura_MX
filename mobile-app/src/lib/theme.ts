@@ -93,8 +93,8 @@ interface ThemeStore {
 }
 
 export const useTheme = create<ThemeStore>((set) => ({
-  mode: 'dark',
-  colors: darkColors,
+  mode: 'light',
+  colors: lightColors,
   toggle: () => set((state) => {
     const newMode = state.mode === 'dark' ? 'light' : 'dark';
     storage.setItem('theme_mode', newMode);
