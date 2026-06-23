@@ -24,8 +24,9 @@ export class FinancieroService {
   ) {}
 
   /**
-   * Generar pagos divididos (anticipo 50% + liquidación 50%)
-   * Crea los dos registros y genera el link de Mercado Pago para el anticipo
+   * Generar pagos divididos (1 a 4 parcialidades)
+   * El admin elige cuántas parcialidades. Se genera link de MP solo para el primer pago.
+   * Los siguientes se generan conforme avanza el trámite.
    */
   async generarPagosDivididos(params: {
     tramiteId: string;
@@ -34,67 +35,75 @@ export class FinancieroService {
     concepto: string;
     clienteNombre: string;
     email: string;
+    numeroPagos: number;
     registradoPor: string;
-  }): Promise<{ anticipo: Pago; liquidacion: Pago }> {
-    const montoAnticipo = Math.round(params.montoTotal * 100 * 0.5) / 100; // 50%
-    const montoLiquidacion = params.montoTotal - montoAnticipo;
-    const fechaVencimiento = new Date();
-    fechaVencimiento.setDate(fechaVencimiento.getDate() + 15); // 15 días para pagar
+  }): Promise<{ pagos: Pago[] }> {
+    const numPagos = Math.min(Math.max(params.numeroPagos, 1), 4); // Limitar entre 1 y 4
+    const montoPorPago = Math.round((params.montoTotal / numPagos) * 100) / 100;
+    // Ajustar último pago para que sume exacto
+    const montos: number[] = [];
+    for (let i = 0; i < numPagos; i++) {
+      if (i === numPagos - 1) {
+        montos.push(Math.round((params.montoTotal - montos.reduce((s, m) => s + m, 0)) * 100) / 100);
+      } else {
+        montos.push(montoPorPago);
+      }
+    }
 
-    // Crear link de Mercado Pago para el anticipo
+    const fechaVencimiento = new Date();
+    fechaVencimiento.setDate(fechaVencimiento.getDate() + 15);
+
+    // Crear link de Mercado Pago solo para el PRIMER pago
     const mpPreference = await this.mercadoPagoService.createPreference({
       tramiteId: params.tramiteId,
-      concepto: `Anticipo (50%) - ${params.concepto}`,
-      monto: montoAnticipo,
+      concepto: numPagos === 1
+        ? params.concepto
+        : `Pago 1 de ${numPagos} - ${params.concepto}`,
+      monto: montos[0],
       clienteNombre: params.clienteNombre,
       email: params.email,
     });
 
-    // Crear registro de anticipo
-    const anticipo = this.pagoRepository.create({
-      clienteId: params.clienteId,
-      tramiteId: params.tramiteId,
-      montoTotalTramite: params.montoTotal,
-      monto: montoAnticipo,
-      fecha: new Date(),
-      tipoPago: TipoPago.ANTICIPO,
-      estatusPago: EstatusPago.PENDIENTE,
-      concepto: `Anticipo (50%) - ${params.concepto}`,
-      mercadopagoPreferenceId: mpPreference.preferenceId,
-      mercadopagoInitPoint: mpPreference.initPoint || mpPreference.sandboxInitPoint,
-      fechaVencimiento,
-      registradoPor: params.registradoPor,
-      historial: [{
-        accion: 'CREADO',
-        fecha: new Date().toISOString(),
-        usuarioId: params.registradoPor,
-        detalle: `Anticipo generado por $${montoAnticipo} MXN. Vence: ${fechaVencimiento.toISOString().slice(0, 10)}`,
-      }],
-    });
-    const savedAnticipo = await this.pagoRepository.save(anticipo);
+    const pagosCreados: Pago[] = [];
 
-    // Crear registro de liquidación (pendiente, sin link aún)
-    const liquidacion = this.pagoRepository.create({
-      clienteId: params.clienteId,
-      tramiteId: params.tramiteId,
-      montoTotalTramite: params.montoTotal,
-      monto: montoLiquidacion,
-      fecha: new Date(),
-      tipoPago: TipoPago.LIQUIDACION,
-      estatusPago: EstatusPago.PENDIENTE,
-      concepto: `Liquidación (50%) - ${params.concepto}`,
-      fechaVencimiento: null, // Se activa cuando el trámite se resuelve
-      registradoPor: params.registradoPor,
-      historial: [{
-        accion: 'CREADO',
-        fecha: new Date().toISOString(),
-        usuarioId: params.registradoPor,
-        detalle: `Liquidación programada por $${montoLiquidacion} MXN. Se activará al resolver el trámite.`,
-      }],
-    });
-    const savedLiquidacion = await this.pagoRepository.save(liquidacion);
+    for (let i = 0; i < numPagos; i++) {
+      const esElPrimero = i === 0;
+      const tipoPago = numPagos === 1
+        ? TipoPago.PAGO_UNICO
+        : i === 0
+          ? TipoPago.ANTICIPO
+          : TipoPago.LIQUIDACION;
 
-    // Notificar al extranjero que tiene un pago pendiente
+      const pago = this.pagoRepository.create({
+        clienteId: params.clienteId,
+        tramiteId: params.tramiteId,
+        montoTotalTramite: params.montoTotal,
+        monto: montos[i],
+        fecha: new Date(),
+        tipoPago,
+        estatusPago: EstatusPago.PENDIENTE,
+        concepto: numPagos === 1
+          ? params.concepto
+          : `Pago ${i + 1} de ${numPagos} - ${params.concepto}`,
+        mercadopagoPreferenceId: esElPrimero ? mpPreference.preferenceId : null,
+        mercadopagoInitPoint: esElPrimero ? (mpPreference.initPoint || mpPreference.sandboxInitPoint) : null,
+        fechaVencimiento: esElPrimero ? fechaVencimiento : null, // Solo el primero tiene vencimiento
+        registradoPor: params.registradoPor,
+        historial: [{
+          accion: 'CREADO',
+          fecha: new Date().toISOString(),
+          usuarioId: params.registradoPor,
+          detalle: esElPrimero
+            ? `Pago ${i + 1} de ${numPagos} generado por $${montos[i]} MXN. Link de pago enviado. Vence: ${fechaVencimiento.toISOString().slice(0, 10)}`
+            : `Pago ${i + 1} de ${numPagos} programado por $${montos[i]} MXN. Se activará al avanzar el trámite.`,
+        }],
+      });
+
+      const saved = await this.pagoRepository.save(pago);
+      pagosCreados.push(saved);
+    }
+
+    // Notificar al extranjero del primer pago
     if (params.clienteId) {
       try {
         const cliente = await this.pagoRepository.manager.query(
@@ -106,14 +115,16 @@ export class FinancieroService {
             tipo: TipoNotificacion.PAGO_PENDIENTE,
             canal: CanalNotificacion.PUSH,
             titulo: '💰 Pago pendiente generado',
-            contenido: `Se generó un anticipo de $${montoAnticipo} MXN para tu trámite. Tienes 15 días para realizar el pago.`,
-            metadata: { tramiteId: params.tramiteId, monto: montoAnticipo.toString() },
+            contenido: numPagos === 1
+              ? `Se generó un pago de $${montos[0]} MXN para tu trámite. Tienes 15 días para realizarlo.`
+              : `Se generó el pago 1 de ${numPagos} por $${montos[0]} MXN. Total del trámite: $${params.montoTotal} MXN.`,
+            metadata: { tramiteId: params.tramiteId, monto: montos[0].toString(), totalPagos: numPagos.toString() },
           }).catch(() => {});
         }
       } catch {}
     }
 
-    return { anticipo: savedAnticipo, liquidacion: savedLiquidacion };
+    return { pagos: pagosCreados };
   }
 
   /**

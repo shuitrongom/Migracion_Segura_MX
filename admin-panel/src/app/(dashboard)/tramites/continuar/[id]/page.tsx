@@ -62,7 +62,7 @@ export default function ContinuarTramitePage() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [requisitos, setRequisitos] = useState<Requisito[]>([]);
   const [submitting, setSubmitting] = useState(false);
-  const [pagoData, setPagoData] = useState({ concepto: '', monto: '', metodoPago: '', referencia: '', email: '' });
+  const [pagoData, setPagoData] = useState({ concepto: '', monto: '', metodoPago: '', referencia: '', email: '', numeroPagos: '2' });
   const [requisitosSeleccionados, setRequisitosSeleccionados] = useState<Set<number>>(new Set());
 
   useEffect(() => {
@@ -224,8 +224,9 @@ export default function ContinuarTramitePage() {
             concepto: pagoData.concepto,
             clienteNombre: nombreExtranjero,
             email: emailExtranjero,
+            numeroPagos: parseInt(pagoData.numeroPagos || '2'),
           });
-          toast.success('Pagos generados y link enviado al extranjero');
+          toast.success(`${pagoData.numeroPagos || '2'} pago(s) generados y link enviado al extranjero`);
         } catch (err: any) {
           toast.error(err?.response?.data?.message || 'Error al generar pagos. Verifica el email.');
         }
@@ -544,8 +545,8 @@ export default function ContinuarTramitePage() {
               <FileText className="h-5 w-5 text-amber-500" />
               <h2 className="text-lg font-semibold text-white">Registrar Costo del Trámite</h2>
             </div>
-            <p className="text-sm text-white/70 mb-4">El monto se dividirá en 2 pagos: 50% anticipo (se cobra ahora) y 50% liquidación (se cobra al resolver el trámite). Se generará un link de Mercado Pago para el extranjero.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
+            <p className="text-sm text-white/70 mb-4">Define el monto total y en cuántos pagos se dividirá. Se genera link de Mercado Pago para el primer pago automáticamente.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl">
               <div>
                 <label className="block text-xs font-medium text-white/70 mb-1">Concepto *</label>
                 <input type="text" value={pagoData.concepto} onChange={e => setPagoData(prev => ({ ...prev, concepto: e.target.value }))} className="w-full px-3 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="Ej: Pago de derechos por visa" />
@@ -554,18 +555,37 @@ export default function ContinuarTramitePage() {
                 <label className="block text-xs font-medium text-white/70 mb-1">Monto TOTAL (MXN) *</label>
                 <input type="number" value={pagoData.monto} onChange={e => setPagoData(prev => ({ ...prev, monto: e.target.value }))} className="w-full px-3 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="0.00" />
               </div>
-              <div className="md:col-span-2">
+              <div>
+                <label className="block text-xs font-medium text-white/70 mb-1">Número de pagos</label>
+                <select value={pagoData.numeroPagos || '2'} onChange={e => setPagoData(prev => ({ ...prev, numeroPagos: e.target.value }))} className="w-full px-3 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400">
+                  <option value="1">1 pago (completo)</option>
+                  <option value="2">2 pagos (50% + 50%)</option>
+                  <option value="3">3 pagos (33% cada uno)</option>
+                  <option value="4">4 pagos (25% cada uno)</option>
+                </select>
+              </div>
+              <div className="md:col-span-3">
                 <label className="block text-xs font-medium text-white/70 mb-1">Email del extranjero (para link de pago) *</label>
                 <input type="email" value={pagoData.email} onChange={e => setPagoData(prev => ({ ...prev, email: e.target.value }))} className="w-full px-3 py-2.5 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="correo@ejemplo.com" />
-                <p className="text-[10px] text-white/40 mt-1">Este correo se usará para generar el link de pago en Mercado Pago</p>
+                <p className="text-[10px] text-white/40 mt-1">Se genera link de Mercado Pago para el primer pago. Los siguientes se envían conforme avanza el trámite.</p>
               </div>
             </div>
             {pagoData.monto && (
-              <div className="mt-4 p-4 bg-amber-500/[0.06] border border-amber-500/20 rounded-lg max-w-2xl">
-                <p className="text-sm text-amber-300 font-medium">Desglose de pagos:</p>
-                <p className="text-sm text-white/80 mt-1">• Anticipo (50%): <strong className="text-amber-400">${(parseFloat(pagoData.monto) / 2).toLocaleString()} MXN</strong> — se cobra ahora</p>
-                <p className="text-sm text-white/80">• Liquidación (50%): <strong className="text-amber-400">${(parseFloat(pagoData.monto) / 2).toLocaleString()} MXN</strong> — se cobra al resolver</p>
-                <p className="text-xs text-white/70 mt-2">El extranjero tiene 15 días para pagar cada parte. Si no paga el anticipo, el trámite se cancela.</p>
+              <div className="mt-4 p-4 bg-amber-500/[0.06] border border-amber-500/20 rounded-lg max-w-3xl">
+                <p className="text-sm text-amber-300 font-medium">Desglose de pagos ({pagoData.numeroPagos || '2'} parcialidades):</p>
+                {Array.from({ length: parseInt(pagoData.numeroPagos || '2') }).map((_, i) => {
+                  const numP = parseInt(pagoData.numeroPagos || '2');
+                  const montoP = Math.round((parseFloat(pagoData.monto) / numP) * 100) / 100;
+                  const esUltimo = i === numP - 1;
+                  const montoReal = esUltimo ? Math.round((parseFloat(pagoData.monto) - montoP * (numP - 1)) * 100) / 100 : montoP;
+                  return (
+                    <p key={i} className="text-sm text-white/80 mt-1">
+                      • Pago {i + 1}: <strong className="text-amber-400">${montoReal.toLocaleString()} MXN</strong>
+                      {i === 0 ? ' — se cobra ahora' : ' — se cobra al avanzar el trámite'}
+                    </p>
+                  );
+                })}
+                <p className="text-xs text-white/70 mt-2">El extranjero tiene 15 días para pagar cada parcialidad. También puede pagar por transferencia.</p>
               </div>
             )}
           </div>

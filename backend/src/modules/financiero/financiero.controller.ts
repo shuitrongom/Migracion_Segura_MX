@@ -44,12 +44,12 @@ export class FinancieroController {
    */
   @Post('pagos/generar-dividido')
   @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
-  @ApiOperation({ summary: 'Generar pagos divididos (anticipo + liquidación) con link de Mercado Pago' })
+  @ApiOperation({ summary: 'Generar pagos divididos (1 a 4 parcialidades) con link de Mercado Pago' })
   generarPagosDivididos(
-    @Body() body: { tramiteId: string; clienteId: string; montoTotal: number; concepto: string; clienteNombre: string; email: string },
+    @Body() body: { tramiteId: string; clienteId: string; montoTotal: number; concepto: string; clienteNombre: string; email: string; numeroPagos?: number },
     @Request() req: { user: { id: string } },
   ) {
-    return this.financieroService.generarPagosDivididos({ ...body, registradoPor: req.user.id });
+    return this.financieroService.generarPagosDivididos({ ...body, numeroPagos: body.numeroPagos || 2, registradoPor: req.user.id });
   }
 
   /**
