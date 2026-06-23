@@ -53,8 +53,8 @@ export default function SubirDocumentoScreen() {
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ['images'],
       quality: 0.85,
-      allowsEditing: true,
-      // Sin aspect fijo — recorte libre con 6 puntos (esquinas + bordes)
+      allowsEditing: false,
+      // El recorte se hace en el paso de preview - evita problemas de UI en algunos dispositivos
     });
 
     if (!result.canceled && result.assets[0]) {
@@ -72,8 +72,7 @@ export default function SubirDocumentoScreen() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       quality: 0.85,
-      allowsEditing: true,
-      // Sin aspect fijo — recorte libre con 6 puntos
+      allowsEditing: false,
     });
     if (!result.canceled && result.assets[0]) {
       setImages(prev => [...prev, { uri: result.assets[0].uri, label }]);

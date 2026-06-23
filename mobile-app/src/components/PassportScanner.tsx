@@ -90,7 +90,7 @@ export default function PassportScanner({ onScanComplete, onSkip }: PassportScan
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ['images'],
       quality: 0.85,
-      allowsEditing: true,
+      allowsEditing: false,
     });
 
     if (result.canceled || !result.assets?.[0]) return;
@@ -107,7 +107,7 @@ export default function PassportScanner({ onScanComplete, onSkip }: PassportScan
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       quality: 0.85,
-      allowsEditing: true,
+      allowsEditing: false,
     });
 
     if (result.canceled || !result.assets?.[0]) return;
