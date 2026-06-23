@@ -115,7 +115,7 @@ export default function TramiteNuevoScreen() {
     actividadPrincipal: '', sectorTrabajo: '', situacionTrabajo: '', ocupacionTrabajo: '',
     expulsadoMexico: '', antecedentesPenales: '',
     empleadorTipoPersona: '', empleadorRfc: '', empleadorNumeroExpediente: '',
-    solicitanteEmail: '', solicitanteEmailConfirmacion: '', comentarios: '',
+    solicitanteEmail: '', solicitanteEmailConfirmacion: '', comentarios: '', telefono: '',
   });
   const u = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
 
@@ -164,7 +164,7 @@ export default function TramiteNuevoScreen() {
       // 1. Crear trámite
       const res = await apiFetch('/tramites', {
         method: 'POST',
-        body: JSON.stringify({ tipo: selectedTipo, clienteId: user.id, beneficiarioId: beneficiarioId || undefined, datosFormulario: { ...form, solicitante, telefono: whatsapp, ubicacion }, esBorrador: false }),
+        body: JSON.stringify({ tipo: selectedTipo, clienteId: user.id, beneficiarioId: beneficiarioId || undefined, datosFormulario: { ...form, solicitante, telefono: form.telefono || whatsapp, ubicacion }, esBorrador: false }),
       });
       const data = await res.json();
       if (!res.ok) { Alert.alert('Error', Array.isArray(data.message) ? data.message.join('\n') : (data.message || 'Error')); setSubmitting(false); return; }

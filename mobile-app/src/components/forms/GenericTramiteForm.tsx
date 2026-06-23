@@ -265,6 +265,16 @@ export default function GenericTramiteForm({ tipo, form, updateForm, onSubmit }:
             autoCapitalize="none"
           />
         </Field>
+        <Field label="📱 WhatsApp / Teléfono *">
+          <TextInput
+            style={inputStyle}
+            value={form.telefono}
+            onChangeText={(v) => updateForm('telefono', v)}
+            placeholder="+52 55 1234 5678"
+            placeholderTextColor={placeholderColor}
+            keyboardType="phone-pad"
+          />
+        </Field>
         <Field label="Comentarios (opcional)">
           <TextInput
             style={[inputStyle, { height: 80, textAlignVertical: 'top' } as any]}

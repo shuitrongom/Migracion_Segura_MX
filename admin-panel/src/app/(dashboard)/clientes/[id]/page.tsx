@@ -179,40 +179,46 @@ export default function ClienteDetailPage() {
   const fetchDocumentos = useCallback(async () => {
     try {
       const allDocs: DocumentoItem[] = [];
+      const seenIds = new Set<string>();
+
+      const addDoc = (doc: DocumentoItem) => {
+        if (!seenIds.has(doc.id)) {
+          seenIds.add(doc.id);
+          allDocs.push(doc);
+        }
+      };
+
       // Documentos de trámites
       for (const tramite of tramites) {
         try {
           const res = await api.get(`/documentos/tramite/${tramite.id}`);
           const docs: DocumentoItem[] = res.data?.data || res.data || [];
-          allDocs.push(...docs);
+          docs.forEach(addDoc);
         } catch {}
       }
       // Documentos de solicitudes (PDF generado)
       for (const sol of solicitudes) {
         if (sol.documentoUrl) {
-          allDocs.push({
-            id: sol.id,
+          addDoc({
+            id: `sol-${sol.id}`,
             nombre: `Solicitud INM - ${(sol.tipoTramite || '').replace(/_/g, ' ')}`,
             categoria: 'solicitud',
             estatus: 'recibido',
             createdAt: sol.createdAt,
           });
         }
-        // También buscar en tabla documentos por tramiteId = solicitud.id
+        // Documentos subidos asociados a la solicitud
         try {
           const res = await api.get(`/documentos/tramite/${sol.id}`);
           const docs: DocumentoItem[] = res.data?.data || res.data || [];
-          allDocs.push(...docs);
+          docs.forEach(addDoc);
         } catch {}
       }
       // Documentos del cliente (expediente general)
       try {
         const res = await api.get('/documentos', { params: { clienteId } });
         const docs: DocumentoItem[] = res.data?.data || res.data || [];
-        // Evitar duplicados
-        for (const doc of docs) {
-          if (!allDocs.find(d => d.id === doc.id)) allDocs.push(doc);
-        }
+        docs.forEach(addDoc);
       } catch {}
       setDocumentos(allDocs);
     } catch {
