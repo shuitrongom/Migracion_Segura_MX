@@ -438,6 +438,9 @@ export default function ContinuarTramitePage() {
                       <CopyField label="Email" value={tramite.datosFormulario.solicitanteEmail || tramite.datosFormulario.email} />
                       <CopyField label="Teléfono" value={tramite.datosFormulario.telefono} />
                     </div>
+
+                    {/* Datos del Gestor asignado */}
+                    <GestorDataSection tramite={tramite} />
                   </div>
                 )}
               </div>
@@ -607,6 +610,82 @@ export default function ContinuarTramitePage() {
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+function GestorDataSection({ tramite }: { tramite: any }) {
+  const [gestores, setGestores] = useState<any[]>([]);
+  const [selectedGestorId, setSelectedGestorId] = useState(tramite?.asesorId || '');
+  const [gestorData, setGestorData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await api.get('/users?role=asesor');
+        const list = res.data?.data || res.data || [];
+        // También cargar admins como opción
+        const adminRes = await api.get('/users?role=administrador');
+        const admins = adminRes.data?.data || adminRes.data || [];
+        setGestores([...admins, ...list]);
+        // Si hay asesor asignado, cargar sus datos
+        if (tramite?.asesorId) {
+          setSelectedGestorId(tramite.asesorId);
+          loadGestorData(tramite.asesorId);
+        } else if (admins.length > 0) {
+          setSelectedGestorId(admins[0].id);
+          loadGestorData(admins[0].id);
+        }
+      } catch {}
+      setLoading(false);
+    }
+    load();
+  }, [tramite?.asesorId]);
+
+  const loadGestorData = async (id: string) => {
+    try {
+      const res = await api.get(`/users/${id}`);
+      setGestorData(res.data);
+    } catch { setGestorData(null); }
+  };
+
+  const handleChange = (id: string) => {
+    setSelectedGestorId(id);
+    loadGestorData(id);
+  };
+
+  if (loading) return null;
+
+  return (
+    <div>
+      <p className="text-[10px] font-semibold text-emerald-400 uppercase border-b border-emerald-500/30 pb-1 mb-2 mt-4">👤 Datos del Gestor</p>
+      <div className="mb-2">
+        <select
+          value={selectedGestorId}
+          onChange={(e) => handleChange(e.target.value)}
+          className="w-full px-2 py-1.5 text-xs border border-[#3a3a3a] bg-[#222222] text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500/30"
+        >
+          <option value="">Seleccionar gestor</option>
+          {gestores.map((g: any) => (
+            <option key={g.id} value={g.id}>{g.fullName || g.email} ({g.role})</option>
+          ))}
+        </select>
+      </div>
+      {gestorData && (
+        <div className="space-y-0.5">
+          <CopyField label="Nombre gestor" value={gestorData.fullName} />
+          <CopyField label="Email" value={gestorData.email} />
+          <CopyField label="Teléfono" value={gestorData.phone} />
+          {gestorData.metadata?.curp && <CopyField label="CURP" value={gestorData.metadata.curp} />}
+          {gestorData.metadata?.rfc && <CopyField label="RFC" value={gestorData.metadata.rfc} />}
+          {gestorData.metadata?.nacionalidad && <CopyField label="Nacionalidad" value={gestorData.metadata.nacionalidad} />}
+          {gestorData.metadata?.numeroPasaporte && <CopyField label="Pasaporte" value={gestorData.metadata.numeroPasaporte} />}
+          {gestorData.metadata?.direccion && <CopyField label="Dirección" value={gestorData.metadata.direccion} />}
+          {gestorData.metadata?.fechaNacimiento && <CopyField label="Fecha nac." value={gestorData.metadata.fechaNacimiento} isDate />}
+          {gestorData.metadata?.sexo && <CopyField label="Sexo" value={gestorData.metadata.sexo === 'H' ? 'Hombre' : gestorData.metadata.sexo === 'M' ? 'Mujer' : gestorData.metadata.sexo} />}
+        </div>
+      )}
     </div>
   );
 }
