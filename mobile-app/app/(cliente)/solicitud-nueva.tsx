@@ -55,7 +55,7 @@ const EMPTY_SOLICITANTE: Record<string, string> = {
 export default function SolicitudNuevaScreen() {
   const params = useLocalSearchParams<{ beneficiarioId?: string; beneficiarioNombre?: string }>();
   const { colors } = useTheme();
-  const [step, setStep] = useState<'tipo' | 'scan' | 'optionalDocs' | 'form' | 'docs' | 'success'>('tipo');
+  const [step, setStep] = useState<'tipo' | 'scan' | 'optionalDocs' | 'form' | 'pago' | 'docs' | 'success'>('tipo');
   const [tipoTramite, setTipoTramite] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [passportPhotoUri, setPassportPhotoUri] = useState<string | null>(null);
@@ -161,8 +161,8 @@ export default function SolicitudNuevaScreen() {
       Alert.alert('Error', 'Los correos no coinciden');
       return;
     }
-    // Ir al paso de documentos
-    setStep('docs');
+    // Ir al paso de PAGO (antes de documentos)
+    setStep('pago');
   };
 
   const handleDocumentsComplete = async (docs: any[], whatsapp: string) => {
@@ -366,6 +366,93 @@ export default function SolicitudNuevaScreen() {
           setStep('form');
         }}
       />
+    );
+  }
+
+  // ─── Paso: Pagar solicitud ($100 MXN) ─────────────────────────────────────
+  if (step === 'pago') {
+    return (
+      <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 56, paddingBottom: 40 }}>
+          <Text style={{ fontSize: 48, textAlign: 'center', marginBottom: 12 }}>💳</Text>
+          <Text style={{ fontSize: 22, fontWeight: '700', color: colors.text, textAlign: 'center', marginBottom: 6 }}>Pago de solicitud</Text>
+          <Text style={{ fontSize: 14, color: colors.textMuted, textAlign: 'center', marginBottom: 24, lineHeight: 20 }}>
+            El costo de la solicitud es de <Text style={{ color: '#f59e0b', fontWeight: '700' }}>$100 MXN</Text>. Debes realizar el pago antes de enviar tu solicitud.
+          </Text>
+
+          {/* Opciones de pago */}
+          <View style={{ marginBottom: 20 }}>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: colors.text, marginBottom: 12 }}>Elige cómo pagar:</Text>
+            
+            {/* Mercado Pago */}
+            <TouchableOpacity
+              style={{ backgroundColor: 'rgba(245,158,11,0.08)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)', borderRadius: 14, padding: 16, marginBottom: 10 }}
+              onPress={async () => {
+                try {
+                  const res = await apiFetch('/financiero/mercadopago/crear-preferencia', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                      tramiteId: `solicitud-${Date.now()}`,
+                      concepto: `Solicitud INM - ${(tipoTramite || '').replace(/_/g, ' ')}`,
+                      monto: 100,
+                      clienteNombre: `${form.nombre} ${form.apellidos}`.trim() || 'Extranjero',
+                      email: form.solicitanteEmail || '',
+                    }),
+                  });
+                  if (res.ok) {
+                    const data = await res.json();
+                    const link = data.initPoint || data.sandboxInitPoint;
+                    if (link) {
+                      const { Linking } = require('react-native');
+                      Linking.openURL(link);
+                      // Después de pagar, continuar al paso de documentos
+                      Alert.alert(
+                        'Después de pagar',
+                        'Una vez que completes el pago en Mercado Pago, toca "Continuar" para enviar tu solicitud.',
+                        [{ text: 'Continuar', onPress: () => setStep('docs') }],
+                      );
+                    }
+                  } else {
+                    Alert.alert('Error', 'No se pudo generar el link de pago. Intenta con transferencia.');
+                  }
+                } catch {
+                  Alert.alert('Error', 'No se pudo conectar. Intenta con transferencia.');
+                }
+              }}
+            >
+              <Text style={{ fontSize: 16, fontWeight: '700', color: '#f59e0b', textAlign: 'center' }}>💳 Pagar con Mercado Pago — $100 MXN</Text>
+              <Text style={{ fontSize: 11, color: colors.textMuted, textAlign: 'center', marginTop: 4 }}>Tarjeta de crédito/débito</Text>
+            </TouchableOpacity>
+
+            {/* Transferencia */}
+            <TouchableOpacity
+              style={{ backgroundColor: 'rgba(34,197,94,0.08)', borderWidth: 1, borderColor: 'rgba(34,197,94,0.3)', borderRadius: 14, padding: 16, marginBottom: 10 }}
+              onPress={() => {
+                Alert.alert(
+                  '🏦 Pago por transferencia',
+                  'Transfiere $100 MXN a cualquiera de las cuentas que aparecen en la pestaña "Pagos" de la app.\n\nDespués sube tu comprobante en el siguiente paso.',
+                  [{ text: 'Ya transferí, continuar', onPress: () => setStep('docs') }],
+                );
+              }}
+            >
+              <Text style={{ fontSize: 16, fontWeight: '700', color: '#22c55e', textAlign: 'center' }}>🏦 Pagar por transferencia — $100 MXN</Text>
+              <Text style={{ fontSize: 11, color: colors.textMuted, textAlign: 'center', marginTop: 4 }}>Ve a la pestaña "Pagos" para ver las cuentas</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Info */}
+          <View style={{ backgroundColor: 'rgba(245,158,11,0.06)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.2)', borderRadius: 12, padding: 14 }}>
+            <Text style={{ fontSize: 11, color: colors.textMuted, lineHeight: 18 }}>
+              💡 Si pagas por transferencia, el comprobante se te pedirá después. Tu solicitud se procesará una vez confirmado el pago.
+            </Text>
+          </View>
+
+          {/* Volver */}
+          <TouchableOpacity onPress={() => setStep('form')} style={{ marginTop: 20, alignItems: 'center' }}>
+            <Text style={{ color: colors.textMuted, fontSize: 14 }}>← Volver al formulario</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </LinearGradient>
     );
   }
 
