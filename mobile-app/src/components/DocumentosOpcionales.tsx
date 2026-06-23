@@ -1,6 +1,7 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useState } from 'react';
 import * as DocumentPicker from 'expo-document-picker';
+import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '@/lib/theme';
 
 export interface DocumentoOpcional {
@@ -19,7 +20,54 @@ export default function DocumentosOpcionales({ onComplete }: DocumentosOpcionale
   const [comprobante, setComprobante] = useState<DocumentoOpcional | null>(null);
   const [ine, setIne] = useState<DocumentoOpcional | null>(null);
 
-  const pickDocument = async (tipo: 'comprobante_domicilio' | 'ine_residencia') => {
+  const pickDocument = (tipo: 'comprobante_domicilio' | 'ine_residencia') => {
+    Alert.alert(
+      tipo === 'comprobante_domicilio' ? '🏠 Comprobante de domicilio' : '🪪 INE o residencia',
+      '¿Cómo deseas agregar el documento?',
+      [
+        {
+          text: '📷 Tomar foto',
+          onPress: () => takePhoto(tipo),
+        },
+        {
+          text: '📁 Elegir archivo',
+          onPress: () => pickFile(tipo),
+        },
+        { text: 'Cancelar', style: 'cancel' },
+      ],
+    );
+  };
+
+  const takePhoto = async (tipo: 'comprobante_domicilio' | 'ine_residencia') => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permiso necesario', 'Necesitamos acceso a la cámara para tomar la foto.');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
+        quality: 0.8,
+        allowsEditing: false,
+      });
+
+      if (result.canceled || !result.assets?.[0]) return;
+      const asset = result.assets[0];
+      const doc: DocumentoOpcional = {
+        tipo,
+        uri: asset.uri,
+        name: `${tipo}_${Date.now()}.jpg`,
+        mimeType: 'image/jpeg',
+      };
+      if (tipo === 'comprobante_domicilio') setComprobante(doc);
+      else setIne(doc);
+    } catch {
+      Alert.alert('Error', 'No se pudo tomar la foto. Intenta de nuevo.');
+    }
+  };
+
+  const pickFile = async (tipo: 'comprobante_domicilio' | 'ine_residencia') => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: ['image/*', 'application/pdf'],
