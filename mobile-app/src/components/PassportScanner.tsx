@@ -62,25 +62,60 @@ export default function PassportScanner({ onScanComplete, onSkip }: PassportScan
   const takePhoto = async () => {
     if (processing) return;
 
-    // Pedir permiso de cámara
+    // Mostrar opciones: tomar foto o elegir de galería
+    Alert.alert(
+      '📷 Escanear pasaporte',
+      '¿Cómo deseas capturar tu pasaporte?',
+      [
+        {
+          text: '📷 Tomar foto',
+          onPress: () => captureFromCamera(),
+        },
+        {
+          text: '🖼️ Elegir de galería',
+          onPress: () => pickFromGallery(),
+        },
+        { text: 'Cancelar', style: 'cancel' },
+      ],
+    );
+  };
+
+  const captureFromCamera = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Permiso necesario', 'Necesitamos acceso a tu cámara para escanear tu pasaporte.');
       return;
     }
 
-    // Abrir cámara con opción de editar/recortar libre (horizontal o vertical)
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ['images'],
       quality: 0.85,
       allowsEditing: true,
-      // Sin aspect fijo — el usuario ajusta libremente en cualquier dirección
     });
 
     if (result.canceled || !result.assets?.[0]) return;
+    processPhoto(result.assets[0].uri);
+  };
 
-    const photo = result.assets[0];
-    setPhotoUri(photo.uri);
+  const pickFromGallery = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permiso necesario', 'Necesitamos acceso a tu galería.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.85,
+      allowsEditing: true,
+    });
+
+    if (result.canceled || !result.assets?.[0]) return;
+    processPhoto(result.assets[0].uri);
+  };
+
+  const processPhoto = async (uri: string) => {
+    setPhotoUri(uri);
     setProcessing(true);
 
     try {
@@ -88,7 +123,7 @@ export default function PassportScanner({ onScanComplete, onSkip }: PassportScan
       let passportData: PassportData | null = null;
 
       try {
-        const ocrResult = await TextRecognition.recognize(photo.uri);
+        const ocrResult = await TextRecognition.recognize(uri);
         const allText = ocrResult.text || '';
         const lines = allText.split('\n').map((l: string) => l.trim()).filter(Boolean);
 
@@ -124,7 +159,7 @@ export default function PassportScanner({ onScanComplete, onSkip }: PassportScan
               paisExpedicion: PAIS_CODES_NOMBRE[fields.issuingState || ''] || fields.issuingState || '',
               fechaVencimiento: fechaVenc,
               documentoIdentificacion: 'Pasaporte',
-              photoUri: photo.uri,
+              photoUri: uri,
             };
           }
         } catch {
@@ -134,7 +169,7 @@ export default function PassportScanner({ onScanComplete, onSkip }: PassportScan
 
       // Si MRZ no funcionó, intentar extraer datos por patrones del texto OCR
       if (!passportData) {
-        passportData = extractFromOCRText(lines, photo.uri);
+        passportData = extractFromOCRText(lines, uri);
       }
 
       } catch (ocrError) {
@@ -158,7 +193,7 @@ export default function PassportScanner({ onScanComplete, onSkip }: PassportScan
                 nombre: '', apellidos: '', sexo: '', fechaNacimiento: '',
                 nacionalidad: '', numeroDocumento: '', paisExpedicion: '',
                 fechaVencimiento: '', documentoIdentificacion: 'Pasaporte',
-                photoUri: photo.uri,
+                photoUri: uri,
               }),
             },
           ],
