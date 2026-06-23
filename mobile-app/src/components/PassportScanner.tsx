@@ -69,12 +69,12 @@ export default function PassportScanner({ onScanComplete, onSkip }: PassportScan
       return;
     }
 
-    // Abrir cámara con opción de editar/recortar
+    // Abrir cámara con opción de editar/recortar libre (horizontal o vertical)
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ['images'],
       quality: 0.85,
       allowsEditing: true,
-      aspect: [3, 2], // Proporción de pasaporte (horizontal)
+      // Sin aspect fijo — el usuario ajusta libremente en cualquier dirección
     });
 
     if (result.canceled || !result.assets?.[0]) return;
