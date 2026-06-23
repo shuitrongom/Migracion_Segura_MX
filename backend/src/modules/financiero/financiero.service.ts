@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThan } from 'typeorm';
+import { Repository, LessThan, IsNull } from 'typeorm';
 
 import { Pago, EstatusPago, TipoPago } from './entities/pago.entity';
 import { AcuerdoPago } from './entities/acuerdo-pago.entity';
@@ -128,7 +128,9 @@ export class FinancieroService {
   }
 
   /**
-   * Generar link de pago para la liquidación (cuando el trámite se resuelve)
+   * Generar link de pago para el SIGUIENTE pago pendiente sin link.
+   * El admin llama esto cuando es momento de cobrar el siguiente pago.
+   * Genera un link nuevo de Mercado Pago con 15 días de vigencia.
    */
   async generarLinkLiquidacion(params: {
     tramiteId: string;
@@ -136,12 +138,20 @@ export class FinancieroService {
     email: string;
     registradoPor: string;
   }): Promise<Pago> {
-    const liquidacion = await this.pagoRepository.findOne({
-      where: { tramiteId: params.tramiteId, tipoPago: TipoPago.LIQUIDACION, estatusPago: EstatusPago.PENDIENTE },
+    // Buscar el siguiente pago pendiente que NO tenga link activo
+    const siguientePago = await this.pagoRepository.findOne({
+      where: { tramiteId: params.tramiteId, estatusPago: EstatusPago.PENDIENTE, mercadopagoInitPoint: IsNull() },
+      order: { createdAt: 'ASC' },
     });
 
-    if (!liquidacion) {
-      throw new NotFoundException('No se encontró liquidación pendiente para este trámite');
+    // Si no hay pago sin link, buscar cualquier pendiente (puede que el link anterior venció)
+    const pago = siguientePago || await this.pagoRepository.findOne({
+      where: { tramiteId: params.tramiteId, estatusPago: EstatusPago.PENDIENTE },
+      order: { createdAt: 'ASC' },
+    });
+
+    if (!pago) {
+      throw new NotFoundException('No hay pagos pendientes para este trámite');
     }
 
     const fechaVencimiento = new Date();
@@ -149,26 +159,47 @@ export class FinancieroService {
 
     const mpPreference = await this.mercadoPagoService.createPreference({
       tramiteId: params.tramiteId,
-      concepto: liquidacion.concepto,
-      monto: Number(liquidacion.monto),
+      concepto: pago.concepto,
+      monto: Number(pago.monto),
       clienteNombre: params.clienteNombre,
       email: params.email,
     });
 
-    liquidacion.mercadopagoPreferenceId = mpPreference.preferenceId || null;
-    liquidacion.mercadopagoInitPoint = mpPreference.initPoint || mpPreference.sandboxInitPoint || null;
-    liquidacion.fechaVencimiento = fechaVencimiento;
-    liquidacion.historial = [
-      ...liquidacion.historial,
+    pago.mercadopagoPreferenceId = mpPreference.preferenceId || null;
+    pago.mercadopagoInitPoint = mpPreference.initPoint || mpPreference.sandboxInitPoint || null;
+    pago.fechaVencimiento = fechaVencimiento;
+    pago.historial = [
+      ...pago.historial,
       {
         accion: 'LINK_GENERADO',
         fecha: new Date().toISOString(),
         usuarioId: params.registradoPor,
-        detalle: `Link de pago generado. Vence: ${fechaVencimiento.toISOString().slice(0, 10)}`,
+        detalle: `Link de pago generado por $${pago.monto} MXN. Vence: ${fechaVencimiento.toISOString().slice(0, 10)}`,
       },
     ];
 
-    return this.pagoRepository.save(liquidacion);
+    const saved = await this.pagoRepository.save(pago);
+
+    // Notificar al extranjero que tiene un nuevo pago disponible
+    try {
+      if (pago.clienteId) {
+        const cliente = await this.pagoRepository.manager.query(
+          `SELECT user_id FROM clientes WHERE id = $1`, [pago.clienteId]
+        );
+        if (cliente?.[0]?.user_id) {
+          await this.notificacionesService.sendNotification({
+            destinatarioId: cliente[0].user_id,
+            tipo: TipoNotificacion.PAGO_PENDIENTE,
+            canal: CanalNotificacion.PUSH,
+            titulo: '💰 Nuevo pago disponible',
+            contenido: `Se generó tu siguiente pago: $${Number(pago.monto).toLocaleString()} MXN. Tienes 15 días para realizarlo.`,
+            metadata: { tramiteId: params.tramiteId, monto: pago.monto.toString() },
+          }).catch(() => {});
+        }
+      }
+    } catch {}
+
+    return saved;
   }
 
   /**

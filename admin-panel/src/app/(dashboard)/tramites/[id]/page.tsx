@@ -701,6 +701,34 @@ function PagosDelTramite({ tramiteId, clienteId }: { tramiteId: string; clienteI
 
       {/* Info: pagos controlados por el sistema */}
       <div className="mt-4 pt-4 border-t border-[#3a3a3a]">
+        {/* Botón generar siguiente pago (si hay pendientes sin link) */}
+        {pagos.some((p: any) => p.estatusPago === 'pendiente' && !p.mercadopagoInitPoint) && (
+          <button
+            onClick={async () => {
+              try {
+                // Obtener datos del extranjero
+                const tramiteRes = await api.get(`/tramites/${tramiteId}`);
+                const t = tramiteRes.data;
+                const nombre = t?.cliente?.nombreCompleto || `${t?.datosFormulario?.nombre || ''} ${t?.datosFormulario?.apellidos || ''}`.trim() || 'Extranjero';
+                const email = t?.cliente?.email || t?.datosFormulario?.solicitanteEmail || '';
+
+                await api.post('/financiero/pagos/generar-liquidacion', {
+                  tramiteId,
+                  clienteNombre: nombre,
+                  email,
+                });
+                toast.success('Link de pago generado y enviado al extranjero');
+                window.location.reload();
+              } catch (err: any) {
+                toast.error(err?.response?.data?.message || 'Error al generar link de pago');
+              }
+            }}
+            className="w-full mb-3 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-semibold transition-colors"
+          >
+            💳 Generar y enviar siguiente pago
+          </button>
+        )}
+
         <div className="p-3 rounded-lg bg-blue-500/[0.05] border border-blue-500/20">
           <p className="text-[11px] text-blue-400 font-medium">🔒 Módulo financiero blindado</p>
           <p className="text-[10px] text-white/50 mt-1">Los pagos solo se registran automáticamente vía Mercado Pago o por transferencia con voucher verificado. No se permiten registros manuales para evitar discrepancias.</p>
