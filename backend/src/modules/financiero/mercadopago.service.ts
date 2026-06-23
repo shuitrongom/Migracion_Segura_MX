@@ -31,9 +31,6 @@ export class MercadoPagoService {
     monto: number;
     email: string;
   }) {
-    const isProduction = this.configService.get<string>('NODE_ENV') === 'production';
-    const cleanEmail = params.email?.trim().toLowerCase();
-
     try {
       const response = await this.preference.create({
         body: {
@@ -49,7 +46,8 @@ export class MercadoPagoService {
           ],
           payer: {
             name: params.clienteNombre || 'Extranjero',
-            ...(isProduction && cleanEmail ? { email: cleanEmail } : {}),
+            // No enviar email al payer para que el campo quede editable en el checkout
+            // En producción con pagos reales, el usuario lo escribe manualmente
           },
           payment_methods: {
             excluded_payment_types: [],
