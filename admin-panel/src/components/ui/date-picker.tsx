@@ -192,7 +192,12 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
       </div>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 bg-[#171717] border border-[#3a3a3a] rounded-xl shadow-lg p-3 w-[280px] animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="fixed inset-0 z-[9999]" onClick={() => { setIsOpen(false); setView('days'); }}>
+          <div
+            className="absolute bg-[#171717] border border-[#3a3a3a] rounded-xl shadow-2xl p-4 w-[300px] animate-in fade-in slide-in-from-top-2 duration-200"
+            style={{ top: containerRef.current ? containerRef.current.getBoundingClientRect().bottom + 4 : 0, left: containerRef.current ? Math.min(containerRef.current.getBoundingClientRect().left, window.innerWidth - 310) : 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
           {/* Header */}
           {view === 'days' && (
             <div className="flex items-center justify-between mb-3">
@@ -230,6 +235,7 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', classN
               <button type="button" onClick={() => { onChange(''); setIsOpen(false); }} className="text-xs text-white/70 hover:text-white/70">Limpiar</button>
             </div>
           )}
+          </div>
         </div>
       )}
     </div>
