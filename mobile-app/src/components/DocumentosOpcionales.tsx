@@ -50,7 +50,7 @@ export default function DocumentosOpcionales({ onComplete }: DocumentosOpcionale
         mediaTypes: ['images'],
         quality: 0.8,
         allowsEditing: true,
-        aspect: [4, 3],
+        
       });
 
       if (result.canceled || !result.assets?.[0]) return;

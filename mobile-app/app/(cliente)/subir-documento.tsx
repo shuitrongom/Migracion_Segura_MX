@@ -54,7 +54,7 @@ export default function SubirDocumentoScreen() {
       mediaTypes: ['images'],
       quality: 0.85,
       allowsEditing: true,
-      aspect: [4, 3],
+      
     });
 
     if (!result.canceled && result.assets[0]) {
@@ -73,7 +73,7 @@ export default function SubirDocumentoScreen() {
       mediaTypes: ['images'],
       quality: 0.85,
       allowsEditing: true,
-      aspect: [4, 3],
+      
     });
     if (!result.canceled && result.assets[0]) {
       setImages(prev => [...prev, { uri: result.assets[0].uri, label }]);

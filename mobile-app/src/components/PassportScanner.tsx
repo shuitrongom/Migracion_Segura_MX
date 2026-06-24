@@ -91,7 +91,7 @@ export default function PassportScanner({ onScanComplete, onSkip }: PassportScan
       mediaTypes: ['images'],
       quality: 0.85,
       allowsEditing: true,
-      aspect: [4, 3],
+      
     });
 
     if (result.canceled || !result.assets?.[0]) return;
@@ -109,7 +109,7 @@ export default function PassportScanner({ onScanComplete, onSkip }: PassportScan
       mediaTypes: ['images'],
       quality: 0.85,
       allowsEditing: true,
-      aspect: [4, 3],
+      
     });
 
     if (result.canceled || !result.assets?.[0]) return;
