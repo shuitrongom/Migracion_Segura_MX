@@ -142,9 +142,9 @@ export class SchedulerService {
   }
 
   /**
-   * Alerta de documentos por vencer — cada lunes a las 9:00 AM
+   * Alerta de documentos por vencer — todos los días a las 9:00 AM
    */
-  @Cron('0 9 * * 1', { name: 'documentos-por-vencer', timeZone: 'America/Mexico_City' })
+  @Cron('0 9 * * *', { name: 'documentos-por-vencer', timeZone: 'America/Mexico_City' })
   async alertaDocumentosPorVencer() {
     this.logger.log('Ejecutando: Alerta de documentos por vencer');
     try {
@@ -152,7 +152,7 @@ export class SchedulerService {
       treintaDias.setDate(treintaDias.getDate() + 30);
 
       const docs = await this.notificacionesService['notificacionRepository'].manager.query(
-        `SELECT d.id, d.nombre, e.cliente_id, cl.user_id
+        `SELECT d.id, d.nombre, d.fecha_vencimiento, d.tramite_id, e.cliente_id, cl.user_id
          FROM documentos d
          JOIN expedientes e ON e.id = d.expediente_id
          JOIN clientes cl ON cl.id = e.cliente_id
@@ -165,13 +165,14 @@ export class SchedulerService {
 
       for (const doc of docs) {
         if (doc.user_id) {
+          const diasRestantes = Math.ceil((new Date(doc.fecha_vencimiento).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
           await this.notificacionesService.sendNotification({
             destinatarioId: doc.user_id,
             tipo: TipoNotificacion.DOCUMENTO_POR_VENCER,
             canal: CanalNotificacion.PUSH,
-            titulo: 'Documento por vencer',
-            contenido: `Tu documento "${doc.nombre}" vence pronto. Renuevalo para evitar problemas.`,
-            metadata: { documentoId: doc.id },
+            titulo: '⚠️ Documento por vencer',
+            contenido: `Tu documento "${doc.nombre}" vence en ${diasRestantes} días. Renuévalo para evitar problemas migratorios.`,
+            metadata: { documentoId: doc.id, tramiteId: doc.tramite_id },
           }).catch(() => {});
         }
       }

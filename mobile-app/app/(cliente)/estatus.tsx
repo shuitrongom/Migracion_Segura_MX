@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, TouchableOpacity, Linking, Animated, Alert, Platform } from 'react-native';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
@@ -26,12 +26,15 @@ const STEPS = ['Recibido', 'En revisión', 'En espera', 'Resuelto', 'Entregado',
 
 export default function EstatusScreen() {
   const { colors, mode } = useTheme();
+  const params = useLocalSearchParams<{ tramiteId?: string }>();
   const [tramites, setTramites] = useState<any[]>([]);
   const [solicitudes, setSolicitudes] = useState<any[]>([]);
   const [pagos, setPagos] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'tramites' | 'solicitudes'>('tramites');
+  const [highlightedTramiteId, setHighlightedTramiteId] = useState<string | null>(null);
+  const flatListRef = useRef<FlatList>(null);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -40,6 +43,21 @@ export default function EstatusScreen() {
 
   // Recargar al volver a esta pantalla (ej: después de pagar)
   useFocusEffect(useCallback(() => { loadData(); }, []));
+
+  // Si viene de una notificación con tramiteId, resaltar ese trámite
+  useEffect(() => {
+    if (params.tramiteId && tramites.length > 0) {
+      setHighlightedTramiteId(params.tramiteId);
+      const index = tramites.findIndex(t => t.id === params.tramiteId);
+      if (index >= 0 && flatListRef.current) {
+        setTimeout(() => {
+          flatListRef.current?.scrollToIndex({ index, animated: true, viewPosition: 0.3 });
+        }, 400);
+      }
+      // Quitar highlight después de 4 segundos
+      setTimeout(() => setHighlightedTramiteId(null), 4000);
+    }
+  }, [params.tramiteId, tramites]);
 
   useEffect(() => {
     Animated.parallel([
@@ -127,9 +145,10 @@ export default function EstatusScreen() {
   const renderTramite = ({ item }: { item: any }) => {
     const config = estatusConfig[item.estatus] || estatusConfig.borrador;
     const currentStep = config.step;
+    const isHighlighted = highlightedTramiteId === item.id;
 
     return (
-      <View style={[styles.card, { backgroundColor: colors.bgCard, borderColor: colors.borderLight }]}>
+      <View style={[styles.card, { backgroundColor: colors.bgCard, borderColor: colors.borderLight }, isHighlighted && { borderColor: '#f59e0b', borderWidth: 2, shadowColor: '#f59e0b', shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 }]}>
         {/* Header */}
         <View style={styles.cardHeader}>
           <View style={[styles.statusBadge, { backgroundColor: config.color + '15' }]}>
@@ -441,11 +460,17 @@ export default function EstatusScreen() {
         </View>
       ) : (
         <FlatList
+          ref={flatListRef}
           data={tramites}
           renderItem={renderTramite}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#f59e0b" />}
+          onScrollToIndexFailed={(info) => {
+            setTimeout(() => {
+              flatListRef.current?.scrollToIndex({ index: info.index, animated: true });
+            }, 500);
+          }}
         />
       ))}
 

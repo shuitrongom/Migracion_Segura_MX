@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Tabs } from 'expo-router';
+import { Tabs, router } from 'expo-router';
 import { Platform, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
@@ -7,7 +7,7 @@ import * as Notifications from 'expo-notifications';
 import { HomeIcon, StatusIcon, SearchIcon, BellIcon, UserIcon, PaymentIcon } from '@/components/TabIcons';
 import { apiFetch } from '@/lib/api';
 import { useTheme } from '@/lib/theme';
-import { registerForPushNotifications, addNotificationReceivedListener } from '@/lib/notifications';
+import { registerForPushNotifications, addNotificationReceivedListener, addNotificationResponseListener } from '@/lib/notifications';
 
 export default function ClienteLayout() {
   const insets = useSafeAreaInsets();
@@ -54,8 +54,20 @@ export default function ClienteLayout() {
     notifListener.current = addNotificationReceivedListener((notification) => {
       const { title, body } = notification.request.content;
       console.log('[PUSH] Notificación recibida en foreground:', title);
-      // La notificación se muestra automáticamente gracias al NotificationHandler
-      // pero además actualizamos el badge visual
+    });
+
+    // Listener para cuando el usuario TOCA una notificación → navegar al trámite
+    const responseListener = addNotificationResponseListener((response) => {
+      const data = response.notification.request.content.data as Record<string, string> | undefined;
+      console.log('[PUSH] Notificación tocada, data:', data);
+      if (data?.tramiteId) {
+        // Navegar a la pantalla de seguimiento con el trámite específico
+        router.push({ pathname: '/(cliente)/estatus', params: { tramiteId: data.tramiteId } });
+      } else if (data?.documentoId) {
+        router.push('/(cliente)/documentos');
+      } else if (data?.pagoId || data?.monto) {
+        router.push('/(cliente)/pagos');
+      }
     });
 
     // ─── Geolocalización ─────────────────────────────────────────────────────────
@@ -95,6 +107,7 @@ export default function ClienteLayout() {
 
     return () => {
       if (notifListener.current) notifListener.current.remove();
+      if (responseListener) responseListener.remove();
     };
   }, []);
 

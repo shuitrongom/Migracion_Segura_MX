@@ -154,6 +154,9 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Documentos por vencer */}
+      <DocsPorVencerWidget />
     </div>
   );
 }
@@ -184,6 +187,51 @@ function MetricCardSkeleton() {
     <div className="dark-card p-6">
       <div className="flex items-center justify-between mb-4"><Skeleton className="h-4 w-24" /><Skeleton className="h-10 w-10 rounded-xl" /></div>
       <Skeleton className="h-9 w-16" />
+    </div>
+  );
+}
+
+function DocsPorVencerWidget() {
+  const docsQuery = useQuery({
+    queryKey: ['dashboard', 'docs-por-vencer'],
+    queryFn: async () => {
+      const res = await api.get('/documentos/por-vencer');
+      return res.data || [];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const docs = docsQuery.data || [];
+  if (docsQuery.isLoading) return null;
+  if (docs.length === 0) return null;
+
+  return (
+    <div className="dark-card p-6 hover:shadow-lg hover:shadow-red-900/10 transition-all duration-300 border-l-4 border-l-red-500">
+      <div className="flex items-center gap-2 mb-5">
+        <div className="p-2 rounded-lg bg-red-500/10"><Clock className="h-4 w-4 text-red-400" /></div>
+        <h2 className="text-lg font-bold text-red-300">⚠️ Documentos por vencer (30 días)</h2>
+        <span className="ml-auto bg-red-500/10 text-red-400 text-xs font-bold px-2.5 py-1 rounded-full border border-red-500/20">{docs.length}</span>
+      </div>
+      <div className="space-y-2">
+        {docs.slice(0, 10).map((doc: any) => {
+          const diasRestantes = Math.ceil((new Date(doc.fechaVencimiento).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+          const urgente = diasRestantes <= 7;
+          return (
+            <div key={doc.id} className={`flex items-center gap-4 p-3 rounded-xl transition-colors ${urgente ? 'bg-red-500/5 border border-red-500/20' : 'hover:bg-[#1a1a1a]'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${urgente ? 'bg-red-500/15' : 'bg-orange-500/15'}`}>
+                <span className="text-sm">{urgente ? '🚨' : '⏰'}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">{doc.nombre}</p>
+                <p className="text-xs text-white/50">Vence: {new Date(doc.fechaVencimiento).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+              </div>
+              <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${urgente ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-orange-500/10 text-orange-400 border border-orange-500/20'}`}>
+                {diasRestantes} días
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

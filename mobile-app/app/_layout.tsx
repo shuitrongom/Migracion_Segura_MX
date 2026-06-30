@@ -26,7 +26,9 @@ export default function RootLayout() {
     // Listener para cuando el usuario toca una notificación (navegar a la pantalla correcta)
     responseListener.current = addNotificationResponseListener((response) => {
       const data = response.notification.request.content.data;
-      if (data?.tipo === 'SOLICITUD_LISTA' || data?.tipo === 'PAGO_CONFIRMADO') {
+      if (data?.tramiteId) {
+        router.push({ pathname: '/(cliente)/estatus', params: { tramiteId: data.tramiteId as string } });
+      } else if (data?.tipo === 'SOLICITUD_LISTA' || data?.tipo === 'PAGO_CONFIRMADO') {
         router.push('/(cliente)/estatus' as any);
       } else if (data?.tipo === 'CITA_PROXIMA') {
         router.push('/(cliente)/estatus' as any);

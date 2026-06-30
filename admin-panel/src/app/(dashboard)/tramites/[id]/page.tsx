@@ -265,6 +265,9 @@ export default function TramiteDetailPage() {
           {/* Pagos del trámite */}
           <PagosDelTramite tramiteId={tramiteId} clienteId={tramite?.clienteId} />
 
+          {/* Resolución y Cita (embajada/INM) */}
+          <ResolucionCitaSection tramiteId={tramiteId} tramite={tramite} />
+
           {/* Pieza INM + NUT */}
           <DatosINMSection tramiteId={tramiteId} tramite={tramite} estatus={estatus} />
 
@@ -424,6 +427,139 @@ export default function TramiteDetailPage() {
             </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ResolucionCitaSection({ tramiteId, tramite }: { tramiteId: string; tramite: TramiteDetail }) {
+  const [resolucionFile, setResolucionFile] = useState<File | null>(null);
+  const [citaFecha, setCitaFecha] = useState('');
+  const [citaLugar, setCitaLugar] = useState('');
+  const [citaNotas, setCitaNotas] = useState('');
+  const [uploading, setUploading] = useState(false);
+
+  const handleUploadResolucion = async () => {
+    if (!resolucionFile) { toast.error('Selecciona un archivo de resolución'); return; }
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', resolucionFile);
+      formData.append('tramiteId', tramiteId);
+      formData.append('categoria', 'resolucion');
+      formData.append('nombre', `Resolución - ${resolucionFile.name}`);
+      await api.post('/documentos/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+
+      // Notificar al extranjero
+      await api.patch(`/tramites/${tramiteId}/estatus`, {
+        estatus: tramite?.estatus === 'en_espera_resolucion' ? 'aprobado' : tramite?.estatus,
+        observaciones: 'Se ha subido la resolución del trámite.',
+      });
+
+      toast.success('Resolución subida y extranjero notificado');
+      setResolucionFile(null);
+    } catch {
+      toast.error('Error al subir la resolución');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRegistrarCita = async () => {
+    if (!citaFecha) { toast.error('Indica la fecha de la cita'); return; }
+    setUploading(true);
+    try {
+      // Guardar cita en datos del trámite
+      await api.patch(`/tramites/${tramiteId}/continuar`, {
+        datosFormulario: {
+          ...tramite?.datosFormulario,
+          citaEmbajada: { fecha: citaFecha, lugar: citaLugar, notas: citaNotas },
+        },
+      });
+
+      // Notificar cambio de estatus y cita
+      await api.patch(`/tramites/${tramiteId}/estatus`, {
+        estatus: tramite?.estatus || 'en_espera_resolucion',
+        observaciones: `Cita programada: ${citaFecha}${citaLugar ? ` en ${citaLugar}` : ''}. ${citaNotas}`,
+      });
+
+      toast.success('Cita registrada y extranjero notificado');
+      setCitaFecha('');
+      setCitaLugar('');
+      setCitaNotas('');
+    } catch {
+      toast.error('Error al registrar la cita');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="dark-card-static p-6">
+      <h3 className="text-sm font-semibold text-white mb-4">📋 Resolución / Cita embajada</h3>
+      <div className="space-y-4">
+        {/* Subir resolución */}
+        <div className="p-3 rounded-lg border border-[#3a3a3a] bg-[#1a1a1a]">
+          <p className="text-[10px] text-white/70 uppercase font-semibold mb-2">Subir resolución</p>
+          <input
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png"
+            onChange={(e) => setResolucionFile(e.target.files?.[0] || null)}
+            className="w-full text-xs text-white/70 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#252525] file:text-white/70 hover:file:bg-[#333333] file:cursor-pointer border border-[#3a3a3a] rounded-lg bg-[#1a1a1a] py-1.5 px-2"
+          />
+          {resolucionFile && <p className="text-[10px] text-emerald-400 mt-1">✓ {resolucionFile.name}</p>}
+          <button
+            onClick={handleUploadResolucion}
+            disabled={uploading || !resolucionFile}
+            className="w-full mt-2 px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {uploading ? 'Subiendo...' : '📤 Subir resolución y notificar'}
+          </button>
+        </div>
+
+        {/* Registrar cita */}
+        <div className="p-3 rounded-lg border border-[#3a3a3a] bg-[#1a1a1a]">
+          <p className="text-[10px] text-white/70 uppercase font-semibold mb-2">Registrar cita (embajada/INM)</p>
+          <div className="space-y-2">
+            <input
+              type="datetime-local"
+              value={citaFecha}
+              onChange={(e) => setCitaFecha(e.target.value)}
+              className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+            />
+            <input
+              type="text"
+              value={citaLugar}
+              onChange={(e) => setCitaLugar(e.target.value)}
+              className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+              placeholder="Lugar (ej: Embajada de México en...)"
+            />
+            <textarea
+              value={citaNotas}
+              onChange={(e) => setCitaNotas(e.target.value)}
+              className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+              placeholder="Notas adicionales (documentos a llevar, etc.)"
+              rows={2}
+            />
+            <button
+              onClick={handleRegistrarCita}
+              disabled={uploading || !citaFecha}
+              className="w-full px-3 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {uploading ? 'Guardando...' : '📅 Registrar cita y notificar'}
+            </button>
+          </div>
+        </div>
+
+        {/* Cita existente */}
+        {(tramite?.datosFormulario as any)?.citaEmbajada && (
+          <div className="p-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5">
+            <p className="text-[10px] text-emerald-400 uppercase font-semibold mb-1">✅ Cita registrada</p>
+            <p className="text-sm text-white font-medium">{(tramite.datosFormulario as any).citaEmbajada.fecha}</p>
+            {(tramite.datosFormulario as any).citaEmbajada.lugar && <p className="text-xs text-white/70 mt-0.5">📍 {(tramite.datosFormulario as any).citaEmbajada.lugar}</p>}
+            {(tramite.datosFormulario as any).citaEmbajada.notas && <p className="text-xs text-white/50 mt-0.5">{(tramite.datosFormulario as any).citaEmbajada.notas}</p>}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -688,6 +824,10 @@ function PagosDelTramite({ tramiteId, clienteId }: { tramiteId: string; clienteI
                     >📲 Reenviar</button>
                   </div>
                 )}
+                {/* Admin: subir comprobante de pago (OXXO/transferencia) en nombre del extranjero */}
+                {(pago.estatusPago === 'pendiente' || pago.estatus_pago === 'pendiente') && (
+                  <AdminComprobanteUpload pagoId={pago.id} monto={pago.monto} onSuccess={() => window.location.reload()} />
+                )}
               </div>
             );
           })}
@@ -733,6 +873,94 @@ function PagosDelTramite({ tramiteId, clienteId }: { tramiteId: string; clienteI
           <p className="text-[11px] text-blue-400 font-medium">🔒 Módulo financiero blindado</p>
           <p className="text-[10px] text-white/50 mt-1">Los pagos solo se registran automáticamente vía Mercado Pago o por transferencia con voucher verificado. No se permiten registros manuales para evitar discrepancias.</p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminComprobanteUpload({ pagoId, monto, onSuccess }: { pagoId: string; monto: number; onSuccess: () => void }) {
+  const [showForm, setShowForm] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [metodoPago, setMetodoPago] = useState('transferencia_bancaria');
+  const [uploading, setUploading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!file) { toast.error('Selecciona el comprobante de pago'); return; }
+    setUploading(true);
+    try {
+      // 1. Subir archivo como documento
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('nombre', `Comprobante pago - ${metodoPago === 'crypto' ? 'Crypto' : 'Transferencia/OXXO'}`);
+      formData.append('categoria', 'comprobante_pago');
+      const uploadRes = await api.post('/documentos/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const voucherUrl = uploadRes.data?.storageKey || uploadRes.data?.id || 'admin-uploaded';
+
+      // 2. Registrar voucher en el pago
+      await api.post(`/financiero/pagos/${pagoId}/voucher`, {
+        montoDeclarado: monto,
+        voucherUrl,
+        metodoPago,
+      });
+
+      // 3. Aprobar directamente (el admin lo sube, se confía)
+      await api.post(`/financiero/pagos/${pagoId}/voucher/aprobar`, {
+        nota: 'Comprobante subido y aprobado por administrador',
+      });
+
+      toast.success('Comprobante registrado y pago aprobado');
+      onSuccess();
+    } catch {
+      toast.error('Error al registrar el comprobante');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  if (!showForm) {
+    return (
+      <button
+        onClick={() => setShowForm(true)}
+        className="w-full mt-2 px-3 py-1.5 text-[10px] font-semibold bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-lg hover:bg-orange-500/20 transition-colors"
+      >
+        🧾 Subir comprobante (OXXO/transferencia)
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-3 p-3 rounded-lg border border-orange-500/30 bg-orange-500/5 space-y-2">
+      <p className="text-[10px] text-orange-400 uppercase font-semibold">Subir comprobante de pago</p>
+      <select
+        value={metodoPago}
+        onChange={(e) => setMetodoPago(e.target.value)}
+        className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+      >
+        <option value="transferencia_bancaria">Transferencia bancaria</option>
+        <option value="efectivo">Efectivo (OXXO/depósito)</option>
+        <option value="crypto">Crypto/USDT</option>
+      </select>
+      <input
+        type="file"
+        accept=".pdf,.jpg,.jpeg,.png"
+        onChange={(e) => setFile(e.target.files?.[0] || null)}
+        className="w-full text-xs text-white/70 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#252525] file:text-white/70 hover:file:bg-[#333333] file:cursor-pointer border border-[#3a3a3a] rounded-lg bg-[#1a1a1a] py-1 px-2"
+      />
+      {file && <p className="text-[10px] text-emerald-400">✓ {file.name}</p>}
+      <div className="flex gap-2">
+        <button
+          onClick={handleSubmit}
+          disabled={uploading || !file}
+          className="flex-1 px-3 py-2 bg-orange-600 text-white rounded-lg text-xs font-medium hover:bg-orange-700 disabled:opacity-50"
+        >
+          {uploading ? 'Subiendo...' : '✓ Confirmar pago'}
+        </button>
+        <button
+          onClick={() => { setShowForm(false); setFile(null); }}
+          className="px-3 py-2 text-xs text-white/70 border border-[#3a3a3a] rounded-lg hover:bg-[#222222]"
+        >
+          Cancelar
+        </button>
       </div>
     </div>
   );

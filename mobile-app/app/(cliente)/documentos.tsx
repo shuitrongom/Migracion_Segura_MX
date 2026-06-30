@@ -119,7 +119,17 @@ export default function NotificacionesScreen() {
           renderItem={({ item }) => (
             <TouchableOpacity
               style={[styles.notifCard, !item.leida && styles.notifUnread]}
-              onPress={() => markAsRead(item.id)}
+              onPress={() => {
+                markAsRead(item.id);
+                // Navegar al trámite si hay tramiteId en metadata
+                if (item.metadata?.tramiteId) {
+                  router.push({ pathname: '/(cliente)/estatus', params: { tramiteId: item.metadata.tramiteId as string } });
+                } else if (item.metadata?.documentoId) {
+                  router.push('/(cliente)/documentos');
+                } else if (item.metadata?.pagoId || item.metadata?.monto) {
+                  router.push('/(cliente)/pagos');
+                }
+              }}
             >
               <View style={styles.notifHeader}>
                 <Text style={[styles.notifTitle, { color: colors.text }]}>{item.titulo}</Text>
