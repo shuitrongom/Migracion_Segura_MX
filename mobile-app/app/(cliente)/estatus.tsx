@@ -198,7 +198,7 @@ export default function EstatusScreen() {
             }}
           >
             <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.payButton}>
-              <Text style={styles.payButtonText}>💳 Pagar {pago.tipoPago === 'anticipo' ? 'Anticipo' : 'Liquidación'}: ${Number(pago.monto).toLocaleString()} MXN</Text>
+              <Text style={styles.payButtonText}>💳 Pagar: ${Number(pago.monto).toLocaleString()} MXN</Text>
             </LinearGradient>
           </TouchableOpacity>
         ))}
@@ -206,14 +206,14 @@ export default function EstatusScreen() {
         {/* Pagos aprobados */}
         {pagos[item.id]?.filter((p: any) => p.estatusPago === 'aprobado').map((pago: any) => (
           <View key={pago.id} style={styles.paidBadge}>
-            <Text style={styles.paidText}>✅ {pago.tipoPago === 'anticipo' ? 'Anticipo' : 'Liquidación'} pagado: ${Number(pago.monto).toLocaleString()}</Text>
+            <Text style={styles.paidText}>✅ Pagado: ${Number(pago.monto).toLocaleString()} MXN</Text>
           </View>
         ))}
 
         {/* Pagos en revisión de voucher */}
         {pagos[item.id]?.filter((p: any) => p.estatusPago === 'en_revision_voucher').map((pago: any) => (
           <View key={pago.id} style={[styles.paidBadge, { backgroundColor: '#E67E2215' }]}>
-            <Text style={[styles.paidText, { color: '#E67E22' }]}>🧾 {pago.tipoPago === 'anticipo' ? 'Anticipo' : 'Liquidación'}: Comprobante en revisión (${Number(pago.montoDeclarado || pago.monto).toLocaleString()})</Text>
+            <Text style={[styles.paidText, { color: '#E67E22' }]}>🧾 Comprobante en revisión: ${Number(pago.montoDeclarado || pago.monto).toLocaleString()} MXN</Text>
           </View>
         ))}
 

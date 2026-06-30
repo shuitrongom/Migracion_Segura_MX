@@ -114,7 +114,7 @@ export default function LoginScreen() {
                 <View style={styles.logoGlow} />
                 <Image source={require('../../assets/logo_splash_1024.png')} style={styles.logoImage} resizeMode="contain" />
               </View>
-              <Text style={[styles.title, { color: colors.text }]}>MIGRACIÓN <Text style={styles.titleAccent}>SEGURA</Text></Text>
+              <Text style={[styles.title, { color: colors.text }]}>MIGRACIÓN <Text style={styles.titleAccent}>SEGURA</Text> MX</Text>
               <Text style={[styles.subtitle, { color: colors.textMuted }]}>Gestión migratoria inteligente</Text>
             </Animated.View>
 

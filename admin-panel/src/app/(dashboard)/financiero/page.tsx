@@ -19,8 +19,8 @@ const ESTATUS_CONFIG: Record<string, { label: string; color: string; icon: typeo
 };
 
 const TIPO_PAGO_LABELS: Record<string, string> = {
-  anticipo: '50% Anticipo',
-  liquidacion: '50% Liquidación',
+  anticipo: 'Parcialidad',
+  liquidacion: 'Parcialidad',
   pago_unico: 'Pago único',
 };
 
