@@ -53,60 +53,162 @@ export default function GenericTramiteForm({ tipo, form, updateForm, onSubmit }:
             onChange={(v) => updateForm('especificaTramite', v)}
           />
         )}
+        {/* CIE: elegir tipo de persona */}
+        {tipo === 'constancia_empleador' && (
+          <View>
+            <FormSelect
+              label="Tipo de persona"
+              value={form.empleadorTipoPersona}
+              options={['Física', 'Moral']}
+              onChange={(v) => updateForm('empleadorTipoPersona', v)}
+            />
+          </View>
+        )}
       </View>
     ),
   };
 
-  // --- Paso 2: Datos personales ---
+  // --- Paso 2: Datos personales / empresa ---
   const step2 = {
-    title: 'Datos personales',
+    title: tipo === 'constancia_empleador' ? 'Datos del empleador' : 'Datos personales',
     subtitle: STEP_SUBTITLE,
     content: (
       <View>
-        <Field label="Nombre(s)">
-          <TextInput
-            style={inputStyle}
-            value={form.nombre}
-            onChangeText={(v) => updateForm('nombre', v)}
-            placeholder="Nombre(s)"
-            placeholderTextColor={placeholderColor}
-          />
-        </Field>
-        <Field label="Apellido(s)">
-          <TextInput
-            style={inputStyle}
-            value={form.apellidos}
-            onChangeText={(v) => updateForm('apellidos', v)}
-            placeholder="Apellido(s)"
-            placeholderTextColor={placeholderColor}
-          />
-        </Field>
-        <FormSelect
-          label="Sexo"
-          value={form.sexo ? SEXOS.find((s) => s.value === form.sexo)?.label || '' : ''}
-          options={SEXOS.map((s) => s.label)}
-          onChange={(v) => updateForm('sexo', SEXOS.find((s) => s.label === v)?.value || '')}
-        />
-        <FormDatePicker
-          label="Fecha de nacimiento"
-          value={form.fechaNacimiento}
-          onChange={(v) => updateForm('fechaNacimiento', v)}
-          minYear={1940}
-          maxYear={2010}
-        />
-        <FormSelect
-          label="Nacionalidad"
-          value={form.nacionalidad}
-          options={NACIONALIDADES}
-          onChange={(v) => updateForm('nacionalidad', v)}
-          searchable
-        />
-        <FormSelect
-          label="Estado civil"
-          value={form.estadoCivil}
-          options={ESTADOS_CIVILES.map((e) => e.label)}
-          onChange={(v) => updateForm('estadoCivil', v)}
-        />
+        {tipo === 'constancia_empleador' ? (
+          <View>
+            {form.empleadorTipoPersona === 'Moral' ? (
+              <View>
+                <Field label="RFC de la empresa (12 caracteres) *">
+                  <TextInput
+                    style={inputStyle}
+                    value={form.empleadorRfc}
+                    onChangeText={(v) => updateForm('empleadorRfc', v.toUpperCase())}
+                    placeholder="RFC de la persona moral"
+                    placeholderTextColor={placeholderColor}
+                    maxLength={12}
+                    autoCapitalize="characters"
+                  />
+                </Field>
+                <Field label="Nombre o razón social *">
+                  <TextInput
+                    style={inputStyle}
+                    value={form.nombre}
+                    onChangeText={(v) => updateForm('nombre', v)}
+                    placeholder="Razón social"
+                    placeholderTextColor={placeholderColor}
+                  />
+                </Field>
+                <Field label="Número de expediente (si actualiza)">
+                  <TextInput
+                    style={inputStyle}
+                    value={form.empleadorNumeroExpediente}
+                    onChangeText={(v) => updateForm('empleadorNumeroExpediente', v)}
+                    placeholder="Número de expediente anterior"
+                    placeholderTextColor={placeholderColor}
+                  />
+                </Field>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#f59e0b', marginTop: 16, marginBottom: 8 }}>Representante legal</Text>
+                <Field label="Nombre(s) del representante *">
+                  <TextInput
+                    style={inputStyle}
+                    value={form.apellidos}
+                    onChangeText={(v) => updateForm('apellidos', v)}
+                    placeholder="Nombre completo del representante"
+                    placeholderTextColor={placeholderColor}
+                  />
+                </Field>
+              </View>
+            ) : (
+              <View>
+                <Field label="RFC (13 caracteres) *">
+                  <TextInput
+                    style={inputStyle}
+                    value={form.empleadorRfc}
+                    onChangeText={(v) => updateForm('empleadorRfc', v.toUpperCase())}
+                    placeholder="RFC de la persona física"
+                    placeholderTextColor={placeholderColor}
+                    maxLength={13}
+                    autoCapitalize="characters"
+                  />
+                </Field>
+                <Field label="Nombre(s) *">
+                  <TextInput
+                    style={inputStyle}
+                    value={form.nombre}
+                    onChangeText={(v) => updateForm('nombre', v)}
+                    placeholder="Nombre(s)"
+                    placeholderTextColor={placeholderColor}
+                  />
+                </Field>
+                <Field label="Apellido(s) *">
+                  <TextInput
+                    style={inputStyle}
+                    value={form.apellidos}
+                    onChangeText={(v) => updateForm('apellidos', v)}
+                    placeholder="Apellido(s)"
+                    placeholderTextColor={placeholderColor}
+                  />
+                </Field>
+                <Field label="Número de expediente (si actualiza)">
+                  <TextInput
+                    style={inputStyle}
+                    value={form.empleadorNumeroExpediente}
+                    onChangeText={(v) => updateForm('empleadorNumeroExpediente', v)}
+                    placeholder="Número de expediente anterior"
+                    placeholderTextColor={placeholderColor}
+                  />
+                </Field>
+              </View>
+            )}
+          </View>
+        ) : (
+          <View>
+            <Field label="Nombre(s)">
+              <TextInput
+                style={inputStyle}
+                value={form.nombre}
+                onChangeText={(v) => updateForm('nombre', v)}
+                placeholder="Nombre(s)"
+                placeholderTextColor={placeholderColor}
+              />
+            </Field>
+            <Field label="Apellido(s)">
+              <TextInput
+                style={inputStyle}
+                value={form.apellidos}
+                onChangeText={(v) => updateForm('apellidos', v)}
+                placeholder="Apellido(s)"
+                placeholderTextColor={placeholderColor}
+              />
+            </Field>
+            <FormSelect
+              label="Sexo"
+              value={form.sexo ? SEXOS.find((s) => s.value === form.sexo)?.label || '' : ''}
+              options={SEXOS.map((s) => s.label)}
+              onChange={(v) => updateForm('sexo', SEXOS.find((s) => s.label === v)?.value || '')}
+            />
+            <FormDatePicker
+              label="Fecha de nacimiento"
+              value={form.fechaNacimiento}
+              onChange={(v) => updateForm('fechaNacimiento', v)}
+              minYear={1940}
+              maxYear={2010}
+            />
+            <FormSelect
+              label="Nacionalidad"
+              value={form.nacionalidad}
+              options={NACIONALIDADES}
+              onChange={(v) => updateForm('nacionalidad', v)}
+              searchable
+            />
+            <FormSelect
+              label="Estado civil"
+              value={form.estadoCivil}
+              options={ESTADOS_CIVILES.map((e) => e.label)}
+              onChange={(v) => updateForm('estadoCivil', v)}
+            />
+          </View>
+        )}
       </View>
     ),
   };

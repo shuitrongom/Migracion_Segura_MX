@@ -72,8 +72,9 @@ export default function GestoresPage() {
       setFormData({ fullName: '', email: '', phone: '', password: '', sexo: '', fechaNacimiento: '', curp: '', rfc: '', direccion: '' });
       setShowPassword(false);
       fetchGestores();
-    } catch (error: unknown) {
-      toast.error(error instanceof Error ? error.message : 'Error al crear Gestor');
+    } catch (error: any) {
+      const msg = error?.response?.data?.message;
+      toast.error(Array.isArray(msg) ? msg.join(', ') : (msg || 'Error al crear Gestor. Verifica que el email no esté repetido.'));
     } finally { setSubmitting(false); }
   };
 

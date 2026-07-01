@@ -146,9 +146,16 @@ export default function EstatusScreen() {
     const config = estatusConfig[item.estatus] || estatusConfig.borrador;
     const currentStep = config.step;
     const isHighlighted = highlightedTramiteId === item.id;
+    const isResolved = ['aprobado', 'completado', 'entregado'].includes(item.estatus);
 
     return (
-      <View style={[styles.card, { backgroundColor: colors.bgCard, borderColor: colors.borderLight }, isHighlighted && { borderColor: '#f59e0b', borderWidth: 2, shadowColor: '#f59e0b', shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 }]}>
+      <View style={[styles.card, { backgroundColor: colors.bgCard, borderColor: isResolved ? '#27AE60' : colors.borderLight }, isHighlighted && { borderColor: '#f59e0b', borderWidth: 2, shadowColor: '#f59e0b', shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 }, isResolved && !isHighlighted && { borderWidth: 1.5, borderColor: '#27AE6040' }]}>
+        {/* Resolved badge */}
+        {isResolved && (
+          <View style={{ position: 'absolute', top: 8, right: 8, backgroundColor: '#27AE6020', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: '#27AE6040' }}>
+            <Text style={{ fontSize: 10, fontWeight: '700', color: '#27AE60' }}>✓ RESUELTO</Text>
+          </View>
+        )}
         {/* Header */}
         <View style={styles.cardHeader}>
           <View style={[styles.statusBadge, { backgroundColor: config.color + '15' }]}>

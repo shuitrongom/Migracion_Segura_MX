@@ -137,6 +137,7 @@ export default function TramiteNuevoScreen() {
     if (!form.propositoViaje) { Alert.alert('Error', 'Selecciona qué deseas hacer'); return; }
     if (!form.solicitanteEmail.trim()) { Alert.alert('Error', 'Ingresa tu correo electrónico'); return; }
     if (form.solicitanteEmail !== form.solicitanteEmailConfirmacion) { Alert.alert('Error', 'Los correos no coinciden'); return; }
+    if (!form.telefono.trim()) { Alert.alert('Error', 'Ingresa tu número de teléfono o WhatsApp'); return; }
     // Ir al paso de documentos
     setStep('docs');
   };

@@ -560,6 +560,48 @@ function ResolucionCitaSection({ tramiteId, tramite }: { tramiteId: string; tram
             {(tramite.datosFormulario as any).citaEmbajada.notas && <p className="text-xs text-white/50 mt-0.5">{(tramite.datosFormulario as any).citaEmbajada.notas}</p>}
           </div>
         )}
+
+        {/* Subir documento migratorio con vencimiento */}
+        <div className="p-3 rounded-lg border border-[#3a3a3a] bg-[#1a1a1a]">
+          <p className="text-[10px] text-white/70 uppercase font-semibold mb-2">📋 Documento migratorio (resultado del trámite)</p>
+          <p className="text-[10px] text-white/50 mb-2">Sube el documento migratorio obtenido y su fecha de vencimiento para alertar al extranjero 30 días antes.</p>
+          <div className="space-y-2">
+            <input
+              type="date"
+              id={`doc-vencimiento-${tramiteId}`}
+              className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+            />
+            <input
+              type="file"
+              id={`doc-migratorio-${tramiteId}`}
+              accept=".pdf,.jpg,.jpeg,.png"
+              className="w-full text-xs text-white/70 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#252525] file:text-white/70 hover:file:bg-[#333333] file:cursor-pointer border border-[#3a3a3a] rounded-lg bg-[#1a1a1a] py-1.5 px-2"
+            />
+            <button
+              onClick={async () => {
+                const fileInput = document.getElementById(`doc-migratorio-${tramiteId}`) as HTMLInputElement;
+                const fechaInput = document.getElementById(`doc-vencimiento-${tramiteId}`) as HTMLInputElement;
+                const file = fileInput?.files?.[0];
+                const fecha = fechaInput?.value;
+                if (!file) { toast.error('Selecciona el documento migratorio'); return; }
+                if (!fecha) { toast.error('Indica la fecha de vencimiento'); return; }
+                try {
+                  const formData = new FormData();
+                  formData.append('file', file);
+                  formData.append('tramiteId', tramiteId);
+                  formData.append('categoria', 'forma_migratoria');
+                  formData.append('nombre', `Documento migratorio - ${file.name}`);
+                  formData.append('fechaVencimiento', fecha);
+                  await api.post('/documentos/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+                  toast.success('Documento migratorio subido. Se alertará 30 días antes del vencimiento.');
+                } catch { toast.error('Error al subir'); }
+              }}
+              className="w-full px-3 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700"
+            >
+              📄 Subir documento migratorio + vencimiento
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -898,7 +940,7 @@ function AdminComprobanteUpload({ pagoId, monto, onSuccess }: { pagoId: string; 
 
       // 2. Registrar voucher en el pago
       await api.post(`/financiero/pagos/${pagoId}/voucher`, {
-        montoDeclarado: monto,
+        montoDeclarado: Number(monto),
         voucherUrl,
         metodoPago,
       });

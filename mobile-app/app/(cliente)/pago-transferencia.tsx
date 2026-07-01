@@ -111,7 +111,7 @@ export default function PagoTransferenciaScreen() {
       }
 
       const uploadData = await uploadRes.json();
-      const voucherUrl = uploadData.url || uploadData.fileUrl || uploadData.publicUrl || `voucher-${pagoId}`;
+      const voucherUrl = uploadData.storageKey || uploadData.id || uploadData.url || uploadData.fileUrl || uploadData.publicUrl || `voucher-${pagoId}`;
 
       // 2. Registrar el voucher en el pago
       const res = await apiFetch(`/financiero/pagos/${pagoId}/voucher`, {
