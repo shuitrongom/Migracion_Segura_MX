@@ -117,7 +117,7 @@ export class SolicitudesService {
     });
 
     solicitud.mercadopagoPreferenceId = mpPreference.preferenceId || null;
-    solicitud.mercadopagoInitPoint = mpPreference.initPoint || mpPreference.sandboxInitPoint || null;
+    solicitud.mercadopagoInitPoint = mpPreference.initPoint || null;
 
     const saved = await this.solicitudRepository.save(solicitud);
 

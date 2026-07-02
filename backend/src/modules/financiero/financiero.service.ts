@@ -86,7 +86,7 @@ export class FinancieroService {
           ? params.concepto
           : `Pago ${i + 1} de ${numPagos} - ${params.concepto}`,
         mercadopagoPreferenceId: esElPrimero ? mpPreference.preferenceId : null,
-        mercadopagoInitPoint: esElPrimero ? (mpPreference.initPoint || mpPreference.sandboxInitPoint) : null,
+        mercadopagoInitPoint: esElPrimero ? (mpPreference.initPoint) : null,
         fechaVencimiento: esElPrimero ? fechaVencimiento : null, // Solo el primero tiene vencimiento
         registradoPor: params.registradoPor,
         historial: [{
@@ -166,7 +166,7 @@ export class FinancieroService {
     });
 
     pago.mercadopagoPreferenceId = mpPreference.preferenceId || null;
-    pago.mercadopagoInitPoint = mpPreference.initPoint || mpPreference.sandboxInitPoint || null;
+    pago.mercadopagoInitPoint = mpPreference.initPoint || null;
     pago.fechaVencimiento = fechaVencimiento;
     pago.historial = [
       ...pago.historial,

@@ -401,7 +401,7 @@ export default function SolicitudNuevaScreen() {
                   });
                   if (res.ok) {
                     const data = await res.json();
-                    const link = data.initPoint || data.sandboxInitPoint;
+                    const link = data.initPoint;
                     if (link) {
                       const { Linking } = require('react-native');
                       Linking.openURL(link);
