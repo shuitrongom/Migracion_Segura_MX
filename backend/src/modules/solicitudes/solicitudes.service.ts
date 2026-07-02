@@ -357,11 +357,11 @@ export class SolicitudesService {
       );
     }
 
-    // Guardar datos del voucher en la solicitud (usamos campos genéricos)
-    (solicitud as any).voucherUrl = voucherUrl;
-    (solicitud as any).voucherEstatus = 'pendiente_revision';
-    (solicitud as any).metodoPago = params.metodoPago;
-    (solicitud as any).montoDeclarado = montoDeclarado;
+    // Guardar datos del voucher en la solicitud
+    solicitud.voucherUrl = voucherUrl;
+    solicitud.voucherEstatus = 'pendiente_revision';
+    solicitud.metodoPago = params.metodoPago;
+    solicitud.montoDeclarado = montoDeclarado;
 
     const saved = await this.solicitudRepository.save(solicitud);
 

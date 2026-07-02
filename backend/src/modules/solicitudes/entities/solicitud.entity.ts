@@ -65,6 +65,18 @@ export class Solicitud {
   @Column({ type: 'text', nullable: true })
   observaciones: string | null;
 
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  voucherUrl: string | null;
+
+  @Column({ type: 'varchar', length: 50, nullable: true, default: null })
+  voucherEstatus: string | null;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  metodoPago: string | null;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  montoDeclarado: number | null;
+
   @CreateDateColumn()
   createdAt: Date;
 
