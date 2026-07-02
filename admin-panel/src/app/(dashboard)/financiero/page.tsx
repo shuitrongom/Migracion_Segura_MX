@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { DollarSign, TrendingUp, Clock, CheckCircle, XCircle, RefreshCw, Wallet, Eye, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { DollarSign, Clock, CheckCircle, XCircle, RefreshCw, Wallet, Eye, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 
