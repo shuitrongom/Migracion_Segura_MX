@@ -456,13 +456,17 @@ export class FinancieroService {
     metodoPago: string;
     userId: string;
   }): Promise<Pago> {
+    // Normalizar tipos — el cliente puede enviar string desde la app
+    const montoDeclarado = Number(params.montoDeclarado);
+    const voucherUrl = String(params.voucherUrl || '').trim();
+
     // Validar que se envía monto
-    if (!params.montoDeclarado || params.montoDeclarado <= 0) {
+    if (!montoDeclarado || montoDeclarado <= 0 || isNaN(montoDeclarado)) {
       throw new BadRequestException('Debes indicar el monto que transferiste. Sin monto no se puede registrar el pago.');
     }
 
     // Validar que se envía voucher
-    if (!params.voucherUrl || params.voucherUrl.trim() === '') {
+    if (!voucherUrl) {
       throw new BadRequestException('Debes subir el comprobante de transferencia (voucher). Sin comprobante no se registra el pago.');
     }
 
@@ -475,59 +479,55 @@ export class FinancieroService {
       throw new BadRequestException('Este pago ya no está pendiente. No se puede subir voucher.');
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    // VALIDACIÓN CRÍTICA: El monto declarado DEBE ser EXACTO al monto del pago
-    // No se permite pagar de más ni de menos.
-    // ══════════════════════════════════════════════════════════════════════
+    // VALIDACIÓN: El monto declarado DEBE ser EXACTO al monto del pago
     const montoEsperado = Number(pago.monto);
-    const montoDeclarado = Number(params.montoDeclarado);
 
     if (Math.abs(montoDeclarado - montoEsperado) > 0.01) {
       throw new BadRequestException(
         `El monto que ingresaste ($${montoDeclarado.toFixed(2)}) no coincide con el monto a pagar ($${montoEsperado.toFixed(2)}). ` +
-        `Debes transferir EXACTAMENTE $${montoEsperado.toFixed(2)} MXN y poner ese monto. ` +
+        `Debes transferir EXACTAMENTE $${montoEsperado.toFixed(2)} MXN. ` +
         `Si ya transferiste una cantidad diferente, contacta a tu asesor.`
       );
     }
 
-    // Registrar voucher — no se aprueba automáticamente, queda en revisión
-    pago.voucherUrl = params.voucherUrl.trim();
-    pago.montoDeclarado = params.montoDeclarado;
+    // Registrar voucher — queda en revisión
+    pago.voucherUrl = voucherUrl;
+    pago.montoDeclarado = montoDeclarado;
     pago.voucherEstatus = 'pendiente_revision';
     pago.estatusPago = EstatusPago.EN_REVISION_VOUCHER;
     pago.metodoPago = params.metodoPago === 'crypto'
       ? MetodoPago.CRYPTO
       : MetodoPago.TRANSFERENCIA_BANCARIA;
     pago.historial = [
-      ...pago.historial,
+      ...(pago.historial || []),
       {
         accion: 'VOUCHER_SUBIDO',
         fecha: new Date().toISOString(),
         usuarioId: params.userId,
-        detalle: `Voucher subido. Monto declarado: $${params.montoDeclarado} (coincide con monto esperado: $${montoEsperado}). Método: ${params.metodoPago}. En espera de revisión.`,
+        detalle: `Voucher subido. Monto: $${montoDeclarado}. Método: ${params.metodoPago}. En espera de revisión.`,
       },
     ];
 
     const saved = await this.pagoRepository.save(pago);
 
-    // Notificar al admin que hay un voucher pendiente de revisión
-    try {
-      const admins = await this.pagoRepository.manager.query(
-        `SELECT id FROM users WHERE role = 'administrador' AND deleted_at IS NULL LIMIT 1`
-      );
+    // Notificar al admin (no bloquea si falla)
+    this.pagoRepository.manager.query(
+      `SELECT id FROM users WHERE role = 'administrador' AND deleted_at IS NULL LIMIT 1`
+    ).then((admins: any[]) => {
       if (admins?.[0]?.id) {
-        await this.notificacionesService.sendNotification({
+        this.notificacionesService.sendNotification({
           destinatarioId: admins[0].id,
           tipo: TipoNotificacion.PAGO_PENDIENTE,
           canal: CanalNotificacion.PUSH,
           titulo: '🧾 Voucher pendiente de revisión',
-          contenido: `Se subió un comprobante de $${params.montoDeclarado} MXN. Revisa y aprueba o rechaza.`,
-          metadata: { pagoId: params.pagoId, monto: params.montoDeclarado.toString() },
+          contenido: `Se subió un comprobante de $${montoDeclarado} MXN. Revisa y aprueba o rechaza.`,
+          metadata: { pagoId: params.pagoId, monto: montoDeclarado.toString() },
         }).catch(() => {});
       }
-    } catch {}
+    }).catch(() => {});
 
     return saved;
+  }
   }
 
   /**

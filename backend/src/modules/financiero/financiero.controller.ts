@@ -260,9 +260,9 @@ export class FinancieroController {
   ) {
     return this.financieroService.registrarVoucher({
       pagoId,
-      montoDeclarado: body.montoDeclarado,
-      voucherUrl: body.voucherUrl,
-      metodoPago: body.metodoPago,
+      montoDeclarado: Number(body.montoDeclarado), // Asegurar número
+      voucherUrl: String(body.voucherUrl || ''),
+      metodoPago: String(body.metodoPago || 'transferencia_bancaria'),
       userId: req.user.id,
     });
   }

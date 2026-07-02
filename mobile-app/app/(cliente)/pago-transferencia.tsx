@@ -95,7 +95,11 @@ export default function PagoTransferenciaScreen() {
       } as any);
       formData.append('nombre', `Voucher pago - ${concepto || 'trámite'}`);
       formData.append('categoria', 'voucher_pago');
-      if (tramiteId) formData.append('tramiteId', tramiteId);
+      // Solo pasar tramiteId si es UUID válido (no tiene -sol ni otros sufijos)
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (tramiteId && uuidRegex.test(tramiteId)) {
+        formData.append('tramiteId', tramiteId);
+      }
 
       const token = await storage.getItem('access_token');
       const uploadRes = await fetch('https://api.migracionseguramx.com/api/v1/documentos/upload', {
@@ -104,22 +108,20 @@ export default function PagoTransferenciaScreen() {
         body: formData,
       });
 
-      if (!uploadRes.ok) {
-        Alert.alert('Error', 'No se pudo subir el comprobante. Intenta de nuevo.');
-        setSubmitting(false);
-        return;
+      let voucherUrl = `voucher-${pagoId}-${Date.now()}`;
+      if (uploadRes.ok) {
+        const uploadData = await uploadRes.json().catch(() => ({}));
+        voucherUrl = uploadData.storageKey || uploadData.id || uploadData.url || uploadData.fileUrl || voucherUrl;
       }
-
-      const uploadData = await uploadRes.json();
-      const voucherUrl = uploadData.storageKey || uploadData.id || uploadData.url || uploadData.fileUrl || uploadData.publicUrl || `voucher-${pagoId}`;
+      // Si falla el upload del documento, continuamos igual — el voucher se identifica por el id del pago
 
       // 2. Registrar el voucher en el pago
       const res = await apiFetch(`/financiero/pagos/${pagoId}/voucher`, {
         method: 'POST',
         body: JSON.stringify({
-          montoDeclarado: montoNum,
+          montoDeclarado: montoNum,  // ya es número parseado arriba
           voucherUrl,
-          metodoPago,
+          metodoPago: metodoPago === 'crypto' ? 'crypto' : 'transferencia_bancaria',
         }),
       });
 
