@@ -214,6 +214,10 @@ export default function FinancieroPage() {
                       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border ${config.color}`}>
                         <Icon className="h-3 w-3" /> {config.label}
                       </span>
+                      {/* Botón confirmar pago manual — visible en cualquier pago pendiente */}
+                      {(pago.estatusPago === 'pendiente' || pago.estatusPago === 'en_revision_voucher') && (
+                        <ConfirmarPagoDirecto pagoId={pago.id} voucherExistente={pago.voucherUrl} metodoPagoExistente={pago.metodoPago} onSuccess={() => pagosQuery.refetch()} />
+                      )}
                     </div>
                   </div>
 
@@ -268,10 +272,7 @@ export default function FinancieroPage() {
                     </div>
                   )}
 
-                  {/* Pago pendiente sin voucher: botón para confirmar manualmente desde financiero */}
-                  {pago.estatusPago === 'pendiente' && !pago.voucherUrl && pago.origen !== 'solicitud' && (
-                    <ConfirmarPagoDirecto pagoId={pago.id} onSuccess={() => pagosQuery.refetch()} />
-                  )}
+                  {/* Pago pendiente sin voucher: ya se muestra en la fila principal */}
                 </div>
               );
             })}
@@ -282,16 +283,16 @@ export default function FinancieroPage() {
   );
 }
 
-function ConfirmarPagoDirecto({ pagoId, onSuccess }: { pagoId: string; onSuccess: () => void }) {
+function ConfirmarPagoDirecto({ pagoId, voucherExistente, metodoPagoExistente, onSuccess }: { pagoId: string; voucherExistente?: string; metodoPagoExistente?: string; onSuccess: () => void }) {
   const [showForm, setShowForm] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [metodoPago, setMetodoPago] = useState('transferencia_bancaria');
+  const [metodoPago, setMetodoPago] = useState(metodoPagoExistente || 'transferencia_bancaria');
   const [uploading, setUploading] = useState(false);
 
   const handleConfirmar = async () => {
     setUploading(true);
     try {
-      let voucherUrl = 'sin-comprobante';
+      let voucherUrl = voucherExistente || 'sin-comprobante';
       if (file) {
         const formData = new FormData();
         formData.append('file', file);
@@ -307,7 +308,8 @@ function ConfirmarPagoDirecto({ pagoId, onSuccess }: { pagoId: string; onSuccess
         nota: 'Confirmado manualmente por administrador',
       });
 
-      toast.success('✅ Pago confirmado');
+      toast.success('✅ Pago confirmado y marcado como Pagado');
+      setShowForm(false);
       onSuccess();
     } catch (err: any) {
       const msg = err?.response?.data?.message;
@@ -319,54 +321,60 @@ function ConfirmarPagoDirecto({ pagoId, onSuccess }: { pagoId: string; onSuccess
 
   if (!showForm) {
     return (
-      <div className="mt-2 pl-[60px]">
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20 text-xs font-bold hover:bg-orange-500/20 transition-colors"
-        >
-          🧾 Registrar pago manual (OXXO/transferencia)
-        </button>
-      </div>
+      <button
+        onClick={() => setShowForm(true)}
+        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold hover:bg-emerald-500/20 transition-colors whitespace-nowrap"
+      >
+        <ThumbsUp className="h-3 w-3" /> Confirmar pago
+      </button>
     );
   }
 
   return (
-    <div className="mt-2 pl-[60px] p-3 rounded-lg border border-orange-500/30 bg-orange-500/5 space-y-2">
-      <p className="text-[10px] text-orange-400 uppercase font-semibold">Registrar pago manual</p>
-      <select
-        value={metodoPago}
-        onChange={(e) => setMetodoPago(e.target.value)}
-        className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-xs focus:outline-none"
-      >
-        <option value="transferencia_bancaria">Transferencia bancaria</option>
-        <option value="efectivo">Efectivo (OXXO/depósito)</option>
-        <option value="crypto">Crypto/USDT</option>
-      </select>
-      <div>
-        <label className="text-[10px] text-white/50 block mb-1">Comprobante (opcional pero recomendado)</label>
-        <input
-          type="file"
-          accept=".pdf,.jpg,.jpeg,.png"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
-          className="w-full text-xs text-white/70 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#252525] file:text-white/70 hover:file:bg-[#333333] file:cursor-pointer border border-[#3a3a3a] rounded-lg bg-[#1a1a1a] py-1 px-2"
-        />
-        {file && <p className="text-[10px] text-emerald-400 mt-1">✓ {file.name}</p>}
-      </div>
-      <div className="flex gap-2">
-        <button
-          onClick={handleConfirmar}
-          disabled={uploading}
-          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 disabled:opacity-50"
-        >
-          <ThumbsUp className="h-3 w-3" />
-          {uploading ? 'Confirmando...' : 'Confirmar pago'}
-        </button>
-        <button
-          onClick={() => { setShowForm(false); setFile(null); }}
-          className="px-3 py-2 text-xs text-white/70 border border-[#3a3a3a] rounded-lg hover:bg-[#222222]"
-        >
-          Cancelar
-        </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowForm(false)}>
+      <div className="bg-[#171717] rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 border border-[#3a3a3a]" onClick={e => e.stopPropagation()}>
+        <h3 className="text-base font-bold text-white mb-4">✅ Confirmar pago manual</h3>
+        <p className="text-xs text-white/50 mb-4">El pago pasará a estado <span className="text-emerald-400 font-semibold">Pagado</span> inmediatamente. Adjunta el comprobante si lo tienes.</p>
+        <div className="space-y-3">
+          <div>
+            <label className="text-[10px] text-white/70 uppercase font-semibold block mb-1">Método de pago</label>
+            <select
+              value={metodoPago}
+              onChange={(e) => setMetodoPago(e.target.value)}
+              className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+            >
+              <option value="transferencia_bancaria">Transferencia bancaria</option>
+              <option value="efectivo">Efectivo (OXXO/depósito)</option>
+              <option value="crypto">Crypto/USDT</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-[10px] text-white/70 uppercase font-semibold block mb-1">Comprobante (opcional)</label>
+            <input
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              className="w-full text-xs text-white/70 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#252525] file:text-white/70 hover:file:bg-[#333333] file:cursor-pointer border border-[#3a3a3a] rounded-lg bg-[#1a1a1a] py-1.5 px-2"
+            />
+            {file && <p className="text-[10px] text-emerald-400 mt-1">✓ {file.name}</p>}
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button
+              onClick={handleConfirmar}
+              disabled={uploading}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+            >
+              <ThumbsUp className="h-4 w-4" />
+              {uploading ? 'Confirmando...' : 'Confirmar pago'}
+            </button>
+            <button
+              onClick={() => { setShowForm(false); setFile(null); }}
+              className="px-4 py-2.5 text-sm text-white/70 border border-[#3a3a3a] rounded-lg hover:bg-[#222222] transition-colors"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
