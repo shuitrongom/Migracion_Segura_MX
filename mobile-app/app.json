@@ -31,7 +31,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#3D2B1F"
+        "backgroundColor": "#1a2332"
       },
       "package": "mx.migracion_segura.app",
       "googleServicesFile": "./google-services.json",
