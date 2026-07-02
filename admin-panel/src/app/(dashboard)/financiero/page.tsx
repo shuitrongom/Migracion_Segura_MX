@@ -5,6 +5,7 @@ import { DollarSign, Clock, CheckCircle, XCircle, RefreshCw, Wallet, Eye, Thumbs
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount);
