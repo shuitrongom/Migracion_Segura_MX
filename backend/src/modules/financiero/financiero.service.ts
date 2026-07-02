@@ -631,4 +631,68 @@ export class FinancieroService {
 
     return saved;
   }
+
+  /**
+   * Admin confirma pago directo (transferencia/OXXO/crypto) en un solo paso.
+   * No valida monto exacto — el admin es quien decide.
+   * Registra el voucher y aprueba el pago inmediatamente.
+   */
+  async confirmarPagoAdmin(
+    pagoId: string,
+    adminId: string,
+    voucherUrl: string,
+    metodoPago: string,
+    nota?: string,
+  ): Promise<Pago> {
+    const pago = await this.pagoRepository.findOne({ where: { id: pagoId } });
+    if (!pago) throw new NotFoundException('Pago no encontrado');
+
+    if (![EstatusPago.PENDIENTE, EstatusPago.EN_REVISION_VOUCHER].includes(pago.estatusPago)) {
+      throw new BadRequestException('Este pago ya fue procesado.');
+    }
+
+    const metodo = metodoPago === 'crypto'
+      ? MetodoPago.CRYPTO
+      : MetodoPago.TRANSFERENCIA_BANCARIA;
+
+    pago.voucherUrl = voucherUrl.trim() || 'admin-confirmado';
+    pago.montoDeclarado = Number(pago.monto);
+    pago.voucherEstatus = 'aprobado';
+    pago.estatusPago = EstatusPago.APROBADO;
+    pago.metodoPago = metodo;
+    pago.fechaPago = new Date();
+    pago.voucherNotaAdmin = nota || 'Confirmado por administrador';
+    pago.historial = [
+      ...pago.historial,
+      {
+        accion: 'PAGO_CONFIRMADO_ADMIN',
+        fecha: new Date().toISOString(),
+        usuarioId: adminId,
+        detalle: `Pago confirmado directamente por administrador. Método: ${metodoPago}. Monto: $${pago.monto}.${nota ? ` Nota: ${nota}` : ''}`,
+      },
+    ];
+
+    const saved = await this.pagoRepository.save(pago);
+
+    // Notificar al cliente que su pago fue confirmado
+    try {
+      if (pago.clienteId) {
+        const cliente = await this.pagoRepository.manager.query(
+          `SELECT user_id FROM clientes WHERE id = $1`, [pago.clienteId],
+        );
+        if (cliente?.[0]?.user_id) {
+          await this.notificacionesService.sendNotification({
+            destinatarioId: cliente[0].user_id,
+            tipo: TipoNotificacion.PAGO_CONFIRMADO,
+            canal: CanalNotificacion.PUSH,
+            titulo: '✅ Tu pago fue confirmado',
+            contenido: `Tu pago de $${Number(pago.monto).toLocaleString()} MXN ha sido verificado y aprobado.`,
+            metadata: { pagoId, monto: pago.monto.toString(), tramiteId: pago.tramiteId || '' },
+          }).catch(() => {});
+        }
+      }
+    } catch {}
+
+    return saved;
+  }
 }

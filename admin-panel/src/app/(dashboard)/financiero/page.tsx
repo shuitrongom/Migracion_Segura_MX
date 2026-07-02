@@ -238,7 +238,11 @@ export default function FinancieroPage() {
                             onClick={async () => {
                               if (!confirm('¿Aprobar este voucher y confirmar el pago?')) return;
                               try {
-                                await api.post(`/financiero/pagos/${pago.id}/voucher/aprobar`, { nota: '' });
+                                await api.post(`/financiero/pagos/${pago.id}/confirmar-pago-admin`, {
+                                  voucherUrl: pago.voucherUrl,
+                                  metodoPago: pago.metodoPago || 'transferencia_bancaria',
+                                  nota: 'Aprobado por administrador',
+                                });
                                 pagosQuery.refetch();
                               } catch { alert('Error al aprobar'); }
                             }}
@@ -263,11 +267,106 @@ export default function FinancieroPage() {
                       )}
                     </div>
                   )}
+
+                  {/* Pago pendiente sin voucher: botón para confirmar manualmente desde financiero */}
+                  {pago.estatusPago === 'pendiente' && !pago.voucherUrl && pago.origen !== 'solicitud' && (
+                    <ConfirmarPagoDirecto pagoId={pago.id} onSuccess={() => pagosQuery.refetch()} />
+                  )}
                 </div>
               );
             })}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function ConfirmarPagoDirecto({ pagoId, onSuccess }: { pagoId: string; onSuccess: () => void }) {
+  const [showForm, setShowForm] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [metodoPago, setMetodoPago] = useState('transferencia_bancaria');
+  const [uploading, setUploading] = useState(false);
+
+  const handleConfirmar = async () => {
+    setUploading(true);
+    try {
+      let voucherUrl = 'sin-comprobante';
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('nombre', `Comprobante pago - ${metodoPago}`);
+        formData.append('categoria', 'comprobante_pago');
+        const uploadRes = await api.post('/documentos/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        voucherUrl = uploadRes.data?.storageKey || uploadRes.data?.id || 'admin-uploaded';
+      }
+
+      await api.post(`/financiero/pagos/${pagoId}/confirmar-pago-admin`, {
+        voucherUrl,
+        metodoPago,
+        nota: 'Confirmado manualmente por administrador',
+      });
+
+      toast.success('✅ Pago confirmado');
+      onSuccess();
+    } catch (err: any) {
+      const msg = err?.response?.data?.message;
+      toast.error(Array.isArray(msg) ? msg.join(', ') : (msg || 'Error al confirmar el pago'));
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  if (!showForm) {
+    return (
+      <div className="mt-2 pl-[60px]">
+        <button
+          onClick={() => setShowForm(true)}
+          className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20 text-xs font-bold hover:bg-orange-500/20 transition-colors"
+        >
+          🧾 Registrar pago manual (OXXO/transferencia)
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-2 pl-[60px] p-3 rounded-lg border border-orange-500/30 bg-orange-500/5 space-y-2">
+      <p className="text-[10px] text-orange-400 uppercase font-semibold">Registrar pago manual</p>
+      <select
+        value={metodoPago}
+        onChange={(e) => setMetodoPago(e.target.value)}
+        className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-xs focus:outline-none"
+      >
+        <option value="transferencia_bancaria">Transferencia bancaria</option>
+        <option value="efectivo">Efectivo (OXXO/depósito)</option>
+        <option value="crypto">Crypto/USDT</option>
+      </select>
+      <div>
+        <label className="text-[10px] text-white/50 block mb-1">Comprobante (opcional pero recomendado)</label>
+        <input
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          className="w-full text-xs text-white/70 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#252525] file:text-white/70 hover:file:bg-[#333333] file:cursor-pointer border border-[#3a3a3a] rounded-lg bg-[#1a1a1a] py-1 px-2"
+        />
+        {file && <p className="text-[10px] text-emerald-400 mt-1">✓ {file.name}</p>}
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={handleConfirmar}
+          disabled={uploading}
+          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 disabled:opacity-50"
+        >
+          <ThumbsUp className="h-3 w-3" />
+          {uploading ? 'Confirmando...' : 'Confirmar pago'}
+        </button>
+        <button
+          onClick={() => { setShowForm(false); setFile(null); }}
+          className="px-3 py-2 text-xs text-white/70 border border-[#3a3a3a] rounded-lg hover:bg-[#222222]"
+        >
+          Cancelar
+        </button>
       </div>
     </div>
   );

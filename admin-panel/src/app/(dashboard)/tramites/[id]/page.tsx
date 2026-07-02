@@ -938,22 +938,18 @@ function AdminComprobanteUpload({ pagoId, monto, onSuccess }: { pagoId: string; 
       const uploadRes = await api.post('/documentos/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       const voucherUrl = uploadRes.data?.storageKey || uploadRes.data?.id || 'admin-uploaded';
 
-      // 2. Registrar voucher en el pago
-      await api.post(`/financiero/pagos/${pagoId}/voucher`, {
-        montoDeclarado: Number(monto),
+      // 2. Confirmar pago en un solo paso (sin validación de monto exacto)
+      await api.post(`/financiero/pagos/${pagoId}/confirmar-pago-admin`, {
         voucherUrl,
         metodoPago,
-      });
-
-      // 3. Aprobar directamente (el admin lo sube, se confía)
-      await api.post(`/financiero/pagos/${pagoId}/voucher/aprobar`, {
         nota: 'Comprobante subido y aprobado por administrador',
       });
 
-      toast.success('Comprobante registrado y pago aprobado');
+      toast.success('✅ Pago confirmado correctamente');
       onSuccess();
-    } catch {
-      toast.error('Error al registrar el comprobante');
+    } catch (err: any) {
+      const msg = err?.response?.data?.message;
+      toast.error(Array.isArray(msg) ? msg.join(', ') : (msg || 'Error al registrar el comprobante'));
     } finally {
       setUploading(false);
     }

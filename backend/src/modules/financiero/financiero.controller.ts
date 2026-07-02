@@ -298,6 +298,23 @@ export class FinancieroController {
   }
 
   /**
+   * Admin confirma pago de transferencia/OXXO directamente (sin validación de monto exacto).
+   * Usado cuando el admin registra el pago manualmente con comprobante.
+   * Hace todo en un solo paso: registra el voucher y lo aprueba inmediatamente.
+   */
+  @Post('pagos/:pagoId/confirmar-pago-admin')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Admin confirma pago por transferencia/OXXO directamente' })
+  @ApiParam({ name: 'pagoId', description: 'UUID del pago' })
+  async confirmarPagoAdmin(
+    @Param('pagoId', ParseUUIDPipe) pagoId: string,
+    @Body() body: { voucherUrl: string; metodoPago: string; nota?: string },
+    @Request() req: { user: { id: string } },
+  ) {
+    return this.financieroService.confirmarPagoAdmin(pagoId, req.user.id, body.voucherUrl, body.metodoPago, body.nota);
+  }
+
+  /**
    * Obtener datos bancarios para transferencia
    */
   @Get('datos-bancarios')
