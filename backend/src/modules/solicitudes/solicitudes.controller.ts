@@ -210,6 +210,26 @@ export class SolicitudesController {
   }
 
   /**
+   * Cliente sube voucher de transferencia para solicitud
+   */
+  @Post(':id/voucher')
+  @Roles(UserRole.CLIENTE, UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: 'Registrar voucher de transferencia para solicitud' })
+  @ApiParam({ name: 'id', description: 'UUID de la solicitud' })
+  subirVoucherSolicitud(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: { montoDeclarado: number; voucherUrl: string; metodoPago: string },
+    @Request() req: any,
+  ) {
+    return this.solicitudesService.registrarVoucherSolicitud(id, {
+      montoDeclarado: Number(body.montoDeclarado),
+      voucherUrl: String(body.voucherUrl || ''),
+      metodoPago: String(body.metodoPago || 'transferencia_bancaria'),
+      userId: req.user.id,
+    });
+  }
+
+  /**
    * Obtener/actualizar costo de solicitud (admin)
    */
   @Get('config/costo')

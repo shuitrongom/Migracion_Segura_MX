@@ -552,6 +552,11 @@ export default function SolicitudesPage() {
                           className="flex items-center justify-center gap-2 w-full px-5 py-3 border border-[#3a3a3a] text-white/80 rounded-xl text-sm font-medium hover:bg-[#1a1a1a] hover:border-amber-500/30 hover:text-amber-400 transition-all">
                           <Send className="h-4 w-4" /> Reenviar link de pago al extranjero
                         </button>
+                        <button
+                          onClick={() => handleConfirmarPago(selectedSolicitud.id)}
+                          className="flex items-center justify-center gap-2 w-full px-5 py-3.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.01]">
+                          <CheckCircle className="h-4 w-4" /> Confirmar pago manualmente
+                        </button>
                       </div>
                     </div>
                   )}

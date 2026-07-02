@@ -28,8 +28,8 @@ interface DatosBancarios {
 
 export default function PagoTransferenciaScreen() {
   const { colors } = useTheme();
-  const params = useLocalSearchParams<{ pagoId: string; monto: string; concepto: string; tramiteId: string }>();
-  const { pagoId, monto, concepto, tramiteId } = params;
+  const params = useLocalSearchParams<{ pagoId: string; monto: string; concepto: string; tramiteId: string; origen?: string }>();
+  const { pagoId, monto, concepto, tramiteId, origen } = params;
 
   const [datos, setDatos] = useState<DatosBancarios | null>(null);
   const [loading, setLoading] = useState(true);
@@ -116,7 +116,12 @@ export default function PagoTransferenciaScreen() {
       // Si falla el upload del documento, continuamos igual — el voucher se identifica por el id del pago
 
       // 2. Registrar el voucher en el pago
-      const res = await apiFetch(`/financiero/pagos/${pagoId}/voucher`, {
+      // Si es una solicitud, usar endpoint de solicitudes; si es un trámite/pago, usar financiero
+      const voucherEndpoint = origen === 'solicitud'
+        ? `/solicitudes/${pagoId}/voucher`
+        : `/financiero/pagos/${pagoId}/voucher`;
+
+      const res = await apiFetch(voucherEndpoint, {
         method: 'POST',
         body: JSON.stringify({
           montoDeclarado: montoNum,  // ya es número parseado arriba

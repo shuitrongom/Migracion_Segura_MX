@@ -322,6 +322,67 @@ export class SolicitudesService {
 
   // --- Helpers privados ---
 
+  /**
+   * Registrar voucher de transferencia para solicitud.
+   * El extranjero sube comprobante desde la app — queda en revisión para que el admin lo confirme.
+   */
+  async registrarVoucherSolicitud(solicitudId: string, params: {
+    montoDeclarado: number;
+    voucherUrl: string;
+    metodoPago: string;
+    userId: string;
+  }): Promise<Solicitud> {
+    const solicitud = await this.findOneOrFail(solicitudId);
+
+    if (solicitud.estatus !== EstatusSolicitud.PENDIENTE_PAGO) {
+      throw new BadRequestException('Esta solicitud no está pendiente de pago.');
+    }
+
+    const montoDeclarado = Number(params.montoDeclarado);
+    const voucherUrl = String(params.voucherUrl || '').trim();
+
+    if (!montoDeclarado || montoDeclarado <= 0 || isNaN(montoDeclarado)) {
+      throw new BadRequestException('Debes indicar el monto que transferiste.');
+    }
+
+    if (!voucherUrl) {
+      throw new BadRequestException('Debes subir el comprobante de transferencia.');
+    }
+
+    // Validar monto exacto
+    const montoEsperado = Number(solicitud.costo || 100);
+    if (Math.abs(montoDeclarado - montoEsperado) > 0.01) {
+      throw new BadRequestException(
+        `El monto ($${montoDeclarado.toFixed(2)}) no coincide con el costo ($${montoEsperado.toFixed(2)}). Transfiere exactamente $${montoEsperado.toFixed(2)} MXN.`
+      );
+    }
+
+    // Guardar datos del voucher en la solicitud (usamos campos genéricos)
+    (solicitud as any).voucherUrl = voucherUrl;
+    (solicitud as any).voucherEstatus = 'pendiente_revision';
+    (solicitud as any).metodoPago = params.metodoPago;
+    (solicitud as any).montoDeclarado = montoDeclarado;
+
+    const saved = await this.solicitudRepository.save(solicitud);
+
+    // Notificar al admin que hay un voucher por revisar
+    const admins = await this.solicitudRepository.manager.query(
+      `SELECT id FROM users WHERE role = 'administrador' AND deleted_at IS NULL LIMIT 1`
+    );
+    if (admins?.[0]?.id) {
+      await this.notificacionesService.sendNotification({
+        destinatarioId: admins[0].id,
+        tipo: TipoNotificacion.PAGO_PENDIENTE,
+        canal: CanalNotificacion.PUSH,
+        titulo: '🧾 Voucher de solicitud pendiente',
+        contenido: `Se subió comprobante de $${montoDeclarado} MXN para solicitud. Confirma el pago.`,
+        metadata: { solicitudId: saved.id, monto: montoDeclarado.toString() },
+      }).catch(() => {});
+    }
+
+    return saved;
+  }
+
   private getNombreExtranjero(solicitud: Solicitud): string {
     const datos = solicitud.datosFormulario || {};
     return `${datos.nombre || ''} ${datos.apellidos || ''}`.trim() || 'Extranjero';

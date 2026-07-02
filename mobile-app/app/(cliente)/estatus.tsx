@@ -522,7 +522,7 @@ export default function EstatusScreen() {
                           text: '🏦 Transferencia / Crypto',
                           onPress: () => router.push({
                             pathname: '/(cliente)/pago-transferencia',
-                            params: { pagoId: item.id, monto: String(item.costo || 100), concepto: `Solicitud INM - ${tipoLabel}`, tramiteId: item.id },
+                            params: { pagoId: item.id, monto: String(item.costo || 100), concepto: `Solicitud INM - ${tipoLabel}`, tramiteId: item.id, origen: 'solicitud' },
                           }),
                         });
                         opciones.push({ text: 'Cancelar', style: 'cancel' });
