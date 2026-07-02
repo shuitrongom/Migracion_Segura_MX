@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Git Push + Build APK",
+  "description": "Hace git add, commit, push y lanza un build de EAS (APK preview) automáticamente cuando se guarda código",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "cd /d c:\\Users\\sergio.huitron_isol\\Documents\\Migracion_Segura_MX && git add . && git commit -m \"chore: update $(date +'%Y-%m-%d %H:%M')\" && git push && eas build --platform android --profile preview --non-interactive",
+    "timeout": 0
+  }
+}

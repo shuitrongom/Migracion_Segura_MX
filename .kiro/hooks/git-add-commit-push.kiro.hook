@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Git: Add, Commit y Push",
+  "description": "Hace git add de todo, commit con timestamp y push al branch actual de un solo golpe",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "git add . && git commit -m \"chore: update $(date +'%Y-%m-%d %H:%M')\" && git push",
+    "timeout": 60
+  }
+}

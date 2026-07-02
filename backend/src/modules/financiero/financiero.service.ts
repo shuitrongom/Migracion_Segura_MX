@@ -528,7 +528,6 @@ export class FinancieroService {
 
     return saved;
   }
-  }
 
   /**
    * Admin aprueba un voucher — marca el pago como aprobado
