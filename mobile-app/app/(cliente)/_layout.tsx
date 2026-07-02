@@ -184,6 +184,7 @@ export default function ClienteLayout() {
       <Tabs.Screen name="chat" options={{ href: null }} />
       <Tabs.Screen name="pago-resultado" options={{ href: null }} />
       <Tabs.Screen name="pago-transferencia" options={{ href: null }} />
+      <Tabs.Screen name="seleccionar-pago" options={{ href: null }} />
       <Tabs.Screen name="subir-documento" options={{ href: null }} />
     </Tabs>
   );

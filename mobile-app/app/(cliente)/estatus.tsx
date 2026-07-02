@@ -200,27 +200,16 @@ export default function EstatusScreen() {
           <TouchableOpacity
             key={pago.id}
             onPress={() => {
-              const opciones: any[] = [];
-              if (pago.mercadopagoInitPoint) {
-                opciones.push({
-                  text: '💳 Mercado Pago (tarjeta)',
-                  onPress: () => Linking.openURL(pago.mercadopagoInitPoint),
-                });
-              }
-              opciones.push({
-                text: '🏦 Transferencia / Crypto',
-                onPress: () => router.push({
-                  pathname: '/(cliente)/pago-transferencia',
-                  params: { pagoId: pago.id, monto: String(pago.monto), concepto: pago.concepto || '', tramiteId: item.id },
-                }),
+              router.push({
+                pathname: '/(cliente)/seleccionar-pago',
+                params: {
+                  pagoId: pago.id,
+                  monto: String(pago.monto),
+                  concepto: pago.concepto || '',
+                  tramiteId: item.id,
+                  initPoint: pago.mercadopagoInitPoint || '',
+                },
               });
-              opciones.push({ text: 'Cancelar', style: 'cancel' });
-
-              Alert.alert(
-                '💳 Opciones de pago',
-                `Monto: $${Number(pago.monto).toLocaleString()} MXN\n\nElige cómo deseas pagar:`,
-                opciones,
-              );
             }}
           >
             <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.payButton}>
