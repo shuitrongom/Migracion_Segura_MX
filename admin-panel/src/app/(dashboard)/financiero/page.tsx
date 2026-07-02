@@ -215,8 +215,8 @@ export default function FinancieroPage() {
                       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border ${config.color}`}>
                         <Icon className="h-3 w-3" /> {config.label}
                       </span>
-                      {/* Botón confirmar pago manual — visible en cualquier pago pendiente */}
-                      {(pago.estatusPago === 'pendiente' || pago.estatusPago === 'en_revision_voucher') && (
+                      {/* Botón confirmar pago manual — solo en pagos de trámites (no solicitudes) */}
+                      {(pago.estatusPago === 'pendiente' || pago.estatusPago === 'en_revision_voucher') && pago.origen !== 'solicitud' && (
                         <ConfirmarPagoDirecto pagoId={pago.id} voucherExistente={pago.voucherUrl} metodoPagoExistente={pago.metodoPago} onSuccess={() => pagosQuery.refetch()} />
                       )}
                     </div>
