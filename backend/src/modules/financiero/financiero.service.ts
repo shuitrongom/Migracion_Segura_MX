@@ -446,6 +446,7 @@ export class FinancieroService {
 
   /**
    * Req 13.7 - Reporte mensual
+   * Usa fechaPago (cuando se confirmó) en lugar de fecha (cuando se creó)
    */
   async getReporteMensual(mes: number, anio: number) {
     const startDate = `${anio}-${String(mes).padStart(2, '0')}-01`;
@@ -453,8 +454,8 @@ export class FinancieroService {
 
     const pagos = await this.pagoRepository
       .createQueryBuilder('pago')
-      .where('pago.fecha >= :startDate AND pago.fecha < :endDate', { startDate, endDate })
-      .andWhere('pago.estatusPago = :estatus', { estatus: EstatusPago.APROBADO })
+      .where('pago.estatusPago = :estatus', { estatus: EstatusPago.APROBADO })
+      .andWhere('(pago.fechaPago >= :startDate AND pago.fechaPago < :endDate)', { startDate, endDate })
       .getMany();
 
     const totalIngresos = pagos.reduce((sum, p) => sum + Number(p.monto), 0);

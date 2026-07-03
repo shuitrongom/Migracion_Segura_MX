@@ -22,32 +22,62 @@ export default function ReportesPage() {
   const reporteQuery = useQuery({
     queryKey: ['reportes', 'mensual', mes, anio],
     queryFn: async () => {
-      const res = await api.get(`/financiero/reporte-mensual?mes=${mes}&anio=${anio}`);
-      return res.data;
+      try {
+        const res = await api.get(`/financiero/reporte-mensual?mes=${mes}&anio=${anio}`);
+        return res.data;
+      } catch { return { totalIngresos: 0, totalPagos: 0, porMetodo: [] }; }
     },
   });
 
   const tramitesQuery = useQuery({
     queryKey: ['reportes', 'tramites'],
     queryFn: async () => {
-      const res = await api.get('/tramites?page=1&limit=200');
-      return res.data;
+      try {
+        const res = await api.get('/tramites?page=1&limit=200');
+        return res.data;
+      } catch { return { data: [] }; }
     },
   });
 
   const solicitudesQuery = useQuery({
     queryKey: ['reportes', 'solicitudes'],
     queryFn: async () => {
-      const res = await api.get('/solicitudes?page=1&limit=200');
-      return res.data;
+      try {
+        const res = await api.get('/solicitudes?page=1&limit=200');
+        return res.data;
+      } catch { return { data: [] }; }
     },
+    retry: 2,
   });
 
   const clientesQuery = useQuery({
     queryKey: ['reportes', 'clientes'],
     queryFn: async () => {
-      const res = await api.get('/clientes?page=1&limit=200');
-      return res.data;
+      try {
+        const res = await api.get('/clientes?page=1&limit=200');
+        return res.data;
+      } catch { return { data: [] }; }
+    },
+  });
+
+  // Pagos reales de la tabla pagos (como lo hace el financiero)
+  const pagosQuery = useQuery({
+    queryKey: ['reportes', 'pagos-todos'],
+    queryFn: async () => {
+      try {
+        // Obtener pagos de todos los trámites
+        const tramitesRes = await api.get('/tramites?page=1&limit=200');
+        const tramites = tramitesRes.data?.data || [];
+        const allPagos: any[] = [];
+        for (const t of tramites) {
+          try {
+            const pagosRes = await api.get(`/financiero/pagos/tramite/${t.id}`);
+            const pagos = Array.isArray(pagosRes.data) ? pagosRes.data : [];
+            pagos.forEach((p: any) => allPagos.push(p));
+          } catch {}
+        }
+        return allPagos;
+      } catch { return []; }
     },
   });
 
@@ -55,18 +85,39 @@ export default function ReportesPage() {
   const solicitudes = solicitudesQuery.data?.data || [];
   const clientes = clientesQuery.data?.data || [];
   const reporte = reporteQuery.data;
+  const pagosReales = pagosQuery.data || [];
 
   // ═══ CÁLCULOS DE INGRESOS ═══
 
-  // Ingresos de trámites (tabla pagos) — viene del reporte del backend
-  const ingresosTramites = reporte?.totalIngresos || 0;
-  const pagosTramites = reporte?.totalPagos || 0;
+  // Ingresos de pagos aprobados en la tabla pagos (filtra por mes/año de fechaPago)
+  const pagosAprobadosMes = pagosReales.filter((p: any) => {
+    if (p.estatusPago !== 'aprobado') return false;
+    const fecha = p.fechaPago || p.createdAt;
+    if (!fecha) return false;
+    const match = String(fecha).match(/(\d{4})-(\d{2})/);
+    if (match) return parseInt(match[2]) === mes && parseInt(match[1]) === anio;
+    return false;
+  });
+  const ingresosPagosReales = pagosAprobadosMes.reduce((sum: number, p: any) => sum + (parseFloat(p.monto) || 0), 0);
+
+  // Ingresos de trámites (del reporte backend como fallback)
+  const ingresosTramitesBackend = reporte?.totalIngresos || 0;
+  // Usar el mayor entre el cálculo local y el del backend
+  const ingresosTramites = Math.max(ingresosPagosReales, ingresosTramitesBackend);
+  const pagosTramitesCount = Math.max(pagosAprobadosMes.length, reporte?.totalPagos || 0);
 
   // Ingresos de solicitudes pagadas en el mes seleccionado
   const solicitudesPagadasMes = solicitudes.filter((s: any) => {
     if (s.estatus !== 'pagada') return false;
     if (!s.fechaPago) return false;
     try {
+      // Parsear fecha sin problemas de timezone — extraer año/mes directamente
+      const fechaStr = String(s.fechaPago);
+      const match = fechaStr.match(/(\d{4})-(\d{2})/);
+      if (match) {
+        return parseInt(match[2]) === mes && parseInt(match[1]) === anio;
+      }
+      // Fallback con Date
       const fecha = new Date(s.fechaPago);
       return fecha.getMonth() + 1 === mes && fecha.getFullYear() === anio;
     } catch { return false; }
@@ -75,7 +126,7 @@ export default function ReportesPage() {
 
   // TOTAL GENERAL del mes
   const totalIngresosMes = ingresosTramites + ingresosSolicitudes;
-  const totalPagosMes = pagosTramites + solicitudesPagadasMes.length;
+  const totalPagosMes = pagosTramitesCount + solicitudesPagadasMes.length;
 
   // ═══ CÁLCULOS DE ESTATUS ═══
   const estatusCounts: Record<string, number> = {};
@@ -101,7 +152,7 @@ export default function ReportesPage() {
   const totalSolicitudesPagadas = solicitudes.filter((s: any) => s.estatus === 'pagada').length;
   const ingresosTotalSolicitudes = solicitudes.filter((s: any) => s.estatus === 'pagada').reduce((sum: number, s: any) => sum + (parseFloat(s.costo) || 100), 0);
 
-  const isLoading = tramitesQuery.isLoading || solicitudesQuery.isLoading || clientesQuery.isLoading || reporteQuery.isLoading;
+  const isLoading = tramitesQuery.isLoading || solicitudesQuery.isLoading || clientesQuery.isLoading || reporteQuery.isLoading || pagosQuery.isLoading;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -188,7 +239,7 @@ export default function ReportesPage() {
                   <p className="text-sm font-semibold text-white">Trámites Migratorios</p>
                 </div>
                 <p className="text-2xl font-bold text-white">{formatCurrency(ingresosTramites)}</p>
-                <p className="text-xs text-white/50 mt-1">{pagosTramites} pagos confirmados</p>
+                <p className="text-xs text-white/50 mt-1">{pagosTramitesCount} pagos confirmados</p>
                 {reporte?.porMetodo?.length > 0 && (
                   <div className="mt-3 space-y-1.5">
                     {reporte.porMetodo.map((m: any) => (
