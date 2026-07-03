@@ -575,9 +575,11 @@ export default function EstatusScreen() {
                           if (item.documentoUrl) {
                             try {
                               const token = await storage.getItem('access_token');
-                              
-                              // Intentar obtener signed URL
-                              let downloadUrl = '';
+                              const fileName = `solicitud_${item.numeroPieza || item.id.slice(0, 8)}.pdf`;
+                              const fileUri = FileSystem.documentDirectory + fileName;
+
+                              // Intentar obtener signed URL primero
+                              let downloadUrl = `https://api.migracionseguramx.com/api/v1/solicitudes/${item.id}/documento`;
                               try {
                                 const res = await apiFetch(`/solicitudes/${item.id}/documento-url`);
                                 if (res.ok) {
@@ -586,14 +588,7 @@ export default function EstatusScreen() {
                                 }
                               } catch {}
 
-                              // Fallback: endpoint directo
-                              if (!downloadUrl) {
-                                downloadUrl = `https://api.migracionseguramx.com/api/v1/solicitudes/${item.id}/documento`;
-                              }
-
-                              const fileName = `solicitud_${item.numeroPieza || item.id}.pdf`;
-                              const fileUri = FileSystem.documentDirectory + fileName;
-
+                              // Descargar al dispositivo
                               const downloadResult = await FileSystem.downloadAsync(
                                 downloadUrl,
                                 fileUri,
@@ -601,26 +596,21 @@ export default function EstatusScreen() {
                               );
 
                               if (downloadResult.status === 200) {
+                                // Compartir/guardar el archivo
                                 if (await Sharing.isAvailableAsync()) {
                                   await Sharing.shareAsync(downloadResult.uri, {
                                     mimeType: 'application/pdf',
                                     dialogTitle: 'Guardar solicitud PDF',
+                                    UTI: 'com.adobe.pdf',
                                   });
                                 } else {
-                                  Alert.alert('✅ PDF descargado', `Guardado en: ${fileName}`);
+                                  Alert.alert('✅ PDF descargado', `Tu solicitud fue guardada como: ${fileName}`);
                                 }
                               } else {
-                                // Si falla la descarga, abrir en navegador como último recurso
-                                Linking.openURL(downloadUrl);
+                                Alert.alert('Error', 'No se pudo descargar el PDF. Verifica tu conexión e intenta de nuevo.');
                               }
-                            } catch {
-                              // Último recurso: abrir en navegador
-                              try {
-                                const token = await storage.getItem('access_token');
-                                Linking.openURL(`https://api.migracionseguramx.com/api/v1/solicitudes/${item.id}/documento`);
-                              } catch {
-                                Alert.alert('Error', 'No se pudo obtener el PDF. Contacta a tu asesor.');
-                              }
+                            } catch (err) {
+                              Alert.alert('Error', 'No se pudo descargar el PDF. Intenta de nuevo más tarde.');
                             }
                           } else {
                             Alert.alert('PDF no disponible', 'Tu solicitud aún no tiene documento adjunto. Recibirás una notificación cuando esté listo.');
