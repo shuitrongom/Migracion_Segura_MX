@@ -120,7 +120,14 @@ export class PushService implements OnModuleInit {
       if (response.ok) {
         // Verificar si Expo reporta error en el ticket
         if (responseData?.data?.status === 'error') {
-          this.logger.error(`[Expo Push] Error en ticket: ${responseData.data.message} | Details: ${JSON.stringify(responseData.data.details)}`);
+          const errorMsg = responseData.data.message || '';
+          const details = responseData.data.details || {};
+          this.logger.error(`[Expo Push] Error en ticket: ${errorMsg} | Token: ${token.slice(0, 35)}... | Details: ${JSON.stringify(details)}`);
+
+          // Si el dispositivo ya no está registrado, logear para limpieza
+          if (details?.error === 'DeviceNotRegistered' || errorMsg.includes('not registered')) {
+            this.logger.warn(`[Expo Push] Token expirado/inválido detectado: ${token.slice(0, 35)}... — requiere limpieza`);
+          }
           return false;
         }
         this.logger.log(`[Expo Push] ✅ Enviado exitosamente a ${token.slice(0, 35)}...`);

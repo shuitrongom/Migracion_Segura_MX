@@ -52,7 +52,9 @@ export class AdminNotifierService {
         event: titulo,
         details: contenido,
         extraInfo: metadata ? Object.entries(metadata).map(([k, v]) => `${k}: ${v}`).join(' · ') : undefined,
-      }).catch(() => {});
+      }).catch((e: any) => {
+        this.logger.warn(`Email al admin falló: ${e.message}`);
+      });
 
       this.logger.log(`[Admin Notificado] ${titulo}`);
     } catch (error: any) {
