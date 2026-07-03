@@ -117,6 +117,14 @@ export class AuthController {
     return this.authService.refreshTokens(dto.refreshToken);
   }
 
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Cerrar sesión (invalida token actual)' })
+  async logout(@Request() req: any) {
+    return this.authService.logout(req.user.id);
+  }
+
   @Patch('profile')
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Actualizar perfil (Req 1.9)' })

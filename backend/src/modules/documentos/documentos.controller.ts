@@ -155,6 +155,7 @@ export class DocumentosController {
 
   /**
    * Req 5.5 - Descargar documento descifrado
+   * Verifica que el cliente solo descargue sus propios documentos.
    */
   @Get(':id/download')
   @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR, UserRole.CLIENTE)
@@ -162,9 +163,15 @@ export class DocumentosController {
   @ApiParam({ name: 'id', description: 'UUID del documento' })
   async download(
     @Param('id', ParseUUIDPipe) id: string,
+    @Request() req: { user: { id: string; role: string } },
     @Res({ passthrough: true }) res: Response,
   ): Promise<StreamableFile> {
     const { buffer, documento } = await this.documentosService.download(id);
+
+    // Ownership check: si es CLIENTE, verificar que el documento le pertenece
+    if (req.user.role === 'cliente') {
+      await this.documentosService.verifyOwnership(id, req.user.id);
+    }
 
     res.set({
       'Content-Type': documento.mimeType,

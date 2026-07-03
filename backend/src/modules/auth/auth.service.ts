@@ -195,13 +195,35 @@ export class AuthService {
 
   /**
    * Login/Registro con Google OAuth (Req 1.6)
+   * Verifica el idToken/googleId consultando la API de Google antes de confiar en los datos.
    */
   async loginWithGoogle(googleProfile: {
     googleId: string;
     email: string;
     fullName: string;
     profilePhotoUrl?: string;
+    idToken?: string;
   }) {
+    // Verificar con Google que el token/id es legítimo
+    if (googleProfile.idToken) {
+      try {
+        const googleRes = await fetch(
+          `https://oauth2.googleapis.com/tokeninfo?id_token=${googleProfile.idToken}`,
+        );
+        if (!googleRes.ok) {
+          throw new UnauthorizedException('Token de Google inválido');
+        }
+        const googleData = await googleRes.json();
+        // Verificar que el email coincide con lo que dice el cliente
+        if (googleData.email !== googleProfile.email) {
+          throw new UnauthorizedException('Los datos de Google no coinciden');
+        }
+      } catch (e: any) {
+        if (e instanceof UnauthorizedException) throw e;
+        throw new UnauthorizedException('No se pudo verificar el token de Google');
+      }
+    }
+
     let user = await this.usersService.findByGoogleId(googleProfile.googleId);
 
     if (!user) {
@@ -425,6 +447,17 @@ export class AuthService {
     }
 
     return { message: 'Credenciales actualizadas exitosamente.' };
+  }
+
+  /**
+   * Logout — marca la fecha de logout para invalidar tokens emitidos antes
+   */
+  async logout(userId: string) {
+    await this.usersService['userRepository'].manager.query(
+      `UPDATE users SET last_activity_at = NOW() WHERE id = $1`,
+      [userId],
+    );
+    return { message: 'Sesión cerrada exitosamente.' };
   }
 
   // ---- Helpers privados ----

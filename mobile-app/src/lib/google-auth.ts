@@ -45,6 +45,7 @@ export async function signInWithGoogle(): Promise<boolean> {
     }
 
     const { id: googleId, email, name: fullName, photo: profilePhotoUrl } = userInfo.data.user;
+    const idToken = userInfo.data.idToken || undefined;
 
     const res = await fetch(
       `${BASE_URL}/auth/google`,
@@ -56,6 +57,7 @@ export async function signInWithGoogle(): Promise<boolean> {
           email,
           fullName: fullName || email.split('@')[0],
           profilePhotoUrl,
+          idToken,
         }),
       },
     );

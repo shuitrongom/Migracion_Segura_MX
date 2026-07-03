@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -206,6 +207,24 @@ export class DocumentosService {
     } catch {}
 
     return saved;
+  }
+
+  /**
+   * Verifica que un documento pertenezca al usuario (vía su cliente/expediente).
+   * Lanza ForbiddenException si no es el dueño.
+   */
+  async verifyOwnership(documentoId: string, userId: string): Promise<void> {
+    const result = await this.documentoRepository.manager.query(
+      `SELECT d.id FROM documentos d
+       JOIN expedientes e ON e.id = d.expediente_id
+       JOIN clientes c ON c.id = e.cliente_id
+       WHERE d.id = $1 AND c.user_id = $2
+       LIMIT 1`,
+      [documentoId, userId],
+    );
+    if (!result?.length) {
+      throw new ForbiddenException('No tienes permiso para acceder a este documento.');
+    }
   }
 
   /**
