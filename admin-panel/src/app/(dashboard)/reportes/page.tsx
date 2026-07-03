@@ -64,20 +64,40 @@ export default function ReportesPage() {
   const pagosQuery = useQuery({
     queryKey: ['reportes', 'pagos-todos'],
     queryFn: async () => {
+      const allPagos: any[] = [];
       try {
-        // Obtener pagos de todos los trámites
+        // 1. Pagos de trámites
         const tramitesRes = await api.get('/tramites?page=1&limit=200');
-        const tramites = tramitesRes.data?.data || [];
-        const allPagos: any[] = [];
-        for (const t of tramites) {
+        const tramitesList = tramitesRes.data?.data || [];
+        for (const t of tramitesList) {
           try {
             const pagosRes = await api.get(`/financiero/pagos/tramite/${t.id}`);
             const pagos = Array.isArray(pagosRes.data) ? pagosRes.data : [];
-            pagos.forEach((p: any) => allPagos.push(p));
+            pagos.forEach((p: any) => allPagos.push({ ...p, origen: 'tramite' }));
           } catch {}
         }
-        return allPagos;
-      } catch { return []; }
+
+        // 2. Solicitudes como pagos (igual que financiero page)
+        const solRes = await api.get('/solicitudes?page=1&limit=200');
+        const solicitudesList = solRes.data?.data || [];
+        for (const sol of solicitudesList) {
+          if (sol.estatus === 'pagada' || sol.mercadopagoPreferenceId || sol.costo) {
+            allPagos.push({
+              id: sol.id + '-sol',
+              monto: sol.costo || 100,
+              concepto: `Solicitud INM - ${(sol.tipoTramite || '').replace(/_/g, ' ')}`,
+              estatusPago: sol.estatus === 'pagada' ? 'aprobado' : sol.estatus === 'cancelada' ? 'cancelado' : 'pendiente',
+              tipoPago: 'pago_unico',
+              metodoPago: sol.metodoPago || 'manual',
+              createdAt: sol.createdAt,
+              fechaPago: sol.fechaPago,
+              origen: 'solicitud',
+              solicitud: sol,
+            });
+          }
+        }
+      } catch {}
+      return allPagos;
     },
   });
 
@@ -89,7 +109,7 @@ export default function ReportesPage() {
 
   // ═══ CÁLCULOS DE INGRESOS ═══
 
-  // Ingresos de pagos aprobados en la tabla pagos (filtra por mes/año de fechaPago)
+  // Todos los pagos aprobados del mes seleccionado (trámites + solicitudes)
   const pagosAprobadosMes = pagosReales.filter((p: any) => {
     if (p.estatusPago !== 'aprobado') return false;
     const fecha = p.fechaPago || p.createdAt;
@@ -98,35 +118,17 @@ export default function ReportesPage() {
     if (match) return parseInt(match[2]) === mes && parseInt(match[1]) === anio;
     return false;
   });
-  const ingresosPagosReales = pagosAprobadosMes.reduce((sum: number, p: any) => sum + (parseFloat(p.monto) || 0), 0);
 
-  // Ingresos de trámites (del reporte backend como fallback)
-  const ingresosTramitesBackend = reporte?.totalIngresos || 0;
-  // Usar el mayor entre el cálculo local y el del backend
-  const ingresosTramites = Math.max(ingresosPagosReales, ingresosTramitesBackend);
-  const pagosTramitesCount = Math.max(pagosAprobadosMes.length, reporte?.totalPagos || 0);
+  // Separar por origen
+  const pagosTramitesMes = pagosAprobadosMes.filter((p: any) => p.origen === 'tramite');
+  const pagosSolicitudesMes = pagosAprobadosMes.filter((p: any) => p.origen === 'solicitud');
 
-  // Ingresos de solicitudes pagadas en el mes seleccionado
-  const solicitudesPagadasMes = solicitudes.filter((s: any) => {
-    if (s.estatus !== 'pagada') return false;
-    if (!s.fechaPago) return false;
-    try {
-      // Parsear fecha sin problemas de timezone — extraer año/mes directamente
-      const fechaStr = String(s.fechaPago);
-      const match = fechaStr.match(/(\d{4})-(\d{2})/);
-      if (match) {
-        return parseInt(match[2]) === mes && parseInt(match[1]) === anio;
-      }
-      // Fallback con Date
-      const fecha = new Date(s.fechaPago);
-      return fecha.getMonth() + 1 === mes && fecha.getFullYear() === anio;
-    } catch { return false; }
-  });
-  const ingresosSolicitudes = solicitudesPagadasMes.reduce((sum: number, s: any) => sum + (parseFloat(s.costo) || 100), 0);
+  const ingresosTramites = pagosTramitesMes.reduce((sum: number, p: any) => sum + (parseFloat(p.monto) || 0), 0);
+  const ingresosSolicitudes = pagosSolicitudesMes.reduce((sum: number, p: any) => sum + (parseFloat(p.monto) || 0), 0);
 
   // TOTAL GENERAL del mes
   const totalIngresosMes = ingresosTramites + ingresosSolicitudes;
-  const totalPagosMes = pagosTramitesCount + solicitudesPagadasMes.length;
+  const totalPagosMes = pagosAprobadosMes.length;
 
   // ═══ CÁLCULOS DE ESTATUS ═══
   const estatusCounts: Record<string, number> = {};
@@ -145,12 +147,12 @@ export default function ReportesPage() {
 
   // Totales generales
   const totalTramitesYSolicitudes = tramites.length + solicitudes.length;
-  const totalAprobados = (estatusCounts['aprobado'] || 0) + (estatusCounts['pagada'] || 0);
-  const totalEnProceso = (estatusCounts['recibido'] || 0) + (estatusCounts['en_revision'] || 0) + (estatusCounts['en_espera_resolucion'] || 0) + (estatusCounts['pendiente_revision'] || 0) + (estatusCounts['en_proceso'] || 0) + (estatusCounts['pendiente_pago'] || 0);
+  const totalAprobados = pagosReales.filter((p: any) => p.estatusPago === 'aprobado').length;
+  const totalEnProceso = pagosReales.filter((p: any) => p.estatusPago === 'pendiente' || p.estatusPago === 'en_revision_voucher').length + (estatusCounts['pendiente_revision'] || 0) + (estatusCounts['en_proceso'] || 0);
 
-  // Solicitudes pagadas totales (histórico)
-  const totalSolicitudesPagadas = solicitudes.filter((s: any) => s.estatus === 'pagada').length;
-  const ingresosTotalSolicitudes = solicitudes.filter((s: any) => s.estatus === 'pagada').reduce((sum: number, s: any) => sum + (parseFloat(s.costo) || 100), 0);
+  // Históricos
+  const totalPagosAprobados = pagosReales.filter((p: any) => p.estatusPago === 'aprobado').length;
+  const ingresosTotalHistorico = pagosReales.filter((p: any) => p.estatusPago === 'aprobado').reduce((sum: number, p: any) => sum + (parseFloat(p.monto) || 0), 0);
 
   const isLoading = tramitesQuery.isLoading || solicitudesQuery.isLoading || clientesQuery.isLoading || reporteQuery.isLoading || pagosQuery.isLoading;
 
@@ -199,8 +201,8 @@ export default function ReportesPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
             <MetricCard label="Total Operaciones" value={totalTramitesYSolicitudes} icon={<FileText className="h-5 w-5" />} colors="from-amber-500 to-amber-600" subtitle={`${tramites.length} trámites + ${solicitudes.length} solicitudes`} />
             <MetricCard label="Total Clientes" value={clientes.length} icon={<Users className="h-5 w-5" />} colors="from-blue-500 to-blue-600" />
-            <MetricCard label="Aprobados / Pagados" value={totalAprobados} icon={<CheckCircle className="h-5 w-5" />} colors="from-emerald-500 to-emerald-600" />
-            <MetricCard label="En Proceso" value={totalEnProceso} icon={<Clock className="h-5 w-5" />} colors="from-orange-500 to-orange-600" />
+            <MetricCard label="Pagos Confirmados" value={totalAprobados} icon={<CheckCircle className="h-5 w-5" />} colors="from-emerald-500 to-emerald-600" subtitle={formatCurrency(ingresosTotalHistorico)} />
+            <MetricCard label="Por Cobrar" value={totalEnProceso} icon={<Clock className="h-5 w-5" />} colors="from-orange-500 to-orange-600" />
           </div>
 
           {/* ═══ SECCIÓN FINANCIERA — CORTE MENSUAL ═══ */}
@@ -239,7 +241,7 @@ export default function ReportesPage() {
                   <p className="text-sm font-semibold text-white">Trámites Migratorios</p>
                 </div>
                 <p className="text-2xl font-bold text-white">{formatCurrency(ingresosTramites)}</p>
-                <p className="text-xs text-white/50 mt-1">{pagosTramitesCount} pagos confirmados</p>
+                <p className="text-xs text-white/50 mt-1">{pagosTramitesMes.length} pagos confirmados</p>
                 {reporte?.porMetodo?.length > 0 && (
                   <div className="mt-3 space-y-1.5">
                     {reporte.porMetodo.map((m: any) => (
@@ -259,13 +261,13 @@ export default function ReportesPage() {
                   <p className="text-sm font-semibold text-white">Solicitudes INM ($100 c/u)</p>
                 </div>
                 <p className="text-2xl font-bold text-white">{formatCurrency(ingresosSolicitudes)}</p>
-                <p className="text-xs text-white/50 mt-1">{solicitudesPagadasMes.length} solicitudes pagadas en {MESES[mes - 1]}</p>
-                {solicitudesPagadasMes.length > 0 && (
+                <p className="text-xs text-white/50 mt-1">{pagosSolicitudesMes.length} solicitudes pagadas en {MESES[mes - 1]}</p>
+                {pagosSolicitudesMes.length > 0 && (
                   <div className="mt-3 space-y-1.5 max-h-32 overflow-y-auto">
-                    {solicitudesPagadasMes.map((s: any) => (
-                      <div key={s.id} className="flex items-center justify-between text-xs">
-                        <span className="text-white/60 truncate max-w-[150px]">{s.datosFormulario?.nombre || 'Sin nombre'} {s.datosFormulario?.apellidos || ''}</span>
-                        <span className="text-emerald-400 font-medium">{formatCurrency(parseFloat(s.costo) || 100)}</span>
+                    {pagosSolicitudesMes.map((p: any) => (
+                      <div key={p.id} className="flex items-center justify-between text-xs">
+                        <span className="text-white/60 truncate max-w-[150px]">{p.concepto || 'Solicitud'}</span>
+                        <span className="text-emerald-400 font-medium">{formatCurrency(parseFloat(p.monto) || 100)}</span>
                       </div>
                     ))}
                   </div>
@@ -278,12 +280,12 @@ export default function ReportesPage() {
               <p className="text-xs text-white/50 uppercase font-semibold mb-2">Histórico total (todas las fechas)</p>
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <p className="text-lg font-bold text-white">{totalSolicitudesPagadas}</p>
-                  <p className="text-[10px] text-white/50">Solicitudes pagadas</p>
+                  <p className="text-lg font-bold text-white">{totalPagosAprobados}</p>
+                  <p className="text-[10px] text-white/50">Pagos confirmados</p>
                 </div>
                 <div>
-                  <p className="text-lg font-bold text-emerald-400">{formatCurrency(ingresosTotalSolicitudes)}</p>
-                  <p className="text-[10px] text-white/50">Ingresos solicitudes</p>
+                  <p className="text-lg font-bold text-emerald-400">{formatCurrency(ingresosTotalHistorico)}</p>
+                  <p className="text-[10px] text-white/50">Ingresos totales</p>
                 </div>
                 <div>
                   <p className="text-lg font-bold text-white">{clientes.length}</p>
