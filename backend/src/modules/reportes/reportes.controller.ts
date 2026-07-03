@@ -28,49 +28,121 @@ export class ReportesController {
     @Query('anio') anio: number,
     @Res({ passthrough: true }) res: Response,
   ): Promise<StreamableFile> {
+    const startDate = `${anio}-${String(mes).padStart(2, '0')}-01`;
+    const endDate = mes === 12 ? `${anio + 1}-01-01` : `${anio}-${String(mes + 1).padStart(2, '0')}-01`;
+
+    // ═══ RECOPILAR DATOS ═══
     let totalClientes = 0;
     let totalTramites = 0;
-    let totalIngresos = 0;
-    let totalPagos = 0;
+    let totalSolicitudes = 0;
+
+    // Pagos de trámites (tabla pagos)
+    let pagosAprobados: any[] = [];
+    let pagosPendientes: any[] = [];
+
+    // Solicitudes pagadas
+    let solicitudesPagadas: any[] = [];
+    let solicitudesActivas: any[] = [];
+
+    // Trámites por estatus
     let tramitesPorEstatus: { estatus: string; cantidad: number }[] = [];
-    let tramitesPorTipo: { tipo: string; cantidad: number }[] = [];
+    let solicitudesPorEstatus: { estatus: string; cantidad: number }[] = [];
+
+    // Clientes
+    let clientesNuevos = 0;
 
     try {
-      const clientesResult = await this.dataSource.query(`SELECT COUNT(*) as count FROM clientes`);
-      totalClientes = parseInt(clientesResult?.[0]?.count || '0');
-    } catch (e) { this.logger.warn('Error contando clientes: ' + e.message); }
+      const r = await this.dataSource.query(`SELECT COUNT(*) as count FROM clientes`);
+      totalClientes = parseInt(r?.[0]?.count || '0');
+    } catch {}
 
     try {
-      const tramitesResult = await this.dataSource.query(`SELECT COUNT(*) as count FROM tramites`);
-      totalTramites = parseInt(tramitesResult?.[0]?.count || '0');
-    } catch (e) { this.logger.warn('Error contando tramites: ' + e.message); }
+      const r = await this.dataSource.query(`SELECT COUNT(*) as count FROM clientes WHERE created_at >= $1 AND created_at < $2`, [startDate, endDate]);
+      clientesNuevos = parseInt(r?.[0]?.count || '0');
+    } catch {}
 
     try {
-      const startDate = `${anio}-${String(mes).padStart(2, '0')}-01`;
-      const endDate = mes === 12 ? `${anio + 1}-01-01` : `${anio}-${String(mes + 1).padStart(2, '0')}-01`;
-      const ingresosResult = await this.dataSource.query(
-        `SELECT COALESCE(SUM(monto), 0) as total, COUNT(*) as count FROM pagos WHERE estatus_pago = 'aprobado' AND created_at >= $1 AND created_at < $2`,
+      const r = await this.dataSource.query(`SELECT COUNT(*) as count FROM tramites`);
+      totalTramites = parseInt(r?.[0]?.count || '0');
+    } catch {}
+
+    try {
+      const r = await this.dataSource.query(`SELECT COUNT(*) as count FROM solicitudes`);
+      totalSolicitudes = parseInt(r?.[0]?.count || '0');
+    } catch {}
+
+    // Pagos aprobados del mes (por fecha_pago)
+    try {
+      pagosAprobados = await this.dataSource.query(
+        `SELECT id, monto, concepto, metodo_pago, fecha_pago, cliente_id, tramite_id
+         FROM pagos WHERE estatus_pago = 'aprobado' AND (fecha_pago >= $1 AND fecha_pago < $2)
+         ORDER BY fecha_pago ASC`,
         [startDate, endDate]
       );
-      totalIngresos = parseFloat(ingresosResult?.[0]?.total || '0');
-      totalPagos = parseInt(ingresosResult?.[0]?.count || '0');
-    } catch (e) { this.logger.warn('Error calculando ingresos: ' + e.message); }
+    } catch {}
 
+    // Pagos pendientes
     try {
-      const estatusResult = await this.dataSource.query(
+      pagosPendientes = await this.dataSource.query(
+        `SELECT id, monto, concepto, cliente_id FROM pagos WHERE estatus_pago = 'pendiente' OR estatus_pago = 'en_revision_voucher'`
+      );
+    } catch {}
+
+    // Solicitudes pagadas del mes
+    try {
+      solicitudesPagadas = await this.dataSource.query(
+        `SELECT s.id, s.costo, s."tipoTramite", s."fechaPago", s."datosFormulario"
+         FROM solicitudes s WHERE s.estatus = 'pagada' AND s."fechaPago" >= $1 AND s."fechaPago" < $2
+         ORDER BY s."fechaPago" ASC`,
+        [startDate, endDate]
+      );
+    } catch {}
+
+    // Solicitudes activas (no pagadas ni canceladas)
+    try {
+      solicitudesActivas = await this.dataSource.query(
+        `SELECT id, estatus, "tipoTramite" FROM solicitudes WHERE estatus NOT IN ('pagada', 'cancelada')`
+      );
+    } catch {}
+
+    // Trámites agrupados por estatus
+    try {
+      tramitesPorEstatus = await this.dataSource.query(
         `SELECT estatus, COUNT(*)::int as cantidad FROM tramites GROUP BY estatus ORDER BY cantidad DESC`
       );
-      tramitesPorEstatus = estatusResult || [];
-    } catch (e) { this.logger.warn('Error agrupando por estatus: ' + e.message); }
+    } catch {}
 
+    // Solicitudes agrupadas por estatus
     try {
-      const tipoResult = await this.dataSource.query(
-        `SELECT tipo, COUNT(*)::int as cantidad FROM tramites GROUP BY tipo ORDER BY cantidad DESC`
+      solicitudesPorEstatus = await this.dataSource.query(
+        `SELECT estatus, COUNT(*)::int as cantidad FROM solicitudes GROUP BY estatus ORDER BY cantidad DESC`
       );
-      tramitesPorTipo = tipoResult || [];
-    } catch (e) { this.logger.warn('Error agrupando por tipo: ' + e.message); }
+    } catch {}
 
-    const data = { totalIngresos, totalPagos, totalClientes, totalTramites, tramitesPorEstatus, tramitesPorTipo };
+    // Calcular totales
+    const ingresosTramites = pagosAprobados.reduce((sum, p) => sum + parseFloat(p.monto || '0'), 0);
+    const ingresosSolicitudes = solicitudesPagadas.reduce((sum, s) => sum + parseFloat(s.costo || '100'), 0);
+    const totalIngresos = ingresosTramites + ingresosSolicitudes;
+    const totalPagos = pagosAprobados.length + solicitudesPagadas.length;
+    const totalPendiente = pagosPendientes.reduce((sum, p) => sum + parseFloat(p.monto || '0'), 0);
+
+    const data = {
+      totalIngresos,
+      ingresosTramites,
+      ingresosSolicitudes,
+      totalPagos,
+      totalClientes,
+      clientesNuevos,
+      totalTramites,
+      totalSolicitudes,
+      totalPendiente,
+      pagosPendientesCount: pagosPendientes.length,
+      pagosAprobados,
+      solicitudesPagadas,
+      solicitudesActivas,
+      tramitesPorEstatus,
+      solicitudesPorEstatus,
+    };
 
     const pdfBuffer = await this.reportesService.generateMonthlyPdf(mes, anio, data);
 
