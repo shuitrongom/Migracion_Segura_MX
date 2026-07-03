@@ -10,6 +10,7 @@ import {
   Request,
   HttpCode,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 
@@ -26,6 +27,8 @@ import { UserRole, TipoNotificacion, CanalNotificacion } from '../../common/enum
 @ApiBearerAuth()
 @Controller('financiero')
 export class FinancieroController {
+  private readonly logger = new Logger(FinancieroController.name);
+
   constructor(
     private readonly financieroService: FinancieroService,
     private readonly mercadoPagoService: MercadoPagoService,
@@ -157,15 +160,19 @@ export class FinancieroController {
             payment.amount || 0,
             payment.paymentMethod || '',
           );
-          // Confirmar pago de solicitud
+          // Confirmar pago de solicitud (puede no ser solicitud, OK si falla)
           try { await this.solicitudesService.confirmarPago(refId, payment.id?.toString()); } catch {}
 
         } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
           try {
             await this.financieroService.notificarPagoRechazado(refId, payment.status);
-          } catch {}
+          } catch (e: any) {
+            this.logger.error(`Error notificando pago rechazado ${refId}: ${e.message}`);
+          }
         }
-      } catch {}
+      } catch (e: any) {
+        this.logger.error(`Error procesando webhook MP payment_id=${body.data?.id}: ${e.message}`, e.stack);
+      }
     }
     return { received: true };
   }

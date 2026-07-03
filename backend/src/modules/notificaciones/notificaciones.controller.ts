@@ -47,7 +47,8 @@ export class NotificacionesController {
    * Enviar push de prueba al usuario autenticado (para debug)
    */
   @Post('test-push')
-  @ApiOperation({ summary: 'Enviar push de prueba a mi dispositivo' })
+  @Roles(UserRole.ADMINISTRADOR)
+  @ApiOperation({ summary: 'Enviar push de prueba a mi dispositivo (solo admin)' })
   async testPush(@Request() req: any) {
     const userId = req.user.id;
     await this.notificacionesService.sendNotification({
