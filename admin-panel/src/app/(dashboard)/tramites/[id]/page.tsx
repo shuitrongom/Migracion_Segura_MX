@@ -7,6 +7,7 @@ import { ArrowLeft, Check, Circle, Clock, Plus, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
 import RequisitosUpload from '@/components/requisitos-upload';
+import { DatePicker } from '@/components/ui/date-picker';
 
 interface Etapa {
   id: string;
@@ -438,6 +439,7 @@ function ResolucionCitaSection({ tramiteId, tramite }: { tramiteId: string; tram
   const [citaLugar, setCitaLugar] = useState('');
   const [citaNotas, setCitaNotas] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [fechaVencimientoDoc, setFechaVencimientoDoc] = useState('');
 
   const handleUploadResolucion = async () => {
     if (!resolucionFile) { toast.error('Selecciona un archivo de resolución'); return; }
@@ -566,10 +568,12 @@ function ResolucionCitaSection({ tramiteId, tramite }: { tramiteId: string; tram
           <p className="text-[10px] text-white/70 uppercase font-semibold mb-2">📋 Documento migratorio (resultado del trámite)</p>
           <p className="text-[10px] text-white/50 mb-2">Sube el documento migratorio obtenido y su fecha de vencimiento para alertar al extranjero 30 días antes.</p>
           <div className="space-y-2">
-            <input
-              type="date"
-              id={`doc-vencimiento-${tramiteId}`}
-              className="w-full px-3 py-2 border border-[#3a3a3a] bg-[#252525] text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+            <DatePicker
+              value={fechaVencimientoDoc}
+              onChange={setFechaVencimientoDoc}
+              placeholder="Fecha de vencimiento del documento"
+              yearRange={[2025, 2040]}
+              disablePast
             />
             <input
               type="file"
@@ -580,9 +584,8 @@ function ResolucionCitaSection({ tramiteId, tramite }: { tramiteId: string; tram
             <button
               onClick={async () => {
                 const fileInput = document.getElementById(`doc-migratorio-${tramiteId}`) as HTMLInputElement;
-                const fechaInput = document.getElementById(`doc-vencimiento-${tramiteId}`) as HTMLInputElement;
                 const file = fileInput?.files?.[0];
-                const fecha = fechaInput?.value;
+                const fecha = fechaVencimientoDoc;
                 if (!file) { toast.error('Selecciona el documento migratorio'); return; }
                 if (!fecha) { toast.error('Indica la fecha de vencimiento'); return; }
                 try {
