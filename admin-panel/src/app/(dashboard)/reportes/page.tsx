@@ -33,7 +33,7 @@ export default function ReportesPage() {
     queryKey: ['reportes', 'tramites'],
     queryFn: async () => {
       try {
-        const res = await api.get('/tramites?page=1&limit=200');
+        const res = await api.get('/tramites?page=1&limit=100');
         return res.data;
       } catch { return { data: [] }; }
     },
@@ -43,7 +43,7 @@ export default function ReportesPage() {
     queryKey: ['reportes', 'solicitudes'],
     queryFn: async () => {
       try {
-        const res = await api.get('/solicitudes?page=1&limit=200');
+        const res = await api.get('/solicitudes?page=1&limit=100');
         return res.data;
       } catch { return { data: [] }; }
     },
@@ -54,7 +54,7 @@ export default function ReportesPage() {
     queryKey: ['reportes', 'clientes'],
     queryFn: async () => {
       try {
-        const res = await api.get('/clientes?page=1&limit=200');
+        const res = await api.get('/clientes?page=1&limit=100');
         return res.data;
       } catch { return { data: [] }; }
     },
@@ -67,7 +67,7 @@ export default function ReportesPage() {
       const allPagos: any[] = [];
       try {
         // 1. Pagos de trámites
-        const tramitesRes = await api.get('/tramites?page=1&limit=200');
+        const tramitesRes = await api.get('/tramites?page=1&limit=100');
         const tramitesList = tramitesRes.data?.data || [];
         for (const t of tramitesList) {
           try {
@@ -78,7 +78,7 @@ export default function ReportesPage() {
         }
 
         // 2. Solicitudes como pagos (igual que financiero page)
-        const solRes = await api.get('/solicitudes?page=1&limit=200');
+        const solRes = await api.get('/solicitudes?page=1&limit=100');
         const solicitudesList = solRes.data?.data || [];
         for (const sol of solicitudesList) {
           if (sol.estatus === 'pagada' || sol.mercadopagoPreferenceId || sol.costo) {
