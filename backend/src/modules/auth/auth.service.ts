@@ -420,7 +420,7 @@ export class AuthService {
 
     if (data.newPassword) {
       const bcrypt = await import('bcrypt');
-      const hashedPassword = await bcrypt.hash(data.newPassword, 10);
+      const hashedPassword = await bcrypt.hash(data.newPassword, 12);
       await this.usersService.updatePassword(userId, hashedPassword);
     }
 

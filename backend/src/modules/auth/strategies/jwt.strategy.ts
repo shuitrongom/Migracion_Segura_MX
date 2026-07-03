@@ -31,6 +31,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Token inválido o usuario no encontrado');
     }
 
+    if (user.lockedUntil && user.lockedUntil > new Date()) {
+      throw new UnauthorizedException('Cuenta bloqueada temporalmente');
+    }
+
     return {
       id: user.id,
       email: user.email,

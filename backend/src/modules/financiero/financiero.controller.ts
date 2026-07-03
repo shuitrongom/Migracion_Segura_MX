@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import { Throttle } from '@nestjs/throttler';
 
 import { FinancieroService } from './financiero.service';
 import { MercadoPagoService } from './mercadopago.service';
@@ -145,6 +146,7 @@ export class FinancieroController {
    */
   @Post('webhook/mercadopago')
   @Public()
+  @Throttle({ default: { ttl: 10000, limit: 30 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Webhook de notificación de Mercado Pago' })
   async webhookMercadoPago(@Body() body: any) {

@@ -482,6 +482,23 @@ export class FinancieroService {
       throw new NotFoundException('Pago no encontrado');
     }
 
+    // Verificar que el usuario sea dueño del pago (solo para clientes)
+    if (pago.clienteId) {
+      const clienteRows = await this.pagoRepository.manager.query(
+        `SELECT id FROM clientes WHERE user_id = $1 AND id = $2 LIMIT 1`,
+        [params.userId, pago.clienteId],
+      );
+      // Si no es el dueño y no es admin/asesor, verificamos que al menos el user tenga un cliente vinculado
+      if (!clienteRows?.length) {
+        const userRole = await this.pagoRepository.manager.query(
+          `SELECT role FROM users WHERE id = $1 LIMIT 1`, [params.userId]
+        );
+        if (userRole?.[0]?.role === 'cliente') {
+          throw new BadRequestException('No tienes permiso para modificar este pago.');
+        }
+      }
+    }
+
     if (pago.estatusPago !== EstatusPago.PENDIENTE) {
       throw new BadRequestException('Este pago ya no está pendiente. No se puede subir voucher.');
     }
