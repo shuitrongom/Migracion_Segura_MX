@@ -71,6 +71,8 @@ export default function ReportesPage() {
 
   const estatusCounts: Record<string, number> = {};
   tramites.forEach((t: any) => { estatusCounts[t.estatus] = (estatusCounts[t.estatus] || 0) + 1; });
+  // Agregar solicitudes al conteo por estatus
+  solicitudes.forEach((s: any) => { estatusCounts[s.estatus] = (estatusCounts[s.estatus] || 0) + 1; });
 
   const tipoCounts: Record<string, number> = {};
   tramites.forEach((t: any) => { tipoCounts[t.tipo] = (tipoCounts[t.tipo] || 0) + 1; });
@@ -150,7 +152,7 @@ export default function ReportesPage() {
                 <TrendingUp className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-white">{(estatusCounts['aprobado'] || 0) + solicitudesPagadas.length}</p>
+            <p className="text-3xl font-bold text-white">{(estatusCounts['aprobado'] || 0) + (estatusCounts['pagada'] || 0)}</p>
           </div>
         </div>
         <div className="relative overflow-hidden dark-card-static p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
@@ -162,7 +164,7 @@ export default function ReportesPage() {
                 <Calendar className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-white">{(estatusCounts['recibido'] || 0) + (estatusCounts['en_revision'] || 0) + (estatusCounts['en_espera_resolucion'] || 0) + solicitudes.filter((s: any) => ['pendiente_revision', 'en_proceso', 'pendiente_pago'].includes(s.estatus)).length}</p>
+            <p className="text-3xl font-bold text-white">{(estatusCounts['recibido'] || 0) + (estatusCounts['en_revision'] || 0) + (estatusCounts['en_espera_resolucion'] || 0) + (estatusCounts['pendiente_revision'] || 0) + (estatusCounts['en_proceso'] || 0) + (estatusCounts['pendiente_pago'] || 0)}</p>
           </div>
         </div>
       </div>
@@ -217,7 +219,7 @@ export default function ReportesPage() {
               <div key={tipo} className="group flex items-center gap-3 p-2 rounded-lg hover:bg-[#1a1a1a] transition-colors">
                 <span className="text-sm text-white/70 w-40 shrink-0 font-medium capitalize truncate">{tipo.replace(/_/g, ' ')}</span>
                 <div className="flex-1 h-6 bg-[#222222] rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-brand-400 to-amber-500 rounded-full transition-all duration-700 ease-out group-hover:opacity-90" style={{ width: `${(count / tramites.length) * 100}%` }} />
+                  <div className="h-full bg-gradient-to-r from-brand-400 to-amber-500 rounded-full transition-all duration-700 ease-out group-hover:opacity-90" style={{ width: `${Math.min((count / Math.max(tramites.length + solicitudes.length, 1)) * 100, 100)}%` }} />
                 </div>
                 <span className="text-sm font-bold text-white/90 w-8 text-right">{count}</span>
               </div>
