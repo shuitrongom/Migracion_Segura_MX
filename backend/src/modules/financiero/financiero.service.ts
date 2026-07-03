@@ -214,7 +214,10 @@ export class FinancieroService {
       order: { createdAt: 'ASC' }, // El más antiguo primero (anticipo antes que liquidación)
     });
 
-    if (!pago) return;
+    if (!pago) {
+      this.logger.warn(`Webhook MP: No se encontró pago pendiente para tramiteId=${tramiteId} (paymentId=${mercadopagoPaymentId}). Puede ser duplicado o solicitud.`);
+      return;
+    }
 
     pago.estatusPago = EstatusPago.APROBADO;
     pago.mercadopagoPaymentId = mercadopagoPaymentId || null;
@@ -276,7 +279,9 @@ export class FinancieroService {
         details: `Se confirmó un pago de $${amount} MXN para el trámite ${tramiteId}.`,
         extraInfo: `ID Pago MP: ${mercadopagoPaymentId} · Método: ${paymentMethod}`,
       });
-    } catch {}
+    } catch (e: any) {
+      this.logger.warn(`No se pudo enviar email de pago confirmado: ${e.message}`);
+    }
   }
 
   /**
