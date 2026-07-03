@@ -133,7 +133,15 @@ export default function TramiteNuevoScreen() {
   const uSol = (field: string, value: string) => setSolicitante(prev => ({ ...prev, [field]: value }));
 
   const handleSubmit = async () => {
-    if (selectedTipo !== 'constancia_empleador' && (!form.nombre.trim() || !form.apellidos.trim())) { Alert.alert('Error', 'Nombre y apellidos son obligatorios'); return; }
+    // Campos obligatorios del extranjero (excepto CIE que no lleva datos personales)
+    if (selectedTipo !== 'constancia_empleador') {
+      if (!form.nombre.trim()) { Alert.alert('Datos incompletos', 'El nombre es obligatorio'); return; }
+      if (!form.apellidos.trim()) { Alert.alert('Datos incompletos', 'Los apellidos son obligatorios'); return; }
+      if (!form.sexo) { Alert.alert('Datos incompletos', 'Selecciona el sexo'); return; }
+      if (!form.fechaNacimiento) { Alert.alert('Datos incompletos', 'La fecha de nacimiento es obligatoria'); return; }
+      if (!form.nacionalidad) { Alert.alert('Datos incompletos', 'La nacionalidad es obligatoria'); return; }
+      if (!form.estadoCivil) { Alert.alert('Datos incompletos', 'El estado civil es obligatorio'); return; }
+    }
     if (!form.propositoViaje) { Alert.alert('Error', 'Selecciona qué deseas hacer'); return; }
     if (!form.solicitanteEmail.trim()) { Alert.alert('Error', 'Ingresa tu correo electrónico'); return; }
     if (form.solicitanteEmail !== form.solicitanteEmailConfirmacion) { Alert.alert('Error', 'Los correos no coinciden'); return; }

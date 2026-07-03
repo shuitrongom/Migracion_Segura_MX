@@ -152,7 +152,13 @@ export default function SolicitudNuevaScreen() {
   };
 
   const handleSubmit = async () => {
-    // Validar según tipo de trámite — campos NO obligatorios, solo email requerido
+    // Validar campos obligatorios del extranjero
+    if (!form.nombre.trim()) { Alert.alert('Datos incompletos', 'El nombre es obligatorio'); return; }
+    if (!form.apellidos.trim()) { Alert.alert('Datos incompletos', 'Los apellidos son obligatorios'); return; }
+    if (!form.sexo) { Alert.alert('Datos incompletos', 'Selecciona el sexo'); return; }
+    if (!form.fechaNacimiento) { Alert.alert('Datos incompletos', 'La fecha de nacimiento es obligatoria'); return; }
+    if (!form.nacionalidad) { Alert.alert('Datos incompletos', 'La nacionalidad es obligatoria'); return; }
+    if (!form.estadoCivil) { Alert.alert('Datos incompletos', 'El estado civil es obligatorio'); return; }
     if (!form.solicitanteEmail.trim()) {
       Alert.alert('Error', 'Ingresa tu correo electrónico');
       return;
