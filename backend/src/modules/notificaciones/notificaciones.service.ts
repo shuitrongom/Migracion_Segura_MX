@@ -52,25 +52,29 @@ export class NotificacionesService {
     // Enviar push notification si el canal es push o in_app
     if (input.canal === CanalNotificacion.PUSH) {
       try {
-        // Buscar el push token del usuario
-        const tokenRecord = await this.notificacionRepository.manager.query(
-          `SELECT push_token FROM user_devices WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 1`,
+        // Buscar TODOS los push tokens del usuario (multi-dispositivo)
+        const tokenRecords = await this.notificacionRepository.manager.query(
+          `SELECT push_token FROM user_devices WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 5`,
           [input.destinatarioId],
         );
 
-        if (tokenRecord?.[0]?.push_token) {
-          const sent = await this.pushService.sendPush({
-            token: tokenRecord[0].push_token,
-            title: input.titulo,
-            body: input.contenido,
-            data: { notificationId: saved.id, tipo: input.tipo },
-          });
-
-          if (sent) {
-            saved.enviada = true;
-            saved.fechaEnvio = new Date();
-            await this.notificacionRepository.save(saved);
+        let anySent = false;
+        for (const record of tokenRecords || []) {
+          if (record?.push_token) {
+            const sent = await this.pushService.sendPush({
+              token: record.push_token,
+              title: input.titulo,
+              body: input.contenido,
+              data: { notificationId: saved.id, tipo: input.tipo },
+            });
+            if (sent) anySent = true;
           }
+        }
+
+        if (anySent) {
+          saved.enviada = true;
+          saved.fechaEnvio = new Date();
+          await this.notificacionRepository.save(saved);
         }
       } catch (error: any) {
         saved.errorEnvio = error.message || 'Error enviando push';

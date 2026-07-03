@@ -280,7 +280,29 @@ export class FinancieroService {
         extraInfo: `ID Pago MP: ${mercadopagoPaymentId} · Método: ${paymentMethod}`,
       });
     } catch (e: any) {
-      this.logger.warn(`No se pudo enviar email de pago confirmado: ${e.message}`);
+      this.logger.warn(`No se pudo enviar email de pago confirmado al admin: ${e.message}`);
+    }
+
+    // Enviar email de comprobante al cliente
+    try {
+      if (pago.clienteId) {
+        const clienteData = await this.pagoRepository.manager.query(
+          `SELECT c.email, c.nombre_completo FROM clientes c WHERE c.id = $1 LIMIT 1`, [pago.clienteId]
+        );
+        if (clienteData?.[0]?.email) {
+          await this.emailService.sendPagoConfirmadoEmail({
+            to: clienteData[0].email,
+            nombreExtranjero: clienteData[0].nombre_completo || 'Estimado/a',
+            monto: amount,
+            metodoPago: paymentMethod || 'tarjeta_credito_debito',
+            concepto: pago.concepto || 'Pago de trámite migratorio',
+            fecha: new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }),
+            referencia: `MP-${mercadopagoPaymentId}`,
+          });
+        }
+      }
+    } catch (e: any) {
+      this.logger.warn(`No se pudo enviar email de pago al cliente: ${e.message}`);
     }
   }
 

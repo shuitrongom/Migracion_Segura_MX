@@ -9,6 +9,7 @@ interface JwtPayload {
   sub: string;
   email: string;
   role: string;
+  iat?: number;
 }
 
 @Injectable()
@@ -33,6 +34,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     if (user.lockedUntil && user.lockedUntil > new Date()) {
       throw new UnauthorizedException('Cuenta bloqueada temporalmente');
+    }
+
+    // Verificar que el token fue emitido DESPUÉS del último logout
+    // payload.iat es el timestamp de emisión del token (en segundos)
+    if (payload.iat && user.lastActivityAt) {
+      const tokenIssuedAt = new Date(payload.iat * 1000);
+      if (tokenIssuedAt < user.lastActivityAt) {
+        throw new UnauthorizedException('Sesión expirada. Inicia sesión de nuevo.');
+      }
     }
 
     return {

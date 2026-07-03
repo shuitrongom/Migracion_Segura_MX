@@ -33,11 +33,11 @@ export class NotificacionesController {
   @ApiOperation({ summary: 'Registrar push token del dispositivo' })
   async registerDevice(@Request() req: any, @Body() dto: { pushToken: string; platform: string }) {
     const userId = req.user.id;
-    // Upsert en tabla user_devices
+    // Upsert por push_token — soporta múltiples dispositivos por usuario
     await this.notificacionesService['notificacionRepository'].manager.query(
-      `INSERT INTO user_devices (user_id, push_token, platform, updated_at)
-       VALUES ($1, $2, $3, NOW())
-       ON CONFLICT (user_id) DO UPDATE SET push_token = $2, platform = $3, updated_at = NOW()`,
+      `INSERT INTO user_devices (id, user_id, push_token, platform, created_at, updated_at)
+       VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW())
+       ON CONFLICT (push_token) DO UPDATE SET user_id = $1, platform = $3, updated_at = NOW()`,
       [userId, dto.pushToken, dto.platform],
     );
     return { message: 'Dispositivo registrado para notificaciones push', token: dto.pushToken.slice(0, 30) + '...' };

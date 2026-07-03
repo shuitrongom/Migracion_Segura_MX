@@ -413,4 +413,58 @@ export class EmailService {
       this.logger.error(`Error enviando notificación admin:`, error);
     }
   }
+
+  /**
+   * Enviar email de confirmación de pago al extranjero
+   */
+  async sendPagoConfirmadoEmail(params: {
+    to: string;
+    nombreExtranjero: string;
+    monto: number;
+    metodoPago: string;
+    concepto: string;
+    fecha: string;
+    referencia?: string;
+  }): Promise<void> {
+    const { to, nombreExtranjero, monto, metodoPago, concepto, fecha, referencia } = params;
+
+    const metodoLabel = metodoPago === 'crypto' ? 'Crypto/USDT'
+      : metodoPago === 'tarjeta_credito_debito' ? 'Tarjeta (MercadoPago)'
+      : 'Transferencia bancaria';
+
+    const body = `
+      <h2 style="color:#2C1810;margin:0 0 8px;font-size:22px;font-weight:700;">Pago Confirmado</h2>
+      <p style="color:#6B5B4F;font-size:14px;margin:0 0 28px;line-height:1.6;">Hola <strong>${nombreExtranjero}</strong>, tu pago ha sido verificado y confirmado exitosamente.</p>
+
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;border-radius:16px;padding:28px;margin:0 0 28px;">
+        <tr><td align="center">
+          <p style="font-size:14px;color:#166534;font-weight:600;margin:0 0 8px;">✅ Pago confirmado</p>
+          <span style="font-size:32px;font-weight:800;color:#15803d;">$${monto.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN</span>
+        </td></tr>
+      </table>
+
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#fef9f0;border-radius:12px;padding:20px;margin:0 0 20px;border:1px solid #e8dfd3;">
+        <tr><td>
+          <p style="color:#6B5B4F;font-size:13px;margin:0 0 8px;"><strong>Concepto:</strong> ${concepto}</p>
+          <p style="color:#6B5B4F;font-size:13px;margin:0 0 8px;"><strong>Método:</strong> ${metodoLabel}</p>
+          <p style="color:#6B5B4F;font-size:13px;margin:0 0 8px;"><strong>Fecha:</strong> ${fecha}</p>
+          ${referencia ? `<p style="color:#6B5B4F;font-size:13px;margin:0;"><strong>Referencia:</strong> ${referencia}</p>` : ''}
+        </td></tr>
+      </table>
+
+      <p style="color:#6B5B4F;font-size:13px;line-height:1.6;margin:0;">Este correo es tu comprobante de pago. Guárdalo como evidencia. Si tienes dudas, contacta a tu asesor desde la app.</p>
+    `;
+
+    try {
+      await this.resend.emails.send({
+        from: `${this.fromName} <${this.fromEmail}>`,
+        to: [to],
+        subject: `✅ Pago confirmado: $${monto.toLocaleString('es-MX')} MXN — Migración Segura MX`,
+        html: this.buildClientTemplate({ title: 'Pago Confirmado', body }),
+      });
+      this.logger.log(`Email de pago confirmado enviado a ${to}`);
+    } catch (error) {
+      this.logger.error(`Error enviando email de pago confirmado a ${to}:`, error);
+    }
+  }
 }

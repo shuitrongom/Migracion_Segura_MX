@@ -1,11 +1,15 @@
-import { Entity, PrimaryColumn, Column, UpdateDateColumn, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, CreateDateColumn, Index } from 'typeorm';
 
 @Entity('user_devices')
 export class UserDevice {
-  @PrimaryColumn({ name: 'user_id', type: 'uuid' })
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ name: 'user_id', type: 'uuid' })
+  @Index()
   userId: string;
 
-  @Column({ name: 'push_token', type: 'varchar', length: 255 })
+  @Column({ name: 'push_token', type: 'varchar', length: 255, unique: true })
   pushToken: string;
 
   @Column({ type: 'varchar', length: 20, default: 'android' })

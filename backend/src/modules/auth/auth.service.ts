@@ -453,14 +453,16 @@ export class AuthService {
   }
 
   /**
-   * Logout — marca la fecha de logout para invalidar tokens emitidos antes
+   * Logout — invalida todos los tokens emitidos hasta este momento.
+   * El JwtStrategy verifica que el token fue emitido DESPUÉS del último logout.
    */
   async logout(userId: string) {
+    // Guardar timestamp de logout — todos los tokens emitidos ANTES de este momento son inválidos
     await this.usersService['userRepository'].manager.query(
-      `UPDATE users SET last_activity_at = NOW() WHERE id = $1`,
+      `UPDATE users SET last_login_at = NULL, last_activity_at = NOW() WHERE id = $1`,
       [userId],
     );
-    return { message: 'Sesión cerrada exitosamente.' };
+    return { message: 'Sesión cerrada exitosamente. Todos los dispositivos fueron desconectados.' };
   }
 
   // ---- Helpers privados ----
