@@ -79,6 +79,34 @@ export class DocumentosService {
     dto: UploadDocumentoDto,
     usuarioId: string,
   ): Promise<Documento> {
+    // Validar que se recibió un archivo
+    if (!file || !file.buffer) {
+      throw new BadRequestException('No se recibió ningún archivo.');
+    }
+
+    // Validar tamaño máximo (20 MB)
+    const MAX_SIZE = 20 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      throw new BadRequestException('El archivo excede el tamaño máximo de 20 MB.');
+    }
+
+    // Validar MIME types permitidos (solo PDF e imágenes)
+    const ALLOWED_MIMES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!ALLOWED_MIMES.includes(file.mimetype?.toLowerCase())) {
+      throw new BadRequestException('Tipo de archivo no permitido. Solo se aceptan PDF, JPG, PNG o WebP.');
+    }
+
+    // Validar magic bytes del archivo para prevenir falsificación de MIME type
+    const header = file.buffer.subarray(0, 8);
+    const isPDF = header[0] === 0x25 && header[1] === 0x50 && header[2] === 0x44 && header[3] === 0x46; // %PDF
+    const isJPEG = header[0] === 0xFF && header[1] === 0xD8 && header[2] === 0xFF;
+    const isPNG = header[0] === 0x89 && header[1] === 0x50 && header[2] === 0x4E && header[3] === 0x47;
+    const isWebP = header[0] === 0x52 && header[1] === 0x49 && header[2] === 0x46 && header[3] === 0x46; // RIFF
+
+    if (!isPDF && !isJPEG && !isPNG && !isWebP) {
+      throw new BadRequestException('El contenido del archivo no coincide con su tipo declarado. Archivo rechazado por seguridad.');
+    }
+
     // Si no viene expedienteId pero sí tramiteId, buscar el expediente del trámite
     let expedienteId = dto.expedienteId;
     if (!expedienteId && dto.tramiteId) {

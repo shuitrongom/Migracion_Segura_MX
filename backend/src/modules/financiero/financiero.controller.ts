@@ -77,7 +77,20 @@ export class FinancieroController {
   @Get('pagos/tramite/:tramiteId')
   @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR, UserRole.CLIENTE)
   @ApiOperation({ summary: 'Obtener pagos de un trámite' })
-  getPagosByTramite(@Param('tramiteId', ParseUUIDPipe) tramiteId: string) {
+  async getPagosByTramite(
+    @Param('tramiteId', ParseUUIDPipe) tramiteId: string,
+    @Request() req: { user: { id: string; role: string } },
+  ) {
+    // Si es cliente, verificar que el trámite le pertenece
+    if (req.user.role === 'cliente') {
+      const owns = await this.financieroService['pagoRepository'].manager.query(
+        `SELECT t.id FROM tramites t JOIN clientes c ON c.id = t.cliente_id WHERE t.id = $1 AND c.user_id = $2 LIMIT 1`,
+        [tramiteId, req.user.id],
+      );
+      if (!owns?.length) {
+        return [];
+      }
+    }
     return this.financieroService.getPagosByTramite(tramiteId);
   }
 

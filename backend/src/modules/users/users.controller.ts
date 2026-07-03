@@ -52,7 +52,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Obtener detalle de un usuario' })
   @ApiParam({ name: 'id', description: 'UUID del usuario' })
   getUser(@Param('id', ParseUUIDPipe) id: string) {
-    return this.usersService.findById(id);
+    return this.usersService.findByIdSafe(id);
   }
 
   /**

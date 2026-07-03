@@ -141,8 +141,8 @@ export class TramitesController {
   @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR, UserRole.CLIENTE)
   @ApiOperation({ summary: 'Obtener trámite por ID' })
   @ApiParam({ name: 'id', description: 'UUID del trámite' })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.tramitesService.findOne(id);
+  findOne(@Param('id', ParseUUIDPipe) id: string, @Request() req: { user: { id: string; role: string } }) {
+    return this.tramitesService.findOne(id, req.user);
   }
 
   /**

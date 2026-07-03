@@ -28,7 +28,8 @@ export class AuthService {
   async register(email: string, phone: string, password: string) {
     const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {
-      throw new BadRequestException('El correo electrónico ya está registrado');
+      // No revelar si el email existe — usar mensaje genérico
+      throw new BadRequestException('No se pudo completar el registro. Verifica tus datos o intenta con otro correo.');
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -138,6 +139,8 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {
+      // Hacer bcrypt.compare con hash dummy para evitar timing attack
+      await bcrypt.compare(password, '$2b$12$LJ3m4sMKfMgXkaGzMv3phe1234567890123456789012345678');
       throw new UnauthorizedException('Credenciales inválidas');
     }
 

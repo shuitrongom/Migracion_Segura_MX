@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -597,10 +597,23 @@ export class TramitesService {
   }
 
   /**
-   * Obtener un trámite por ID
+   * Obtener un trámite por ID (con ownership check para clientes)
    */
-  async findOne(id: string): Promise<Tramite> {
-    return this.findOneOrFail(id);
+  async findOne(id: string, user?: { id: string; role: string }): Promise<Tramite> {
+    const tramite = await this.findOneOrFail(id);
+
+    // Si es cliente, verificar que el trámite le pertenece
+    if (user && user.role === 'cliente') {
+      const clienteRow = await this.tramiteRepository.manager.query(
+        `SELECT id FROM clientes WHERE user_id = $1 AND id = $2 LIMIT 1`,
+        [user.id, tramite.clienteId],
+      );
+      if (!clienteRow?.length) {
+        throw new ForbiddenException('No tienes acceso a este trámite.');
+      }
+    }
+
+    return tramite;
   }
 
   // ─── Private helpers ───────────────────────────────────────────────

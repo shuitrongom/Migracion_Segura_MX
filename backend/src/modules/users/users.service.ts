@@ -67,6 +67,17 @@ export class UsersService {
     return this.userRepository.findOne({ where: { id } });
   }
 
+  /**
+   * Versión segura de findById que excluye campos sensibles.
+   * Usar en endpoints que retornan datos al cliente.
+   */
+  async findByIdSafe(id: string): Promise<Partial<User> | null> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) return null;
+    const { passwordHash, passwordResetToken, passwordResetExpiresAt, verificationCode, verificationCodeExpiresAt, twoFASecret, pendingEmailCode, pendingEmailExpiresAt, ...safe } = user;
+    return safe;
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { email } });
   }
