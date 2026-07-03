@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, BASE_URL } from '@/lib/api';
 import { storage } from '@/lib/storage';
 import { useTheme } from '@/lib/theme';
 
@@ -338,7 +338,7 @@ export default function EstatusScreen() {
                             formData.append('fechaVencimiento', vigencia);
 
                             const token = await storage.getItem('access_token');
-                            const res = await fetch('https://api.migracionseguramx.com/api/v1/documentos/upload', {
+                            const res = await fetch(`${BASE_URL}/documentos/upload`, {
                               method: 'POST',
                               headers: { Authorization: `Bearer ${token}` },
                               body: formData,
@@ -579,7 +579,7 @@ export default function EstatusScreen() {
                               const fileUri = FileSystem.documentDirectory + fileName;
 
                               // Intentar obtener signed URL primero
-                              let downloadUrl = `https://api.migracionseguramx.com/api/v1/solicitudes/${item.id}/documento`;
+                              let downloadUrl = `${BASE_URL}/solicitudes/${item.id}/documento`;
                               try {
                                 const res = await apiFetch(`/solicitudes/${item.id}/documento-url`);
                                 if (res.ok) {

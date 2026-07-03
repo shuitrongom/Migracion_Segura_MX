@@ -4,7 +4,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as DocumentPicker from 'expo-document-picker';
 import * as Clipboard from 'expo-clipboard';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, BASE_URL } from '@/lib/api';
 import { storage } from '@/lib/storage';
 import { useTheme } from '@/lib/theme';
 
@@ -102,7 +102,7 @@ export default function PagoTransferenciaScreen() {
       }
 
       const token = await storage.getItem('access_token');
-      const uploadRes = await fetch('https://api.migracionseguramx.com/api/v1/documentos/upload', {
+      const uploadRes = await fetch(`${BASE_URL}/documentos/upload`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,

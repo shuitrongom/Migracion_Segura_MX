@@ -22,6 +22,7 @@ import Svg, { Path, Circle } from 'react-native-svg';
 import PasswordInput from '@/components/PasswordInput';
 import PhoneInput from '@/components/PhoneInput';
 import { useTheme } from '@/lib/theme';
+import { BASE_URL } from '@/lib/api';
 
 const { width, height } = Dimensions.get('window');
 
@@ -82,7 +83,7 @@ export default function RegisterScreen() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        'https://api.migracionseguramx.com/api/v1/auth/register',
+        `${BASE_URL}/auth/register`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -120,7 +121,7 @@ export default function RegisterScreen() {
     setIsVerifying(true);
     try {
       const res = await fetch(
-        'https://api.migracionseguramx.com/api/v1/auth/verify',
+        `${BASE_URL}/auth/verify`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

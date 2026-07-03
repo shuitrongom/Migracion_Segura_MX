@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Location from 'expo-location';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, BASE_URL } from '@/lib/api';
 import { storage } from '@/lib/storage';
 import { useTheme } from '@/lib/theme';
 import DocumentUploadStep from '@/components/DocumentUploadStep';
@@ -184,7 +184,7 @@ export default function TramiteNuevoScreen() {
           formData.append('categoria', doc.label.toLowerCase().includes('pasaporte') ? 'pasaporte' : doc.label.toLowerCase().includes('residencia') ? 'identificacion' : 'comprobante');
           if (data.id) formData.append('tramiteId', data.id);
 
-          await fetch('https://api.migracionseguramx.com/api/v1/documentos/upload', {
+          await fetch(`${BASE_URL}/documentos/upload`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${token}` },
             body: formData,
@@ -200,7 +200,7 @@ export default function TramiteNuevoScreen() {
           formData.append('nombre', 'Pasaporte (escaneado)');
           formData.append('categoria', 'pasaporte');
           if (data.id) formData.append('tramiteId', data.id);
-          await fetch('https://api.migracionseguramx.com/api/v1/documentos/upload', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData });
+          await fetch(`${BASE_URL}/documentos/upload`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData });
         } catch {}
       }
 
@@ -212,7 +212,7 @@ export default function TramiteNuevoScreen() {
           formData.append('nombre', optDoc.tipo === 'comprobante_domicilio' ? 'Comprobante de domicilio' : 'INE / Tarjeta de residencia');
           formData.append('categoria', optDoc.tipo === 'comprobante_domicilio' ? 'comprobante' : 'identificacion');
           if (data.id) formData.append('tramiteId', data.id);
-          await fetch('https://api.migracionseguramx.com/api/v1/documentos/upload', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData });
+          await fetch(`${BASE_URL}/documentos/upload`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData });
         } catch {}
       }
 

@@ -13,6 +13,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 
 import { FinancieroService } from './financiero.service';
 import { MercadoPagoService } from './mercadopago.service';
@@ -33,6 +34,7 @@ export class FinancieroController {
     private readonly financieroService: FinancieroService,
     private readonly mercadoPagoService: MercadoPagoService,
     private readonly solicitudesService: SolicitudesService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
@@ -328,17 +330,15 @@ export class FinancieroController {
   @Roles(UserRole.CLIENTE, UserRole.ADMINISTRADOR, UserRole.ASESOR)
   @ApiOperation({ summary: 'Obtener datos bancarios para pago por transferencia' })
   getDatosBancarios() {
-    return {
-      titular: 'Edgar Colin Palacios',
-      cuentas: [
-        { banco: 'BBVA Bancomer', clabe: '012180015014946778', tarjeta: '4152 3141 9644 6655' },
-        { banco: 'Banamex', clabe: '002260701966403299', tarjeta: null },
-        { banco: 'Banco Azteca', clabe: '127420013084552477', tarjeta: null },
-        { banco: 'Mercado Pago', clabe: '722969017151083524', tarjeta: null },
-      ],
-      crypto: [
-        { red: 'Binance (USDT)', email: 'eddcoll87@gmail.com', wallet: '0x11dEf1053Dc4cB950681BcAd41db6b999F7Cb8b2' },
-      ],
-    };
+    const titular = this.configService.get<string>('DATOS_BANCARIOS_TITULAR', '');
+    const cuentasRaw = this.configService.get<string>('DATOS_BANCARIOS_CUENTAS', '[]');
+    const cryptoRaw = this.configService.get<string>('DATOS_BANCARIOS_CRYPTO', '[]');
+
+    let cuentas = [];
+    let crypto = [];
+    try { cuentas = JSON.parse(cuentasRaw); } catch { cuentas = []; }
+    try { crypto = JSON.parse(cryptoRaw); } catch { crypto = []; }
+
+    return { titular, cuentas, crypto };
   }
 }

@@ -1,28 +1,37 @@
 import { registerAs } from '@nestjs/config';
 
+// En producción, validar que las variables críticas existen
+function requireEnv(key: string, fallback?: string): string {
+  const value = process.env[key] || fallback;
+  if (!value && process.env.NODE_ENV === 'production') {
+    throw new Error(`Variable de entorno requerida en producción: ${key}`);
+  }
+  return value || '';
+}
+
 export const appConfig = registerAs('app', () => ({
   nodeEnv: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '3000', 10),
   apiPrefix: process.env.API_PREFIX || '/api/v1',
-  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3001',
+  frontendUrl: requireEnv('FRONTEND_URL', 'http://localhost:3001'),
 }));
 
 export const databaseConfig = registerAs('database', () => ({
-  host: process.env.DB_HOST || 'localhost',
+  host: requireEnv('DB_HOST', 'localhost'),
   port: parseInt(process.env.DB_PORT || '5432', 10),
-  name: process.env.DB_NAME || 'migracion_segura',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres_dev_password',
+  name: requireEnv('DB_NAME', 'migracion_segura'),
+  user: requireEnv('DB_USER', 'postgres'),
+  password: requireEnv('DB_PASSWORD'),
   ssl: process.env.DB_SSL === 'true',
 }));
 
 export const authConfig = registerAs('auth', () => ({
-  jwtSecret: process.env.JWT_SECRET || 'dev-secret-change-in-production',
-  jwtExpiration: process.env.JWT_EXPIRATION || '15m', // 15 minutos - seguridad empresarial
-  jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret',
-  jwtRefreshExpiration: process.env.JWT_REFRESH_EXPIRATION || '4h', // 4 horas - sesión corta
-  maxFailedAttempts: 5, // Bloqueo después de 5 intentos
-  lockDurationMinutes: 30, // Bloqueo por 30 minutos
+  jwtSecret: requireEnv('JWT_SECRET'),
+  jwtExpiration: process.env.JWT_EXPIRATION || '24h',
+  jwtRefreshSecret: requireEnv('JWT_REFRESH_SECRET'),
+  jwtRefreshExpiration: process.env.JWT_REFRESH_EXPIRATION || '7d',
+  maxFailedAttempts: 5,
+  lockDurationMinutes: 30,
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -37,11 +46,10 @@ export const authConfig = registerAs('auth', () => ({
 }));
 
 export const storageConfig = registerAs('storage', () => ({
-  // Proveedores: 'minio' (local), 'supabase' (año 1), 'r2' (año 1 alt), 's3' (año 2+)
   provider: process.env.STORAGE_PROVIDER || (process.env.NODE_ENV === 'production' ? 'supabase' : 'minio'),
   supabase: {
-    url: process.env.SUPABASE_URL,
-    serviceKey: process.env.SUPABASE_SERVICE_KEY,
+    url: requireEnv('SUPABASE_URL'),
+    serviceKey: requireEnv('SUPABASE_SERVICE_KEY'),
     bucket: process.env.SUPABASE_STORAGE_BUCKET || 'documentos',
   },
   r2: {

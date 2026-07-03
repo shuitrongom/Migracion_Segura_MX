@@ -7,7 +7,7 @@ import { useState, useRef, useEffect } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, BASE_URL } from '@/lib/api';
 import { useTheme } from '@/lib/theme';
 import { storage } from '@/lib/storage';
 import DocumentUploadStep from '@/components/DocumentUploadStep';
@@ -213,7 +213,7 @@ export default function SolicitudNuevaScreen() {
           formData.append('categoria', doc.label.toLowerCase().includes('pasaporte') ? 'pasaporte' : doc.label.toLowerCase().includes('residencia') ? 'identificacion' : 'comprobante');
           if (data.id) formData.append('tramiteId', data.id);
 
-          await fetch('https://api.migracionseguramx.com/api/v1/documentos/upload', {
+          await fetch(`${BASE_URL}/documentos/upload`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${token}` },
             body: formData,

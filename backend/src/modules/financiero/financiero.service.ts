@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThan, IsNull } from 'typeorm';
 
@@ -13,6 +13,8 @@ import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class FinancieroService {
+  private readonly logger = new Logger(FinancieroService.name);
+
   constructor(
     @InjectRepository(Pago)
     private readonly pagoRepository: Repository<Pago>,

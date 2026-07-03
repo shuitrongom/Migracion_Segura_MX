@@ -1,6 +1,7 @@
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
 import { storage } from './storage';
+import { BASE_URL } from './api';
 
 let GoogleSignin: any = null;
 let statusCodes: any = null;
@@ -46,7 +47,7 @@ export async function signInWithGoogle(): Promise<boolean> {
     const { id: googleId, email, name: fullName, photo: profilePhotoUrl } = userInfo.data.user;
 
     const res = await fetch(
-      'https://api.migracionseguramx.com/api/v1/auth/google',
+      `${BASE_URL}/auth/google`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

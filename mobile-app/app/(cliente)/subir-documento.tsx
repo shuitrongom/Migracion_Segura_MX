@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, BASE_URL } from '@/lib/api';
 import { storage } from '@/lib/storage';
 import { useTheme } from '@/lib/theme';
 
@@ -141,7 +141,7 @@ export default function SubirDocumentoScreen() {
         );
 
         // NO poner Content-Type manualmente — fetch lo pone automáticamente con el boundary
-        const res = await fetch('https://api.migracionseguramx.com/api/v1/documentos/upload', {
+        const res = await fetch(`${BASE_URL}/documentos/upload`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,

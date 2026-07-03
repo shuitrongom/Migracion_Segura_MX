@@ -6,6 +6,7 @@ import {
 import { useState, useEffect, useRef } from 'react';
 import { router } from 'expo-router';
 import { storage } from '@/lib/storage';
+import { BASE_URL } from '@/lib/api';
 import { signInWithGoogle } from '@/lib/google-auth';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Circle } from 'react-native-svg';
@@ -52,7 +53,7 @@ export default function LoginScreen() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        'https://api.migracionseguramx.com/api/v1/auth/login',
+        `${BASE_URL}/auth/login`,
         { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email.trim(), password }) },
       );
       const data = await response.json();

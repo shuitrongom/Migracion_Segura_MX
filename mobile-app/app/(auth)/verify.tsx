@@ -1,6 +1,7 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
+import { BASE_URL } from '@/lib/api';
 
 export default function VerifyScreen() {
   const { userId } = useLocalSearchParams<{ userId: string }>();
@@ -16,7 +17,7 @@ export default function VerifyScreen() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        'https://api.migracionseguramx.com/api/v1/auth/verify',
+        `${BASE_URL}/auth/verify`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
