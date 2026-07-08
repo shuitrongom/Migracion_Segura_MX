@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "727892370313-j2li5thkrll7l0aop4p5s6lmmnfibnqa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "mx.migracion_segura.app",
+            "certificate_hash": "166a58731cc0cd99ec55c67cfa24dd61bb1d03be"
+          }
+        },
+        {
           "client_id": "727892370313-usa00doh30jvi4vim5fbb96maaaqbobd.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
