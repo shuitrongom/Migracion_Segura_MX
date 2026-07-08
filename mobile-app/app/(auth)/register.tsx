@@ -70,8 +70,8 @@ export default function RegisterScreen() {
   const handleRegister = async () => {
     if (!fullName.trim()) { Alert.alert('Error', 'Ingresa tu nombre completo'); return; }
     if (!email.trim() || !email.includes('@')) { Alert.alert('Error', 'Ingresa un correo válido'); return; }
-    if (!phone || phone.replace(/\D/g, '').length < 12) {
-      Alert.alert('Error', 'Ingresa un número de WhatsApp válido');
+    if (!phone || phone.replace(/\D/g, '').length < 8) {
+      Alert.alert('Error', 'Ingresa tu número de WhatsApp');
       return;
     }
     if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
