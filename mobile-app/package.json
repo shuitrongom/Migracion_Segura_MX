@@ -10,12 +10,20 @@
     "ios": "expo start --ios",
     "web": "expo start --web"
   },
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": ["@react-native-ml-kit/text-recognition"]
+      }
+    }
+  },
   "dependencies": {
     "@react-native-community/datetimepicker": "8.4.4",
     "@react-native-google-signin/google-signin": "^16.1.2",
     "@react-native-ml-kit/text-recognition": "^2.0.0",
     "axios": "^1.7.0",
     "expo": "~54.0.35",
+    "expo-build-properties": "^57.0.3",
     "expo-camera": "~17.0.10",
     "expo-clipboard": "~8.0.8",
     "expo-constants": "~18.0.13",

@@ -28,7 +28,7 @@
         "NSPhotoLibraryAddUsageDescription": "Necesitamos guardar fotos de tus documentos en tu galería.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "5"
+      "buildNumber": "6"
     },
     "android": {
       "versionCode": 3,
@@ -61,6 +61,14 @@
     "plugins": [
       "expo-router",
       "@react-native-community/datetimepicker",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.1"
+          }
+        }
+      ],
       [
         "expo-notifications",
         {
