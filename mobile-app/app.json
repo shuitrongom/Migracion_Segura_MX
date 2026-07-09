@@ -28,7 +28,7 @@
         "NSPhotoLibraryAddUsageDescription": "Necesitamos guardar fotos de tus documentos en tu galería.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "6"
+      "buildNumber": "7"
     },
     "android": {
       "versionCode": 3,
@@ -65,7 +65,8 @@
         "expo-build-properties",
         {
           "ios": {
-            "deploymentTarget": "16.4"
+            "deploymentTarget": "16.4",
+            "useFrameworks": "static"
           }
         }
       ],
