@@ -25,14 +25,23 @@
     "production": {
       "cache": {
         "disabled": false,
-        "key": "production-android-v1"
+        "key": "production-v1"
       },
       "android": {
         "buildType": "app-bundle"
+      },
+      "ios": {
+        "autoIncrement": true
       }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "sergio.huitron1702@gmail.com",
+        "ascAppId": "6789283931",
+        "appleTeamId": "GB9XT2L3V5"
+      }
+    }
   }
 }
