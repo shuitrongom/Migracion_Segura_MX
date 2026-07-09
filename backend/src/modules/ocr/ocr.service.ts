@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-interface PassportOcrResult {
+export interface PassportOcrResult {
   success: boolean;
   data: {
     nombre: string;
