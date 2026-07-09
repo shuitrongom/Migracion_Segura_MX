@@ -24,11 +24,10 @@
         "NSPhotoLibraryUsageDescription": "Necesitamos acceso a tu galería para subir documentos.",
         "NSFaceIDUsageDescription": "Usamos Face ID para proteger tu información migratoria.",
         "NSLocationWhenInUseUsageDescription": "Necesitamos tu ubicación para mostrarte las oficinas del INM más cercanas.",
-        "NSContactsUsageDescription": "Acceso a contactos para facilitar el llenado de formularios.",
         "NSPhotoLibraryAddUsageDescription": "Necesitamos guardar fotos de tus documentos en tu galería.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "9"
+      "buildNumber": "10"
     },
     "android": {
       "versionCode": 3,
@@ -45,7 +44,6 @@
         "WRITE_EXTERNAL_STORAGE",
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
-        "READ_CONTACTS",
         "VIBRATE",
         "RECEIVE_BOOT_COMPLETED",
         "POST_NOTIFICATIONS",
