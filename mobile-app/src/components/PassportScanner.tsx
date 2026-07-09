@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Image } from 'react-native';
 import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import { TextRecognition } from '@infinitered/react-native-mlkit-text-recognition';
+import TextRecognition from '@react-native-ml-kit/text-recognition';
 import { parse as parseMRZ } from 'mrz';
 import { useTheme } from '@/lib/theme';
 

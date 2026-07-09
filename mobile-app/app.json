@@ -28,7 +28,7 @@
         "NSPhotoLibraryAddUsageDescription": "Necesitamos guardar fotos de tus documentos en tu galería.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "4"
+      "buildNumber": "5"
     },
     "android": {
       "versionCode": 3,
@@ -80,8 +80,7 @@
           "iosUrlScheme": "com.googleusercontent.apps.727892370313-hv7u63nnnir1pqa7qpbatdn1vc1pc1ll"
         }
       ],
-      "expo-localization",
-      "./plugins/withGoogleUtilitiesFix"
+      "expo-localization"
     ],
     "extra": {
       "router": {},
