@@ -5,7 +5,6 @@ const path = require('path');
 /**
  * Plugin to fix GoogleUtilities version conflict between
  * @react-native-google-signin (needs ~> 8.0) and react-native-mlkit (needs ~> 7.0)
- * Forces GoogleUtilities to use version 8.x which is backward compatible.
  */
 module.exports = function withGoogleUtilitiesFix(config) {
   return withDangerousMod(config, [
@@ -16,26 +15,20 @@ module.exports = function withGoogleUtilitiesFix(config) {
       if (fs.existsSync(podfilePath)) {
         let podfileContent = fs.readFileSync(podfilePath, 'utf8');
 
-        // Add pre_install hook to force GoogleUtilities version
-        const preInstallHook = `
-pre_install do |installer|
-  installer.pod_targets.each do |pod|
-    if pod.name == 'GoogleUtilities' || pod.name.start_with?('GoogleUtilities/')
-      def pod.build_type
-        Pod::BuildType.static_library
-      end
-    end
-  end
-end
-
-`;
-        // Add post_install modification to resolve version conflict
+        // Add pod 'GoogleUtilities' override at the end of the main target block, before the last 'end'
         if (!podfileContent.includes("pod 'GoogleUtilities'")) {
-          // Insert after 'use_react_native' or at the beginning of the target block
-          podfileContent = podfileContent.replace(
-            /use_react_native!/,
-            `use_react_native!\n\n  # Fix GoogleUtilities version conflict\n  pod 'GoogleUtilities', '~> 8.0'`
-          );
+          // Find the last 'end' in the file and insert before it
+          const lines = podfileContent.split('\n');
+          const targetLineIndex = lines.findIndex(line => line.match(/^\s*target\s+/));
+          
+          if (targetLineIndex !== -1) {
+            // Insert after the first line that contains 'use_expo_modules!'
+            const useExpoIndex = lines.findIndex(line => line.includes('use_expo_modules!'));
+            const insertIndex = useExpoIndex !== -1 ? useExpoIndex + 1 : targetLineIndex + 2;
+            
+            lines.splice(insertIndex, 0, "  pod 'GoogleUtilities', '~> 8.0'");
+            podfileContent = lines.join('\n');
+          }
 
           fs.writeFileSync(podfilePath, podfileContent);
         }
