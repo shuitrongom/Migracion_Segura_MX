@@ -30,6 +30,7 @@ import { EmailModule } from './modules/email/email.module';
 import { SolicitudesModule } from './modules/solicitudes/solicitudes.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { BeneficiariosModule } from './modules/beneficiarios/beneficiarios.module';
+import { OcrModule } from './modules/ocr/ocr.module';
 
 @Module({
   imports: [
@@ -104,6 +105,7 @@ import { BeneficiariosModule } from './modules/beneficiarios/beneficiarios.modul
     SolicitudesModule,
     ChatModule,
     BeneficiariosModule,
+    OcrModule,
   ],
   providers: [
     // Guard global: Rate Limiting
