@@ -3,7 +3,7 @@
     "name": "Migración Segura MX",
     "slug": "migracion-segura-mx",
     "owner": "adminmseg",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -27,10 +27,10 @@
         "NSPhotoLibraryAddUsageDescription": "Necesitamos guardar fotos de tus documentos en tu galería.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "10"
+      "buildNumber": "11"
     },
     "android": {
-      "versionCode": 3,
+      "versionCode": 4,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1a2332"
