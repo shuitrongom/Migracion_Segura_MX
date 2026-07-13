@@ -8,6 +8,7 @@ import { router } from 'expo-router';
 import { storage } from '@/lib/storage';
 import { BASE_URL } from '@/lib/api';
 import { signInWithGoogle } from '@/lib/google-auth';
+import { signInWithApple } from '@/lib/apple-auth';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { useTheme } from '@/lib/theme';
@@ -20,6 +21,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isAppleLoading, setIsAppleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
@@ -76,6 +78,12 @@ export default function LoginScreen() {
     setIsGoogleLoading(true);
     await signInWithGoogle();
     setIsGoogleLoading(false);
+  };
+
+  const handleAppleSignIn = async () => {
+    setIsAppleLoading(true);
+    await signInWithApple();
+    setIsAppleLoading(false);
   };
 
   // Colores dinámicos según tema
@@ -135,6 +143,19 @@ export default function LoginScreen() {
                   <Text style={styles.googleIcon}>G</Text>
                   <Text style={[styles.googleText, { color: colors.textSecondary }]}>{isGoogleLoading ? 'Conectando...' : 'Continuar con Google'}</Text>
                 </TouchableOpacity>
+
+                {/* Apple Sign-In button - solo iOS */}
+                {Platform.OS === 'ios' && (
+                  <TouchableOpacity
+                    style={[styles.appleButton, isAppleLoading && { opacity: 0.6 }]}
+                    onPress={handleAppleSignIn}
+                    disabled={isAppleLoading}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.appleIcon}></Text>
+                    <Text style={styles.appleText}>{isAppleLoading ? 'Conectando...' : 'Continuar con Apple'}</Text>
+                  </TouchableOpacity>
+                )}
 
                 {/* Divider */}
                 <View style={styles.divider}>
@@ -278,6 +299,15 @@ const styles = StyleSheet.create({
   },
   googleIcon: { fontSize: 18, fontWeight: '700', color: '#4285F4' },
   googleText: { fontSize: 15, fontWeight: '500' },
+
+  // Apple button
+  appleButton: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#000000',
+    borderRadius: 14, paddingVertical: 14, gap: 8, marginTop: 10,
+  },
+  appleIcon: { fontSize: 18, color: '#ffffff' },
+  appleText: { fontSize: 15, fontWeight: '500', color: '#ffffff' },
 
   // Divider
   divider: { flexDirection: 'row', alignItems: 'center', marginVertical: 20 },

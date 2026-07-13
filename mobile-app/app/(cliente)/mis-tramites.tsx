@@ -63,8 +63,8 @@ export default function MisTramitesScreen() {
       <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={StyleSheet.absoluteFill} />
 
       {/* Pop-up de bienvenida - Contactar asesor */}
-      <Modal visible={showWelcomePopup} animationType="fade" transparent>
-        <View style={styles.popupOverlay}>
+      <Modal visible={showWelcomePopup} animationType="fade" transparent statusBarTranslucent>
+        <TouchableOpacity style={styles.popupOverlay} activeOpacity={1} onPress={() => setShowWelcomePopup(false)}>
           <View style={[styles.popupCard, { backgroundColor: colors.bgModal }]}>
             <Text style={styles.popupEmoji}>💬</Text>
             <Text style={[styles.popupTitle, { color: colors.text }]}>¡Bienvenido a Migración Segura MX!</Text>
@@ -82,7 +82,7 @@ export default function MisTramitesScreen() {
               </LinearGradient>
             </TouchableOpacity>
           </View>
-        </View>
+        </TouchableOpacity>
       </Modal>
 
       <ScrollView showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#f59e0b" />}>
