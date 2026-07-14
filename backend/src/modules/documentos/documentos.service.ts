@@ -171,6 +171,21 @@ export class DocumentosService {
     // Auto-clasificar si no se proporcionó categoría
     const categoria = dto.categoria || this.autoClassify(file.mimetype, dto.tramiteId);
 
+    // Protección anti-duplicados: si ya existe un documento con el mismo nombre
+    // en el mismo expediente creado en los últimos 5 minutos, no crear otro
+    const cincoMinAtras = new Date(Date.now() - 5 * 60 * 1000);
+    const duplicado = await this.documentoRepository
+      .createQueryBuilder('doc')
+      .where('doc.expediente_id = :expedienteId', { expedienteId })
+      .andWhere('doc.nombre = :nombre', { nombre: dto.nombre })
+      .andWhere('doc.created_at > :desde', { desde: cincoMinAtras })
+      .getOne();
+
+    if (duplicado) {
+      this.logger.warn(`Documento duplicado detectado: "${dto.nombre}" en expediente ${expedienteId}. Retornando existente.`);
+      return duplicado;
+    }
+
     // Crear registro del documento
     const documento = this.documentoRepository.create({
       expedienteId: expedienteId,
