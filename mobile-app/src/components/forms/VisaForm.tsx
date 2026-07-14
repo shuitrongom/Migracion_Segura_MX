@@ -171,6 +171,7 @@ export default function VisaForm({ form, solicitante, updateForm, updateSolicita
       <Text style={styles.sectionTitle}>Correo electrónico para notificar al promovente</Text>
       <Field label="Correo electrónico *"><TextInput style={inputStyle} value={form.solicitanteEmail} onChangeText={(v) => updateForm('solicitanteEmail', v)} placeholder="nombre@correo.com" placeholderTextColor={placeholderColor} keyboardType="email-address" autoCapitalize="none" /></Field>
       <Field label="Correo electrónico (confirmación) *"><TextInput style={inputStyle} value={form.solicitanteEmailConfirmacion} onChangeText={(v) => updateForm('solicitanteEmailConfirmacion', v)} placeholder="Confirma tu correo" placeholderTextColor={placeholderColor} keyboardType="email-address" autoCapitalize="none" /></Field>
+      <Field label="Teléfono o WhatsApp *"><TextInput style={inputStyle} value={form.telefono} onChangeText={(v) => updateForm('telefono', v)} placeholder="+52 1 55 1234 5678" placeholderTextColor={placeholderColor} keyboardType="phone-pad" /></Field>
 
       {/* Persona autorizada */}
       <Text style={styles.sectionTitle}>En su caso, persona autorizada para tramitar, oír o recibir notificaciones</Text>
