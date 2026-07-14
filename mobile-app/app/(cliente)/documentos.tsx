@@ -33,15 +33,15 @@ export default function NotificacionesScreen() {
       ]);
       if (notifRes.ok) {
         const data = await notifRes.json();
-        const items = data.data || [];
-        setNotificaciones(items);
-        setUnreadCount(items.filter((n: any) => !n.leida).length);
+        const items = data.data || data || [];
+        setNotificaciones(Array.isArray(items) ? items : []);
+        setUnreadCount(Array.isArray(items) ? items.filter((n: any) => !n.leida).length : 0);
       }
       if (tramitesRes.ok) {
         const data = await tramitesRes.json();
-        const tramites = data.data || [];
+        const tramites = data.data || data || [];
         // Si tiene al menos 1 trámite que no sea borrador/cancelado/completado → puede subir docs
-        setHasTramiteActivo(tramites.some((t: any) =>
+        setHasTramiteActivo(Array.isArray(tramites) && tramites.some((t: any) =>
           !['borrador', 'cancelado', 'completado', 'rechazado'].includes(t.estatus)
         ));
       }
