@@ -209,6 +209,11 @@ function LoginForm() {
                   <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
                   <span className="text-[10px] text-green-400/60 font-medium">Sistema seguro</span>
                 </div>
+                <div className="flex items-center justify-center gap-3 mt-4">
+                  <a href="/politica-privacidad.html" target="_blank" className="text-[11px] text-white/40 hover:text-amber-400 transition-colors">Aviso de Privacidad</a>
+                  <span className="text-white/20">|</span>
+                  <a href="/terminos-condiciones.html" target="_blank" className="text-[11px] text-white/40 hover:text-amber-400 transition-colors">Términos y Condiciones</a>
+                </div>
               </div>
             </div>
           </div>
