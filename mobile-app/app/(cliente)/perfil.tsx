@@ -86,8 +86,11 @@ export default function ClientePerfilScreen() {
           <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.borderLight }]}>
             <Text style={[styles.menuText, { color: colors.text }]}>🔔 Notificaciones</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.borderLight }]} onPress={() => { const { Linking } = require('react-native'); Linking.openURL('https://migracionseguramx.com/privacidad'); }}>
+          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.borderLight }]} onPress={() => { const { Linking } = require('react-native'); Linking.openURL('https://migracionseguramx.com/terminos-condiciones.html'); }}>
             <Text style={[styles.menuText, { color: colors.text }]}>📋 Términos y condiciones</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.borderLight }]} onPress={() => { const { Linking } = require('react-native'); Linking.openURL('https://migracionseguramx.com/politica-privacidad.html'); }}>
+            <Text style={[styles.menuText, { color: colors.text }]}>🔒 Aviso de privacidad</Text>
           </TouchableOpacity>
         </View>
 

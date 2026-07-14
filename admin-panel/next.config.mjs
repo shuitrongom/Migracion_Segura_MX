@@ -15,6 +15,18 @@ const nextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/privacidad',
+        destination: '/politica-privacidad.html',
+      },
+      {
+        source: '/terminos',
+        destination: '/terminos-condiciones.html',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
