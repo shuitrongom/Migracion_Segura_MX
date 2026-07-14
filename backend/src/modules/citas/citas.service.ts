@@ -55,7 +55,7 @@ export class CitasService {
       if (cliente?.[0]?.user_id) {
         const tipoLabel = dto.tipo === 'inm' ? 'Cita en el INM' : 'Entrevista con tu Gestor';
         await this.notificacionesService.sendNotification({
-          destinatarioId: cliente[0].userId,
+          destinatarioId: cliente[0].user_id,
           tipo: TipoNotificacion.CITA_PROGRAMADA,
           canal: CanalNotificacion.PUSH,
           titulo: '📅 Cita agendada',
