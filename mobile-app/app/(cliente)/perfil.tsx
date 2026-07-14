@@ -83,9 +83,6 @@ export default function ClientePerfilScreen() {
               <Switch value={biometricOn} onValueChange={toggleBiometric} trackColor={{ true: '#f59e0b', false: '#333' }} thumbColor="#FFFFFF" />
             </View>
           )}
-          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.borderLight }]}>
-            <Text style={[styles.menuText, { color: colors.text }]}>🔔 Notificaciones</Text>
-          </TouchableOpacity>
           <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.borderLight }]} onPress={() => { const { Linking } = require('react-native'); Linking.openURL('https://migracionseguramx.com/terminos'); }}>
             <Text style={[styles.menuText, { color: colors.text }]}>📋 Términos y condiciones</Text>
           </TouchableOpacity>
