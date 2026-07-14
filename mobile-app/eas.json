@@ -28,7 +28,9 @@
         "key": "production-v1"
       },
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "app-bundle",
+        "enableProguardInReleaseBuilds": true,
+        "includeSourceMaps": true
       },
       "ios": {
         "autoIncrement": true
@@ -37,6 +39,10 @@
   },
   "submit": {
     "production": {
+      "android": {
+        "track": "production",
+        "releaseStatus": "draft"
+      },
       "ios": {
         "appleId": "sergio.huitron1702@gmail.com",
         "ascAppId": "6789283931",
