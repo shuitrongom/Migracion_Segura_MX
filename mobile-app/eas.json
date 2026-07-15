@@ -28,9 +28,7 @@
         "key": "production-v1"
       },
       "android": {
-        "buildType": "app-bundle",
-        "enableProguardInReleaseBuilds": true,
-        "includeSourceMaps": true
+        "buildType": "app-bundle"
       },
       "ios": {
         "autoIncrement": true
