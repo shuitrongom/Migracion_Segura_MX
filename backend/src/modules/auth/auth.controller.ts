@@ -155,4 +155,16 @@ export class AuthController {
   async changeAdminCredentials(@Request() req: any, @Body() dto: { newEmail?: string; newPassword?: string }) {
     return this.authService.changeAdminCredentials(req.user.id, dto);
   }
+
+  @Post('account/delete')
+  @ApiBearerAuth('access-token')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Eliminar cuenta del usuario (Guideline 5.1.1v Apple)' })
+  @ApiResponse({ status: 200, description: 'Cuenta eliminada exitosamente' })
+  async deleteAccount(
+    @Request() req: { user: { id: string } },
+    @Body() dto: { confirmacion: string },
+  ) {
+    return this.authService.deleteAccount(req.user.id, dto.confirmacion);
+  }
 }

@@ -57,6 +57,84 @@ export default function ClientePerfilScreen() {
     ]);
   };
 
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      '⚠️ Eliminar cuenta',
+      'Esta acción es PERMANENTE. Se eliminarán todos tus datos personales, documentos y trámites. No se puede deshacer.\n\n¿Estás seguro de que deseas eliminar tu cuenta?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Sí, eliminar',
+          style: 'destructive',
+          onPress: () => {
+            Alert.prompt
+              ? Alert.prompt(
+                  'Confirmar eliminación',
+                  'Escribe "ELIMINAR MI CUENTA" para confirmar:',
+                  async (text) => {
+                    if (text !== 'ELIMINAR MI CUENTA') {
+                      Alert.alert('Error', 'El texto no coincide. La cuenta NO fue eliminada.');
+                      return;
+                    }
+                    try {
+                      const res = await apiFetch('/auth/account/delete', {
+                        method: 'POST',
+                        body: JSON.stringify({ confirmacion: 'ELIMINAR MI CUENTA' }),
+                      });
+                      if (res.ok) {
+                        await storage.deleteItem('access_token');
+                        await storage.deleteItem('user_data');
+                        Alert.alert('Cuenta eliminada', 'Tu cuenta y datos han sido eliminados.', [
+                          { text: 'OK', onPress: () => router.replace('/(auth)/login') },
+                        ]);
+                      } else {
+                        const err = await res.json().catch(() => ({}));
+                        Alert.alert('Error', err.message || 'No se pudo eliminar la cuenta.');
+                      }
+                    } catch {
+                      Alert.alert('Error', 'Error de conexión. Intenta de nuevo.');
+                    }
+                  },
+                  'plain-text',
+                )
+              : // Android no tiene Alert.prompt, usar confirmación directa
+                Alert.alert(
+                  'Última confirmación',
+                  '¿Realmente deseas ELIMINAR tu cuenta de forma permanente? Esta acción no se puede deshacer.',
+                  [
+                    { text: 'No, cancelar', style: 'cancel' },
+                    {
+                      text: 'Sí, eliminar permanentemente',
+                      style: 'destructive',
+                      onPress: async () => {
+                        try {
+                          const res = await apiFetch('/auth/account/delete', {
+                            method: 'POST',
+                            body: JSON.stringify({ confirmacion: 'ELIMINAR MI CUENTA' }),
+                          });
+                          if (res.ok) {
+                            await storage.deleteItem('access_token');
+                            await storage.deleteItem('user_data');
+                            Alert.alert('Cuenta eliminada', 'Tu cuenta y datos han sido eliminados.', [
+                              { text: 'OK', onPress: () => router.replace('/(auth)/login') },
+                            ]);
+                          } else {
+                            const err = await res.json().catch(() => ({}));
+                            Alert.alert('Error', err.message || 'No se pudo eliminar la cuenta.');
+                          }
+                        } catch {
+                          Alert.alert('Error', 'Error de conexión. Intenta de nuevo.');
+                        }
+                      },
+                    },
+                  ],
+                );
+          },
+        },
+      ],
+    );
+  };
+
   return (
     <LinearGradient colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]} style={{ flex: 1 }}>
       <Animated.ScrollView style={[styles.container, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]} contentContainerStyle={{ paddingTop: 56 }}>
@@ -95,7 +173,11 @@ export default function ClientePerfilScreen() {
           <Text style={styles.logoutText}>Cerrar sesión</Text>
         </TouchableOpacity>
 
-        <Text style={[styles.version, { color: colors.textMuted }]}>Migración Segura MX v1.1.0</Text>
+        <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAccount}>
+          <Text style={styles.deleteText}>Eliminar mi cuenta</Text>
+        </TouchableOpacity>
+
+        <Text style={[styles.version, { color: colors.textMuted }]}>Migración Segura MX v1.1.2</Text>
       </Animated.ScrollView>
     </LinearGradient>
   );
@@ -113,5 +195,7 @@ const styles = StyleSheet.create({
   menuText: { fontSize: 15, fontWeight: '500' },
   logoutButton: { backgroundColor: 'rgba(128,128,128,0.06)', borderRadius: 12, padding: 16, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(231,76,60,0.4)' },
   logoutText: { color: '#E74C3C', fontSize: 15, fontWeight: '600' },
+  deleteButton: { backgroundColor: 'rgba(128,128,128,0.03)', borderRadius: 12, padding: 14, alignItems: 'center', marginTop: 12, borderWidth: 1, borderColor: 'rgba(128,128,128,0.15)' },
+  deleteText: { color: '#9CA3AF', fontSize: 13, fontWeight: '500' },
   version: { textAlign: 'center', fontSize: 12, marginTop: 20, marginBottom: 40 },
 });

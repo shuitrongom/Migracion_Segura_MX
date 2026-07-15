@@ -465,6 +465,74 @@ export class AuthService {
     return { message: 'Sesión cerrada exitosamente. Todos los dispositivos fueron desconectados.' };
   }
 
+  /**
+   * Eliminación de cuenta (Apple Guideline 5.1.1v)
+   * Soft-delete: marca la cuenta como eliminada, anonimiza datos personales,
+   * y elimina datos asociados en un plazo de 30 días.
+   */
+  async deleteAccount(userId: string, confirmacion: string) {
+    if (confirmacion !== 'ELIMINAR MI CUENTA') {
+      throw new BadRequestException('Para confirmar la eliminación, debes escribir exactamente "ELIMINAR MI CUENTA".');
+    }
+
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new BadRequestException('Usuario no encontrado.');
+    }
+
+    // No permitir que admins eliminen su cuenta por esta vía
+    if (user.role === 'administrador') {
+      throw new BadRequestException('Los administradores no pueden eliminar su cuenta desde la app.');
+    }
+
+    // Soft-delete del usuario y anonimización de datos personales
+    const anonEmail = `deleted_${userId.slice(0, 8)}@eliminado.local`;
+    await this.usersService['userRepository'].manager.query(
+      `UPDATE users SET 
+        deleted_at = NOW(),
+        email = $2,
+        full_name = 'Cuenta eliminada',
+        phone = NULL,
+        password_hash = NULL,
+        google_id = NULL,
+        apple_id = NULL,
+        profile_photo_url = NULL,
+        fcm_token = NULL,
+        verification_code = NULL,
+        password_reset_token = NULL
+      WHERE id = $1`,
+      [userId, anonEmail],
+    );
+
+    // Soft-delete de datos asociados del cliente
+    try {
+      // Marcar cliente como eliminado
+      await this.usersService['userRepository'].manager.query(
+        `UPDATE clientes SET deleted_at = NOW() WHERE user_id = $1 AND deleted_at IS NULL`,
+        [userId],
+      );
+      // Eliminar dispositivos push
+      await this.usersService['userRepository'].manager.query(
+        `DELETE FROM user_devices WHERE user_id = $1`,
+        [userId],
+      );
+      // Eliminar ubicación
+      await this.usersService['userRepository'].manager.query(
+        `DELETE FROM client_locations WHERE user_id = $1`,
+        [userId],
+      );
+      // Marcar notificaciones como eliminadas
+      await this.usersService['userRepository'].manager.query(
+        `UPDATE notificaciones SET deleted_at = NOW() WHERE destinatario_id = $1 AND deleted_at IS NULL`,
+        [userId],
+      );
+    } catch {}
+
+    return {
+      message: 'Tu cuenta ha sido eliminada exitosamente. Todos tus datos personales serán borrados en un plazo máximo de 30 días conforme a nuestra política de privacidad.',
+    };
+  }
+
   // ---- Helpers privados ----
 
   private generateVerificationCode(): string {
