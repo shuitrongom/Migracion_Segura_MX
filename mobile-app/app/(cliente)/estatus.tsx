@@ -580,11 +580,15 @@ export default function EstatusScreen() {
 
                               // Intentar obtener signed URL primero
                               let downloadUrl = `${BASE_URL}/solicitudes/${item.id}/documento`;
+                              let useAuthHeader = true;
                               try {
                                 const res = await apiFetch(`/solicitudes/${item.id}/documento-url`);
                                 if (res.ok) {
                                   const data = await res.json();
-                                  if (data.url) downloadUrl = data.url;
+                                  if (data.url) {
+                                    downloadUrl = data.url;
+                                    useAuthHeader = false; // Signed URL no necesita auth header
+                                  }
                                 }
                               } catch {}
 
@@ -592,7 +596,7 @@ export default function EstatusScreen() {
                               const downloadResult = await FileSystem.downloadAsync(
                                 downloadUrl,
                                 fileUri,
-                                { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+                                useAuthHeader && token ? { headers: { Authorization: `Bearer ${token}` } } : {}
                               );
 
                               if (downloadResult.status === 200) {
@@ -607,9 +611,10 @@ export default function EstatusScreen() {
                                   Alert.alert('✅ PDF descargado', `Tu solicitud fue guardada como: ${fileName}`);
                                 }
                               } else {
-                                Alert.alert('Error', 'No se pudo descargar el PDF. Verifica tu conexión e intenta de nuevo.');
+                                Alert.alert('Error', `No se pudo descargar el PDF (${downloadResult.status}). Verifica tu conexión e intenta de nuevo.`);
                               }
-                            } catch (err) {
+                            } catch (err: any) {
+                              console.error('[PDF] Download error:', err.message);
                               Alert.alert('Error', 'No se pudo descargar el PDF. Intenta de nuevo más tarde.');
                             }
                           } else {
