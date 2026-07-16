@@ -177,19 +177,20 @@ export class SolicitudesController {
    * Obtener URL de descarga del PDF (signed URL temporal)
    */
   @Get(':id/documento-url')
-  @ApiOperation({ summary: 'Obtener URL temporal para descargar PDF de la solicitud' })
+  @ApiOperation({ summary: 'Obtener URL para descargar PDF de la solicitud' })
   @ApiParam({ name: 'id', description: 'UUID de la solicitud' })
-  async getDocumentoUrl(@Param('id', ParseUUIDPipe) id: string) {
+  async getDocumentoUrl(@Param('id', ParseUUIDPipe) id: string, @Request() req: any) {
     const solicitud = await this.solicitudesService.findOneOrFail(id);
 
     if (!solicitud.documentoUrl) {
       throw new NotFoundException('Esta solicitud aún no tiene documento PDF');
     }
 
-    console.log(`[PDF Download] Solicitud ${id} → documentoUrl: ${solicitud.documentoUrl}`);
-    const signedUrl = await this.storageService.getSignedUrl(solicitud.documentoUrl, 3600);
-    console.log(`[PDF Download] Signed URL generada: ${signedUrl.slice(0, 80)}...`);
-    return { url: signedUrl, expiresIn: 3600 };
+    // Retornar la URL del proxy del backend (más confiable que signed URL en mobile)
+    const baseUrl = `https://api.migracionseguramx.com/api/v1`;
+    const proxyUrl = `${baseUrl}/solicitudes/${id}/documento`;
+    console.log(`[PDF Download] Retornando proxy URL: ${proxyUrl}`);
+    return { url: proxyUrl, expiresIn: 3600, proxy: true };
   }
 
   /**
