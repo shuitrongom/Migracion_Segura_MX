@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, Request, ParseUUIDPipe, UseInterceptors, UploadedFile, Res, NotFoundException, StreamableFile } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Query, Request, ParseUUIDPipe, UseInterceptors, UseGuards, UploadedFile, Res, NotFoundException, StreamableFile } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiParam } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
@@ -7,6 +7,7 @@ import { SolicitudesService } from './solicitudes.service';
 import { CreateSolicitudDto } from './dto/create-solicitud.dto';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Public } from '../../common/decorators/public.decorator';
+import { IdempotencyGuard } from '../../common/guards/idempotency.guard';
 import { UserRole } from '../../common/enums';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { StorageService } from '../../common/services/storage.service';
@@ -24,6 +25,7 @@ export class SolicitudesController {
    * Extranjero crea una nueva solicitud
    */
   @Post()
+  @UseGuards(IdempotencyGuard)
   @Roles(UserRole.CLIENTE)
   @ApiOperation({ summary: 'Crear solicitud de generación (extranjero)' })
   create(@Body() dto: CreateSolicitudDto, @Request() req: any) {
@@ -227,6 +229,7 @@ export class SolicitudesController {
    * Cliente sube voucher de transferencia para solicitud
    */
   @Post(':id/voucher')
+  @UseGuards(IdempotencyGuard)
   @Roles(UserRole.CLIENTE, UserRole.ADMINISTRADOR, UserRole.ASESOR)
   @ApiOperation({ summary: 'Registrar voucher de transferencia para solicitud' })
   @ApiParam({ name: 'id', description: 'UUID de la solicitud' })

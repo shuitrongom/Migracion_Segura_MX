@@ -9,6 +9,7 @@ import {
   Query,
   Request,
   ParseUUIDPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 
@@ -24,6 +25,7 @@ import {
 import { ConsultaPiezaDto } from './dto/consulta-pieza.dto';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Public } from '../../common/decorators/public.decorator';
+import { IdempotencyGuard } from '../../common/guards/idempotency.guard';
 import { UserRole, TipoTramite } from '../../common/enums';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 
@@ -36,6 +38,7 @@ export class TramitesController {
    * Req 3.1, 3.5, 3.7 - Crear nuevo trámite
    */
   @Post()
+  @UseGuards(IdempotencyGuard)
   @ApiBearerAuth()
   @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR, UserRole.CLIENTE)
   @ApiOperation({ summary: 'Crear nuevo trámite migratorio' })

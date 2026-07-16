@@ -11,6 +11,7 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
@@ -23,6 +24,7 @@ import { CreatePagoDto } from './dto/create-pago.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Public } from '../../common/decorators/public.decorator';
+import { IdempotencyGuard } from '../../common/guards/idempotency.guard';
 import { UserRole, TipoNotificacion, CanalNotificacion } from '../../common/enums';
 
 @ApiTags('Financiero')
@@ -49,6 +51,7 @@ export class FinancieroController {
    * ÚNICA operación donde el admin define el monto — al momento de asignar costo al trámite.
    */
   @Post('pagos/generar-dividido')
+  @UseGuards(IdempotencyGuard)
   @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
   @ApiOperation({ summary: 'Generar pagos divididos (1 a 4 parcialidades) con link de Mercado Pago' })
   generarPagosDivididos(
@@ -274,6 +277,7 @@ export class FinancieroController {
    * Requiere: pagoId, montoDeclarado, voucherUrl (ya subido a storage)
    */
   @Post('pagos/:pagoId/voucher')
+  @UseGuards(IdempotencyGuard)
   @Roles(UserRole.CLIENTE, UserRole.ADMINISTRADOR, UserRole.ASESOR)
   @ApiOperation({ summary: 'Registrar pago por transferencia con voucher' })
   @ApiParam({ name: 'pagoId', description: 'UUID del pago' })
@@ -327,6 +331,7 @@ export class FinancieroController {
    * Hace todo en un solo paso: registra el voucher y lo aprueba inmediatamente.
    */
   @Post('pagos/:pagoId/confirmar-pago-admin')
+  @UseGuards(IdempotencyGuard)
   @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
   @ApiOperation({ summary: 'Admin confirma pago por transferencia/OXXO directamente' })
   @ApiParam({ name: 'pagoId', description: 'UUID del pago' })
