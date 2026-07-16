@@ -139,38 +139,37 @@ export class SolicitudesController {
     @Param('id', ParseUUIDPipe) id: string,
     @Res() res: Response,
   ) {
-    const solicitud = await this.solicitudesService.findOneOrFail(id);
-
-    if (!solicitud.documentoUrl) {
-      throw new NotFoundException('Esta solicitud aún no tiene documento PDF');
+    let solicitud: any;
+    try {
+      solicitud = await this.solicitudesService.findOneOrFail(id);
+    } catch {
+      res.status(404).json({ message: 'Solicitud no encontrada' });
+      return;
     }
 
-    console.log(`[PDF Proxy] Descargando desde storage: ${solicitud.documentoUrl}`);
+    if (!solicitud.documentoUrl) {
+      res.status(404).json({ message: 'Esta solicitud aún no tiene documento PDF' });
+      return;
+    }
+
+    console.log(`[PDF Proxy] Solicitud ${id} → storage key: ${solicitud.documentoUrl}`);
 
     try {
-      // Descargar del storage
       const buffer = await this.storageService.download(solicitud.documentoUrl);
       const fileName = `solicitud-${solicitud.numeroPieza || id}.pdf`;
 
-      console.log(`[PDF Proxy] OK - enviando ${buffer.length} bytes al cliente`);
+      console.log(`[PDF Proxy] ✅ Enviando ${buffer.length} bytes`);
 
       res.set({
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename="${fileName}"`,
+        'Content-Disposition': `attachment; filename="${fileName}"`,
         'Content-Length': buffer.length.toString(),
+        'Cache-Control': 'no-cache',
       });
-      res.send(buffer);
+      res.end(buffer);
     } catch (error: any) {
-      console.error(`[PDF Proxy] Error descargando: ${error.message}`);
-      // Si falla el download directo, intentar generar signed URL y redirigir
-      try {
-        const signedUrl = await this.storageService.getSignedUrl(solicitud.documentoUrl, 3600);
-        console.log(`[PDF Proxy] Redirect a signed URL: ${signedUrl.slice(0, 80)}...`);
-        res.redirect(signedUrl);
-      } catch (err2: any) {
-        console.error(`[PDF Proxy] Signed URL también falló: ${err2.message}`);
-        throw new NotFoundException('No se pudo obtener el documento PDF');
-      }
+      console.error(`[PDF Proxy] ❌ Error storage.download: ${error.message}`);
+      res.status(500).json({ message: 'No se pudo descargar el PDF del almacenamiento' });
     }
   }
 
