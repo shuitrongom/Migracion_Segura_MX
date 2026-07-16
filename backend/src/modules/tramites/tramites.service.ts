@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -24,6 +24,8 @@ import { TipoNotificacion, CanalNotificacion } from '../../common/enums';
 
 @Injectable()
 export class TramitesService {
+  private readonly logger = new Logger(TramitesService.name);
+
   constructor(
     @InjectRepository(Tramite)
     private readonly tramiteRepository: Repository<Tramite>,
@@ -93,10 +95,12 @@ export class TramitesService {
             }
           }
         }
-      } catch {
-        // Si falla la consulta, continuar sin modificar clienteId
+      } catch (err: any) {
+        this.logger.warn(`[Tramite] Error buscando/creando cliente: ${err.message}`);
       }
     }
+
+    this.logger.log(`[Tramite] Creando tramite tipo=${dto.tipo} clienteId=${clienteId} esBorrador=${esBorrador}`);
 
     const tramite = this.tramiteRepository.create({
       clienteId,

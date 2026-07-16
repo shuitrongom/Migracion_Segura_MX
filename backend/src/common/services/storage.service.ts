@@ -250,7 +250,15 @@ export class StorageService {
    * Descarga un archivo del almacenamiento.
    */
   async download(key: string): Promise<Buffer> {
-    return this.provider.download(key);
+    this.logger.log(`[Storage] Downloading: ${key}`);
+    try {
+      const buffer = await this.provider.download(key);
+      this.logger.log(`[Storage] Downloaded OK: ${key} (${buffer.length} bytes)`);
+      return buffer;
+    } catch (error: any) {
+      this.logger.error(`[Storage] Download FAILED: ${key} → ${error.message}`);
+      throw error;
+    }
   }
 
   /**
@@ -265,7 +273,15 @@ export class StorageService {
    * Genera una URL firmada para acceso temporal al archivo.
    */
   async getSignedUrl(key: string, expiresInSeconds = 3600): Promise<string> {
-    return this.provider.getSignedUrl(key, expiresInSeconds);
+    this.logger.log(`[Storage] Generating signed URL: ${key}`);
+    try {
+      const url = await this.provider.getSignedUrl(key, expiresInSeconds);
+      this.logger.log(`[Storage] Signed URL OK: ${key} → ${url.slice(0, 60)}...`);
+      return url;
+    } catch (error: any) {
+      this.logger.error(`[Storage] Signed URL FAILED: ${key} → ${error.message}`);
+      throw error;
+    }
   }
 
   /**

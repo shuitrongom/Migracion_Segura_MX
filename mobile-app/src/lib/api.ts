@@ -37,14 +37,26 @@ async function refreshAccessToken(): Promise<boolean> {
 export async function apiFetch(path: string, options?: RequestInit): Promise<Response> {
   const token = await storage.getItem('access_token');
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options?.headers,
+      },
+    });
+  } catch (networkError: any) {
+    console.error(`[API] ❌ Network error on ${options?.method || 'GET'} ${path}:`, networkError.message);
+    throw networkError;
+  }
+
+  // Log errores del servidor (4xx, 5xx) para diagnóstico
+  if (!res.ok && res.status !== 401) {
+    const errorBody = await res.clone().text().catch(() => '');
+    console.warn(`[API] ⚠️ ${res.status} ${options?.method || 'GET'} ${path}${errorBody ? ' → ' + errorBody.slice(0, 200) : ''}`);
+  }
 
   // Si el token expiró, intentar refresh
   if (res.status === 401) {

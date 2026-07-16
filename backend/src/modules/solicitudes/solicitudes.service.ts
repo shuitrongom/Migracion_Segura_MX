@@ -28,6 +28,7 @@ export class SolicitudesService {
    * Extranjero crea una solicitud con sus datos
    */
   async create(dto: CreateSolicitudDto, userId: string): Promise<Solicitud> {
+    this.logger.log(`[Solicitud] Creando: tipo=${dto.tipoTramite} userId=${userId} clienteId=${dto.clienteId || 'auto'}`);
     // Buscar o crear clienteId
     let clienteId = dto.clienteId;
     if (!clienteId) {

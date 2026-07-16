@@ -491,6 +491,7 @@ export class FinancieroService {
     metodoPago: string;
     userId: string;
   }): Promise<Pago> {
+    this.logger.log(`[Voucher] Registrando: pagoId=${params.pagoId} monto=${params.montoDeclarado} método=${params.metodoPago} userId=${params.userId}`);
     // Normalizar tipos — el cliente puede enviar string desde la app
     const montoDeclarado = Number(params.montoDeclarado);
     const voucherUrl = String(params.voucherUrl || '').trim();
