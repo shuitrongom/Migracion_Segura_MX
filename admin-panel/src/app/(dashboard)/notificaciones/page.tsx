@@ -71,7 +71,19 @@ export default function NotificacionesPage() {
               <div
                 key={notif.id}
                 className={`flex items-start gap-4 p-5 hover:bg-[#1a1a1a] transition-colors cursor-pointer ${!notif.leida ? 'bg-amber-500/[0.04] border-l-4 border-l-amber-500' : ''}`}
-                onClick={() => { if (!notif.leida) markRead.mutate(notif.id); }}
+                onClick={() => {
+                  if (!notif.leida) markRead.mutate(notif.id);
+                  // Navegar al recurso relevante
+                  if (notif.metadata?.clienteId) {
+                    window.location.href = `/clientes/${notif.metadata.clienteId}`;
+                  } else if (notif.metadata?.tramiteId) {
+                    window.location.href = `/tramites`;
+                  } else if (notif.metadata?.solicitudId) {
+                    window.location.href = `/solicitudes`;
+                  } else if (notif.metadata?.pagoId) {
+                    window.location.href = `/financiero`;
+                  }
+                }}
               >
                 <div className={`p-2.5 rounded-xl shrink-0 ${!notif.leida ? 'bg-amber-500/10' : 'bg-[#222222]'}`}>
                   <Bell className={`h-4 w-4 ${!notif.leida ? 'text-amber-500' : 'text-white/70'}`} />

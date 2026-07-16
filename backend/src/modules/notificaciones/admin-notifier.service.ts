@@ -66,48 +66,48 @@ export class AdminNotifierService {
   // Métodos específicos por evento
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async nuevoTramite(nombre: string, tipo: string, tramiteId: string) {
+  async nuevoTramite(nombre: string, tipo: string, tramiteId: string, clienteId?: string) {
     await this.notify({
       titulo: '📄 Nuevo trámite recibido',
       contenido: `${nombre} inició un trámite de ${tipo.replace(/_/g, ' ')}.`,
       tipo: TipoNotificacion.CAMBIO_ESTATUS,
-      metadata: { tramiteId, nombre, tipo },
+      metadata: { tramiteId, clienteId: clienteId || '', nombre, tipo },
     });
   }
 
-  async nuevaSolicitud(nombre: string, tipo: string, solicitudId: string) {
+  async nuevaSolicitud(nombre: string, tipo: string, solicitudId: string, clienteId?: string) {
     await this.notify({
       titulo: '📝 Nueva solicitud recibida',
       contenido: `${nombre} envió una solicitud de ${tipo.replace(/_/g, ' ')}. Costo: $100 MXN.`,
       tipo: TipoNotificacion.CAMBIO_ESTATUS,
-      metadata: { solicitudId, nombre, tipo },
+      metadata: { solicitudId, clienteId: clienteId || '', nombre, tipo },
     });
   }
 
-  async pagoConfirmado(monto: number, metodo: string, tramiteId: string) {
+  async pagoConfirmado(monto: number, metodo: string, tramiteId: string, clienteId?: string) {
     await this.notify({
       titulo: '💰 Pago confirmado',
       contenido: `Se confirmó un pago de $${monto} MXN. Método: ${metodo}.`,
       tipo: TipoNotificacion.PAGO_CONFIRMADO,
-      metadata: { tramiteId, monto: monto.toString(), metodo },
+      metadata: { tramiteId, clienteId: clienteId || '', monto: monto.toString(), metodo },
     });
   }
 
-  async voucherSubido(monto: number, metodo: string, pagoId: string) {
+  async voucherSubido(monto: number, metodo: string, pagoId: string, clienteId?: string) {
     await this.notify({
       titulo: '🧾 Voucher pendiente de revisión',
       contenido: `Se subió un comprobante de $${monto} MXN (${metodo}). Revisa y aprueba o rechaza.`,
       tipo: TipoNotificacion.PAGO_PENDIENTE,
-      metadata: { pagoId, monto: monto.toString() },
+      metadata: { pagoId, clienteId: clienteId || '', monto: monto.toString() },
     });
   }
 
-  async documentoSubido(nombre: string, categoria: string, tramiteId?: string) {
+  async documentoSubido(nombre: string, categoria: string, tramiteId?: string, clienteId?: string) {
     await this.notify({
       titulo: '📎 Documento subido',
       contenido: `Se subió el documento "${nombre}" (${categoria}).`,
       tipo: TipoNotificacion.CAMBIO_ESTATUS,
-      metadata: { tramiteId: tramiteId || '', nombre, categoria },
+      metadata: { tramiteId: tramiteId || '', clienteId: clienteId || '', nombre, categoria },
     });
   }
 
