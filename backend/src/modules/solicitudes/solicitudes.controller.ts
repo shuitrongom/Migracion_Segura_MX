@@ -6,6 +6,7 @@ import { Response } from 'express';
 import { SolicitudesService } from './solicitudes.service';
 import { CreateSolicitudDto } from './dto/create-solicitud.dto';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { Public } from '../../common/decorators/public.decorator';
 import { UserRole } from '../../common/enums';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { StorageService } from '../../common/services/storage.service';
@@ -130,8 +131,11 @@ export class SolicitudesController {
   }
 
   /**
-   * Descargar/ver el PDF de la solicitud (extranjero o admin)
+   * Descargar/ver el PDF de la solicitud.
+   * Endpoint público protegido por UUID (no adivinable) + token temporal opcional.
+   * Permite descarga desde apps móviles sin problemas de headers.
    */
+  @Public()
   @Get(':id/documento')
   @ApiOperation({ summary: 'Descargar PDF de la solicitud' })
   @ApiParam({ name: 'id', description: 'UUID de la solicitud' })
@@ -164,7 +168,7 @@ export class SolicitudesController {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${fileName}"`,
         'Content-Length': buffer.length.toString(),
-        'Cache-Control': 'no-cache',
+        'Cache-Control': 'no-cache, no-store',
       });
       res.end(buffer);
     } catch (error: any) {
@@ -174,19 +178,20 @@ export class SolicitudesController {
   }
 
   /**
-   * Obtener URL de descarga del PDF (signed URL temporal)
+   * Obtener URL de descarga del PDF.
+   * Público — retorna la URL del proxy interno para máxima compatibilidad con apps móviles.
    */
+  @Public()
   @Get(':id/documento-url')
   @ApiOperation({ summary: 'Obtener URL para descargar PDF de la solicitud' })
   @ApiParam({ name: 'id', description: 'UUID de la solicitud' })
-  async getDocumentoUrl(@Param('id', ParseUUIDPipe) id: string, @Request() req: any) {
+  async getDocumentoUrl(@Param('id', ParseUUIDPipe) id: string) {
     const solicitud = await this.solicitudesService.findOneOrFail(id);
 
     if (!solicitud.documentoUrl) {
       throw new NotFoundException('Esta solicitud aún no tiene documento PDF');
     }
 
-    // Retornar la URL del proxy del backend (más confiable que signed URL en mobile)
     const baseUrl = `https://api.migracionseguramx.com/api/v1`;
     const proxyUrl = `${baseUrl}/solicitudes/${id}/documento`;
     console.log(`[PDF Download] Retornando proxy URL: ${proxyUrl}`);
