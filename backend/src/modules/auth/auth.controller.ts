@@ -32,7 +32,7 @@ export class AuthController {
 
   @Post('register')
   @Public()
-  @Throttle({ default: { ttl: 60000, limit: 5 } })
+  @Throttle({ default: { ttl: 60000, limit: 3 } })
   @ApiOperation({ summary: 'Registrar nuevo cliente (Req 1.1)' })
   @ApiResponse({ status: 201, description: 'Usuario registrado. Código de verificación enviado.' })
   @ApiResponse({ status: 400, description: 'Datos inválidos o email ya registrado' })
@@ -60,7 +60,7 @@ export class AuthController {
 
   @Post('login')
   @Public()
-  @Throttle({ default: { ttl: 60000, limit: 5 } })
+  @Throttle({ default: { ttl: 60000, limit: 5 }, long: { ttl: 300000, limit: 15 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Iniciar sesión con email y contraseña (Req 1.5)' })
   @ApiResponse({ status: 200, description: 'Login exitoso' })
@@ -94,7 +94,7 @@ export class AuthController {
 
   @Post('password/reset-request')
   @Public()
-  @Throttle({ default: { ttl: 60000, limit: 3 } })
+  @Throttle({ default: { ttl: 60000, limit: 2 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Solicitar recuperación de contraseña (Req 1.8)' })
   async requestPasswordReset(@Body() dto: RequestPasswordResetDto) {
