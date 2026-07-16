@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
  * las variables de entorno en Railway o actualizando via el endpoint PATCH.
  */
 
-interface AppRemoteConfig {
+export interface AppRemoteConfig {
   // Control de versiones
   android: {
     minVersion: string;       // Versión mínima requerida (fuerza actualización)
@@ -90,7 +90,7 @@ export class ConfigRemoteService {
       maintenance: {
         enabled: this.configService.get<string>('APP_MAINTENANCE_ENABLED', 'false') === 'true',
         message: this.configService.get<string>('APP_MAINTENANCE_MESSAGE', 'Estamos realizando mejoras. Volvemos pronto.'),
-        estimatedEnd: this.configService.get<string>('APP_MAINTENANCE_END', null) || null,
+        estimatedEnd: this.configService.get<string>('APP_MAINTENANCE_END', '') || null,
       },
       announcement: {
         enabled: this.configService.get<string>('APP_ANNOUNCEMENT_ENABLED', 'false') === 'true',

@@ -1,13 +1,21 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import * as admin from 'firebase-admin';
+
+import { UserDevice } from './entities/user-device.entity';
 
 @Injectable()
 export class PushService implements OnModuleInit {
   private readonly logger = new Logger(PushService.name);
   private initialized = false;
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    @InjectRepository(UserDevice)
+    private readonly deviceRepository: Repository<UserDevice>,
+  ) {}
 
   onModuleInit() {
     const projectId = this.configService.get<string>('FIREBASE_PROJECT_ID');
@@ -124,9 +132,10 @@ export class PushService implements OnModuleInit {
           const details = responseData.data.details || {};
           this.logger.error(`[Expo Push] Error en ticket: ${errorMsg} | Token: ${token.slice(0, 35)}... | Details: ${JSON.stringify(details)}`);
 
-          // Si el dispositivo ya no está registrado, logear para limpieza
+          // Si el dispositivo ya no está registrado, eliminar token automáticamente
           if (details?.error === 'DeviceNotRegistered' || errorMsg.includes('not registered')) {
-            this.logger.warn(`[Expo Push] Token expirado/inválido detectado: ${token.slice(0, 35)}... — requiere limpieza`);
+            this.logger.warn(`[Expo Push] Token expirado — eliminando: ${token.slice(0, 35)}...`);
+            this.removeExpiredToken(token).catch(() => {});
           }
           return false;
         }
@@ -139,6 +148,21 @@ export class PushService implements OnModuleInit {
     } catch (error: any) {
       this.logger.error(`[Expo Push] ❌ Exception: ${error.message}`);
       return false;
+    }
+  }
+
+  /**
+   * Elimina un token push expirado/inválido de la base de datos.
+   * Se llama automáticamente cuando Expo reporta DeviceNotRegistered.
+   */
+  private async removeExpiredToken(token: string): Promise<void> {
+    try {
+      const result = await this.deviceRepository.delete({ pushToken: token });
+      if (result.affected && result.affected > 0) {
+        this.logger.log(`[Push Cleanup] Token eliminado de BD: ${token.slice(0, 35)}...`);
+      }
+    } catch (err: any) {
+      this.logger.error(`[Push Cleanup] Error eliminando token: ${err.message}`);
     }
   }
 }

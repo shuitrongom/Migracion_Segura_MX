@@ -8,6 +8,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { SanitizeInterceptor } from './common/interceptors/sanitize.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -19,6 +20,9 @@ async function bootstrap() {
 
   // Filtro global de excepciones (loguea errores 500 y warnings 400)
   app.useGlobalFilters(new AllExceptionsFilter());
+
+  // Sanitización global de inputs (previene XSS)
+  app.useGlobalInterceptors(new SanitizeInterceptor());
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 3000);

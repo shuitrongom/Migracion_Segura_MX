@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { reportError } from '@/lib/telemetry';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -10,6 +11,7 @@ interface ErrorBoundaryState {
 /**
  * Error Boundary Global — Captura crashes de React y muestra pantalla de recuperación.
  * Evita que la app se cierre abruptamente por errores de renderizado.
+ * Reporta automáticamente al backend via telemetría.
  */
 export default class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -26,7 +28,12 @@ export default class ErrorBoundary extends React.Component<
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('[ErrorBoundary] App crash captured:', error.message);
-    console.error('[ErrorBoundary] Component stack:', errorInfo.componentStack);
+    // Reportar al backend automáticamente
+    reportError(
+      `CRASH: ${error.message}`,
+      errorInfo.componentStack?.slice(0, 200) || 'unknown',
+      { stack: error.stack?.slice(0, 500) },
+    );
   }
 
   handleReset = () => {
