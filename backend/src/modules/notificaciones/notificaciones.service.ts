@@ -58,6 +58,10 @@ export class NotificacionesService {
           [input.destinatarioId],
         );
 
+        if (!tokenRecords || tokenRecords.length === 0) {
+          this.logger.warn(`[Push] No se encontraron tokens para user_id: ${input.destinatarioId}. Notificación guardada pero no enviada por push.`);
+        }
+
         let anySent = false;
         for (const record of tokenRecords || []) {
           if (record?.push_token) {

@@ -111,6 +111,7 @@ export class FinancieroService {
         const cliente = await this.pagoRepository.manager.query(
           `SELECT user_id FROM clientes WHERE id = $1`, [params.clienteId]
         );
+        this.logger.log(`[Push Pago] clienteId: ${params.clienteId} → user_id: ${cliente?.[0]?.user_id || 'NO ENCONTRADO'}`);
         if (cliente?.[0]?.user_id) {
           await this.notificacionesService.sendNotification({
             destinatarioId: cliente[0].user_id,
@@ -121,9 +122,13 @@ export class FinancieroService {
               ? `Se generó un pago de $${montos[0]} MXN para tu trámite. Tienes 15 días para realizarlo.`
               : `Se generó el pago 1 de ${numPagos} por $${montos[0]} MXN. Total del trámite: $${params.montoTotal} MXN.`,
             metadata: { tramiteId: params.tramiteId, monto: montos[0].toString(), totalPagos: numPagos.toString() },
-          }).catch(() => {});
+          }).catch((err) => this.logger.error(`[Push Pago] Error enviando notificación: ${err.message}`));
+        } else {
+          this.logger.warn(`[Push Pago] No se encontró user_id para clienteId: ${params.clienteId}. No se envía push.`);
         }
-      } catch {}
+      } catch (err: any) {
+        this.logger.error(`[Push Pago] Error general: ${err.message}`);
+      }
     }
 
     return { pagos: pagosCreados };
