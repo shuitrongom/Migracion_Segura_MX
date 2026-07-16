@@ -180,7 +180,9 @@ export class SolicitudesController {
       throw new NotFoundException('Esta solicitud aún no tiene documento PDF');
     }
 
+    console.log(`[PDF Download] Solicitud ${id} → documentoUrl: ${solicitud.documentoUrl}`);
     const signedUrl = await this.storageService.getSignedUrl(solicitud.documentoUrl, 3600);
+    console.log(`[PDF Download] Signed URL generada: ${signedUrl.slice(0, 80)}...`);
     return { url: signedUrl, expiresIn: 3600 };
   }
 
