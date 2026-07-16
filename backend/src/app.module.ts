@@ -31,6 +31,7 @@ import { SolicitudesModule } from './modules/solicitudes/solicitudes.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { BeneficiariosModule } from './modules/beneficiarios/beneficiarios.module';
 import { OcrModule } from './modules/ocr/ocr.module';
+import { ConfigRemoteModule } from './modules/config-remote/config-remote.module';
 
 @Module({
   imports: [
@@ -106,6 +107,7 @@ import { OcrModule } from './modules/ocr/ocr.module';
     ChatModule,
     BeneficiariosModule,
     OcrModule,
+    ConfigRemoteModule,
   ],
   providers: [
     // Guard global: Rate Limiting

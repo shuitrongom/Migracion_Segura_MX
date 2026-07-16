@@ -5,6 +5,8 @@ import { Linking, AppState } from 'react-native';
 import { router } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import BiometricLock from '@/components/BiometricLock';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import AppGate from '@/components/AppGate';
 import { registerForPushNotifications, resetBadgeCount, addNotificationResponseListener } from '@/lib/notifications';
 import { useTheme } from '@/lib/theme';
 
@@ -68,10 +70,14 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <SafeAreaProvider>
-      <BiometricLock>
-        <Stack screenOptions={{ headerShown: false }} />
-      </BiometricLock>
-    </SafeAreaProvider>
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <AppGate>
+          <BiometricLock>
+            <Stack screenOptions={{ headerShown: false }} />
+          </BiometricLock>
+        </AppGate>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }
