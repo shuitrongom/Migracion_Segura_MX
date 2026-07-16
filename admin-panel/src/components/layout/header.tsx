@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { Bell, User, LogOut, Menu } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth.store';
 import { useRouter } from 'next/navigation';
@@ -12,6 +13,7 @@ export function Header() {
   const { user, logout } = useAuthStore();
   const router = useRouter();
   const toggleSidebar = useSidebarStore((s) => s.toggle);
+  const prevCountRef = useRef<number>(0);
 
   const { data: unreadCount } = useQuery({
     queryKey: ['notifications', 'unread-count'],
@@ -22,6 +24,52 @@ export function Header() {
     refetchInterval: 30000,
     staleTime: 10000,
   });
+
+  // Reproducir sonido cuando llega una nueva notificación
+  useEffect(() => {
+    if (typeof unreadCount === 'number' && unreadCount > prevCountRef.current && prevCountRef.current >= 0) {
+      playNotificationSound();
+    }
+    if (typeof unreadCount === 'number') {
+      prevCountRef.current = unreadCount;
+    }
+  }, [unreadCount]);
+
+  const playNotificationSound = () => {
+    try {
+      // Usar Web Audio API para generar un tono de notificación
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      oscillator.frequency.value = 880; // La nota A5
+      oscillator.type = 'sine';
+      gainNode.gain.value = 0.3;
+
+      oscillator.start();
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+      oscillator.stop(ctx.currentTime + 0.3);
+
+      // Segundo tono (ding-dong)
+      setTimeout(() => {
+        try {
+          const osc2 = ctx.createOscillator();
+          const gain2 = ctx.createGain();
+          osc2.connect(gain2);
+          gain2.connect(ctx.destination);
+          osc2.frequency.value = 1174; // D6
+          osc2.type = 'sine';
+          gain2.gain.value = 0.2;
+          osc2.start();
+          gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+          osc2.stop(ctx.currentTime + 0.4);
+        } catch {}
+      }, 150);
+    } catch {}
+  };
 
   const handleLogout = () => {
     logout();
