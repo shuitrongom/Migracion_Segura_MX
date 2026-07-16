@@ -578,29 +578,16 @@ export default function EstatusScreen() {
                               const fileName = `solicitud_${item.numeroPieza || item.id.slice(0, 8)}.pdf`;
                               const fileUri = FileSystem.documentDirectory + fileName;
 
-                              // Intentar obtener signed URL primero
-                              let downloadUrl = `${BASE_URL}/solicitudes/${item.id}/documento`;
-                              let useAuthHeader = true;
-                              try {
-                                const res = await apiFetch(`/solicitudes/${item.id}/documento-url`);
-                                if (res.ok) {
-                                  const data = await res.json();
-                                  if (data.url) {
-                                    downloadUrl = data.url;
-                                    useAuthHeader = false; // Signed URL no necesita auth header
-                                  }
-                                }
-                              } catch {}
+                              // Descargar directamente desde el backend (hace proxy a Supabase)
+                              const downloadUrl = `${BASE_URL}/solicitudes/${item.id}/documento`;
 
-                              // Descargar al dispositivo
                               const downloadResult = await FileSystem.downloadAsync(
                                 downloadUrl,
                                 fileUri,
-                                useAuthHeader && token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+                                { headers: token ? { Authorization: `Bearer ${token}` } : {} }
                               );
 
                               if (downloadResult.status === 200) {
-                                // Compartir/guardar el archivo
                                 if (await Sharing.isAvailableAsync()) {
                                   await Sharing.shareAsync(downloadResult.uri, {
                                     mimeType: 'application/pdf',
@@ -611,11 +598,11 @@ export default function EstatusScreen() {
                                   Alert.alert('✅ PDF descargado', `Tu solicitud fue guardada como: ${fileName}`);
                                 }
                               } else {
-                                Alert.alert('Error', `No se pudo descargar el PDF (${downloadResult.status}). Verifica tu conexión e intenta de nuevo.`);
+                                Alert.alert('Error', `No se pudo descargar el PDF (código ${downloadResult.status}). Intenta de nuevo.`);
                               }
                             } catch (err: any) {
                               console.error('[PDF] Download error:', err.message);
-                              Alert.alert('Error', 'No se pudo descargar el PDF. Intenta de nuevo más tarde.');
+                              Alert.alert('Error', 'No se pudo descargar el PDF. Verifica tu conexión e intenta de nuevo.');
                             }
                           } else {
                             Alert.alert('PDF no disponible', 'Tu solicitud aún no tiene documento adjunto. Recibirás una notificación cuando esté listo.');

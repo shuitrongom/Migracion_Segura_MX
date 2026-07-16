@@ -145,10 +145,14 @@ export class SolicitudesController {
       throw new NotFoundException('Esta solicitud aún no tiene documento PDF');
     }
 
+    console.log(`[PDF Proxy] Descargando desde storage: ${solicitud.documentoUrl}`);
+
     try {
       // Descargar del storage
       const buffer = await this.storageService.download(solicitud.documentoUrl);
       const fileName = `solicitud-${solicitud.numeroPieza || id}.pdf`;
+
+      console.log(`[PDF Proxy] OK - enviando ${buffer.length} bytes al cliente`);
 
       res.set({
         'Content-Type': 'application/pdf',
@@ -156,12 +160,15 @@ export class SolicitudesController {
         'Content-Length': buffer.length.toString(),
       });
       res.send(buffer);
-    } catch (error) {
-      // Si falla el download directo, intentar generar signed URL
+    } catch (error: any) {
+      console.error(`[PDF Proxy] Error descargando: ${error.message}`);
+      // Si falla el download directo, intentar generar signed URL y redirigir
       try {
         const signedUrl = await this.storageService.getSignedUrl(solicitud.documentoUrl, 3600);
+        console.log(`[PDF Proxy] Redirect a signed URL: ${signedUrl.slice(0, 80)}...`);
         res.redirect(signedUrl);
-      } catch {
+      } catch (err2: any) {
+        console.error(`[PDF Proxy] Signed URL también falló: ${err2.message}`);
         throw new NotFoundException('No se pudo obtener el documento PDF');
       }
     }

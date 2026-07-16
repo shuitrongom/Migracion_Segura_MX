@@ -175,11 +175,20 @@ class SupabaseProvider implements StorageProvider {
     });
 
     if (!response.ok) {
+      const errText = await response.text().catch(() => '');
+      console.log(`[Storage] getSignedUrl failed (${response.status}): ${errText}`);
       return `${this.supabaseUrl}/storage/v1/object/public/${this.bucket}/${key}`;
     }
 
     const data = await response.json();
-    return `${this.supabaseUrl}/storage/v1${data.signedURL}`;
+    console.log(`[Storage] Supabase sign response:`, JSON.stringify(data));
+    // Supabase puede devolver signedURL o signedUrl dependiendo de la versión
+    const signedPath = data.signedURL || data.signedUrl || data.signed_url;
+    if (!signedPath) {
+      console.log(`[Storage] No signedURL in response, using public URL`);
+      return `${this.supabaseUrl}/storage/v1/object/public/${this.bucket}/${key}`;
+    }
+    return `${this.supabaseUrl}/storage/v1${signedPath}`;
   }
 }
 
