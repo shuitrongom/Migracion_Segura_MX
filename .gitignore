@@ -61,3 +61,5 @@ mobile-app/android/app/build/
 .cache/
 tmp/
 temp/
+
+tsconfig.tsbuildinfo
