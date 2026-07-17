@@ -166,7 +166,18 @@ export class DocumentosController {
     @Request() req: { user: { id: string; role: string } },
     @Res({ passthrough: true }) res: Response,
   ): Promise<StreamableFile> {
-    const { buffer, documento } = await this.documentosService.download(id);
+    let buffer: Buffer;
+    let documento: any;
+
+    try {
+      const result = await this.documentosService.download(id);
+      buffer = result.buffer;
+      documento = result.documento;
+    } catch (err: any) {
+      console.error(`[Documentos] ❌ Error descargando ${id}: ${err.message}`);
+      res.status(500).json({ message: 'No se pudo descargar el documento. El archivo puede estar corrupto o no disponible.' });
+      return undefined as any;
+    }
 
     // Ownership check: si es CLIENTE, verificar que el documento le pertenece
     if (req.user.role === 'cliente') {

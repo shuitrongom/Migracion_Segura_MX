@@ -788,7 +788,14 @@ export default function ClienteDetailPage() {
                           <button
                             onClick={async () => {
                               try {
-                                const res = await api.get(`/documentos/${doc.id}/download`, { responseType: 'blob' });
+                                // Si el ID tiene prefijo sol-, es un PDF de solicitud
+                                const isSolicitud = doc.id.startsWith('sol-');
+                                const realId = isSolicitud ? doc.id.replace('sol-', '') : doc.id;
+                                const endpoint = isSolicitud
+                                  ? `/solicitudes/${realId}/documento`
+                                  : `/documentos/${realId}/download`;
+
+                                const res = await api.get(endpoint, { responseType: 'blob' });
                                 const contentType = String(res.headers['content-type'] || 'application/pdf');
                                 const blob = new Blob([res.data], { type: contentType });
                                 const url = URL.createObjectURL(blob);
