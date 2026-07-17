@@ -835,281 +835,9 @@ export default function NuevoTramitePage() {
           />
         )}
 
-        {/* Step 2: Solicitud INM — ficha de datos + iframe lado a lado */}
+        {/* Step 2: Solicitud INM — rendered as fullscreen overlay outside this card */}
         {step === 2 && selectedTramite && (
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <FileText className="h-5 w-5 text-amber-500" />
-              <h2 className="text-lg font-semibold text-white">Llenar Solicitud en el INM</h2>
-            </div>
-            <div className="bg-amber-500/[0.06] border border-amber-500/20 rounded-lg p-3 mb-4">
-              <p className="text-sm text-blue-800">Usa la ficha de la izquierda como referencia para llenar el formulario del INM a la derecha. Haz clic en cualquier dato para copiarlo.</p>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ height: '620px' }}>
-              {/* Ficha de datos (izquierda) */}
-              <div className="lg:col-span-1 overflow-y-auto border rounded-lg p-4 bg-[#1a1a1a]">
-                <h4 className="text-xs font-semibold text-white/70 uppercase mb-3">Ficha del Extranjero</h4>
-                <div className="space-y-4">
-                  {/* Propósito de viaje */}
-                  {extranjero.propositoViaje && (
-                    <div>
-                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Propósito de viaje</p>
-                      <button type="button" onClick={() => copyToClipboard(extranjero.propositoViaje)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#3a3a3a] transition-all group">
-                        <div className="flex items-center justify-between"><p className="text-sm text-white">{extranjero.propositoViaje}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
-                      </button>
-                      {extranjero.especificaTramite && (
-                      <button type="button" onClick={() => copyToClipboard(extranjero.especificaTramite)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#3a3a3a] transition-all group mt-1">
-                        <p className="text-[10px] text-white/70">Especifica</p>
-                        <div className="flex items-center justify-between"><p className="text-sm text-white">{extranjero.especificaTramite}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
-                      </button>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Datos del extranjero */}
-                  {(extranjero.nombre || extranjero.apellidos) && (
-                    <div>
-                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Datos del extranjero</p>
-                      <div className="space-y-1">
-                        {[
-                          { label: 'CURP', value: extranjero.curpExtranjero },
-                          { label: 'Nombre(s)', value: extranjero.nombre },
-                          { label: 'Apellido(s)', value: extranjero.apellidos },
-                          { label: 'Sexo', value: extranjero.sexo === 'H' ? 'Hombre' : extranjero.sexo === 'M' ? 'Mujer' : '' },
-                          { label: 'Fecha nacimiento', value: formatDateDisplay(extranjero.fechaNacimiento) },
-                          { label: 'Nacionalidad', value: extranjero.nacionalidad },
-                          { label: 'Estado civil', value: extranjero.estadoCivil },
-                        ].filter(item => item.value).map(item => (
-                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#3a3a3a] transition-all group">
-                            <p className="text-[10px] text-white/70">{item.label}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Lugar de nacimiento */}
-                  {(extranjero.paisNacimiento || extranjero.estadoProvinciaNacimiento) && (
-                    <div>
-                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Lugar de nacimiento</p>
-                      <div className="space-y-1">
-                        {[
-                          { label: 'País', value: extranjero.paisNacimiento },
-                          { label: 'Estado/Provincia', value: extranjero.estadoProvinciaNacimiento },
-                        ].filter(item => item.value).map(item => (
-                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#3a3a3a] transition-all group">
-                            <p className="text-[10px] text-white/70">{item.label}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Pasaporte */}
-                  {(extranjero.documentoIdentificacion || extranjero.numeroDocumento) && (
-                    <div>
-                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Pasaporte / Documento</p>
-                      <div className="space-y-1">
-                        {[
-                          { label: 'Documento', value: extranjero.documentoIdentificacion },
-                          { label: 'Número', value: extranjero.numeroDocumento },
-                          { label: 'País expedición', value: extranjero.paisExpedicion },
-                          { label: 'Expedición', value: formatDateDisplay(extranjero.fechaExpedicion) },
-                          { label: 'Vencimiento', value: formatDateDisplay(extranjero.fechaVencimiento) },
-                        ].filter(item => item.value).map(item => (
-                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#3a3a3a] transition-all group">
-                            <p className="text-[10px] text-white/70">{item.label}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Domicilio en México */}
-                  {extranjero.domCodigoPostal && (
-                    <div>
-                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Domicilio en México</p>
-                      <div className="space-y-1">
-                        {[
-                          { label: 'Código postal', value: extranjero.domCodigoPostal },
-                          { label: 'Estado', value: extranjero.domEstado },
-                          { label: 'Municipio/Alcaldía', value: extranjero.domMunicipio },
-                          { label: 'Colonia', value: extranjero.domColonia },
-                          { label: 'Calle', value: extranjero.domCalle },
-                          { label: 'Número exterior', value: extranjero.domNumeroExterior },
-                          { label: 'Número interior', value: extranjero.domNumeroInterior },
-                        ].filter(item => item.value).map(item => (
-                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#3a3a3a] transition-all group">
-                            <p className="text-[10px] text-white/70">{item.label}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Información adicional */}
-                  {(extranjero.actividadPrincipal || extranjero.expulsadoMexico) && (
-                    <div>
-                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Información adicional</p>
-                      <div className="space-y-1">
-                        {[
-                          { label: 'Actividad principal', value: extranjero.actividadPrincipal },
-                          ...(extranjero.actividadPrincipal === 'Trabajar' ? [
-                            { label: 'Sector trabajo', value: extranjero.sectorTrabajo },
-                            { label: 'Situación trabajo', value: extranjero.situacionTrabajo },
-                            { label: 'Ocupación', value: extranjero.ocupacionTrabajo },
-                          ] : []),
-                          { label: 'Expulsado de México', value: extranjero.expulsadoMexico },
-                          { label: 'Antecedentes penales', value: extranjero.antecedentesPenales },
-                        ].filter(item => item.value).map(item => (
-                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#3a3a3a] transition-all group">
-                            <p className="text-[10px] text-white/70">{item.label}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Contacto */}
-                  {(extranjero.telefono || extranjero.solicitanteEmail) && (
-                    <div>
-                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Correo electrónico</p>
-                      <div className="space-y-1">
-                        {[
-                          { label: 'Teléfono', value: extranjero.telefono },
-                          { label: 'Email', value: extranjero.solicitanteEmail },
-                        ].filter(item => item.value).map(item => (
-                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#3a3a3a] transition-all group">
-                            <p className="text-[10px] text-white/70">{item.label}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Visas */}
-                  {visas.length > 0 && (
-                    <div>
-                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Visas del extranjero</p>
-                      <div className="space-y-1">
-                        {visas.map((v, i) => (
-                          <button key={i} type="button" onClick={() => copyToClipboard(`${v.pais} - ${v.numero}`)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#3a3a3a] transition-all group">
-                            <p className="text-[10px] text-white/70">Visa {i + 1}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{v.pais} {v.numero && `- ${v.numero}`} {v.vencimiento && `(${formatDateDisplay(v.vencimiento)})`}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Solicitante */}
-                  {solicitante.tipoPersona && (
-                    <div>
-                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Solicitante</p>
-                      <div className="space-y-1">
-                        {[
-                          { label: 'Tipo persona', value: solicitante.tipoPersona },
-                          ...(solicitante.tipoPersona === 'Física' ? [
-                            { label: 'CURP', value: solicitante.curp },
-                            { label: 'RFC', value: solicitante.rfc },
-                            { label: 'Nombre(s)', value: solicitante.nombre },
-                            { label: 'Apellido(s)', value: solicitante.apellidos },
-                            { label: 'Nacionalidad', value: solicitante.nacionalidad },
-                            { label: 'Documento', value: solicitante.tipoDocumento },
-                            { label: 'Nº documento', value: solicitante.numeroDocumento },
-                            { label: 'Vínculo/Parentesco', value: solicitante.vinculoParentesco },
-                            { label: 'Código postal', value: solicitante.codigoPostal },
-                            { label: 'Estado', value: solicitante.estado },
-                            { label: 'Municipio', value: solicitante.municipio },
-                            { label: 'Colonia', value: solicitante.colonia },
-                            { label: 'Calle', value: solicitante.calle },
-                            { label: 'Nº exterior', value: solicitante.numeroExterior },
-                            { label: 'Nº interior', value: solicitante.numeroInterior },
-                            { label: 'Lada', value: solicitante.lada },
-                            { label: 'Teléfono fijo', value: solicitante.telefonoFijo },
-                          ] : [
-                            { label: 'RFC', value: solicitante.moralRfc },
-                            { label: 'Razón social', value: solicitante.moralRazonSocial },
-                            { label: 'Sector', value: solicitante.moralSector },
-                            { label: 'Giro comercial', value: solicitante.moralGiroComercial },
-                            { label: 'Código postal', value: solicitante.moralCodigoPostal },
-                            { label: 'Estado', value: solicitante.moralEstado },
-                            { label: 'Municipio', value: solicitante.moralMunicipio },
-                            { label: 'Colonia', value: solicitante.moralColonia },
-                            { label: 'Calle', value: solicitante.moralCalle },
-                            { label: 'Nº exterior', value: solicitante.moralNumeroExterior },
-                            { label: 'Nº interior', value: solicitante.moralNumeroInterior },
-                            { label: 'Lada', value: solicitante.moralLada },
-                            { label: 'Teléfono fijo', value: solicitante.moralTelefonoFijo },
-                            { label: 'Nº acta constitutiva', value: solicitante.moralNumeroActa },
-                            { label: 'Fecha acta', value: formatDateDisplay(solicitante.moralFechaActa) },
-                          ]),
-                        ].filter(item => item.value).map(item => (
-                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#3a3a3a] transition-all group">
-                            <p className="text-[10px] text-white/70">{item.label}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Personas autorizadas */}
-                  {personasAutorizadas.length > 0 && (
-                    <div>
-                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-brand-200 pb-1 mb-2">Personas autorizadas</p>
-                      <div className="space-y-1">
-                        {personasAutorizadas.map((p, i) => (
-                          <button key={i} type="button" onClick={() => copyToClipboard(`${p.nombre} ${p.apellidos}`)} className="w-full text-left p-1.5 rounded hover:bg-[#171717] border border-transparent hover:border-[#3a3a3a] transition-all group">
-                            <p className="text-[10px] text-white/70">Persona {i + 1}</p>
-                            <div className="flex items-center justify-between"><p className="text-sm text-white">{p.nombre} {p.apellidos} ({p.nacionalidad})</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              {/* Iframe del INM (derecha) */}
-              <div className="lg:col-span-2 border rounded-lg overflow-hidden">
-                <iframe src={selectedTramite.urlSolicitud} className="w-full h-full" title="Formulario INM" />
-              </div>
-            </div>
-            <div className="flex items-center gap-2 mt-3 text-sm text-white/70">
-              <ExternalLink className="h-4 w-4" />
-              <a href={selectedTramite.urlSolicitud} target="_blank" rel="noopener noreferrer" className="text-amber-500 hover:text-amber-400 font-medium">Abrir en nueva pestaña</a>
-            </div>
-
-            {/* Campos de pieza y clave debajo del iframe */}
-            <div className="mt-6 pt-6 border-t">
-              <div className="bg-amber-500/10 border border-amber-200 rounded-lg p-4 mb-4">
-                <p className="text-sm text-amber-800"><strong>Al finalizar la solicitud en el INM:</strong> Copia aquí el número de pieza y la clave que te muestra. Luego haz clic en &quot;Imprimir ahora&quot;, guarda el PDF en tu dispositivo y súbelo abajo.</p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-                <div>
-                  <label className="block text-xs font-semibold text-amber-200/70 mb-1 uppercase tracking-wide">Número de Pieza *</label>
-                  <input type="text" value={numeroPieza} onChange={e => setNumeroPieza(e.target.value)} className="w-full px-3 py-2 border border-[#3a3a3a] rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Ej: 0000011969016" />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-amber-200/70 mb-1 uppercase tracking-wide">Clave *</label>
-                  <input type="text" value={contrasenaINM} onChange={e => setContrasenaINM(e.target.value.toUpperCase())} className="w-full px-3 py-2 border border-[#3a3a3a] rounded-lg text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Ej: QFCSA" />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-amber-200/70 mb-1 uppercase tracking-wide">PDF Solicitud generada por el INM</label>
-                  <label className="flex items-center gap-2 px-3 py-2 border border-[#3a3a3a] rounded-lg text-sm text-white/70 hover:bg-[#1a1a1a] cursor-pointer">
-                    <Upload className="h-4 w-4" />{pdfFile ? pdfFile.name : 'Seleccionar PDF...'}
-                    <input type="file" accept=".pdf" onChange={e => setPdfFile(e.target.files?.[0] || null)} className="hidden" />
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div className="hidden" />
         )}
 
         {/* Step 3: Requisitos */}
@@ -1222,8 +950,313 @@ export default function NuevoTramitePage() {
         )}
       </div>
 
-      {/* Navigation - ocultar en paso 0 */}
-      {step > 0 && (
+      {/* Step 2: Fullscreen overlay — Solicitud INM */}
+      {step === 2 && selectedTramite && (
+        <div className="fixed inset-0 z-50 bg-[#0a0a0a] flex flex-col">
+          {/* Top bar */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a2a] bg-[#111111] flex-shrink-0">
+            <div className="flex items-center gap-3">
+              <button type="button" onClick={() => setStep(1)} className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-amber-400 hover:text-amber-300 hover:bg-[#1a1a1a] rounded-lg transition-all border border-transparent hover:border-[#3a3a3a]">
+                <ArrowLeft className="h-4 w-4" /> Volver
+              </button>
+              <div className="h-5 w-px bg-[#3a3a3a]" />
+              <FileText className="h-4 w-4 text-amber-500" />
+              <h2 className="text-sm font-semibold text-white">Solicitud INM — {selectedTramite.nombre}</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              {STEPS.map((label, i) => (
+                <div key={label} className="flex items-center gap-1">
+                  <div className={`h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-semibold ${i < step ? 'bg-emerald-500 text-white' : i === step ? 'bg-amber-500 text-white' : 'bg-[#222] text-white/50 border border-[#3a3a3a]'}`}>
+                    {i < step ? <Check className="h-3 w-3" /> : i + 1}
+                  </div>
+                  {i < STEPS.length - 1 && <div className={`w-4 h-0.5 ${i < step ? 'bg-emerald-400' : 'bg-[#2a2a2a]'}`} />}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Main content: sidebar + iframe */}
+          <div className="flex flex-1 overflow-hidden">
+            {/* LEFT sidebar — Ficha del Extranjero */}
+            <div className="w-[320px] flex-shrink-0 border-r border-[#2a2a2a] bg-[#111111] overflow-y-auto">
+              <div className="p-4">
+                <h4 className="text-xs font-semibold text-white/70 uppercase mb-3">Ficha del Extranjero</h4>
+                <p className="text-[10px] text-white/50 mb-4">Haz clic en cualquier dato para copiarlo</p>
+                <div className="space-y-4">
+                  {/* Propósito de viaje */}
+                  {extranjero.propositoViaje && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-[#2a2a2a] pb-1 mb-2">Propósito de viaje</p>
+                      <button type="button" onClick={() => copyToClipboard(extranjero.propositoViaje)} className="w-full text-left p-1.5 rounded hover:bg-[#1a1a1a] border border-transparent hover:border-[#3a3a3a] transition-all group">
+                        <div className="flex items-center justify-between"><p className="text-sm text-white">{extranjero.propositoViaje}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
+                      </button>
+                      {extranjero.especificaTramite && (
+                      <button type="button" onClick={() => copyToClipboard(extranjero.especificaTramite)} className="w-full text-left p-1.5 rounded hover:bg-[#1a1a1a] border border-transparent hover:border-[#3a3a3a] transition-all group mt-1">
+                        <p className="text-[10px] text-white/70">Especifica</p>
+                        <div className="flex items-center justify-between"><p className="text-sm text-white">{extranjero.especificaTramite}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
+                      </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Datos del extranjero */}
+                  {(extranjero.nombre || extranjero.apellidos) && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-[#2a2a2a] pb-1 mb-2">Datos del extranjero</p>
+                      <div className="space-y-1">
+                        {[
+                          { label: 'CURP', value: extranjero.curpExtranjero },
+                          { label: 'Nombre(s)', value: extranjero.nombre },
+                          { label: 'Apellido(s)', value: extranjero.apellidos },
+                          { label: 'Sexo', value: extranjero.sexo === 'H' ? 'Hombre' : extranjero.sexo === 'M' ? 'Mujer' : '' },
+                          { label: 'Fecha nacimiento', value: formatDateDisplay(extranjero.fechaNacimiento) },
+                          { label: 'Nacionalidad', value: extranjero.nacionalidad },
+                          { label: 'Estado civil', value: extranjero.estadoCivil },
+                        ].filter(item => item.value).map(item => (
+                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#1a1a1a] border border-transparent hover:border-[#3a3a3a] transition-all group">
+                            <p className="text-[10px] text-white/70">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Lugar de nacimiento */}
+                  {(extranjero.paisNacimiento || extranjero.estadoProvinciaNacimiento) && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-[#2a2a2a] pb-1 mb-2">Lugar de nacimiento</p>
+                      <div className="space-y-1">
+                        {[
+                          { label: 'País', value: extranjero.paisNacimiento },
+                          { label: 'Estado/Provincia', value: extranjero.estadoProvinciaNacimiento },
+                        ].filter(item => item.value).map(item => (
+                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#1a1a1a] border border-transparent hover:border-[#3a3a3a] transition-all group">
+                            <p className="text-[10px] text-white/70">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Pasaporte */}
+                  {(extranjero.documentoIdentificacion || extranjero.numeroDocumento) && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-[#2a2a2a] pb-1 mb-2">Pasaporte / Documento</p>
+                      <div className="space-y-1">
+                        {[
+                          { label: 'Documento', value: extranjero.documentoIdentificacion },
+                          { label: 'Número', value: extranjero.numeroDocumento },
+                          { label: 'País expedición', value: extranjero.paisExpedicion },
+                          { label: 'Expedición', value: formatDateDisplay(extranjero.fechaExpedicion) },
+                          { label: 'Vencimiento', value: formatDateDisplay(extranjero.fechaVencimiento) },
+                        ].filter(item => item.value).map(item => (
+                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#1a1a1a] border border-transparent hover:border-[#3a3a3a] transition-all group">
+                            <p className="text-[10px] text-white/70">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Domicilio en México */}
+                  {extranjero.domCodigoPostal && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-[#2a2a2a] pb-1 mb-2">Domicilio en México</p>
+                      <div className="space-y-1">
+                        {[
+                          { label: 'Código postal', value: extranjero.domCodigoPostal },
+                          { label: 'Estado', value: extranjero.domEstado },
+                          { label: 'Municipio/Alcaldía', value: extranjero.domMunicipio },
+                          { label: 'Colonia', value: extranjero.domColonia },
+                          { label: 'Calle', value: extranjero.domCalle },
+                          { label: 'Número exterior', value: extranjero.domNumeroExterior },
+                          { label: 'Número interior', value: extranjero.domNumeroInterior },
+                        ].filter(item => item.value).map(item => (
+                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#1a1a1a] border border-transparent hover:border-[#3a3a3a] transition-all group">
+                            <p className="text-[10px] text-white/70">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Información adicional */}
+                  {(extranjero.actividadPrincipal || extranjero.expulsadoMexico) && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-[#2a2a2a] pb-1 mb-2">Información adicional</p>
+                      <div className="space-y-1">
+                        {[
+                          { label: 'Actividad principal', value: extranjero.actividadPrincipal },
+                          ...(extranjero.actividadPrincipal === 'Trabajar' ? [
+                            { label: 'Sector trabajo', value: extranjero.sectorTrabajo },
+                            { label: 'Situación trabajo', value: extranjero.situacionTrabajo },
+                            { label: 'Ocupación', value: extranjero.ocupacionTrabajo },
+                          ] : []),
+                          { label: 'Expulsado de México', value: extranjero.expulsadoMexico },
+                          { label: 'Antecedentes penales', value: extranjero.antecedentesPenales },
+                        ].filter(item => item.value).map(item => (
+                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#1a1a1a] border border-transparent hover:border-[#3a3a3a] transition-all group">
+                            <p className="text-[10px] text-white/70">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Contacto */}
+                  {(extranjero.telefono || extranjero.solicitanteEmail) && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-[#2a2a2a] pb-1 mb-2">Correo electrónico</p>
+                      <div className="space-y-1">
+                        {[
+                          { label: 'Teléfono', value: extranjero.telefono },
+                          { label: 'Email', value: extranjero.solicitanteEmail },
+                        ].filter(item => item.value).map(item => (
+                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#1a1a1a] border border-transparent hover:border-[#3a3a3a] transition-all group">
+                            <p className="text-[10px] text-white/70">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Visas */}
+                  {visas.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-[#2a2a2a] pb-1 mb-2">Visas del extranjero</p>
+                      <div className="space-y-1">
+                        {visas.map((v, i) => (
+                          <button key={i} type="button" onClick={() => copyToClipboard(`${v.pais} - ${v.numero}`)} className="w-full text-left p-1.5 rounded hover:bg-[#1a1a1a] border border-transparent hover:border-[#3a3a3a] transition-all group">
+                            <p className="text-[10px] text-white/70">Visa {i + 1}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{v.pais} {v.numero && `- ${v.numero}`} {v.vencimiento && `(${formatDateDisplay(v.vencimiento)})`}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Solicitante */}
+                  {solicitante.tipoPersona && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-[#2a2a2a] pb-1 mb-2">Solicitante</p>
+                      <div className="space-y-1">
+                        {[
+                          { label: 'Tipo persona', value: solicitante.tipoPersona },
+                          ...(solicitante.tipoPersona === 'Física' ? [
+                            { label: 'CURP', value: solicitante.curp },
+                            { label: 'RFC', value: solicitante.rfc },
+                            { label: 'Nombre(s)', value: solicitante.nombre },
+                            { label: 'Apellido(s)', value: solicitante.apellidos },
+                            { label: 'Nacionalidad', value: solicitante.nacionalidad },
+                            { label: 'Documento', value: solicitante.tipoDocumento },
+                            { label: 'Nº documento', value: solicitante.numeroDocumento },
+                            { label: 'Vínculo/Parentesco', value: solicitante.vinculoParentesco },
+                            { label: 'Código postal', value: solicitante.codigoPostal },
+                            { label: 'Estado', value: solicitante.estado },
+                            { label: 'Municipio', value: solicitante.municipio },
+                            { label: 'Colonia', value: solicitante.colonia },
+                            { label: 'Calle', value: solicitante.calle },
+                            { label: 'Nº exterior', value: solicitante.numeroExterior },
+                            { label: 'Nº interior', value: solicitante.numeroInterior },
+                            { label: 'Lada', value: solicitante.lada },
+                            { label: 'Teléfono fijo', value: solicitante.telefonoFijo },
+                          ] : [
+                            { label: 'RFC', value: solicitante.moralRfc },
+                            { label: 'Razón social', value: solicitante.moralRazonSocial },
+                            { label: 'Sector', value: solicitante.moralSector },
+                            { label: 'Giro comercial', value: solicitante.moralGiroComercial },
+                            { label: 'Código postal', value: solicitante.moralCodigoPostal },
+                            { label: 'Estado', value: solicitante.moralEstado },
+                            { label: 'Municipio', value: solicitante.moralMunicipio },
+                            { label: 'Colonia', value: solicitante.moralColonia },
+                            { label: 'Calle', value: solicitante.moralCalle },
+                            { label: 'Nº exterior', value: solicitante.moralNumeroExterior },
+                            { label: 'Nº interior', value: solicitante.moralNumeroInterior },
+                            { label: 'Lada', value: solicitante.moralLada },
+                            { label: 'Teléfono fijo', value: solicitante.moralTelefonoFijo },
+                            { label: 'Nº acta constitutiva', value: solicitante.moralNumeroActa },
+                            { label: 'Fecha acta', value: formatDateDisplay(solicitante.moralFechaActa) },
+                          ]),
+                        ].filter(item => item.value).map(item => (
+                          <button key={item.label} type="button" onClick={() => copyToClipboard(item.value)} className="w-full text-left p-1.5 rounded hover:bg-[#1a1a1a] border border-transparent hover:border-[#3a3a3a] transition-all group">
+                            <p className="text-[10px] text-white/70">{item.label}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{item.value}</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Personas autorizadas */}
+                  {personasAutorizadas.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-amber-500 uppercase border-b border-[#2a2a2a] pb-1 mb-2">Personas autorizadas</p>
+                      <div className="space-y-1">
+                        {personasAutorizadas.map((p, i) => (
+                          <button key={i} type="button" onClick={() => copyToClipboard(`${p.nombre} ${p.apellidos}`)} className="w-full text-left p-1.5 rounded hover:bg-[#1a1a1a] border border-transparent hover:border-[#3a3a3a] transition-all group">
+                            <p className="text-[10px] text-white/70">Persona {i + 1}</p>
+                            <div className="flex items-center justify-between"><p className="text-sm text-white">{p.nombre} {p.apellidos} ({p.nacionalidad})</p><Copy className="h-3 w-3 text-white/70 group-hover:text-amber-500" /></div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT area — iframe + bottom bar */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {/* Iframe taking full height */}
+              <div className="flex-1 overflow-hidden">
+                <iframe src={selectedTramite.urlSolicitud} className="w-full h-full border-0" title="Formulario INM" />
+              </div>
+
+              {/* Bottom bar: pieza, clave, PDF, open in new tab, next button */}
+              <div className="flex-shrink-0 border-t border-[#2a2a2a] bg-[#111111] px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 flex-1">
+                    <div className="flex-1 max-w-[180px]">
+                      <label className="block text-[10px] font-semibold text-amber-200/70 mb-0.5 uppercase tracking-wide">Nº de Pieza *</label>
+                      <input type="text" value={numeroPieza} onChange={e => setNumeroPieza(e.target.value)} className="w-full px-2.5 py-1.5 border border-[#3a3a3a] bg-[#1a1a1a] text-white rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="0000011969016" />
+                    </div>
+                    <div className="flex-1 max-w-[140px]">
+                      <label className="block text-[10px] font-semibold text-amber-200/70 mb-0.5 uppercase tracking-wide">Clave *</label>
+                      <input type="text" value={contrasenaINM} onChange={e => setContrasenaINM(e.target.value.toUpperCase())} className="w-full px-2.5 py-1.5 border border-[#3a3a3a] bg-[#1a1a1a] text-white rounded-lg text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400" placeholder="QFCSA" />
+                    </div>
+                    <div className="flex-1 max-w-[200px]">
+                      <label className="block text-[10px] font-semibold text-amber-200/70 mb-0.5 uppercase tracking-wide">PDF Solicitud *</label>
+                      <label className="flex items-center gap-1.5 px-2.5 py-1.5 border border-[#3a3a3a] bg-[#1a1a1a] rounded-lg text-xs text-white/70 hover:bg-[#222] cursor-pointer transition-colors">
+                        <Upload className="h-3.5 w-3.5 flex-shrink-0" />
+                        <span className="truncate">{pdfFile ? pdfFile.name : 'Seleccionar PDF...'}</span>
+                        <input type="file" accept=".pdf" onChange={e => setPdfFile(e.target.files?.[0] || null)} className="hidden" />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 ml-auto">
+                    <a href={selectedTramite.urlSolicitud} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 text-xs text-amber-400 hover:text-amber-300 border border-[#3a3a3a] hover:border-amber-500/50 rounded-lg transition-all">
+                      <ExternalLink className="h-3.5 w-3.5" /> Nueva pestaña
+                    </a>
+                    <button type="button" onClick={handleNext} className="flex items-center gap-1.5 px-5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg text-sm font-semibold hover:from-amber-400 hover:to-amber-500 shadow-lg shadow-amber-500/20 transition-all">
+                      Siguiente <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation - ocultar en paso 0 y paso 2 (fullscreen) */}
+      {step > 0 && step !== 2 && (
       <div className="flex items-center justify-between mt-6">
         <button type="button" onClick={handleBack} disabled={step === 0} className="flex items-center gap-2 px-4 py-2.5 border border-[#333333] text-white/70 rounded-lg text-sm font-medium hover:bg-[#222222] hover:border-[#4a4a4a] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"><ArrowLeft className="h-4 w-4" /> Anterior</button>
         {step < STEPS.length - 1 ? (
