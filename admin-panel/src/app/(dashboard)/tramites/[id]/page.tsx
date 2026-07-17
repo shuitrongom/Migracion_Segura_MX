@@ -195,7 +195,19 @@ export default function TramiteDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* ── LEFT: Contenido operativo (2/3) ── */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Botón continuar trámite */}
+          {tramite && !tramite.numeroPieza && (estatus === 'recibido' || estatus === 'borrador') && (
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-6">
+              <h3 className="text-sm font-semibold text-amber-300 mb-2">Trámite pendiente de gestión</h3>
+              <p className="text-xs text-amber-200/80 mb-4">Este trámite fue iniciado por el extranjero. Continúa con la solicitud ante el INM.</p>
+              <Link href={`/tramites/continuar/${tramiteId}`} className="block w-full px-4 py-2.5 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600 text-center transition-colors">
+                Continuar trámite →
+              </Link>
+            </div>
+          )}
+
           {/* Etapas */}
           <div className="dark-card-static p-6">
             <h2 className="text-lg font-semibold text-white mb-6">Etapas del trámite</h2>
@@ -232,25 +244,21 @@ export default function TramiteDetailPage() {
             )}
           </div>
 
-          {/* Requisitos documentales - Upload */}
+          {/* Pagos del trámite */}
+          <PagosDelTramite tramiteId={tramiteId} clienteId={tramite?.clienteId} />
+
+          {/* Resolución y Cita */}
+          <ResolucionCitaSection tramiteId={tramiteId} tramite={tramite} />
+
+          {/* Requisitos documentales */}
           <div className="dark-card-static p-6">
             <h2 className="text-lg font-semibold text-white mb-4">Requisitos documentales</h2>
             <RequisitosUpload tramiteId={tramiteId} tipoTramite={tramite.tipo} />
           </div>
         </div>
 
-        {/* Sidebar */}
+        {/* ── RIGHT: Sidebar - Info + Controles (1/3) ── */}
         <div className="space-y-6">
-          {/* Botón continuar trámite (Caso B: extranjero ya lo creó, gestor continúa) */}
-          {tramite && !tramite.numeroPieza && (estatus === 'recibido' || estatus === 'borrador') && (
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-6">
-              <h3 className="text-sm font-semibold text-amber-300 mb-2">Trámite pendiente de gestión</h3>
-              <p className="text-xs text-amber-200/80 mb-4">Este trámite fue iniciado por el extranjero. Continúa con la solicitud ante el INM.</p>
-              <Link href={`/tramites/continuar/${tramiteId}`} className="block w-full px-4 py-2.5 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600 text-center transition-colors">
-                Continuar trámite →
-              </Link>
-            </div>
-          )}
           {/* Cambiar estatus */}
           <div className="dark-card-static p-6">
             <h3 className="text-sm font-semibold text-white mb-4">Cambiar estatus</h3>
@@ -262,12 +270,6 @@ export default function TramiteDetailPage() {
               <button onClick={handleChangeEstatus} className="w-full px-4 py-2.5 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600">Actualizar estatus</button>
             </div>
           </div>
-
-          {/* Pagos del trámite */}
-          <PagosDelTramite tramiteId={tramiteId} clienteId={tramite?.clienteId} />
-
-          {/* Resolución y Cita (embajada/INM) */}
-          <ResolucionCitaSection tramiteId={tramiteId} tramite={tramite} />
 
           {/* Pieza INM + NUT */}
           <DatosINMSection tramiteId={tramiteId} tramite={tramite} estatus={estatus} />
