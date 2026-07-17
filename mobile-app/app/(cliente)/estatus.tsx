@@ -575,50 +575,35 @@ export default function EstatusScreen() {
                           if (item.documentoUrl) {
                             try {
                               const token = await storage.getItem('access_token');
+                              const fileName = `solicitud_${item.numeroPieza || item.id.slice(0, 8)}.pdf`;
+                              const fileUri = FileSystem.documentDirectory + fileName;
                               const downloadUrl = `${BASE_URL}/solicitudes/${item.id}/documento`;
 
-                              // Intentar descarga directa al dispositivo
-                              try {
-                                const fileName = `solicitud_${item.numeroPieza || item.id.slice(0, 8)}.pdf`;
-                                const fileUri = FileSystem.documentDirectory + fileName;
+                              const downloadResult = await FileSystem.downloadAsync(
+                                downloadUrl,
+                                fileUri,
+                                token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+                              );
 
-                                const downloadResult = await FileSystem.downloadAsync(
-                                  downloadUrl,
-                                  fileUri,
-                                  { headers: token ? { Authorization: `Bearer ${token}` } : {} }
-                                );
-
-                                if (downloadResult.status === 200) {
-                                  if (await Sharing.isAvailableAsync()) {
-                                    await Sharing.shareAsync(downloadResult.uri, {
-                                      mimeType: 'application/pdf',
-                                      dialogTitle: 'Guardar solicitud PDF',
-                                      UTI: 'com.adobe.pdf',
-                                    });
-                                  } else {
-                                    Alert.alert('✅ PDF descargado', `Tu solicitud fue guardada como: ${fileName}`);
-                                  }
-                                  return;
+                              if (downloadResult.status === 200) {
+                                if (await Sharing.isAvailableAsync()) {
+                                  await Sharing.shareAsync(downloadResult.uri, {
+                                    mimeType: 'application/pdf',
+                                    dialogTitle: 'Guardar solicitud PDF',
+                                    UTI: 'com.adobe.pdf',
+                                  });
+                                } else {
+                                  Alert.alert('✅ PDF descargado', `Solicitud guardada en: ${fileName}`);
                                 }
-                              } catch (dlErr: any) {
-                                console.warn('[PDF] FileSystem.downloadAsync failed:', dlErr.message);
+                              } else {
+                                Alert.alert('Error', `No se pudo descargar (código ${downloadResult.status}). Intenta de nuevo.`);
                               }
-
-                              // Fallback: abrir en el navegador
-                              const { Linking } = require('react-native');
-                              await Linking.openURL(downloadUrl);
                             } catch (err: any) {
-                              console.error('[PDF] Download error:', err.message);
-                              // Último fallback: abrir URL directa
-                              try {
-                                const { Linking } = require('react-native');
-                                await Linking.openURL(`${BASE_URL}/solicitudes/${item.id}/documento`);
-                              } catch {
-                                Alert.alert('Error', 'No se pudo descargar el PDF. Intenta desde el panel web.');
-                              }
+                              console.error('[PDF] Error:', err.message);
+                              Alert.alert('Error', 'No se pudo descargar el PDF. Verifica tu conexión e intenta de nuevo.');
                             }
                           } else {
-                            Alert.alert('PDF no disponible', 'Tu solicitud aún no tiene documento adjunto. Recibirás una notificación cuando esté listo.');
+                            Alert.alert('PDF no disponible', 'Tu solicitud aún no tiene documento adjunto.');
                           }
                         }}
                       >
