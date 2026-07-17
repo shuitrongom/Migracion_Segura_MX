@@ -183,6 +183,11 @@ export class SolicitudesController {
    * Obtener URL de descarga del PDF.
    * Público — retorna la URL del proxy interno para máxima compatibilidad con apps móviles.
    */
+  /**
+   * Obtener URL de descarga directa del PDF.
+   * Retorna la URL pública del endpoint /documento que ya es @Public().
+   * Compatible con cualquier versión de la app — solo abre en el navegador.
+   */
   @Public()
   @Get(':id/documento-url')
   @ApiOperation({ summary: 'Obtener URL para descargar PDF de la solicitud' })
@@ -195,10 +200,17 @@ export class SolicitudesController {
       throw new NotFoundException('Esta solicitud aún no tiene documento PDF');
     }
 
-    const baseUrl = `https://api.migracionseguramx.com/api/v1`;
-    const proxyUrl = `${baseUrl}/solicitudes/${id}/documento`;
-    console.log(`[PDF] Retornando proxy URL: ${proxyUrl}`);
-    return { url: proxyUrl, expiresIn: 3600, proxy: true };
+    // Generar signed URL directo de Supabase para descarga en navegador
+    try {
+      const signedUrl = await this.storageService.getSignedUrl(solicitud.documentoUrl, 3600);
+      console.log(`[PDF] Signed URL generada OK para: ${id}`);
+      return { url: signedUrl, expiresIn: 3600, method: 'browser' };
+    } catch {
+      // Fallback: proxy URL
+      const proxyUrl = `https://api.migracionseguramx.com/api/v1/solicitudes/${id}/documento`;
+      console.log(`[PDF] Fallback a proxy URL: ${proxyUrl}`);
+      return { url: proxyUrl, expiresIn: 3600, method: 'proxy' };
+    }
   }
 
   /**
