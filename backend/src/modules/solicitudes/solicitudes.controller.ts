@@ -188,6 +188,7 @@ export class SolicitudesController {
   @ApiOperation({ summary: 'Obtener URL para descargar PDF de la solicitud' })
   @ApiParam({ name: 'id', description: 'UUID de la solicitud' })
   async getDocumentoUrl(@Param('id', ParseUUIDPipe) id: string) {
+    console.log(`[PDF] /documento-url llamado para solicitud: ${id}`);
     const solicitud = await this.solicitudesService.findOneOrFail(id);
 
     if (!solicitud.documentoUrl) {
@@ -196,7 +197,7 @@ export class SolicitudesController {
 
     const baseUrl = `https://api.migracionseguramx.com/api/v1`;
     const proxyUrl = `${baseUrl}/solicitudes/${id}/documento`;
-    console.log(`[PDF Download] Retornando proxy URL: ${proxyUrl}`);
+    console.log(`[PDF] Retornando proxy URL: ${proxyUrl}`);
     return { url: proxyUrl, expiresIn: 3600, proxy: true };
   }
 
