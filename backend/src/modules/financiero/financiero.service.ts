@@ -763,15 +763,18 @@ export class FinancieroService {
   }
 
   /**
-   * Genera un comprobante PDF de pago en efectivo, lo guarda en el expediente,
-   * y lo envía por email al admin y al cliente.
+   * Genera un comprobante PDF profesional de pago en efectivo.
+   * Diseño enterprise con branding de Migración Segura MX.
    */
   private async generarComprobantePagoEfectivo(pago: Pago, adminId: string): Promise<void> {
     const PDFDocument = (await import('pdfkit')).default;
 
-    // Obtener datos del cliente
+    // Obtener datos del cliente y trámite
     let clienteNombre = 'Extranjero';
     let clienteEmail = '';
+    let tramiteTipo = '';
+    let numeroPieza = '';
+
     if (pago.clienteId) {
       const clienteData = await this.pagoRepository.manager.query(
         `SELECT nombre_completo, email FROM clientes WHERE id = $1 LIMIT 1`, [pago.clienteId]
@@ -782,66 +785,137 @@ export class FinancieroService {
       }
     }
 
-    // Generar PDF
-    const doc = new PDFDocument({ size: 'LETTER', margin: 50 });
+    if (pago.tramiteId) {
+      const tramiteData = await this.pagoRepository.manager.query(
+        `SELECT tipo, numero_pieza FROM tramites WHERE id = $1 LIMIT 1`, [pago.tramiteId]
+      );
+      if (tramiteData?.[0]) {
+        tramiteTipo = (tramiteData[0].tipo || '').replace(/_/g, ' ');
+        numeroPieza = tramiteData[0].numero_pieza || '';
+      }
+    }
+
+    const folio = pago.id.slice(0, 8).toUpperCase();
+    const fechaHoy = new Date();
+    const fechaFormateada = fechaHoy.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+    const horaFormateada = fechaHoy.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+    const montoFormateado = `$${Number(pago.monto).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN`;
+
+    // ═══ Generar PDF ═══
+    const doc = new PDFDocument({ size: 'LETTER', margin: 60 });
     const chunks: Buffer[] = [];
     doc.on('data', (chunk: Buffer) => chunks.push(chunk));
-
     const pdfReady = new Promise<Buffer>((resolve) => {
       doc.on('end', () => resolve(Buffer.concat(chunks)));
     });
 
-    // Header
-    doc.fontSize(20).font('Helvetica-Bold').text('COMPROBANTE DE PAGO', { align: 'center' });
-    doc.moveDown(0.5);
-    doc.fontSize(12).font('Helvetica').text('Migración Segura MX', { align: 'center' });
-    doc.fontSize(10).text('Servicio de gestoría migratoria', { align: 'center' });
-    doc.moveDown(1);
+    const pageWidth = 612 - 120; // LETTER width - margins
+    const amber = '#D97706';
+    const darkBg = '#1a1a1a';
+    const gray = '#6B7280';
 
-    // Línea separadora
-    doc.moveTo(50, doc.y).lineTo(562, doc.y).stroke('#f59e0b');
-    doc.moveDown(1);
+    // ─── Header con franja de color ───
+    doc.rect(0, 0, 612, 100).fill(darkBg);
+    doc.fontSize(22).font('Helvetica-Bold').fillColor('#FFFFFF')
+      .text('MIGRACIÓN SEGURA MX', 60, 30);
+    doc.fontSize(10).font('Helvetica').fillColor(amber)
+      .text('Gestoría Migratoria Profesional', 60, 58);
+    doc.fontSize(9).fillColor('#9CA3AF')
+      .text('admin@migracionseguramx.com  •  +52 56 5317 3104  •  migracionseguramx.com', 60, 75);
 
-    // Datos del comprobante
-    doc.fontSize(11).font('Helvetica-Bold').text('DATOS DEL PAGO');
-    doc.moveDown(0.5);
-    doc.font('Helvetica').fontSize(10);
-    doc.text(`Folio: ${pago.id.slice(0, 8).toUpperCase()}`);
-    doc.text(`Fecha: ${new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`);
-    doc.text(`Monto: $${Number(pago.monto).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN`);
-    doc.text(`Método de pago: Efectivo`);
-    doc.text(`Concepto: ${pago.concepto}`);
-    doc.text(`Trámite ID: ${pago.tramiteId || 'N/A'}`);
-    doc.moveDown(1);
+    // Folio en la esquina superior derecha
+    doc.fontSize(9).font('Helvetica-Bold').fillColor(amber)
+      .text(`FOLIO: ${folio}`, 400, 35, { align: 'right', width: 152 });
+    doc.fontSize(9).font('Helvetica').fillColor('#9CA3AF')
+      .text(`${fechaFormateada}`, 400, 50, { align: 'right', width: 152 });
+    doc.text(`${horaFormateada} hrs`, 400, 63, { align: 'right', width: 152 });
 
-    doc.font('Helvetica-Bold').text('DATOS DEL CLIENTE');
-    doc.moveDown(0.5);
-    doc.font('Helvetica');
-    doc.text(`Nombre: ${clienteNombre}`);
-    doc.text(`Email: ${clienteEmail || 'No registrado'}`);
-    doc.moveDown(1);
-
-    doc.font('Helvetica-Bold').text('CONFIRMACIÓN');
-    doc.moveDown(0.5);
-    doc.font('Helvetica');
-    doc.text(`Pago confirmado por el administrador del sistema.`);
-    doc.text(`ID del administrador: ${adminId.slice(0, 8)}`);
-    doc.text(`Nota: ${pago.voucherNotaAdmin || 'Pago en efectivo confirmado'}`);
+    // ─── Título del documento ───
     doc.moveDown(2);
+    const titleY = 130;
+    doc.fontSize(18).font('Helvetica-Bold').fillColor(darkBg)
+      .text('COMPROBANTE DE PAGO', 60, titleY, { align: 'center', width: pageWidth });
+    doc.moveDown(0.3);
+    doc.fontSize(11).font('Helvetica').fillColor(gray)
+      .text('Constancia de pago recibido en efectivo', 60, titleY + 28, { align: 'center', width: pageWidth });
 
-    // Línea separadora
-    doc.moveTo(50, doc.y).lineTo(562, doc.y).stroke('#f59e0b');
-    doc.moveDown(1);
+    // ─── Línea decorativa ───
+    const lineY = titleY + 55;
+    doc.moveTo(60, lineY).lineTo(552, lineY).lineWidth(2).strokeColor(amber).stroke();
 
-    doc.fontSize(8).fillColor('#666666');
-    doc.text('Este comprobante fue generado automáticamente por el sistema Migración Segura MX.', { align: 'center' });
-    doc.text('Documento válido como constancia interna de pago recibido en efectivo.', { align: 'center' });
-    doc.text(`Generado: ${new Date().toISOString()}`, { align: 'center' });
+    // ─── Sección: Datos del pago ───
+    let currentY = lineY + 25;
+
+    doc.fontSize(11).font('Helvetica-Bold').fillColor(amber)
+      .text('DATOS DEL PAGO', 60, currentY);
+    currentY += 25;
+
+    // Tabla de datos
+    const drawRow = (label: string, value: string, y: number) => {
+      doc.fontSize(9).font('Helvetica-Bold').fillColor(gray).text(label, 60, y);
+      doc.fontSize(10).font('Helvetica').fillColor(darkBg).text(value, 200, y);
+      return y + 20;
+    };
+
+    currentY = drawRow('Monto pagado:', montoFormateado, currentY);
+    currentY = drawRow('Método de pago:', 'Efectivo', currentY);
+    currentY = drawRow('Concepto:', pago.concepto || 'Servicio de gestoría migratoria', currentY);
+    currentY = drawRow('Fecha de pago:', `${fechaFormateada}, ${horaFormateada}`, currentY);
+    if (numeroPieza) currentY = drawRow('Número de pieza:', numeroPieza, currentY);
+    if (tramiteTipo) currentY = drawRow('Tipo de trámite:', tramiteTipo, currentY);
+
+    // ─── Línea separadora ───
+    currentY += 15;
+    doc.moveTo(60, currentY).lineTo(552, currentY).lineWidth(0.5).strokeColor('#E5E7EB').stroke();
+    currentY += 20;
+
+    // ─── Sección: Datos del cliente ───
+    doc.fontSize(11).font('Helvetica-Bold').fillColor(amber)
+      .text('DATOS DEL CLIENTE', 60, currentY);
+    currentY += 25;
+
+    currentY = drawRow('Nombre:', clienteNombre, currentY);
+    currentY = drawRow('Correo:', clienteEmail || 'No registrado', currentY);
+    if (pago.clienteId) currentY = drawRow('ID Cliente:', pago.clienteId.slice(0, 8).toUpperCase(), currentY);
+
+    // ─── Línea separadora ───
+    currentY += 15;
+    doc.moveTo(60, currentY).lineTo(552, currentY).lineWidth(0.5).strokeColor('#E5E7EB').stroke();
+    currentY += 20;
+
+    // ─── Sección: Confirmación ───
+    doc.fontSize(11).font('Helvetica-Bold').fillColor(amber)
+      .text('CONFIRMACIÓN', 60, currentY);
+    currentY += 25;
+
+    currentY = drawRow('Estatus:', '✅ PAGADO Y CONFIRMADO', currentY);
+    currentY = drawRow('Confirmado por:', `Administrador (${adminId.slice(0, 8)})`, currentY);
+    currentY = drawRow('Nota:', pago.voucherNotaAdmin || 'Pago en efectivo confirmado', currentY);
+
+    // ─── Sello de confirmación ───
+    currentY += 30;
+    const sealX = 200;
+    doc.rect(sealX, currentY, 200, 50).lineWidth(2).strokeColor(amber).dash(5, { space: 3 }).stroke();
+    doc.undash();
+    doc.fontSize(14).font('Helvetica-Bold').fillColor(amber)
+      .text('PAGADO', sealX, currentY + 8, { align: 'center', width: 200 });
+    doc.fontSize(9).font('Helvetica').fillColor(gray)
+      .text(fechaFormateada, sealX, currentY + 30, { align: 'center', width: 200 });
+
+    // ─── Footer ───
+    currentY += 90;
+    doc.moveTo(60, currentY).lineTo(552, currentY).lineWidth(0.5).strokeColor('#E5E7EB').stroke();
+    currentY += 15;
+
+    doc.fontSize(8).font('Helvetica').fillColor(gray);
+    doc.text('Este comprobante fue generado automáticamente por el sistema Migración Segura MX.', 60, currentY, { align: 'center', width: pageWidth });
+    doc.text('Documento válido como constancia interna de pago recibido. No es un comprobante fiscal (CFDI).', 60, currentY + 12, { align: 'center', width: pageWidth });
+    doc.text(`Generado: ${fechaHoy.toISOString()} | Sistema v1.2.1`, 60, currentY + 24, { align: 'center', width: pageWidth });
 
     doc.end();
     const pdfBuffer = await pdfReady;
 
-    // Guardar en expediente
+    // ═══ Guardar en expediente ═══
     try {
       let expedienteId: string | null = null;
       if (pago.tramiteId) {
@@ -858,15 +932,7 @@ export class FinancieroService {
       }
 
       if (expedienteId) {
-        // Subir PDF al storage (sin cifrar para que se pueda ver)
-        const folder = `expedientes/${expedienteId}`;
-        const fileName = `comprobante-efectivo-${pago.id.slice(0, 8)}-${Date.now()}`;
-        const uploadResult = await this.pagoRepository.manager.connection
-          .getRepository('documentos') // Solo para obtener el manager
-          .manager.query(`SELECT 1`); // dummy — usamos storage directo
-
-        // Subir directo al provider (sin cifrar)
-        const storageKey = `${folder}/${fileName}.pdf`;
+        const storageKey = `expedientes/${expedienteId}/comprobante-efectivo-${folio}-${Date.now()}.pdf`;
         const supabaseUrl = process.env.SUPABASE_URL || '';
         const serviceKey = process.env.SUPABASE_SERVICE_KEY || '';
         const bucket = process.env.SUPABASE_STORAGE_BUCKET || 'documentos';
@@ -881,44 +947,42 @@ export class FinancieroService {
           body: new Uint8Array(pdfBuffer),
         });
 
-        // Registrar en tabla documentos
         await this.pagoRepository.manager.query(
           `INSERT INTO documentos (id, expediente_id, tramite_id, nombre, categoria, mime_type, file_size, storage_key, estatus, created_at, updated_at)
            VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, 'recibido', NOW(), NOW())
            ON CONFLICT DO NOTHING`,
-          [expedienteId, pago.tramiteId, `Comprobante pago efectivo - ${pago.concepto}`, 'comprobante_pago', 'application/pdf', pdfBuffer.length, storageKey]
+          [expedienteId, pago.tramiteId, `Comprobante de pago efectivo - Folio ${folio}`, 'comprobante_pago', 'application/pdf', pdfBuffer.length, storageKey]
         );
 
-        // Actualizar voucherUrl del pago para que se pueda ver
         pago.voucherUrl = storageKey;
         await this.pagoRepository.save(pago);
 
-        this.logger.log(`[Comprobante] PDF generado y guardado: ${storageKey} (${pdfBuffer.length} bytes)`);
+        this.logger.log(`[Comprobante] PDF profesional generado: ${storageKey} (${pdfBuffer.length} bytes)`);
       }
     } catch (e: any) {
       this.logger.warn(`[Comprobante] Error guardando en expediente: ${e.message}`);
     }
 
-    // Enviar email al admin
+    // ═══ Email al admin ═══
     try {
       await this.emailService.sendAdminNotificationEmail({
-        subject: `Comprobante de pago en efectivo - $${Number(pago.monto).toLocaleString()} MXN`,
+        subject: `💰 Comprobante pago efectivo - ${montoFormateado} - ${clienteNombre}`,
         event: 'Pago en efectivo confirmado',
-        details: `Cliente: ${clienteNombre}\nMonto: $${Number(pago.monto).toLocaleString()} MXN\nConcepto: ${pago.concepto}\nFolio: ${pago.id.slice(0, 8).toUpperCase()}`,
+        details: `Cliente: ${clienteNombre}\nMonto: ${montoFormateado}\nConcepto: ${pago.concepto}\nFolio: ${folio}\nFecha: ${fechaFormateada} ${horaFormateada}`,
       });
     } catch {}
 
-    // Enviar email al cliente (si tiene email)
+    // ═══ Email al cliente ═══
     if (clienteEmail) {
       try {
         await this.emailService.sendPagoConfirmadoEmail({
           to: clienteEmail,
           nombreExtranjero: clienteNombre,
-          monto: `$${Number(pago.monto).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN`,
+          monto: montoFormateado,
           concepto: pago.concepto,
-          fecha: new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }),
+          fecha: `${fechaFormateada}, ${horaFormateada}`,
           metodoPago: 'Efectivo',
-          folio: pago.id.slice(0, 8).toUpperCase(),
+          folio,
         });
       } catch {}
     }
