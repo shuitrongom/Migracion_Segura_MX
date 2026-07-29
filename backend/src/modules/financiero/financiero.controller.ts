@@ -375,7 +375,7 @@ export class FinancieroController {
       // Estrategia 1: Si parece una storage key (contiene / como expedientes/xxx/file.jpg)
       if (voucherRef.includes('/')) {
         try {
-          buffer = await this.storageService.download(voucherRef);
+          buffer = await this.storageService.downloadRaw(voucherRef);
         } catch (e: any) {
           console.warn(`[Voucher] Download directo falló para key "${voucherRef}": ${e.message}`);
         }
@@ -389,7 +389,7 @@ export class FinancieroController {
           );
           if (docRows?.[0]?.storage_key) {
             storageKey = docRows[0].storage_key;
-            buffer = await this.storageService.download(storageKey);
+            buffer = await this.storageService.downloadRaw(storageKey);
           }
         } catch (e: any) {
           console.warn(`[Voucher] Búsqueda por doc ID falló: ${e.message}`);
@@ -405,7 +405,7 @@ export class FinancieroController {
           );
           if (docRows?.[0]?.storage_key) {
             storageKey = docRows[0].storage_key;
-            buffer = await this.storageService.download(storageKey);
+            buffer = await this.storageService.downloadRaw(storageKey);
           }
         } catch (e: any) {
           console.warn(`[Voucher] Búsqueda por trámite falló: ${e.message}`);

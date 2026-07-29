@@ -256,7 +256,7 @@ export class StorageService {
   }
 
   /**
-   * Descarga un archivo del almacenamiento.
+   * Descarga un archivo del almacenamiento (con descifrado si aplica).
    */
   async download(key: string): Promise<Buffer> {
     this.logger.log(`[Storage] Downloading: ${key}`);
@@ -266,6 +266,22 @@ export class StorageService {
       return buffer;
     } catch (error: any) {
       this.logger.error(`[Storage] Download FAILED: ${key} → ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Descarga un archivo RAW del almacenamiento (SIN descifrar).
+   * Usar para archivos que se subieron sin cifrar (vouchers desde app móvil).
+   */
+  async downloadRaw(key: string): Promise<Buffer> {
+    this.logger.log(`[Storage] Downloading RAW: ${key}`);
+    try {
+      const buffer = await this.provider.download(key);
+      this.logger.log(`[Storage] Downloaded RAW OK: ${key} (${buffer.length} bytes)`);
+      return buffer;
+    } catch (error: any) {
+      this.logger.error(`[Storage] Download RAW FAILED: ${key} → ${error.message}`);
       throw error;
     }
   }

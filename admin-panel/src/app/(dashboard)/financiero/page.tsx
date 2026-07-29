@@ -222,8 +222,8 @@ export default function FinancieroPage() {
                     </div>
                   </div>
 
-                  {/* Voucher info — visible cuando hay voucher */}
-                  {pago.voucherUrl && (
+                  {/* Voucher info — visible cuando hay voucher REAL (no placeholders) */}
+                  {pago.voucherUrl && !['sin-comprobante', 'efectivo-confirmado-admin', 'admin-confirmado'].includes(pago.voucherUrl) && (
                     <div className="mt-3 ml-15 pl-[60px] flex items-center gap-3 p-3 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a]">
                       <div className="flex-1">
                         <p className="text-xs text-white/70">
