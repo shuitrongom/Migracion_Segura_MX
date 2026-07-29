@@ -234,9 +234,29 @@ export default function FinancieroPage() {
                           <p className="text-[10px] text-white/50 mt-1">Nota: {pago.voucherNotaAdmin}</p>
                         )}
                       </div>
-                      <a href={pago.voucherUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-medium hover:bg-blue-500/20 transition-colors">
+                      <button
+                        onClick={async () => {
+                          try {
+                            // Obtener signed URL del voucher via backend
+                            const res = await api.get(`/financiero/voucher-url`, { params: { key: pago.voucherUrl } });
+                            const url = res.data?.url;
+                            if (url) {
+                              window.open(url, '_blank');
+                            } else {
+                              // Fallback: intentar como URL pública de Supabase
+                              const supabaseUrl = 'https://jehjdprjmeyxhihretul.supabase.co';
+                              window.open(`${supabaseUrl}/storage/v1/object/public/documentos/${pago.voucherUrl}`, '_blank');
+                            }
+                          } catch {
+                            // Fallback directo
+                            const supabaseUrl = 'https://jehjdprjmeyxhihretul.supabase.co';
+                            window.open(`${supabaseUrl}/storage/v1/object/public/documentos/${pago.voucherUrl}`, '_blank');
+                          }
+                        }}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-medium hover:bg-blue-500/20 transition-colors"
+                      >
                         <Eye className="h-3 w-3" /> Ver voucher
-                      </a>
+                      </button>
                       {pago.estatusPago === 'en_revision_voucher' && (
                         <>
                           <button

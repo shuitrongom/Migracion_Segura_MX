@@ -344,6 +344,19 @@ export class FinancieroController {
   }
 
   /**
+   * Obtener URL pública para ver un voucher
+   */
+  @Public()
+  @Get('voucher-url')
+  @ApiOperation({ summary: 'Obtener URL para ver voucher' })
+  async getVoucherUrl(@Query('key') key: string) {
+    if (!key) return { url: null };
+    const supabaseUrl = this.configService.get<string>('SUPABASE_URL', '');
+    const bucket = this.configService.get<string>('SUPABASE_STORAGE_BUCKET', 'documentos');
+    return { url: `${supabaseUrl}/storage/v1/object/public/${bucket}/${key}` };
+  }
+
+  /**
    * Obtener datos bancarios para transferencia
    */
   @Get('datos-bancarios')
