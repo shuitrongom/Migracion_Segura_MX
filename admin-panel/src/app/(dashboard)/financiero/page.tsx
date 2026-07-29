@@ -29,6 +29,7 @@ export default function FinancieroPage() {
   const now = new Date();
   const [mes, setMes] = useState(now.getMonth() + 1);
   const [anio, setAnio] = useState(now.getFullYear());
+  const [voucherModal, setVoucherModal] = useState<{ pagoId: string; concepto: string } | null>(null);
 
   const reporteQuery = useQuery({
     queryKey: ['financiero', 'reporte', mes, anio],
@@ -235,9 +236,7 @@ export default function FinancieroPage() {
                         )}
                       </div>
                       <button
-                        onClick={() => {
-                          window.open(`https://api.migracionseguramx.com/api/v1/financiero/voucher/${pago.id}/ver`, '_blank');
-                        }}
+                        onClick={() => setVoucherModal({ pagoId: pago.id, concepto: pago.concepto || 'Voucher' })}
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-medium hover:bg-blue-500/20 transition-colors"
                       >
                         <Eye className="h-3 w-3" /> Ver voucher
@@ -285,6 +284,54 @@ export default function FinancieroPage() {
           </div>
         )}
       </div>
+
+      {/* ═══ Modal de Voucher ═══ */}
+      {voucherModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setVoucherModal(null)}>
+          <div className="bg-[#171717] rounded-2xl shadow-2xl w-full max-w-3xl mx-4 max-h-[85vh] flex flex-col border border-[#3a3a3a]" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-[#3a3a3a]">
+              <div>
+                <h3 className="text-lg font-bold text-white">🧾 Comprobante de pago</h3>
+                <p className="text-xs text-white/50 mt-0.5">{voucherModal.concepto}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    const iframe = document.getElementById('voucher-frame') as HTMLIFrameElement;
+                    if (iframe?.contentWindow) iframe.contentWindow.print();
+                  }}
+                  className="px-3 py-1.5 text-xs font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors"
+                >
+                  🖨️ Imprimir
+                </button>
+                <a
+                  href={`https://api.migracionseguramx.com/api/v1/financiero/voucher/${voucherModal.pagoId}/ver`}
+                  download={`voucher-${voucherModal.pagoId.slice(0, 8)}`}
+                  className="px-3 py-1.5 text-xs font-medium text-white border border-[#3a3a3a] rounded-lg hover:bg-[#222222] transition-colors"
+                >
+                  ⬇️ Descargar
+                </a>
+                <button
+                  onClick={() => setVoucherModal(null)}
+                  className="px-3 py-1.5 text-xs font-medium text-white/70 border border-[#3a3a3a] rounded-lg hover:bg-[#222222] transition-colors"
+                >
+                  ✕ Cerrar
+                </button>
+              </div>
+            </div>
+            {/* Body - Previsualización */}
+            <div className="flex-1 overflow-hidden p-4 bg-[#0a0a0a] rounded-b-2xl flex items-center justify-center min-h-[400px]">
+              <iframe
+                id="voucher-frame"
+                src={`https://api.migracionseguramx.com/api/v1/financiero/voucher/${voucherModal.pagoId}/ver`}
+                className="w-full h-full min-h-[400px] rounded-lg border border-[#2a2a2a] bg-white"
+                title="Voucher"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
