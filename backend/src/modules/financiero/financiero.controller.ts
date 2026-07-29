@@ -28,6 +28,7 @@ import { Public } from '../../common/decorators/public.decorator';
 import { IdempotencyGuard } from '../../common/guards/idempotency.guard';
 import { UserRole, TipoNotificacion, CanalNotificacion } from '../../common/enums';
 import { StorageService } from '../../common/services/storage.service';
+import { EncryptionService } from '../../common/services/encryption.service';
 
 @ApiTags('Financiero')
 @ApiBearerAuth()
@@ -41,6 +42,7 @@ export class FinancieroController {
     private readonly solicitudesService: SolicitudesService,
     private readonly configService: ConfigService,
     private readonly storageService: StorageService,
+    private readonly encryptionService: EncryptionService,
   ) {}
 
   /**
@@ -375,9 +377,14 @@ export class FinancieroController {
       // Estrategia 1: Si parece una storage key (contiene / como expedientes/xxx/file.jpg)
       if (voucherRef.includes('/')) {
         try {
-          buffer = await this.storageService.downloadRaw(voucherRef);
+          const raw = await this.storageService.downloadRaw(voucherRef);
+          buffer = this.encryptionService.decrypt(raw);
         } catch (e: any) {
-          console.warn(`[Voucher] Download directo falló para key "${voucherRef}": ${e.message}`);
+          console.warn(`[Voucher] Download+decrypt falló para key "${voucherRef}": ${e.message}`);
+          // Puede ser que no esté cifrado — intentar raw directo
+          try {
+            buffer = await this.storageService.downloadRaw(voucherRef);
+          } catch {}
         }
       }
 
@@ -389,7 +396,8 @@ export class FinancieroController {
           );
           if (docRows?.[0]?.storage_key) {
             storageKey = docRows[0].storage_key;
-            buffer = await this.storageService.downloadRaw(storageKey);
+            const raw = await this.storageService.downloadRaw(storageKey);
+            try { buffer = this.encryptionService.decrypt(raw); } catch { buffer = raw; }
           }
         } catch (e: any) {
           console.warn(`[Voucher] Búsqueda por doc ID falló: ${e.message}`);
@@ -405,7 +413,8 @@ export class FinancieroController {
           );
           if (docRows?.[0]?.storage_key) {
             storageKey = docRows[0].storage_key;
-            buffer = await this.storageService.downloadRaw(storageKey);
+            const raw = await this.storageService.downloadRaw(storageKey);
+            try { buffer = this.encryptionService.decrypt(raw); } catch { buffer = raw; }
           }
         } catch (e: any) {
           console.warn(`[Voucher] Búsqueda por trámite falló: ${e.message}`);
