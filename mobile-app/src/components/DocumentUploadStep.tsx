@@ -22,6 +22,7 @@ export default function DocumentUploadStep({ onComplete, onSkip, uploading }: Do
   const [residenciaFrente, setResidenciaFrente] = useState<CapturedDoc | null>(null);
   const [residenciaReverso, setResidenciaReverso] = useState<CapturedDoc | null>(null);
   const [comprobante, setComprobante] = useState<CapturedDoc | null>(null);
+  const [countryCode, setCountryCode] = useState('+52');
   const [whatsappNumber, setWhatsappNumber] = useState('');
 
   const capturePhoto = async (label: string, aspect: [number, number] = [4, 3]): Promise<string | null> => {
@@ -83,7 +84,7 @@ export default function DocumentUploadStep({ onComplete, onSkip, uploading }: Do
       Alert.alert('WhatsApp obligatorio', 'Ingresa tu número de WhatsApp a 10 dígitos para que tu asesor pueda contactarte.');
       return;
     }
-    const fullWhatsapp = `+52${cleanNumber}`;
+    const fullWhatsapp = `${countryCode}${cleanNumber}`;
     const docs: CapturedDoc[] = [pasaporte];
     if (residenciaFrente) docs.push(residenciaFrente);
     if (residenciaReverso) docs.push(residenciaReverso);
@@ -151,9 +152,16 @@ export default function DocumentUploadStep({ onComplete, onSkip, uploading }: Do
           </View>
         </View>
         <View style={styles.whatsappInputRow}>
-          <View style={styles.ladaBox}>
-            <Text style={[styles.ladaText, { color: colors.text }]}>🇲🇽 +52</Text>
-          </View>
+          <TextInput
+            style={[styles.ladaBox, { color: colors.text }]}
+            value={countryCode}
+            onChangeText={(t) => {
+              const cleaned = t.startsWith('+') ? t : '+' + t;
+              setCountryCode(cleaned.slice(0, 4));
+            }}
+            keyboardType="phone-pad"
+            maxLength={4}
+          />
           <TextInput
             style={[styles.whatsappInput, { backgroundColor: colors.bgInput, borderColor: colors.border, color: colors.text }]}
             value={whatsappNumber}
@@ -165,7 +173,7 @@ export default function DocumentUploadStep({ onComplete, onSkip, uploading }: Do
           />
         </View>
         {whatsappNumber.replace(/\D/g, '').length === 10 && (
-          <Text style={{ fontSize: 11, color: '#25D366', fontWeight: '600', marginTop: 4 }}>✓ Número válido: +52{whatsappNumber}</Text>
+          <Text style={{ fontSize: 11, color: '#25D366', fontWeight: '600', marginTop: 4 }}>✓ Número válido: {countryCode}{whatsappNumber}</Text>
         )}
       </View>
 
@@ -269,7 +277,6 @@ const styles = StyleSheet.create({
   skipText: { fontSize: 14, fontWeight: '500' },
   disclaimer: { fontSize: 11, textAlign: 'center', lineHeight: 16, marginTop: 16 },
   whatsappInputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  ladaBox: { paddingHorizontal: 12, paddingVertical: 12, borderRadius: 10, borderWidth: 1.5, borderColor: '#25D366', backgroundColor: 'rgba(37,211,102,0.06)' },
-  ladaText: { fontSize: 14, fontWeight: '600' },
+  ladaBox: { paddingHorizontal: 12, paddingVertical: 12, borderRadius: 10, borderWidth: 1.5, borderColor: '#25D366', backgroundColor: 'rgba(37,211,102,0.06)', minWidth: 70, textAlign: 'center', fontSize: 16, fontWeight: '600' },
   whatsappInput: { flex: 1, borderWidth: 1.5, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, fontWeight: '500', letterSpacing: 1 },
 });

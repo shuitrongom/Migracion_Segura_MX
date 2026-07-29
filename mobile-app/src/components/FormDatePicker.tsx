@@ -15,6 +15,7 @@ interface FormDatePickerProps {
 export default function FormDatePicker({ label, value, onChange, required, minYear = 1940, maxYear = 2040 }: FormDatePickerProps) {
   const { colors } = useTheme();
   const [show, setShow] = useState(false);
+  const [tempDate, setTempDate] = useState<Date | null>(null);
 
   const dateValue = value ? new Date(value + 'T00:00:00') : new Date(2000, 0, 1);
   const minDate = new Date(minYear, 0, 1);
@@ -27,13 +28,30 @@ export default function FormDatePicker({ label, value, onChange, required, minYe
   };
 
   const handleChange = (_: any, selectedDate?: Date) => {
-    if (Platform.OS === 'android') setShow(false);
-    if (selectedDate) {
-      const y = selectedDate.getFullYear();
-      const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
-      const d = String(selectedDate.getDate()).padStart(2, '0');
+    if (Platform.OS === 'android') {
+      setShow(false);
+      if (selectedDate) {
+        const y = selectedDate.getFullYear();
+        const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
+        const d = String(selectedDate.getDate()).padStart(2, '0');
+        onChange(`${y}-${m}-${d}`);
+      }
+    } else {
+      // iOS: guardar en temp hasta que toque "Listo"
+      if (selectedDate) setTempDate(selectedDate);
+    }
+  };
+
+  const handleDone = () => {
+    setShow(false);
+    const finalDate = tempDate || (value ? new Date(value + 'T00:00:00') : null);
+    if (finalDate) {
+      const y = finalDate.getFullYear();
+      const m = String(finalDate.getMonth() + 1).padStart(2, '0');
+      const d = String(finalDate.getDate()).padStart(2, '0');
       onChange(`${y}-${m}-${d}`);
     }
+    setTempDate(null);
   };
 
   if (Platform.OS === 'android') {
@@ -75,16 +93,16 @@ export default function FormDatePicker({ label, value, onChange, required, minYe
         <Pressable style={styles.overlay} onPress={() => setShow(false)}>
           <View style={[styles.modal, { backgroundColor: colors.bgModal, borderTopColor: colors.border }]}>
             <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-              <TouchableOpacity onPress={() => setShow(false)}>
+              <TouchableOpacity onPress={() => { setShow(false); setTempDate(null); }}>
                 <Text style={[styles.cancelBtn, { color: colors.textMuted }]}>Cancelar</Text>
               </TouchableOpacity>
               <Text style={[styles.modalTitle, { color: colors.text }]}>{label}</Text>
-              <TouchableOpacity onPress={() => setShow(false)}>
+              <TouchableOpacity onPress={handleDone}>
                 <Text style={styles.doneBtn}>Listo</Text>
               </TouchableOpacity>
             </View>
             <DateTimePicker
-              value={dateValue}
+              value={tempDate || dateValue}
               mode="date"
               display="spinner"
               onChange={handleChange}

@@ -577,7 +577,7 @@ export default function EstatusScreen() {
                             return;
                           }
                           try {
-                            // 1. Obtener la URL de descarga del backend
+                            // 1. Obtener signed URL del backend (no necesita auth para descargar)
                             const urlRes = await apiFetch(`/solicitudes/${item.id}/documento-url`);
                             if (!urlRes.ok) {
                               Alert.alert('Error', 'No se pudo obtener el documento. Intenta de nuevo.');
@@ -591,44 +591,28 @@ export default function EstatusScreen() {
                               return;
                             }
 
-                            // 2. Descargar bytes con fetch nativo (más confiable que FileSystem.downloadAsync)
-                            const pdfResponse = await fetch(pdfUrl);
-                            if (!pdfResponse.ok) {
-                              Alert.alert('Error', `Error al descargar (${pdfResponse.status}). Intenta de nuevo.`);
-                              return;
-                            }
-
-                            // 3. Convertir a base64 y guardar como archivo
-                            const blob = await pdfResponse.blob();
-                            const reader = new FileReader();
-                            const base64Data: string = await new Promise((resolve, reject) => {
-                              reader.onloadend = () => {
-                                const result = reader.result as string;
-                                resolve(result.split(',')[1]); // Quitar el prefijo data:...;base64,
-                              };
-                              reader.onerror = reject;
-                              reader.readAsDataURL(blob);
-                            });
-
+                            // 2. Descargar con FileSystem.downloadAsync (signed URL no necesita auth headers)
                             const fileName = `solicitud_${item.numeroPieza || item.id.slice(0, 8)}.pdf`;
                             const fileUri = FileSystem.cacheDirectory + fileName;
 
-                            await FileSystem.writeAsStringAsync(fileUri, base64Data, {
-                              encoding: FileSystem.EncodingType.Base64,
-                            });
+                            const downloadResult = await FileSystem.downloadAsync(pdfUrl, fileUri);
 
-                            // 4. Compartir/guardar el archivo
-                            if (await Sharing.isAvailableAsync()) {
-                              await Sharing.shareAsync(fileUri, {
-                                mimeType: 'application/pdf',
-                                dialogTitle: 'Guardar solicitud PDF',
-                                UTI: 'com.adobe.pdf',
-                              });
+                            if (downloadResult.status === 200) {
+                              // 3. Compartir/guardar con Sharing API
+                              if (await Sharing.isAvailableAsync()) {
+                                await Sharing.shareAsync(downloadResult.uri, {
+                                  mimeType: 'application/pdf',
+                                  dialogTitle: 'Guardar solicitud PDF',
+                                  UTI: 'com.adobe.pdf',
+                                });
+                              } else {
+                                Alert.alert('✅ PDF descargado', `Solicitud guardada como: ${fileName}`);
+                              }
                             } else {
-                              Alert.alert('✅ PDF descargado', `Solicitud guardada como: ${fileName}`);
+                              Alert.alert('Error', `No se pudo descargar (código ${downloadResult.status}). Intenta de nuevo.`);
                             }
                           } catch (err: any) {
-                            console.error('[PDF Enterprise] Error:', err?.message || err);
+                            console.error('[PDF] Error:', err?.message || err);
                             Alert.alert('Error', 'No se pudo descargar el PDF. Verifica tu conexión e intenta de nuevo.');
                           }
                         }}
