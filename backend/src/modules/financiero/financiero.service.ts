@@ -750,6 +750,177 @@ export class FinancieroService {
       }
     } catch {}
 
+    // ═══ Generar comprobante PDF para pagos en efectivo/sin voucher ═══
+    if (metodoPago === 'efectivo' || voucherUrl === 'efectivo-confirmado-admin' || voucherUrl === 'sin-comprobante') {
+      try {
+        await this.generarComprobantePagoEfectivo(saved, adminId);
+      } catch (e: any) {
+        this.logger.warn(`[Comprobante] Error generando comprobante para pago ${pagoId}: ${e.message}`);
+      }
+    }
+
     return saved;
+  }
+
+  /**
+   * Genera un comprobante PDF de pago en efectivo, lo guarda en el expediente,
+   * y lo envía por email al admin y al cliente.
+   */
+  private async generarComprobantePagoEfectivo(pago: Pago, adminId: string): Promise<void> {
+    const PDFDocument = (await import('pdfkit')).default;
+
+    // Obtener datos del cliente
+    let clienteNombre = 'Extranjero';
+    let clienteEmail = '';
+    if (pago.clienteId) {
+      const clienteData = await this.pagoRepository.manager.query(
+        `SELECT nombre_completo, email FROM clientes WHERE id = $1 LIMIT 1`, [pago.clienteId]
+      );
+      if (clienteData?.[0]) {
+        clienteNombre = clienteData[0].nombre_completo || 'Extranjero';
+        clienteEmail = clienteData[0].email || '';
+      }
+    }
+
+    // Generar PDF
+    const doc = new PDFDocument({ size: 'LETTER', margin: 50 });
+    const chunks: Buffer[] = [];
+    doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+
+    const pdfReady = new Promise<Buffer>((resolve) => {
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+    });
+
+    // Header
+    doc.fontSize(20).font('Helvetica-Bold').text('COMPROBANTE DE PAGO', { align: 'center' });
+    doc.moveDown(0.5);
+    doc.fontSize(12).font('Helvetica').text('Migración Segura MX', { align: 'center' });
+    doc.fontSize(10).text('Servicio de gestoría migratoria', { align: 'center' });
+    doc.moveDown(1);
+
+    // Línea separadora
+    doc.moveTo(50, doc.y).lineTo(562, doc.y).stroke('#f59e0b');
+    doc.moveDown(1);
+
+    // Datos del comprobante
+    doc.fontSize(11).font('Helvetica-Bold').text('DATOS DEL PAGO');
+    doc.moveDown(0.5);
+    doc.font('Helvetica').fontSize(10);
+    doc.text(`Folio: ${pago.id.slice(0, 8).toUpperCase()}`);
+    doc.text(`Fecha: ${new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`);
+    doc.text(`Monto: $${Number(pago.monto).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN`);
+    doc.text(`Método de pago: Efectivo`);
+    doc.text(`Concepto: ${pago.concepto}`);
+    doc.text(`Trámite ID: ${pago.tramiteId || 'N/A'}`);
+    doc.moveDown(1);
+
+    doc.font('Helvetica-Bold').text('DATOS DEL CLIENTE');
+    doc.moveDown(0.5);
+    doc.font('Helvetica');
+    doc.text(`Nombre: ${clienteNombre}`);
+    doc.text(`Email: ${clienteEmail || 'No registrado'}`);
+    doc.moveDown(1);
+
+    doc.font('Helvetica-Bold').text('CONFIRMACIÓN');
+    doc.moveDown(0.5);
+    doc.font('Helvetica');
+    doc.text(`Pago confirmado por el administrador del sistema.`);
+    doc.text(`ID del administrador: ${adminId.slice(0, 8)}`);
+    doc.text(`Nota: ${pago.voucherNotaAdmin || 'Pago en efectivo confirmado'}`);
+    doc.moveDown(2);
+
+    // Línea separadora
+    doc.moveTo(50, doc.y).lineTo(562, doc.y).stroke('#f59e0b');
+    doc.moveDown(1);
+
+    doc.fontSize(8).fillColor('#666666');
+    doc.text('Este comprobante fue generado automáticamente por el sistema Migración Segura MX.', { align: 'center' });
+    doc.text('Documento válido como constancia interna de pago recibido en efectivo.', { align: 'center' });
+    doc.text(`Generado: ${new Date().toISOString()}`, { align: 'center' });
+
+    doc.end();
+    const pdfBuffer = await pdfReady;
+
+    // Guardar en expediente
+    try {
+      let expedienteId: string | null = null;
+      if (pago.tramiteId) {
+        const exp = await this.pagoRepository.manager.query(
+          `SELECT id FROM expedientes WHERE tramite_id = $1 LIMIT 1`, [pago.tramiteId]
+        );
+        expedienteId = exp?.[0]?.id || null;
+      }
+      if (!expedienteId && pago.clienteId) {
+        const exp = await this.pagoRepository.manager.query(
+          `SELECT id FROM expedientes WHERE cliente_id = $1 ORDER BY created_at DESC LIMIT 1`, [pago.clienteId]
+        );
+        expedienteId = exp?.[0]?.id || null;
+      }
+
+      if (expedienteId) {
+        // Subir PDF al storage (sin cifrar para que se pueda ver)
+        const folder = `expedientes/${expedienteId}`;
+        const fileName = `comprobante-efectivo-${pago.id.slice(0, 8)}-${Date.now()}`;
+        const uploadResult = await this.pagoRepository.manager.connection
+          .getRepository('documentos') // Solo para obtener el manager
+          .manager.query(`SELECT 1`); // dummy — usamos storage directo
+
+        // Subir directo al provider (sin cifrar)
+        const storageKey = `${folder}/${fileName}.pdf`;
+        const supabaseUrl = process.env.SUPABASE_URL || '';
+        const serviceKey = process.env.SUPABASE_SERVICE_KEY || '';
+        const bucket = process.env.SUPABASE_STORAGE_BUCKET || 'documentos';
+
+        await fetch(`${supabaseUrl}/storage/v1/object/${bucket}/${storageKey}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${serviceKey}`,
+            'Content-Type': 'application/pdf',
+            'x-upsert': 'true',
+          },
+          body: new Uint8Array(pdfBuffer),
+        });
+
+        // Registrar en tabla documentos
+        await this.pagoRepository.manager.query(
+          `INSERT INTO documentos (id, expediente_id, tramite_id, nombre, categoria, mime_type, file_size, storage_key, estatus, created_at, updated_at)
+           VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, 'recibido', NOW(), NOW())
+           ON CONFLICT DO NOTHING`,
+          [expedienteId, pago.tramiteId, `Comprobante pago efectivo - ${pago.concepto}`, 'comprobante_pago', 'application/pdf', pdfBuffer.length, storageKey]
+        );
+
+        // Actualizar voucherUrl del pago para que se pueda ver
+        pago.voucherUrl = storageKey;
+        await this.pagoRepository.save(pago);
+
+        this.logger.log(`[Comprobante] PDF generado y guardado: ${storageKey} (${pdfBuffer.length} bytes)`);
+      }
+    } catch (e: any) {
+      this.logger.warn(`[Comprobante] Error guardando en expediente: ${e.message}`);
+    }
+
+    // Enviar email al admin
+    try {
+      await this.emailService.sendAdminNotificationEmail({
+        subject: `Comprobante de pago en efectivo - $${Number(pago.monto).toLocaleString()} MXN`,
+        event: 'Pago en efectivo confirmado',
+        details: `Cliente: ${clienteNombre}\nMonto: $${Number(pago.monto).toLocaleString()} MXN\nConcepto: ${pago.concepto}\nFolio: ${pago.id.slice(0, 8).toUpperCase()}`,
+      });
+    } catch {}
+
+    // Enviar email al cliente (si tiene email)
+    if (clienteEmail) {
+      try {
+        await this.emailService.sendPagoConfirmadoEmail({
+          to: clienteEmail,
+          nombreExtranjero: clienteNombre,
+          monto: `$${Number(pago.monto).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN`,
+          concepto: pago.concepto,
+          fecha: new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }),
+          metodoPago: 'Efectivo',
+          folio: pago.id.slice(0, 8).toUpperCase(),
+        });
+      } catch {}
+    }
   }
 }
