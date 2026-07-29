@@ -26,6 +26,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { IdempotencyGuard } from '../../common/guards/idempotency.guard';
 import { UserRole, TipoNotificacion, CanalNotificacion } from '../../common/enums';
+import { StorageService } from '../../common/services/storage.service';
 
 @ApiTags('Financiero')
 @ApiBearerAuth()
@@ -38,6 +39,7 @@ export class FinancieroController {
     private readonly mercadoPagoService: MercadoPagoService,
     private readonly solicitudesService: SolicitudesService,
     private readonly configService: ConfigService,
+    private readonly storageService: StorageService,
   ) {}
 
   /**
@@ -348,12 +350,15 @@ export class FinancieroController {
    */
   @Public()
   @Get('voucher-url')
-  @ApiOperation({ summary: 'Obtener URL para ver voucher' })
+  @ApiOperation({ summary: 'Obtener URL temporal para ver voucher' })
   async getVoucherUrl(@Query('key') key: string) {
     if (!key) return { url: null };
-    const supabaseUrl = this.configService.get<string>('SUPABASE_URL', '');
-    const bucket = this.configService.get<string>('SUPABASE_STORAGE_BUCKET', 'documentos');
-    return { url: `${supabaseUrl}/storage/v1/object/public/${bucket}/${key}` };
+    try {
+      const signedUrl = await this.storageService.getSignedUrl(key, 3600);
+      return { url: signedUrl };
+    } catch {
+      return { url: null };
+    }
   }
 
   /**

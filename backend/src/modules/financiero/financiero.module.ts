@@ -8,11 +8,12 @@ import { FinancieroController } from './financiero.controller';
 import { MercadoPagoService } from './mercadopago.service';
 import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 import { SolicitudesModule } from '../solicitudes/solicitudes.module';
+import { StorageService } from '../../common/services/storage.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Pago, AcuerdoPago]), NotificacionesModule, forwardRef(() => SolicitudesModule)],
   controllers: [FinancieroController],
-  providers: [FinancieroService, MercadoPagoService],
+  providers: [FinancieroService, MercadoPagoService, StorageService],
   exports: [FinancieroService, MercadoPagoService],
 })
 export class FinancieroModule {}
