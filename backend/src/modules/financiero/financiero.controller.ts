@@ -351,7 +351,7 @@ export class FinancieroController {
    */
   /**
    * Descargar/ver un voucher de pago (descifrado).
-   * Endpoint público protegido por UUID — el backend descifra y sirve el archivo.
+   * Enterprise: busca el archivo por múltiples métodos (storageKey directo, ID de documento, o búsqueda por pagoId).
    */
   @Public()
   @Get('voucher/:pagoId/ver')
@@ -368,14 +368,60 @@ export class FinancieroController {
         return;
       }
 
-      // Descargar y descifrar
-      const buffer = await this.storageService.download(pago.voucherUrl);
+      const voucherRef = pago.voucherUrl;
+      let buffer: Buffer | null = null;
+      let storageKey = voucherRef;
 
-      // Determinar content-type por extensión
-      const key = pago.voucherUrl.toLowerCase();
-      let contentType = 'application/octet-stream';
-      if (key.endsWith('.jpg') || key.endsWith('.jpeg')) contentType = 'image/jpeg';
-      else if (key.endsWith('.png')) contentType = 'image/png';
+      // Estrategia 1: Si parece una storage key (contiene / como expedientes/xxx/file.jpg)
+      if (voucherRef.includes('/')) {
+        try {
+          buffer = await this.storageService.download(voucherRef);
+        } catch (e: any) {
+          console.warn(`[Voucher] Download directo falló para key "${voucherRef}": ${e.message}`);
+        }
+      }
+
+      // Estrategia 2: Si es un UUID, buscar como documento por ID
+      if (!buffer && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(voucherRef)) {
+        try {
+          const docRows = await this.financieroService['pagoRepository'].manager.query(
+            `SELECT storage_key FROM documentos WHERE id = $1 LIMIT 1`, [voucherRef]
+          );
+          if (docRows?.[0]?.storage_key) {
+            storageKey = docRows[0].storage_key;
+            buffer = await this.storageService.download(storageKey);
+          }
+        } catch (e: any) {
+          console.warn(`[Voucher] Búsqueda por doc ID falló: ${e.message}`);
+        }
+      }
+
+      // Estrategia 3: Buscar documento con categoría voucher_pago asociado al trámite del pago
+      if (!buffer && pago.tramiteId) {
+        try {
+          const docRows = await this.financieroService['pagoRepository'].manager.query(
+            `SELECT storage_key FROM documentos WHERE tramite_id = $1 AND categoria = 'voucher_pago' AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 1`,
+            [pago.tramiteId]
+          );
+          if (docRows?.[0]?.storage_key) {
+            storageKey = docRows[0].storage_key;
+            buffer = await this.storageService.download(storageKey);
+          }
+        } catch (e: any) {
+          console.warn(`[Voucher] Búsqueda por trámite falló: ${e.message}`);
+        }
+      }
+
+      if (!buffer) {
+        console.error(`[Voucher] No se pudo obtener el archivo para pago ${pagoId} (ref: ${voucherRef})`);
+        res.status(404).json({ message: 'No se pudo obtener el archivo del voucher. El comprobante puede no estar disponible.' });
+        return;
+      }
+
+      // Determinar content-type
+      const key = storageKey.toLowerCase();
+      let contentType = 'image/jpeg'; // Default para vouchers
+      if (key.endsWith('.png')) contentType = 'image/png';
       else if (key.endsWith('.pdf')) contentType = 'application/pdf';
       else if (key.endsWith('.webp')) contentType = 'image/webp';
 
@@ -386,8 +432,8 @@ export class FinancieroController {
       });
       res.end(buffer);
     } catch (err: any) {
-      console.error(`[Voucher] Error descargando voucher ${pagoId}: ${err.message}`);
-      res.status(500).json({ message: 'No se pudo cargar el voucher' });
+      console.error(`[Voucher] Error general ${pagoId}: ${err.message}`);
+      res.status(500).json({ message: 'Error interno al cargar el voucher' });
     }
   }
 
