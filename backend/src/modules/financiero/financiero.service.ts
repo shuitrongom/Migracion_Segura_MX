@@ -978,7 +978,7 @@ export class FinancieroService {
         await this.emailService.sendPagoConfirmadoEmail({
           to: clienteEmail,
           nombreExtranjero: clienteNombre,
-          monto: montoFormateado,
+          monto: Number(pago.monto),
           concepto: pago.concepto,
           fecha: `${fechaFormateada}, ${horaFormateada}`,
           metodoPago: 'Efectivo',
