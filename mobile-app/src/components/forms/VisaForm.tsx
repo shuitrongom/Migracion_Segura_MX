@@ -113,6 +113,9 @@ export default function VisaForm({ form, solicitante, updateForm, updateSolicita
 
       {/* Datos de la institución/persona */}
       <Text style={styles.sectionTitle}>Datos de la institución, organismo o persona que solicita la autorización de la visa</Text>
+      <Text style={[styles.infoText, { color: colors.textMuted, backgroundColor: 'rgba(245,158,11,0.05)', borderColor: 'rgba(245,158,11,0.2)', borderWidth: 1, borderRadius: 10, padding: 12, marginBottom: 12 }]}>
+        Este dato es obligatorio para el INM en trámites de VISA. Si no aplica para tu caso, selecciona otro tipo de trámite.
+      </Text>
       <FormSelect label="Tipo de persona" value={solicitante.tipoPersona} options={tipoPersonaOptions} onChange={(v) => updateSolicitante('tipoPersona', v)} required />
 
       {/* Persona Física */}

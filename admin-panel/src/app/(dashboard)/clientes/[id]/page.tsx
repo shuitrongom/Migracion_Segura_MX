@@ -181,7 +181,7 @@ export default function ClienteDetailPage() {
       const allDocs: DocumentoItem[] = [];
       const seenIds = new Set<string>();
 
-      const addDoc = (doc: DocumentoItem) => {
+      const addDoc = (doc: DocumentoItem & { tramiteLabel?: string }) => {
         if (!seenIds.has(doc.id)) {
           seenIds.add(doc.id);
           allDocs.push(doc);
@@ -190,35 +190,40 @@ export default function ClienteDetailPage() {
 
       // Documentos de trámites
       for (const tramite of tramites) {
+        const tipoLabel = tramite.tipo?.replace(/_/g, ' ') || 'Trámite';
+        const label = `${tipoLabel} — ${tramite.numeroPieza || tramite.id.slice(0, 8)}`;
         try {
           const res = await api.get(`/documentos/tramite/${tramite.id}`);
           const docs: DocumentoItem[] = res.data?.data || res.data || [];
-          docs.forEach(addDoc);
+          docs.forEach(d => addDoc({ ...d, tramiteLabel: label }));
         } catch {}
       }
       // Documentos de solicitudes (PDF generado)
       for (const sol of solicitudes) {
+        const tipoLabel = (sol.tipoTramite || '').replace(/_/g, ' ');
+        const label = `Solicitud — ${tipoLabel}`;
         if (sol.documentoUrl) {
           addDoc({
             id: `sol-${sol.id}`,
-            nombre: `Solicitud INM - ${(sol.tipoTramite || '').replace(/_/g, ' ')}`,
+            nombre: `Solicitud INM - ${tipoLabel}`,
             categoria: 'solicitud',
             estatus: 'recibido',
             createdAt: sol.createdAt,
+            tramiteLabel: label,
           });
         }
         // Documentos subidos asociados a la solicitud
         try {
           const res = await api.get(`/documentos/tramite/${sol.id}`);
           const docs: DocumentoItem[] = res.data?.data || res.data || [];
-          docs.forEach(addDoc);
+          docs.forEach(d => addDoc({ ...d, tramiteLabel: label }));
         } catch {}
       }
       // Documentos del cliente (expediente general)
       try {
         const res = await api.get('/documentos', { params: { clienteId } });
         const docs: DocumentoItem[] = res.data?.data || res.data || [];
-        docs.forEach(addDoc);
+        docs.forEach(d => addDoc({ ...d, tramiteLabel: 'Expediente general' }));
       } catch {}
       setDocumentos(allDocs);
     } catch {
@@ -765,61 +770,75 @@ export default function ClienteDetailPage() {
                       </p>
                     </div>
                   ) : (
-                    documentos.map((doc) => (
-                      <div
-                        key={doc.id}
-                        className="flex items-center justify-between p-4 border border-[#3a3a3a] rounded-xl hover:border-amber-500/30 bg-[#1a1a1a] hover:bg-[#222222] transition-all duration-200"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 bg-gradient-to-br from-amber-500/15 to-amber-600/15 rounded-xl flex items-center justify-center shadow-sm">
-                            <FileText className="h-5 w-5 text-amber-500" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-semibold text-white">
-                              {doc.nombre}
-                            </p>
-                            <p className="text-xs text-white/70">
-                              {doc.categoria || 'Sin categoría'} •{' '}
-                              {formatDate(doc.createdAt)}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={async () => {
-                              try {
-                                // Si el ID tiene prefijo sol-, es un PDF de solicitud
-                                const isSolicitud = doc.id.startsWith('sol-');
-                                const realId = isSolicitud ? doc.id.replace('sol-', '') : doc.id;
-                                const endpoint = isSolicitud
-                                  ? `/solicitudes/${realId}/documento`
-                                  : `/documentos/${realId}/download`;
+                    (() => {
+                      const groups: Record<string, any[]> = {};
+                      documentos.forEach((doc: any) => {
+                        const label = doc.tramiteLabel || 'Sin clasificar';
+                        if (!groups[label]) groups[label] = [];
+                        groups[label].push(doc);
+                      });
+                      return Object.entries(groups).map(([label, docs]) => (
+                        <div key={label} className="mb-6">
+                          <h4 className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-3 pb-2 border-b border-[#262626]">📁 {label} ({docs.length})</h4>
+                          <div className="space-y-3">
+                            {docs.map((doc: any) => (
+                              <div
+                                key={doc.id}
+                                className="flex items-center justify-between p-4 border border-[#3a3a3a] rounded-xl hover:border-amber-500/30 bg-[#1a1a1a] hover:bg-[#222222] transition-all duration-200"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="h-10 w-10 bg-gradient-to-br from-amber-500/15 to-amber-600/15 rounded-xl flex items-center justify-center shadow-sm">
+                                    <FileText className="h-5 w-5 text-amber-500" />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-semibold text-white">
+                                      {doc.nombre}
+                                    </p>
+                                    <p className="text-xs text-white/70">
+                                      {doc.categoria || 'Sin categoría'} •{' '}
+                                      {formatDate(doc.createdAt)}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={async () => {
+                                      try {
+                                        const isSolicitud = doc.id.startsWith('sol-');
+                                        const realId = isSolicitud ? doc.id.replace('sol-', '') : doc.id;
+                                        const endpoint = isSolicitud
+                                          ? `/solicitudes/${realId}/documento`
+                                          : `/documentos/${realId}/download`;
 
-                                const res = await api.get(endpoint, { responseType: 'blob' });
-                                const contentType = String(res.headers['content-type'] || 'application/pdf');
-                                const blob = new Blob([res.data], { type: contentType });
-                                const url = URL.createObjectURL(blob);
-                                setDocPreview({ url, nombre: doc.nombre, tipo: contentType });
-                              } catch {
-                                toast.error('Error al cargar el documento');
-                              }
-                            }}
-                            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-gradient-to-r from-amber-500 to-brand-600 rounded-lg hover:from-brand-600 hover:to-brand-700 shadow-sm transition-all"
-                            title="Ver documento"
-                          >
-                            <Eye className="h-3.5 w-3.5" /> Ver
-                          </button>
-                          <span
-                            className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
-                              ESTATUS_BADGE[doc.estatus] ??
-                              'bg-[#1a1a1a] text-white/70'
-                            }`}
-                          >
-                            {doc.estatus.replace(/_/g, ' ')}
-                          </span>
+                                        const res = await api.get(endpoint, { responseType: 'blob' });
+                                        const contentType = String(res.headers['content-type'] || 'application/pdf');
+                                        const blob = new Blob([res.data], { type: contentType });
+                                        const url = URL.createObjectURL(blob);
+                                        setDocPreview({ url, nombre: doc.nombre, tipo: contentType });
+                                      } catch {
+                                        toast.error('Error al cargar el documento');
+                                      }
+                                    }}
+                                    className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-gradient-to-r from-amber-500 to-brand-600 rounded-lg hover:from-brand-600 hover:to-brand-700 shadow-sm transition-all"
+                                    title="Ver documento"
+                                  >
+                                    <Eye className="h-3.5 w-3.5" /> Ver
+                                  </button>
+                                  <span
+                                    className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
+                                      ESTATUS_BADGE[doc.estatus] ??
+                                      'bg-[#1a1a1a] text-white/70'
+                                    }`}
+                                  >
+                                    {doc.estatus.replace(/_/g, ' ')}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      ));
+                    })()
                   )}
                 </div>
               )}

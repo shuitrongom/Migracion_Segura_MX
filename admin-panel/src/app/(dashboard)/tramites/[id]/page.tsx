@@ -875,6 +875,28 @@ function PagosDelTramite({ tramiteId, clienteId }: { tramiteId: string; clienteI
                 {(pago.estatusPago === 'pendiente' || pago.estatus_pago === 'pendiente') && (
                   <AdminComprobanteUpload pagoId={pago.id} monto={pago.monto} onSuccess={() => window.location.reload()} />
                 )}
+                {/* Admin: confirmar pago en efectivo (sin comprobante) */}
+                {(pago.estatusPago === 'pendiente' || pago.estatus_pago === 'pendiente' || pago.estatusPago === 'en_revision_voucher' || pago.estatus_pago === 'en_revision_voucher') && (
+                  <button
+                    onClick={async () => {
+                      if (!confirm(`¿Confirmar pago de ${formatCurrency(pago.monto)} en efectivo/otro medio? Esta acción no se puede deshacer.`)) return;
+                      try {
+                        await api.post(`/financiero/pagos/${pago.id}/confirmar-pago-admin`, {
+                          voucherUrl: 'efectivo-confirmado-admin',
+                          metodoPago: 'efectivo',
+                          nota: 'Pago confirmado directamente por administrador (efectivo u otro medio)',
+                        });
+                        toast.success('✅ Pago confirmado');
+                        window.location.reload();
+                      } catch (err: any) {
+                        toast.error(err?.response?.data?.message || 'Error al confirmar');
+                      }
+                    }}
+                    className="w-full mt-2 px-3 py-2 text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors"
+                  >
+                    ✅ Confirmar pago (efectivo / sin comprobante)
+                  </button>
+                )}
               </div>
             );
           })}
