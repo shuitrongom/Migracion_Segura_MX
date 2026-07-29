@@ -982,7 +982,7 @@ export class FinancieroService {
           concepto: pago.concepto,
           fecha: `${fechaFormateada}, ${horaFormateada}`,
           metodoPago: 'Efectivo',
-          folio,
+          referencia: folio,
         });
       } catch {}
     }
