@@ -26,9 +26,14 @@ export class FinancieroService {
   ) {}
 
   /**
+   * Buscar pago por ID
+   */
+  async findPagoById(pagoId: string): Promise<Pago | null> {
+    return this.pagoRepository.findOne({ where: { id: pagoId } });
+  }
+
+  /**
    * Generar pagos divididos (1 a 4 parcialidades)
-   * El admin elige cuántas parcialidades. Se genera link de MP solo para el primer pago.
-   * Los siguientes se generan conforme avanza el trámite.
    */
   async generarPagosDivididos(params: {
     tramiteId: string;

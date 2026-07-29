@@ -235,23 +235,8 @@ export default function FinancieroPage() {
                         )}
                       </div>
                       <button
-                        onClick={async () => {
-                          try {
-                            // Obtener signed URL del voucher via backend
-                            const res = await api.get(`/financiero/voucher-url`, { params: { key: pago.voucherUrl } });
-                            const url = res.data?.url;
-                            if (url) {
-                              window.open(url, '_blank');
-                            } else {
-                              // Fallback: intentar como URL pública de Supabase
-                              const supabaseUrl = 'https://jehjdprjmeyxhihretul.supabase.co';
-                              window.open(`${supabaseUrl}/storage/v1/object/public/documentos/${pago.voucherUrl}`, '_blank');
-                            }
-                          } catch {
-                            // Fallback directo
-                            const supabaseUrl = 'https://jehjdprjmeyxhihretul.supabase.co';
-                            window.open(`${supabaseUrl}/storage/v1/object/public/documentos/${pago.voucherUrl}`, '_blank');
-                          }
+                        onClick={() => {
+                          window.open(`https://api.migracionseguramx.com/api/v1/financiero/voucher/${pago.id}/ver`, '_blank');
                         }}
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-medium hover:bg-blue-500/20 transition-colors"
                       >

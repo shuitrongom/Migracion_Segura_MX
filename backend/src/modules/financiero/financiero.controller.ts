@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   ParseIntPipe,
   Request,
+  Res,
   HttpCode,
   HttpStatus,
   Logger,
@@ -348,11 +349,61 @@ export class FinancieroController {
   /**
    * Obtener URL pública para ver un voucher
    */
+  /**
+   * Descargar/ver un voucher de pago (descifrado).
+   * Endpoint público protegido por UUID — el backend descifra y sirve el archivo.
+   */
+  @Public()
+  @Get('voucher/:pagoId/ver')
+  @ApiOperation({ summary: 'Ver voucher de un pago (descifrado)' })
+  @ApiParam({ name: 'pagoId', description: 'UUID del pago' })
+  async verVoucher(
+    @Param('pagoId', ParseUUIDPipe) pagoId: string,
+    @Res() res: any,
+  ) {
+    try {
+      const pago = await this.financieroService.findPagoById(pagoId);
+      if (!pago || !pago.voucherUrl) {
+        res.status(404).json({ message: 'Voucher no encontrado' });
+        return;
+      }
+
+      // Descargar y descifrar
+      const buffer = await this.storageService.download(pago.voucherUrl);
+
+      // Determinar content-type por extensión
+      const key = pago.voucherUrl.toLowerCase();
+      let contentType = 'application/octet-stream';
+      if (key.endsWith('.jpg') || key.endsWith('.jpeg')) contentType = 'image/jpeg';
+      else if (key.endsWith('.png')) contentType = 'image/png';
+      else if (key.endsWith('.pdf')) contentType = 'application/pdf';
+      else if (key.endsWith('.webp')) contentType = 'image/webp';
+
+      res.set({
+        'Content-Type': contentType,
+        'Content-Length': buffer.length.toString(),
+        'Cache-Control': 'private, max-age=3600',
+      });
+      res.end(buffer);
+    } catch (err: any) {
+      console.error(`[Voucher] Error descargando voucher ${pagoId}: ${err.message}`);
+      res.status(500).json({ message: 'No se pudo cargar el voucher' });
+    }
+  }
+
+  /**
+   * Obtener URL para ver voucher (retorna URL del proxy backend)
+   */
   @Public()
   @Get('voucher-url')
-  @ApiOperation({ summary: 'Obtener URL temporal para ver voucher' })
-  async getVoucherUrl(@Query('key') key: string) {
-    if (!key) return { url: null };
+  @ApiOperation({ summary: 'Obtener URL para ver voucher' })
+  async getVoucherUrl(@Query('key') key: string, @Query('pagoId') pagoId?: string) {
+    if (!key && !pagoId) return { url: null };
+    // Si viene pagoId, usar el endpoint de proxy que descifra
+    if (pagoId) {
+      return { url: `https://api.migracionseguramx.com/api/v1/financiero/voucher/${pagoId}/ver` };
+    }
+    // Fallback con signed URL (para archivos no cifrados)
     try {
       const signedUrl = await this.storageService.getSignedUrl(key, 3600);
       return { url: signedUrl };
