@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DollarSign, Clock, CheckCircle, XCircle, RefreshCw, Wallet, Eye, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
@@ -287,50 +287,7 @@ export default function FinancieroPage() {
 
       {/* ═══ Modal de Voucher ═══ */}
       {voucherModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setVoucherModal(null)}>
-          <div className="bg-[#171717] rounded-2xl shadow-2xl w-full max-w-3xl mx-4 max-h-[85vh] flex flex-col border border-[#3a3a3a]" onClick={(e) => e.stopPropagation()}>
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-[#3a3a3a]">
-              <div>
-                <h3 className="text-lg font-bold text-white">🧾 Comprobante de pago</h3>
-                <p className="text-xs text-white/50 mt-0.5">{voucherModal.concepto}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    const iframe = document.getElementById('voucher-frame') as HTMLIFrameElement;
-                    if (iframe?.contentWindow) iframe.contentWindow.print();
-                  }}
-                  className="px-3 py-1.5 text-xs font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors"
-                >
-                  🖨️ Imprimir
-                </button>
-                <a
-                  href={`https://api.migracionseguramx.com/api/v1/financiero/voucher/${voucherModal.pagoId}/ver`}
-                  download={`voucher-${voucherModal.pagoId.slice(0, 8)}`}
-                  className="px-3 py-1.5 text-xs font-medium text-white border border-[#3a3a3a] rounded-lg hover:bg-[#222222] transition-colors"
-                >
-                  ⬇️ Descargar
-                </a>
-                <button
-                  onClick={() => setVoucherModal(null)}
-                  className="px-3 py-1.5 text-xs font-medium text-white/70 border border-[#3a3a3a] rounded-lg hover:bg-[#222222] transition-colors"
-                >
-                  ✕ Cerrar
-                </button>
-              </div>
-            </div>
-            {/* Body - Previsualización */}
-            <div className="flex-1 overflow-hidden p-4 bg-[#0a0a0a] rounded-b-2xl flex items-center justify-center min-h-[400px]">
-              <iframe
-                id="voucher-frame"
-                src={`https://api.migracionseguramx.com/api/v1/financiero/voucher/${voucherModal.pagoId}/ver`}
-                className="w-full h-full min-h-[400px] rounded-lg border border-[#2a2a2a] bg-white"
-                title="Voucher"
-              />
-            </div>
-          </div>
-        </div>
+        <VoucherModal pagoId={voucherModal.pagoId} concepto={voucherModal.concepto} onClose={() => setVoucherModal(null)} />
       )}
     </div>
   );
@@ -427,6 +384,138 @@ function ConfirmarPagoDirecto({ pagoId, voucherExistente, metodoPagoExistente, o
               Cancelar
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Modal profesional para visualizar vouchers/comprobantes.
+ * Carga el archivo via blob (evita restricciones CORS de iframe).
+ * Soporta imágenes (JPG, PNG) y PDFs.
+ */
+function VoucherModal({ pagoId, concepto, onClose }: { pagoId: string; concepto: string; onClose: () => void }) {
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [contentType, setContentType] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  // Cargar el archivo como blob para evitar restricciones CORS
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await api.get(`/financiero/voucher/${pagoId}/ver`, { responseType: 'blob' });
+        const type = String(res.headers['content-type'] || 'image/jpeg');
+        setContentType(type);
+        const url = URL.createObjectURL(new Blob([res.data], { type }));
+        setBlobUrl(url);
+      } catch {
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagoId]);
+
+  const handleDownload = () => {
+    if (!blobUrl) return;
+    const ext = contentType.includes('pdf') ? 'pdf' : contentType.includes('png') ? 'png' : 'jpg';
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = `comprobante-pago-${pagoId.slice(0, 8)}.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handlePrint = () => {
+    if (!blobUrl) return;
+    const win = window.open('', '_blank');
+    if (!win) return;
+    if (contentType.includes('pdf')) {
+      win.document.write(`<html><body style="margin:0"><embed src="${blobUrl}" width="100%" height="100%" type="application/pdf"/></body></html>`);
+    } else {
+      win.document.write(`<html><body style="margin:0;display:flex;justify-content:center"><img src="${blobUrl}" style="max-width:100%" onload="window.print()"/></body></html>`);
+    }
+    win.document.close();
+  };
+
+  // Cleanup blob URL on unmount
+  const handleClose = () => {
+    if (blobUrl) URL.revokeObjectURL(blobUrl);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm" onClick={handleClose}>
+      <div
+        className="bg-[#111111] rounded-2xl shadow-2xl border border-[#3a3a3a] flex flex-col"
+        style={{ width: '90vw', maxWidth: '780px', maxHeight: '88vh' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#262626] shrink-0">
+          <div>
+            <h3 className="text-base font-bold text-white">🧾 Comprobante de pago</h3>
+            <p className="text-xs text-white/40 mt-0.5">{concepto}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePrint}
+              disabled={!blobUrl}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              🖨️ Imprimir
+            </button>
+            <button
+              onClick={handleDownload}
+              disabled={!blobUrl}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-blue-500/20 border border-blue-500/30 hover:bg-blue-500/30 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              ⬇️ Descargar
+            </button>
+            <button
+              onClick={handleClose}
+              className="flex items-center gap-1 px-3 py-2 text-xs font-semibold text-white/60 border border-[#3a3a3a] hover:bg-[#1a1a1a] rounded-lg transition-colors"
+            >
+              ✕ Cerrar
+            </button>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-auto bg-[#1a1a1a] rounded-b-2xl flex items-center justify-center p-4 min-h-[300px]">
+          {loading && (
+            <div className="flex flex-col items-center gap-3">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
+              <p className="text-sm text-white/50">Cargando comprobante...</p>
+            </div>
+          )}
+          {error && (
+            <div className="text-center">
+              <p className="text-sm text-red-400 font-medium">No se pudo cargar el comprobante</p>
+              <p className="text-xs text-white/40 mt-1">El archivo puede no estar disponible</p>
+            </div>
+          )}
+          {blobUrl && !contentType.includes('pdf') && (
+            <img
+              src={blobUrl}
+              alt="Comprobante de pago"
+              className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
+              style={{ maxHeight: 'calc(88vh - 120px)' }}
+            />
+          )}
+          {blobUrl && contentType.includes('pdf') && (
+            <embed
+              src={blobUrl}
+              type="application/pdf"
+              className="w-full rounded-lg"
+              style={{ height: 'calc(88vh - 120px)' }}
+            />
+          )}
         </div>
       </div>
     </div>
