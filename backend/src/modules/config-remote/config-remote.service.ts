@@ -78,13 +78,13 @@ export class ConfigRemoteService {
   private getDefaultConfig(): AppRemoteConfig {
     return {
       android: {
-        minVersion: this.configService.get<string>('APP_ANDROID_MIN_VERSION', '1.1.3'),
-        latestVersion: this.configService.get<string>('APP_ANDROID_LATEST_VERSION', '1.1.3'),
+        minVersion: this.configService.get<string>('APP_ANDROID_MIN_VERSION', '1.2.3'),
+        latestVersion: this.configService.get<string>('APP_ANDROID_LATEST_VERSION', '1.2.3'),
         storeUrl: 'https://play.google.com/store/apps/details?id=mx.migracion_segura.app',
       },
       ios: {
-        minVersion: this.configService.get<string>('APP_IOS_MIN_VERSION', '1.1.2'),
-        latestVersion: this.configService.get<string>('APP_IOS_LATEST_VERSION', '1.1.2'),
+        minVersion: this.configService.get<string>('APP_IOS_MIN_VERSION', '1.2.3'),
+        latestVersion: this.configService.get<string>('APP_IOS_LATEST_VERSION', '1.2.3'),
         storeUrl: 'https://apps.apple.com/app/migracion-segura-mx/id6789283931',
       },
       maintenance: {

@@ -1,27 +1,64 @@
 'use client';
 
-import { useState } from 'react';
-import { Settings, Building, Phone, Shield, Bell, CreditCard, Save } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Settings, Building, Phone, Shield, Bell, CreditCard, Save, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
+import { api } from '@/lib/api';
+
+const DEFAULT_CONFIG = {
+  empresaNombre: 'Migración Segura MX',
+  empresaEmail: 'admin@migracionseguramx.com',
+  empresaTelefono: '+5215653173104',
+  empresaDireccion: 'Ciudad de México, México',
+  whatsappNumero: '5215653173104',
+  whatsappMensaje: 'Hola, necesito ayuda con mi trámite migratorio.',
+  plazoAnticipo: '15',
+  plazoLiquidacion: '15',
+  porcentajeAnticipo: '50',
+  notificacionesPush: true,
+  notificacionesEmail: true,
+  notificacionesWhatsapp: false,
+};
 
 export default function ConfiguracionPage() {
-  const [config, setConfig] = useState({
-    empresaNombre: 'Migración Segura MX',
-    empresaEmail: 'admin@migracion-segura.mx',
-    empresaTelefono: '+5215653173104',
-    empresaDireccion: 'Ciudad de México, México',
-    whatsappNumero: '5215653173104',
-    whatsappMensaje: 'Hola, necesito ayuda con mi trámite migratorio.',
-    plazoAnticipo: '15',
-    plazoLiquidacion: '15',
-    porcentajeAnticipo: '50',
-    notificacionesPush: true,
-    notificacionesEmail: true,
-    notificacionesWhatsapp: false,
-  });
+  const [config, setConfig] = useState(DEFAULT_CONFIG);
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const handleSave = () => {
-    toast.success('Configuración guardada exitosamente');
+  // Cargar configuración actual desde el backend al montar
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await api.get('/config/app');
+        const data = res.data;
+        // Mapear campos de config-remote a los campos del formulario
+        setConfig(prev => ({
+          ...prev,
+          whatsappNumero: data?.support?.whatsappNumber?.replace('+521', '521').replace('+52', '52') ?? prev.whatsappNumero,
+          empresaEmail: data?.support?.email ?? prev.empresaEmail,
+        }));
+      } catch { /* config-remote puede no tener todos los campos, usar defaults */ }
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      // Persistir en config-remote del backend
+      await api.patch('/config/app', {
+        support: {
+          whatsappNumber: `+${config.whatsappNumero.replace(/^\+/, '')}`,
+          email: config.empresaEmail,
+          horario: 'Lunes a Viernes 9:00 - 18:00 (CDMX)',
+        },
+      });
+      toast.success('Configuración guardada exitosamente');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Error al guardar la configuración');
+    }
+    setSaving(false);
   };
 
   return (
@@ -125,8 +162,9 @@ export default function ConfiguracionPage() {
         </div>
 
         {/* Botón guardar */}
-        <button onClick={handleSave} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-amber-500 to-brand-600 text-white rounded-2xl font-semibold hover:from-brand-600 hover:to-brand-700 transition-all shadow-lg shadow-amber-500/20/30 hover:shadow-xl hover:-translate-y-0.5">
-          <Save className="h-5 w-5" /> Guardar configuración
+        <button onClick={handleSave} disabled={saving || loading} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-amber-500 to-brand-600 text-white rounded-2xl font-semibold hover:from-brand-600 hover:to-brand-700 transition-all shadow-lg shadow-amber-500/20/30 hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50">
+          {saving ? <RefreshCw className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+          {saving ? 'Guardando...' : 'Guardar configuración'}
         </button>
       </div>
     </div>
