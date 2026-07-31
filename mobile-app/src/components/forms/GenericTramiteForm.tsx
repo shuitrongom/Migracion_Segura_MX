@@ -1,4 +1,5 @@
-﻿import { View, Text, TextInput, StyleSheet } from 'react-native';
+﻿import { useEffect } from 'react';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
 import FormSelect from '@/components/FormSelect';
 import FormDatePicker from '@/components/FormDatePicker';
 import FormWizard from '@/components/forms/FormWizard';
@@ -29,6 +30,21 @@ export default function GenericTramiteForm({ tipo, form, updateForm, onSubmit }:
 
   const opciones = OPCIONES_POR_TIPO[tipo] || { proposito: [], especifica: {} };
   const especificaOpciones = opciones.especifica[form.propositoViaje] || [];
+
+  // Auto-selección: si solo hay una opción de propósito, seleccionarla automáticamente
+  useEffect(() => {
+    if (opciones.proposito.length === 1 && !form.propositoViaje) {
+      updateForm('propositoViaje', opciones.proposito[0]);
+    }
+  }, [tipo]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-selección: si solo hay una opción en especifica, seleccionarla automáticamente
+  useEffect(() => {
+    const opcs = opciones.especifica[form.propositoViaje] || [];
+    if (opcs.length === 1 && !form.especificaTramite) {
+      updateForm('especificaTramite', opcs[0]);
+    }
+  }, [form.propositoViaje]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- Paso 1: Tipo de trámite ---
   const step1 = {
