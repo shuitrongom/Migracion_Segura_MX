@@ -121,7 +121,7 @@ export default function VisaForm({ form, solicitante, updateForm, updateSolicita
       {/* Persona Física */}
       {solicitante.tipoPersona === 'Física' && (
         <View>
-          <Text style={styles.subsectionTitle}>Datos de la persona física</Text>
+          <Text style={[styles.subsectionTitle, { color: colors.textSecondary }]}>Datos de la persona física</Text>
           <Field label="CURP"><TextInput style={inputStyle} value={solicitante.curp} onChangeText={(v) => updateSolicitante('curp', v.toUpperCase())} placeholder="18 caracteres" placeholderTextColor={placeholderColor} maxLength={18} autoCapitalize="characters" /></Field>
           <Field label="RFC"><TextInput style={inputStyle} value={solicitante.rfc} onChangeText={(v) => updateSolicitante('rfc', v.toUpperCase())} placeholder="13 caracteres" placeholderTextColor={placeholderColor} maxLength={13} autoCapitalize="characters" /></Field>
           <Field label="Nombre(s) *"><TextInput style={inputStyle} value={solicitante.nombre} onChangeText={(v) => updateSolicitante('nombre', v)} placeholder="Nombre(s)" placeholderTextColor={placeholderColor} /></Field>
@@ -131,7 +131,7 @@ export default function VisaForm({ form, solicitante, updateForm, updateSolicita
           <Field label="Número de documento *"><TextInput style={inputStyle} value={solicitante.numeroDocumento} onChangeText={(v) => updateSolicitante('numeroDocumento', v)} placeholder="Número" placeholderTextColor={placeholderColor} /></Field>
           <FormSelect label="Vínculo o parentesco con el extranjero" value={solicitante.vinculoParentesco} options={VINCULOS_PARENTESCO} onChange={(v) => updateSolicitante('vinculoParentesco', v)} required />
 
-          <Text style={styles.subsectionTitle}>Domicilio de la persona física</Text>
+          <Text style={[styles.subsectionTitle, { color: colors.textSecondary }]}>Domicilio de la persona física</Text>
           <Field label="Código postal *"><TextInput style={inputStyle} value={solicitante.codigoPostal} onChangeText={(v) => updateSolicitante('codigoPostal', v)} placeholder="CP" placeholderTextColor={placeholderColor} keyboardType="number-pad" /></Field>
           <FormSelect label="Estado" value={solicitante.estado} options={ESTADOS_MEXICO} onChange={(v) => { updateSolicitante('estado', v); updateSolicitante('municipio', ''); }} required />
           <Field label="Municipio o Alcaldía *"><TextInput style={inputStyle} value={solicitante.municipio} onChangeText={(v) => updateSolicitante('municipio', v)} placeholder="Municipio" placeholderTextColor={placeholderColor} /></Field>
@@ -147,13 +147,13 @@ export default function VisaForm({ form, solicitante, updateForm, updateSolicita
       {/* Persona Moral */}
       {solicitante.tipoPersona === 'Moral' && (
         <View>
-          <Text style={styles.subsectionTitle}>Datos de la persona moral</Text>
+          <Text style={[styles.subsectionTitle, { color: colors.textSecondary }]}>Datos de la persona moral</Text>
           <Field label="RFC *"><TextInput style={inputStyle} value={solicitante.moralRfc} onChangeText={(v) => updateSolicitante('moralRfc', v.toUpperCase())} placeholder="12 caracteres" placeholderTextColor={placeholderColor} maxLength={12} autoCapitalize="characters" /></Field>
           <Field label="Nombre o razón social *"><TextInput style={inputStyle} value={solicitante.moralRazonSocial} onChangeText={(v) => updateSolicitante('moralRazonSocial', v)} placeholder="Razón social" placeholderTextColor={placeholderColor} /></Field>
           <FormSelect label="Sector o rama de actividad" value={solicitante.moralSector} options={SECTORES_ACTIVIDAD} onChange={(v) => updateSolicitante('moralSector', v)} searchable />
           <Field label="Objeto de la empresa o giro comercial"><TextInput style={[...inputStyle, { height: 70, textAlignVertical: 'top' }]} value={solicitante.moralGiroComercial} onChangeText={(v) => updateSolicitante('moralGiroComercial', v)} placeholder="Giro comercial" placeholderTextColor={placeholderColor} multiline /></Field>
 
-          <Text style={styles.subsectionTitle}>Domicilio de la persona moral</Text>
+          <Text style={[styles.subsectionTitle, { color: colors.textSecondary }]}>Domicilio de la persona moral</Text>
           <Field label="Código postal *"><TextInput style={inputStyle} value={solicitante.moralCodigoPostal} onChangeText={(v) => updateSolicitante('moralCodigoPostal', v)} placeholder="CP" placeholderTextColor={placeholderColor} keyboardType="number-pad" /></Field>
           <FormSelect label="Estado" value={solicitante.moralEstado} options={ESTADOS_MEXICO} onChange={(v) => { updateSolicitante('moralEstado', v); updateSolicitante('moralMunicipio', ''); }} required />
           <Field label="Municipio o Alcaldía *"><TextInput style={inputStyle} value={solicitante.moralMunicipio} onChangeText={(v) => updateSolicitante('moralMunicipio', v)} placeholder="Municipio" placeholderTextColor={placeholderColor} /></Field>
@@ -164,7 +164,7 @@ export default function VisaForm({ form, solicitante, updateForm, updateSolicita
           <Field label="Lada"><TextInput style={inputStyle} value={solicitante.moralLada} onChangeText={(v) => updateSolicitante('moralLada', v)} placeholder="Lada" placeholderTextColor={placeholderColor} /></Field>
           <Field label="Teléfono fijo"><TextInput style={inputStyle} value={solicitante.moralTelefonoFijo} onChangeText={(v) => updateSolicitante('moralTelefonoFijo', v)} placeholder="Teléfono" placeholderTextColor={placeholderColor} /></Field>
 
-          <Text style={styles.subsectionTitle}>Datos del acta constitutiva</Text>
+          <Text style={[styles.subsectionTitle, { color: colors.textSecondary }]}>Datos del acta constitutiva</Text>
           <Field label="Número de acta constitutiva"><TextInput style={inputStyle} value={solicitante.moralNumeroActa} onChangeText={(v) => updateSolicitante('moralNumeroActa', v)} placeholder="Número" placeholderTextColor={placeholderColor} /></Field>
           <FormDatePicker label="Fecha de registro del acta" value={solicitante.moralFechaActa} onChange={(v) => updateSolicitante('moralFechaActa', v)} minYear={1950} maxYear={2026} />
         </View>
@@ -214,17 +214,17 @@ export default function VisaForm({ form, solicitante, updateForm, updateSolicita
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  const { colors } = useTheme();
   return (
     <View style={styles.fieldContainer}>
-      <Text style={styles.fieldLabel}>{label}</Text>
+      <Text style={[styles.fieldLabel, { color: colors.textMuted }]}>{label}</Text>
       {children}
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   sectionTitle: { fontSize: 15, fontWeight: '700', color: '#f59e0b', marginTop: 24, marginBottom: 12, paddingBottom: 8, borderBottomWidth: 2, borderBottomColor: 'rgba(245,158,11,0.3)', letterSpacing: 0.5 },
-  subsectionTitle: { fontSize: 14, fontWeight: '600', marginTop: 18, marginBottom: 10, paddingBottom: 6, borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.08)' },
+  subsectionTitle: { fontSize: 14, fontWeight: '600', marginTop: 18, marginBottom: 10, paddingBottom: 6, borderBottomWidth: 1, borderBottomColor: 'rgba(128,128,128,0.15)' },
   fieldContainer: { marginBottom: 14 },
   fieldLabel: { fontSize: 12, fontWeight: '600', marginBottom: 5, letterSpacing: 0.3 },
   input: { borderWidth: 1.5, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14 },

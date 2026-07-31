@@ -36,15 +36,15 @@ export default function GenericTramiteForm({ tipo, form, updateForm, onSubmit }:
     if (opciones.proposito.length === 1 && !form.propositoViaje) {
       updateForm('propositoViaje', opciones.proposito[0]);
     }
-  }, [tipo]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [tipo, opciones.proposito]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-selección: si solo hay una opción en especifica, seleccionarla automáticamente
   useEffect(() => {
     const opcs = opciones.especifica[form.propositoViaje] || [];
-    if (opcs.length === 1 && !form.especificaTramite) {
+    if (opcs.length === 1 && !form.especificaTramite && form.propositoViaje) {
       updateForm('especificaTramite', opcs[0]);
     }
-  }, [form.propositoViaje]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [form.propositoViaje, opciones.especifica]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- Paso 1: Tipo de trámite ---
   const step1 = {

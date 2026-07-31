@@ -109,6 +109,7 @@ export default function FormDatePicker({ label, value, onChange, required, minYe
               minimumDate={minDate}
               maximumDate={maxDate}
               locale="es-MX"
+              textColor={colors.text}
               style={{ height: 200 }}
             />
           </View>
