@@ -177,7 +177,7 @@ export default function ClientePerfilScreen() {
           <Text style={styles.deleteText}>Eliminar mi cuenta</Text>
         </TouchableOpacity>
 
-        <Text style={[styles.version, { color: colors.textMuted }]}>Migración Segura MX v1.1.2</Text>
+        <Text style={[styles.version, { color: colors.textMuted }]}>Migración Segura MX v1.2.2</Text>
       </Animated.ScrollView>
     </LinearGradient>
   );
