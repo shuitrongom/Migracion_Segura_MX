@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Tabs, router } from 'expo-router';
-import { Platform, Alert } from 'react-native';
+import { Platform, Alert, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
@@ -8,6 +8,7 @@ import { HomeIcon, StatusIcon, SearchIcon, BellIcon, UserIcon, PaymentIcon } fro
 import { apiFetch } from '@/lib/api';
 import { useTheme } from '@/lib/theme';
 import { registerForPushNotifications, addNotificationReceivedListener, addNotificationResponseListener } from '@/lib/notifications';
+import FeedbackButton from '@/components/FeedbackButton';
 
 export default function ClienteLayout() {
   const insets = useSafeAreaInsets();
@@ -111,8 +112,11 @@ export default function ClienteLayout() {
     };
   }, []);
 
+  const tabBarHeight = 62 + bottomPadding;
+
   return (
-    <Tabs
+    <View style={{ flex: 1 }}>
+      <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.accent,
@@ -187,5 +191,9 @@ export default function ClienteLayout() {
       <Tabs.Screen name="seleccionar-pago" options={{ href: null }} />
       <Tabs.Screen name="subir-documento" options={{ href: null }} />
     </Tabs>
+
+      {/* Botón discreto de feedback — siempre visible, no intrusivo */}
+      <FeedbackButton tabBarHeight={tabBarHeight} />
+    </View>
   );
 }
