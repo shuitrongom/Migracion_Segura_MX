@@ -8,7 +8,7 @@ import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
 import { useIdleTimeout } from '@/hooks/use-idle-timeout';
 
-const ADMIN_ONLY_ROUTES = ['/gestores', '/reportes', '/automatizaciones', '/configuracion'];
+const ADMIN_ONLY_ROUTES = ['/gestores', '/reportes', '/automatizaciones', '/configuracion', '/analytics', '/feedback'];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading, user } = useAuthStore();

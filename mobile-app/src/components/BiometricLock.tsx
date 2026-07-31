@@ -74,7 +74,8 @@ export default function BiometricLock({ children }: BiometricLockProps) {
         setLocked(false);
       }
     } catch {
-      setLocked(false);
+      // En caso de error técnico, mantener bloqueado y NO desbloquear
+      // El usuario puede intentar de nuevo con el botón
     }
   };
 
@@ -91,8 +92,9 @@ export default function BiometricLock({ children }: BiometricLockProps) {
         await storage.setItem('biometric_last_auth', Date.now().toString());
         setLocked(false);
       }
+      // Si result.success es false (usuario canceló), mantener bloqueado — no hacer nada
     } catch {
-      setLocked(false);
+      // Error técnico — mantener bloqueado, no desbloquear silenciosamente
     }
   };
 

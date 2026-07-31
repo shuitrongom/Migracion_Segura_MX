@@ -536,7 +536,9 @@ export class AuthService {
   // ---- Helpers privados ----
 
   private generateVerificationCode(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    // Usar crypto.randomInt para generar código criptográficamente seguro
+    const { randomInt } = require('crypto');
+    return randomInt(100000, 999999).toString();
   }
 
   private async generateTokens(userId: string, email: string, role: string) {

@@ -8,11 +8,13 @@ import {
   ParseUUIDPipe,
   ParseIntPipe,
   Request,
+  Headers,
   Res,
   HttpCode,
   HttpStatus,
   Logger,
   UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
@@ -164,28 +166,62 @@ export class FinancieroController {
 
   /**
    * Webhook de Mercado Pago (notificación de pago)
+   * Verificación HMAC: MercadoPago firma el payload con x-signature header.
+   * Solo procesamos si la firma es válida O si el payment confirmado via API.
    */
   @Post('webhook/mercadopago')
   @Public()
   @Throttle({ default: { ttl: 10000, limit: 30 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Webhook de notificación de Mercado Pago' })
-  async webhookMercadoPago(@Body() body: any) {
+  async webhookMercadoPago(
+    @Body() body: any,
+    @Headers('x-signature') xSignature?: string,
+    @Headers('x-request-id') xRequestId?: string,
+  ) {
+    // Verificar firma HMAC si está configurado el webhook secret
+    const webhookSecret = this.configService.get<string>('MERCADOPAGO_WEBHOOK_SECRET');
+    if (webhookSecret && xSignature) {
+      try {
+        const crypto = await import('crypto');
+        // MercadoPago firma: ts=<timestamp>,v1=<hash>
+        const parts = Object.fromEntries(
+          xSignature.split(',').map((p) => p.split('=')),
+        );
+        const ts = parts['ts'];
+        const hash = parts['v1'];
+        if (ts && hash) {
+          const dataId = body?.data?.id ?? '';
+          const manifest = `id:${dataId};request-id:${xRequestId ?? ''};ts:${ts};`;
+          const expected = crypto
+            .createHmac('sha256', webhookSecret)
+            .update(manifest)
+            .digest('hex');
+          if (expected !== hash) {
+            this.logger.warn('[Webhook MP] Firma inválida — petición rechazada');
+            throw new UnauthorizedException('Firma de webhook inválida');
+          }
+        }
+      } catch (e: any) {
+        if (e instanceof UnauthorizedException) throw e;
+        this.logger.warn(`[Webhook MP] Error verificando firma: ${e.message}`);
+      }
+    }
+
     if (body.type === 'payment' && body.data?.id) {
       try {
+        // Verificar el pago contra la API real de MercadoPago (no confiamos en el body)
         const payment = await this.mercadoPagoService.getPayment(body.data.id.toString());
         const refId = payment.externalReference;
         if (!refId) return { received: true };
 
         if (payment.status === 'approved') {
-          // Confirmar pago de trámite
           await this.financieroService.procesarPagoAprobado(
             payment.id?.toString() || '',
             refId,
             payment.amount || 0,
             payment.paymentMethod || '',
           );
-          // Confirmar pago de solicitud (puede no ser solicitud, OK si falla)
           try { await this.solicitudesService.confirmarPago(refId, payment.id?.toString()); } catch {}
 
         } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
@@ -196,6 +232,7 @@ export class FinancieroController {
           }
         }
       } catch (e: any) {
+        if (e instanceof UnauthorizedException) throw e;
         this.logger.error(`Error procesando webhook MP payment_id=${body.data?.id}: ${e.message}`, e.stack);
       }
     }

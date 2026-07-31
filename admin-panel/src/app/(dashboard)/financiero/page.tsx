@@ -245,7 +245,7 @@ export default function FinancieroPage() {
                         <>
                           <button
                             onClick={async () => {
-                              if (!confirm('¿Aprobar este voucher y confirmar el pago?')) return;
+                              if (!window.confirm('¿Aprobar este voucher y confirmar el pago?')) return;
                               try {
                                 await api.post(`/financiero/pagos/${pago.id}/confirmar-pago-admin`, {
                                   voucherUrl: pago.voucherUrl,
