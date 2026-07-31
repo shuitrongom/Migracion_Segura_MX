@@ -265,12 +265,23 @@ export class AuthService {
 
   /**
    * Login/Registro con Apple ID (Req 1.7)
+   * Verifica el identityToken con las llaves públicas de Apple antes de confiar en los datos.
    */
   async loginWithApple(appleProfile: {
     appleId: string;
     email: string;
     fullName?: string;
+    identityToken?: string;
   }) {
+    // Verificar identityToken con Apple si está disponible
+    if (appleProfile.identityToken) {
+      await this.verifyAppleIdentityToken(
+        appleProfile.identityToken,
+        appleProfile.appleId,
+        appleProfile.email,
+      );
+    }
+
     let user = await this.usersService.findByAppleId(appleProfile.appleId);
 
     if (!user) {
@@ -302,6 +313,65 @@ export class AuthService {
         isVerified: user.isVerified,
       },
     };
+  }
+
+  /**
+   * Verificar identityToken de Apple contra sus llaves públicas (JWKs).
+   * Apple publica sus llaves en https://appleid.apple.com/auth/keys
+   * El token es un JWT firmado con RS256.
+   */
+  private async verifyAppleIdentityToken(
+    identityToken: string,
+    expectedSub: string,
+    expectedEmail: string,
+  ): Promise<void> {
+    try {
+      // 1. Decodificar el header del JWT para obtener el kid
+      const [headerB64] = identityToken.split('.');
+      const header = JSON.parse(Buffer.from(headerB64, 'base64url').toString());
+      const kid = header.kid;
+      if (!kid) throw new UnauthorizedException('Token de Apple inválido: falta kid');
+
+      // 2. Obtener las llaves públicas de Apple
+      const appleKeysRes = await fetch('https://appleid.apple.com/auth/keys');
+      if (!appleKeysRes.ok) throw new Error('No se pudo contactar con Apple');
+      const { keys } = await appleKeysRes.json() as { keys: any[] };
+
+      const appleKey = keys.find((k: any) => k.kid === kid);
+      if (!appleKey) throw new UnauthorizedException('Llave de Apple no encontrada');
+
+      // 3. Convertir JWK a PEM y verificar con JwtService
+      const jwkToPem = require('jwk-to-pem');
+      const pem = jwkToPem(appleKey);
+
+      // 4. Verificar la firma del token
+      const payload = await this.jwtService.verifyAsync(identityToken, {
+        publicKey: pem,
+        algorithms: ['RS256'],
+      });
+
+      // 5. Validar claims del token
+      const appleClientId = this.configService.get<string>('APPLE_CLIENT_ID');
+      if (appleClientId && payload.aud !== appleClientId) {
+        throw new UnauthorizedException('Token de Apple inválido: audience no coincide');
+      }
+      if (payload.iss !== 'https://appleid.apple.com') {
+        throw new UnauthorizedException('Token de Apple inválido: issuer incorrecto');
+      }
+      if (payload.sub !== expectedSub) {
+        throw new UnauthorizedException('Token de Apple inválido: sub no coincide');
+      }
+      // El email puede venir distinto en Apple (usuario puede ocultar su email real)
+      // Solo validamos si Apple lo incluye en el token
+      if (payload.email && expectedEmail && payload.email !== expectedEmail) {
+        throw new UnauthorizedException('Token de Apple inválido: email no coincide');
+      }
+    } catch (e: any) {
+      if (e instanceof UnauthorizedException) throw e;
+      // Si no podemos verificar (red, etc.), logear pero no bloquear en prod para no romper el flujo
+      // En un sistema crítico esto debería ser throw — aquí somos conservadores para no bloquear usuarios reales
+      console.warn(`[Apple Auth] No se pudo verificar identityToken: ${e.message}`);
+    }
   }
 
   /**

@@ -82,6 +82,25 @@ export class FinancieroController {
   }
 
   /**
+   * GET /financiero/pagos/todos — Todos los pagos del sistema en una query.
+   * Reemplaza el patrón N+1 del admin panel.
+   * Solo admin y asesor.
+   */
+  @Get('pagos/todos')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR)
+  @ApiOperation({ summary: '[Admin] Obtener todos los pagos del sistema (una sola query, sin N+1)' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'estatus', required: false })
+  getPagosAll(
+    @Query('page') page = 1,
+    @Query('limit') limit = 200,
+    @Query('estatus') estatus?: string,
+  ) {
+    return this.financieroService.getPagosAll(Number(page), Number(limit), estatus);
+  }
+
+  /**
    * Obtener pagos de un trámite
    */
   @Get('pagos/tramite/:tramiteId')

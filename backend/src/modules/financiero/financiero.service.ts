@@ -987,4 +987,48 @@ export class FinancieroService {
       } catch {}
     }
   }
+
+  /**
+   * Obtener TODOS los pagos del sistema en una sola query — para el dashboard admin.
+   * Incluye datos del trámite, cliente y solicitud relacionados.
+   * Reemplaza el patrón N+1 del admin panel (1 query por trámite).
+   */
+  async getPagosAll(page = 1, limit = 200, estatus?: string): Promise<{ data: any[]; total: number }> {
+    const qb = this.pagoRepository
+      .createQueryBuilder('pago')
+      .orderBy('pago.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    if (estatus) {
+      qb.andWhere('pago.estatus_pago = :estatus', { estatus });
+    }
+
+    const [pagos, total] = await qb.getManyAndCount();
+
+    // Enriquecer con datos del trámite en una sola query batch
+    const tramiteIds = [...new Set(pagos.map(p => p.tramiteId).filter(Boolean))];
+    let tramitesMap: Record<string, any> = {};
+    if (tramiteIds.length > 0) {
+      const tramites = await this.pagoRepository.manager.query(
+        `SELECT t.id, t.numero_pieza as "numeroPieza", t.tipo, t.estatus,
+                c.nombre_completo as "clienteNombre", c.email as "clienteEmail",
+                c.id as "clienteId",
+                t.datos_formulario as "datosFormulario"
+         FROM tramites t
+         LEFT JOIN clientes c ON c.id = t.cliente_id
+         WHERE t.id = ANY($1) AND t.deleted_at IS NULL`,
+        [tramiteIds],
+      );
+      tramitesMap = Object.fromEntries(tramites.map((t: any) => [t.id, t]));
+    }
+
+    const data = pagos.map(p => ({
+      ...p,
+      tramite: p.tramiteId ? tramitesMap[p.tramiteId] || null : null,
+      origen: 'tramite',
+    }));
+
+    return { data, total };
+  }
 }

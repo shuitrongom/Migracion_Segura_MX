@@ -42,26 +42,18 @@ export default function FinancieroPage() {
   const pagosQuery = useQuery({
     queryKey: ['financiero', 'pagos-all'],
     queryFn: async () => {
-      const allPagos: any[] = [];
+      // Una sola query al backend — sin N+1
+      const res = await api.get('/financiero/pagos/todos?limit=200');
+      const pagosBackend: any[] = res.data?.data || [];
 
-      // Pagos de trámites
-      const tramitesRes = await api.get('/tramites?page=1&limit=100');
-      const tramites = tramitesRes.data?.data || [];
-      for (const t of tramites) {
-        try {
-          const pagosRes = await api.get(`/financiero/pagos/tramite/${t.id}`);
-          const pagos = Array.isArray(pagosRes.data) ? pagosRes.data : [];
-          pagos.forEach((p: any) => allPagos.push({ ...p, tramite: t, origen: 'tramite' }));
-        } catch {}
-      }
-
-      // Pagos de solicitudes
+      // Agregar solicitudes como entradas de pago
+      const solPagos: any[] = [];
       try {
         const solRes = await api.get('/solicitudes?page=1&limit=100');
         const solicitudes = solRes.data?.data || solRes.data || [];
         for (const sol of solicitudes) {
           if (sol.mercadopagoPreferenceId || sol.costo) {
-            allPagos.push({
+            solPagos.push({
               id: sol.id + '-sol',
               monto: sol.costo || 100,
               concepto: `Solicitud INM - ${(sol.tipoTramite || '').replace(/_/g, ' ')}`,
@@ -80,7 +72,9 @@ export default function FinancieroPage() {
         }
       } catch {}
 
-      return allPagos.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      return [...pagosBackend, ...solPagos].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
     },
     staleTime: 30000,
   });

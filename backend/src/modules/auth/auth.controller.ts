@@ -87,7 +87,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Login/Registro con Apple ID (Req 1.7)' })
   @ApiResponse({ status: 200, description: 'Login con Apple exitoso' })
   async loginWithApple(
-    @Body() dto: { appleId: string; email: string; fullName?: string },
+    @Body() dto: { appleId: string; email: string; fullName?: string; identityToken?: string },
   ) {
     return this.authService.loginWithApple(dto);
   }
