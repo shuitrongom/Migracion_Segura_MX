@@ -573,47 +573,53 @@ export default function EstatusScreen() {
                         style={{ marginTop: 10, backgroundColor: 'rgba(245,158,11,0.1)', borderRadius: 12, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)' }}
                         onPress={async () => {
                           if (!item.documentoUrl) {
-                            Alert.alert('PDF no disponible', 'Tu solicitud aún no tiene documento adjunto.');
+                            Alert.alert('PDF no disponible', 'Tu solicitud aún no tiene documento adjunto. Contacta a tu asesor.');
                             return;
                           }
                           try {
-                            // 1. Obtener signed URL del backend (no necesita auth para descargar)
-                            const urlRes = await apiFetch(`/solicitudes/${item.id}/documento-url`);
-                            if (!urlRes.ok) {
-                              Alert.alert('Error', 'No se pudo obtener el documento. Intenta de nuevo.');
-                              return;
-                            }
-                            const urlData = await urlRes.json();
-                            const pdfUrl = urlData.url;
-
-                            if (!pdfUrl) {
-                              Alert.alert('Error', 'URL del documento no disponible.');
-                              return;
-                            }
-
-                            // 2. Descargar con FileSystem.downloadAsync (signed URL no necesita auth headers)
+                            // Usar el proxy directo del backend (más confiable que signed URLs)
+                            const proxyUrl = `${BASE_URL}/solicitudes/${item.id}/documento`;
                             const fileName = `solicitud_${item.numeroPieza || item.id.slice(0, 8)}.pdf`;
                             const fileUri = FileSystem.cacheDirectory + fileName;
 
-                            const downloadResult = await FileSystem.downloadAsync(pdfUrl, fileUri);
+                            // Intentar descarga directa via proxy (es @Public, no necesita token)
+                            let downloadResult = await FileSystem.downloadAsync(proxyUrl, fileUri);
+
+                            // Si falla el proxy, intentar con signed URL como fallback
+                            if (downloadResult.status !== 200) {
+                              try {
+                                const urlRes = await apiFetch(`/solicitudes/${item.id}/documento-url`);
+                                if (urlRes.ok) {
+                                  const urlData = await urlRes.json();
+                                  if (urlData.url) {
+                                    downloadResult = await FileSystem.downloadAsync(urlData.url, fileUri);
+                                  }
+                                }
+                              } catch {}
+                            }
 
                             if (downloadResult.status === 200) {
-                              // 3. Compartir/guardar con Sharing API
-                              if (await Sharing.isAvailableAsync()) {
-                                await Sharing.shareAsync(downloadResult.uri, {
-                                  mimeType: 'application/pdf',
-                                  dialogTitle: 'Guardar solicitud PDF',
-                                  UTI: 'com.adobe.pdf',
-                                });
+                              // Verificar que el archivo no esté vacío
+                              const fileInfo = await FileSystem.getInfoAsync(downloadResult.uri);
+                              if (fileInfo.exists && (fileInfo as any).size > 100) {
+                                if (await Sharing.isAvailableAsync()) {
+                                  await Sharing.shareAsync(downloadResult.uri, {
+                                    mimeType: 'application/pdf',
+                                    dialogTitle: 'Guardar solicitud PDF',
+                                    UTI: 'com.adobe.pdf',
+                                  });
+                                } else {
+                                  Alert.alert('✅ PDF descargado', `Solicitud guardada como: ${fileName}`);
+                                }
                               } else {
-                                Alert.alert('✅ PDF descargado', `Solicitud guardada como: ${fileName}`);
+                                Alert.alert('Error', 'El archivo descargado está vacío o corrupto. Contacta a tu asesor.');
                               }
                             } else {
-                              Alert.alert('Error', `No se pudo descargar (código ${downloadResult.status}). Intenta de nuevo.`);
+                              Alert.alert('Error', 'No se pudo descargar el PDF. Verifica tu conexión e intenta de nuevo.');
                             }
                           } catch (err: any) {
                             console.error('[PDF] Error:', err?.message || err);
-                            Alert.alert('Error', 'No se pudo descargar el PDF. Verifica tu conexión e intenta de nuevo.');
+                            Alert.alert('Error de descarga', 'No se pudo obtener el PDF. Verifica tu conexión a internet e intenta de nuevo.');
                           }
                         }}
                       >
