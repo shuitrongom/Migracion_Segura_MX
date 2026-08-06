@@ -14,7 +14,7 @@ export default function LandingPage() {
             <a href="#servicios" className="text-sm text-white/60 hover:text-white transition hidden md:block">Servicios</a>
             <a href="#como-funciona" className="text-sm text-white/60 hover:text-white transition hidden md:block">Cómo funciona</a>
             <a href="#descargar" className="text-sm text-white/60 hover:text-white transition hidden md:block">Descargar</a>
-            <a href="https://wa.me/5215512345678" target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl text-sm font-semibold transition shadow-lg shadow-amber-500/20">
+            <a href="https://wa.me/5215653173104" target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl text-sm font-semibold transition shadow-lg shadow-amber-500/20">
               💬 Asesor
             </a>
           </div>
@@ -54,7 +54,7 @@ export default function LandingPage() {
                   <span>📲 Descargar Gratis</span>
                   <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
                 </a>
-                <a href="https://wa.me/5215512345678" target="_blank" rel="noopener noreferrer" className="px-8 py-4 glass hover:bg-white/5 text-white rounded-2xl text-lg font-medium transition flex items-center justify-center gap-2">
+                <a href="https://wa.me/5215653173104" target="_blank" rel="noopener noreferrer" className="px-8 py-4 glass hover:bg-white/5 text-white rounded-2xl text-lg font-medium transition flex items-center justify-center gap-2">
                   💬 Contactar asesor
                 </a>
               </div>
@@ -242,17 +242,17 @@ export default function LandingPage() {
               <p className="text-white/50 mb-10 text-lg">Comienza tu trámite migratorio en minutos</p>
               
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="#" className="group flex items-center gap-4 px-7 py-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 hover:border-amber-500/30 transition-all duration-300 w-full sm:w-auto">
+                <a href="https://play.google.com/store/apps/details?id=mx.migracion_segura.app" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 px-7 py-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 hover:border-amber-500/30 transition-all duration-300 w-full sm:w-auto">
                   <svg viewBox="0 0 24 24" className="w-8 h-8 fill-white group-hover:fill-amber-400 transition-colors"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1 1 0 0 1 0 1.73l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.8 8.99l-2.3 2.3-8.636-8.632z"/></svg>
                   <div className="text-left">
                     <p className="text-[11px] text-white/40 uppercase tracking-wider">Disponible en</p>
                     <p className="text-lg font-bold">Google Play</p>
                   </div>
                 </a>
-                <a href="#" className="group flex items-center gap-4 px-7 py-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 hover:border-amber-500/30 transition-all duration-300 w-full sm:w-auto">
+                <a href="https://apps.apple.com/app/migracion-segura-mx/id6789283931" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 px-7 py-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 hover:border-amber-500/30 transition-all duration-300 w-full sm:w-auto">
                   <svg viewBox="0 0 24 24" className="w-8 h-8 fill-white group-hover:fill-amber-400 transition-colors"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
                   <div className="text-left">
-                    <p className="text-[11px] text-white/40 uppercase tracking-wider">Próximamente</p>
+                    <p className="text-[11px] text-white/40 uppercase tracking-wider">Disponible en</p>
                     <p className="text-lg font-bold">App Store</p>
                   </div>
                 </a>
@@ -274,7 +274,7 @@ export default function LandingPage() {
               <a href="/privacidad" className="hover:text-amber-400 transition">Privacidad</a>
               <a href="/terminos" className="hover:text-amber-400 transition">Términos y Condiciones</a>
               <a href="mailto:admin@migracionseguramx.com" className="hover:text-amber-400 transition">Contacto</a>
-              <a href="https://wa.me/5215512345678" target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition">WhatsApp</a>
+              <a href="https://wa.me/5215653173104" target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition">WhatsApp</a>
             </div>
           </div>
         </div>
