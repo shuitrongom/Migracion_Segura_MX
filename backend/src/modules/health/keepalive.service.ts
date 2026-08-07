@@ -19,7 +19,7 @@ export class KeepAliveService {
    * Ping a la base de datos cada 4 horas.
    * Mantiene Supabase Free activo permanentemente.
    */
-  @Cron('0 */4 * * *')
+  @Cron('0 */4 * * *', { name: 'keepalive-db-ping' })
   async keepDatabaseAlive() {
     try {
       const result = await this.dataSource.query('SELECT NOW() as alive');
@@ -32,7 +32,7 @@ export class KeepAliveService {
   /**
    * Health check completo cada 12 horas — verifica tablas y usuarios.
    */
-  @Cron('0 */12 * * *')
+  @Cron('0 */12 * * *', { name: 'keepalive-health-check' })
   async fullHealthCheck() {
     try {
       const tables = await this.dataSource.query(
